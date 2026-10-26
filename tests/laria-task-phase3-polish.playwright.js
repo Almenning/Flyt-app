@@ -242,6 +242,37 @@ async function run(engine,name,viewport,url){
     if(kind==='shoe')await page.screenshot({
       path:path.join(shots,name+'-norsk-shoe-premium.png'),animations:'disabled',fullPage:false});
   }
+  // Every remaining early-Norsk word object must be true illustration art.
+  for(const [symbol,id] of [['🍦','icecream'],['🧢','cap'],['🐑','sheep'],['☕','cup'],['🛏️','bed'],['🦊','fox-animal']]){
+    await page.evaluate(({symbol})=>{
+      sessionQuestions=[{subject:'norwegian',type:'learning-choice',skill:'word-picture',
+        prompt:'Hvilket ord passer til bildet?',visual:symbol,answer:'ord',options:['ord','annet']}];
+      sessionScope={type:'subject',subject:'norwegian',grade:2,label:'Lesekroken',practiceOnly:true};
+      qIndex=0;currentAnswered=null;state.activeSession={startedAt:Date.now()};
+      showScreen('session');renderQuestion();
+    },{symbol});
+    const art=page.locator('#session-screen.active .task-illustration-norsk-object');
+    await art.waitFor({state:'visible',timeout:12000});
+    assert.equal(await art.getAttribute('data-norsk-object'),id,name+' wrong object art for '+id);
+    assert.equal(await page.locator('#session-screen.active [data-task-visual-kind="fallback"]').count(),0,
+      name+' Norsk illustration fell back to emoji: '+id);
+    assert.ok((await art.boundingBox())?.width>=70,name+' '+id+' art did not render');
+    if(id==='icecream')await page.screenshot({
+      path:path.join(shots,name+'-norsk-icecream-premium.png'),animations:'disabled',fullPage:false});
+  }
+  // An identical emoji used in another subject must retain the pre-existing
+  // display behavior. The new Norwegian illustrations are not global art.
+  await page.evaluate(()=>{
+    sessionQuestions=[{subject:'english',type:'learning-choice',skill:'vocabulary',
+      prompt:'Which word is this?',visual:'🧀',answer:'cheese',options:['cheese','dog']}];
+    sessionScope={type:'subject',subject:'english',grade:2,label:'Wordland',practiceOnly:true};
+    qIndex=0;currentAnswered=null;state.activeSession={startedAt:Date.now()};
+    showScreen('session');renderQuestion();
+  });
+  assert.equal(await page.locator('#session-screen.active .task-illustration-norsk-object').count(),0,
+    name+' Norsk-specific visual leaked into English');
+  assert.equal(await page.locator('#session-screen.active [data-task-visual-kind="fallback"]').count(),1,
+    name+' English visual was modified by the Norsk-only release');
   assert.deepEqual(errors,[],name+' uncaught runtime error');
   await context.close();
   console.log('PASS Læria phase-3 final task UX',name,viewport,'four subjects, progression, dog art, feedback, completion');

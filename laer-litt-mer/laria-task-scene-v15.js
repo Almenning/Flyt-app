@@ -174,12 +174,18 @@
     };
     return art[visual]||'';
   }
+  const NORSK_ONLY_EXISTING_OBJECTS=new Set(['👟','🚆','🧀','🐭','🐄']);
   function taskVisualMarkup(q){
     if(!q?.visual)return '';
     const key=String(q.visual).trim();
-    const premium=premiumIllustrationSvg(key);
+    const norsk=taskSubject(q)==='norwegian';
+    // The first five new visuals were added to a shared library. Scope them
+    // back to Norsk so legacy English, Math and Geography art is untouched.
+    const original=norsk||!NORSK_ONLY_EXISTING_OBJECTS.has(key)?premiumIllustrationSvg(key):'';
+    const extra=norsk?window.LARIA_NORSK_OBJECT_EXTRAS?.svgFor(key)||'':'';
+    const premium=extra||original;
     if(premium){
-      return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="illustrations-rc1" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+premium+'</div></div>';
+      return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="'+(extra?'norsk-objects-extras-v1':'illustrations-rc1')+'" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+premium+'</div></div>';
     }
     return '<div class="task-visual-row" data-task-visual-kind="fallback" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage"><div class="task-emoji-sticker" aria-hidden="true">'+text(q.visual)+'</div></div></div>';
   }

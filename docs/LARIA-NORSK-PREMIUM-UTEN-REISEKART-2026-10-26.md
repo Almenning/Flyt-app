@@ -254,3 +254,11 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Fem kjente Norsk-objekter som tidligere ble rendret med plattformavhengige emoji, har nå lokale, fargekoordinerte SVG-illustrasjoner i det **eksisterende** `premiumIllustrationSvg`-biblioteket: sko, tog, ost, mus og ku. Alle deler av den godkjente Eggenipa-forsiden, spillenes læringsdata/fasit, figurer og lagring er urørt. Andre fag beholder sin opprinnelige rendering, og de eksisterende 12 ikonene er bevart.
 - Hintkortet i Lesekroken lukkes nå når et svar faktisk er gitt. Det skjuler dermed ikke riktig/feil-tilbakemeldingen. Åpning/lukking av hint og riktig svarreaksjon testes fortsatt i WebKit/Chromium. Nettlesertesten kontrollerer at alle fem nye tegninger vises som ekte vektorgrafikk, ikke emoji, og lagrer et skjermbilde av sko.
 - CSS og oppgavekortgeometri er ikke endret. Dette er en avgrenset premiumforbedring før full visuell godkjenning.
+
+
+### 26.10 – alle opprinnelige bildeord i småtrinn får samme visuelle språk
+
+- Første batch med fem nye illustrasjoner er kontrollert i WebKit og ligger allerede på PR-grenen. Fant en regresjonsrisiko: de fem bildene var registrert i det delte `premiumIllustrationSvg`-biblioteket, og ble dermed også brukt av andre fag ved identisk emoji. `taskVisualMarkup` krever nå Norsk for disse fem, slik at Engelsk, Matte og Geografi beholder sitt tidligere utseende.
+- Ytterligere **seks bildeord** for Norsk 1.–2. trinn har nå isolerte, lokale SVG-er med samme fargepalett og linjestil: iskrem, lue, sau, kopp, seng og rev som *læringsobjekt*, ikke appens maskot. Sammen med de eksisterende illustrasjonene dekker det den opprinnelige 24-ords bilde-/bokstavbanken uten avhengighet til OS-emoji.
+- Ny kilde `norsk-object-extras-v1.js` lastes før oppgavescenen, behandler ingen lagring, fasiter, nettverk eller navigasjon. WebKit/Chromium-testen krever ekte SVG-render for seks ord og at et tilsvarende symbol i Engelsk fortsatt vises slik det gjorde før. Én ny Node-kontrakt verifiserer modulens isolasjon.
+- Godkjent Eggenipa, originale troll, læringsdata og tidligere lagrede økter er uendret. Neste krav før visuell godkjenning: kontroll av faktiske skjermbilder i iPad/iPhone Safari.
