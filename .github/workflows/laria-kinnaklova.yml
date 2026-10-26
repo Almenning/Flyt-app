@@ -1,0 +1,24 @@
+name: Læria Kinnaklova English draft QA
+on:
+  pull_request:
+    paths:
+      - "laer-litt-mer/kinnaklova.js"
+      - "laer-litt-mer/kinnaklova.css"
+      - "laer-litt-mer/index.html"
+      - "tests/laria-kinnaklova-contract.test.cjs"
+      - ".github/workflows/laria-kinnaklova.yml"
+  workflow_dispatch:
+jobs:
+  english-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: English Kinnaklova syntax and wiring
+        run: |
+          node --check laer-litt-mer/kinnaklova.js
+          node --test tests/laria-kinnaklova-contract.test.cjs
+      - name: Validate diff whitespace
+        run: git diff --check HEAD^ HEAD
