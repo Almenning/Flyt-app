@@ -4988,6 +4988,23 @@ function englishPool(grade,module){
         add('reading',prompt,answer,options,{passage});
     }
     if(grade>=2){add('reading','Where is Ben going?','To school',['To school','To London','To bed'],{passage:'Ben puts on his jacket and walks to school with his sister.'});add('reading','What colour is the kite?','Yellow',['Yellow','Green','Black'],{passage:'Emma has a yellow kite. She flies it in the park.'});add('reading','Who has a dog?','Sam',['Sam','Mia','Dad'],{passage:'Sam has a small dog. The dog is called Max.'});add('reading','What does Lily eat?','An apple',['An apple','A sandwich','A banana'],{passage:'Lily opens her lunch box and eats an apple.'});add('reading','Where is the cat?','On the chair',['On the chair','Under the bed','In the garden'],{passage:'The cat sleeps on the chair next to Tom.'});}
+    if(grade===2){
+      // A second-grader can revisit Kinnaklova for a fresh, readable small
+      // discovery without repeating the same five Reading passages forever.
+      const coastReads=[
+        ['What colour is the door?','Blue',['Blue','Green','Yellow'],'Mia sees a little red house by the sea. The door is blue.'],
+        ['What does the boat pass?','Two islands',['Two islands','A school','A farm'],'A small boat sails on the sea. It passes two islands.'],
+        ['What does the bird do?','Flies over the water',['Flies over the water','Sleeps in a tree','Reads a book'],'A white bird sits on a rock. Then it flies over the water.'],
+        ['What is next to the path?','A church',['A church','A castle','A shop'],'Ella walks along a path. A little white church is next to it.'],
+        ['How many shells does Lily find?','Three',['Three','Two','Five'],'Lily finds three shells on the beach. She gives one to Max.'],
+        ['What is between the mountains?','A gap',['A gap','A house','A bridge'],'Ben sees two tall mountains. There is a gap between them.'],
+        ['What does Max hear?','Waves',['Waves','Music','Rain'],'Max sits on the grass with Dad. They listen to the waves.'],
+        ['Where is the red boat?','Near the stone wall',['Near the stone wall','Behind the school','In a tree'],'A red boat comes home. It stops near the stone wall.']
+      ];
+      for(const [prompt,answer,options,passage] of coastReads)
+        add('reading',prompt,answer,options,{passage});
+    }
+
   }else if(grade<=4){
     ['hungry','happy','quiet','before','always'].forEach((w,i)=>{const data=[['sulten','trøtt','rask'],['glad','sint','våt'],['stille','høy','varm'],['før','etter','aldri'],['alltid','sjelden','kanskje']][i];add('vocabulary','What does “'+w+'” mean?',data[0],data)});
     add('verbs','Choose the verb.','run',['run','blue','table','happy']);add('grammar','Choose the correct form.','She likes apples.',['She likes apples.','She like apples.','She liking apples.']);add('pronouns','Tom and Mia = ...','they',['they','he','she','it']);add('grammar','Choose the correct word: I ___ a bike.','have',['have','has','is','are']);add('past-tense','Yesterday I ___ home.','walked',['walked','walk','walking','walks']);

@@ -71,3 +71,13 @@ test('Kinnaklova first readers are short and developmentally accessible',()=>{
   assert.ok(stories.every(q=>q.passage.trim().split(/\s+/).length<=17),
     'First-grade Reading uses a story that is too long for this activity');
 });
+
+test('Kinnaklova 2nd-grade Reading offers more than one set of coastal stories',()=>{
+  const stories=englishPool(2,'reading');
+  assert.ok(stories.length>=13,
+    'A second-grader should have enough distinct stories to return and explore again');
+  assert.equal(new Set(stories.map(q=>q.passage)).size,stories.length,
+    'Reading must never recycle the same story with another answer as a fake new activity');
+  assert.ok(stories.some(q=>/white church|mountains|stone wall/i.test(q.passage)),
+    'The Reading discoveries should connect to the approved Kinnaklova coastal setting');
+});
