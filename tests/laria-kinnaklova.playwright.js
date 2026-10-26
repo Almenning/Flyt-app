@@ -39,6 +39,9 @@ async function takeActivity(page,action,label){
  const permitted={words:['words','numbers','spelling','vocabulary'],sentences:['sentence','phrases'],reading:['reading']};
  assert.ok(result.skills.every(skill=>permitted[action].includes(skill)),
    label+' '+action+' unexpectedly contains unrelated English skill: '+result.skills.join(','));
+ if(action!=='reading')
+   assert.equal(await page.locator('#session-screen.active .ki-reading-story').count(),0,
+     label+' '+action+' must not show the Reading book UI');
  return result;
 }
 async function run(browserType,name,viewport){
@@ -140,6 +143,25 @@ async function run(browserType,name,viewport){
   const displayed=(await passage.textContent()||'').trim();
   const selected=await page.evaluate(()=>sessionQuestions?.[qIndex]?.passage||'');
   assert.equal(displayed,selected,name+' Reading text was not actually rendered for the child');
+  const order=await page.evaluate(()=>{
+    const story=document.querySelector('#session-screen.active .ki-reading-story');
+    const question=document.querySelector('#session-screen.active .ki-reading-question');
+    return {
+      story:!!story,question:!!question,
+      before:!!(story&&question&&(story.compareDocumentPosition(question)&Node.DOCUMENT_POSITION_FOLLOWING)),
+      label:story?.getAttribute('aria-label'),
+      pageWidth:story?.getBoundingClientRect().width,
+      viewportWidth:document.documentElement.clientWidth
+    };
+  });
+  assert.ok(order.story&&order.question&&order.before,
+    name+' must show the Reading story before asking the question');
+  assert.equal(order.label,'Engelsk historie');
+  assert.ok(order.pageWidth<=order.viewportWidth+2,
+    name+' storybook must fit the narrow viewport');
+  const readButton=page.locator('#session-screen.active #read-aloud');
+  if(await readButton.count())
+    assert.equal(await readButton.getAttribute('aria-label'),'Les opp historien og spørsmålet');
   const readingOverflow=await page.evaluate(()=>({
     scroll:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth
   }));
@@ -218,6 +240,12 @@ async function firstGradeReading(engine,label){
   const firstText=await page.locator('#session-screen.active .learning-passage').textContent();
   assert.equal(firstText.trim(),stories[0].passage,
     label+' first-grade Reading story is not actually visible on the task card');
+  const storyFirst=await page.evaluate(()=>{
+    const story=document.querySelector('#session-screen.active .ki-reading-story');
+    const question=document.querySelector('#session-screen.active .ki-reading-question');
+    return !!(story&&question&&(story.compareDocumentPosition(question)&Node.DOCUMENT_POSITION_FOLLOWING));
+  });
+  assert.equal(storyFirst,true,label+' first-grade story must also come before the question');
   console.log('[KINNAKLOVA] '+label+' grade 1: five short Reading stories verified');
   await context.close();
  }finally{await browser.close()}
