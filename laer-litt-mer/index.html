@@ -6729,7 +6729,10 @@ function finishSession(){
   }
   document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Gå tilbake til hovedreisen når du er klar.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':chapterDone?'Første eventyr er ferdig. Reisekartet kan spilles igjen, og Utforsk er alltid åpent.':result.gradeCompleted?'Alle verdener på trinnet er fullført. Repetisjon gjør kunnskapen sterkere over tid.':result.journeyReward?'Neste verden er åpnet i hovedreisen.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
-  document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':sessionScope?.subject==='norwegian'?(window.LARIA_EGGENIPA?.isMapOpen?.()?'Tilbake til Bokskogen 🗺️':'Tilbake til Eggenipa 🌿'):'Tilbake til reisekartet 🗺️'):result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
+  // English now has a direct, child-friendly Kinnaklova home, not the old
+  // Ordlandsbyen map or a generic progress dashboard after completing Words.
+  const returnToKinnaklova=sessionScope?.type==='subject'&&sessionScope?.subject==='english';
+  document.getElementById('complete-home').textContent=returnToKinnaklova?'Tilbake til Kinnaklova 🌿':(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':sessionScope?.subject==='norwegian'?(window.LARIA_EGGENIPA?.isMapOpen?.()?'Tilbake til Bokskogen 🗺️':'Tilbake til Eggenipa 🌿'):'Tilbake til reisekartet 🗺️'):result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }
@@ -6754,6 +6757,7 @@ function armJourneyWorldReaction(scope){
 document.getElementById('complete-home').onclick=()=>{
   const scope=lastCompletedScope||{};
   armJourneyWorldReaction(scope);
+  if(scope.type==='subject'&&scope.subject==='english'){openSubject('english');return}
   if(scope.type==='journey'&&scope.subject&&scope.subject!=='geography'){openSubject(scope.subject);return}
   if(scope.type==='geo-journey'||scope.subject==='geography'){renderGeographyContinue();showScreen('geography');return}
   if(currentGrade()<=2){setTab('progress');return}
