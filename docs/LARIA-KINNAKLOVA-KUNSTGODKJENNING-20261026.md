@@ -39,3 +39,15 @@
 5. Først etter visuell godkjenning, samsvar mellom faktisk eksportert asset og SHA-256, samt grønn relevant CI, kan release-flaggene vurderes satt til `true` og PR publiseres.
 
 **Ingen nye motiver, trollvarianter eller pikselmodifiserte landemerker er godkjent gjennom denne kontrollen.**
+
+## Ny kildeverifikasjon og retusjvurdering (26.10.2026)
+
+Råfilen til den tidligere låste Kinnaklova-illustrasjonen er hentet som en separat arbeidskopi fra Læria Library, uten å endre originalen. **Uavhengig SHA-256-verifikasjon BESTÅTT:**
+`3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035`.
+Format: PNG, RGB, nøyaktig 1672 × 941 px.
+
+To familier med automatisk lokal retusj er prøvd i maskene, OpenCV Telea og Navier–Stokes, med ulike radier. Pixel-for-pixel-kontroll bekreftet at andre områder enn tillatte masker ikke ble endret, og at hver figurmaske fikk betydelige endringer. **Visuell vurdering: AVVIST**, fordi tekstur og konstruksjoner rundt de tre trollene blir svært ujevne / abstrakte. Eksperimentelle kopier er ikke lagt til appen eller inn i Github. Den alternative fullgenererte scenen bryter den låste originalkomposisjonen og er heller ikke brukt.
+
+Et overleveringsarkiv med eksakt original-PNG, tillatt retusjmaske og tydelig markerte **IKKE GODKJENT**-forhåndsvisninger ble laget for videre lokal kunstretusj. Det er ikke en publiseringskandidat.
+
+**Gjenstående reell blokkering:** Premium håndverksmessig erstatning av de tre figurene innenfor det låste originale landskapet, integrasjon av de tre godkjente separate karakterene, full iOS-WebKit-QA og sluttgodkjenning. Ikke sett release approval true eller fjern art-gate før alle disse er dokumentert.
