@@ -15,7 +15,7 @@ const suffix = '-gangemagi-premium-20261023-release37';
 const releases = Object.freeze({
   'multiplication-gangemagi-v1.css': version,
   'gangemagi-dagens-oppdrag-v1.css': version,
-  'multiplication-gangemagi-v1.js': '20261025-tallvika-brand1'
+  'multiplication-gangemagi-v1.js': '20261025-tallvika-one-tap-return1'
 });
 const assets = Object.keys(releases);
 function workerHarness(caches, fetch) {
@@ -34,7 +34,7 @@ test('all changed Gangemagi entry assets have distinct release URLs', () => {
   }
   const activeCache=worker.match(/^const CACHE='([^']+)';/)[1];
   assert.ok(activeCache.includes(suffix),'Gangemagi cache release segment must be retained');
-  assert.ok(activeCache.endsWith('-kinnaklova-identityguard2'),'Kinnaklova SHA gate requires the current release cache');
+  assert.ok(activeCache.endsWith('-storybookcss2-tallvika-main-sync1'),'Kinnaklova and Tallvika merged cache release key is required');
 });
 test('activation removes old Laria caches but preserves unrelated application caches', async () => {
   const active = worker.match(/^const CACHE='([^']+)';/)[1];

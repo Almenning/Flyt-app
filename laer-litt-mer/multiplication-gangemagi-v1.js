@@ -137,7 +137,7 @@
    const active=state.mode==='mission'?'Oppdrag':'Fri lek';
    root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-sum="'+sum+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
-      '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
+      '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="'+(document.getElementById('multiplication-lab-screen')?.dataset.tvOrigin==='multiply'?'Tilbake til Tallvika':'Tilbake til matte')+'">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLVIKA / GANGEMAGI</small></div>'+ 
       (!free?'<div class="gm-top-title"><h1>Gangemagi</h1><span>Et lite matteeventyr</span></div><div class="gm-top-progress">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+'</div>':'')+ 
       '<button type="button" class="gm-book-quick" data-gm-action="open-book" aria-label="Åpne Min markedsbok. '+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet" title="Min markedsbok">✿ <span class="gm-book-quick-count">'+state.wins.length+'/'+E.MISSIONS.length+'</span></button>'+
@@ -265,6 +265,7 @@
    if(world){world.classList.remove('gm-bloom');void world.offsetWidth;world.classList.add('gm-bloom');}
  }
  function back(){
+   if(window.LARIA_TALLVIKA?.returnFromActivity?.('multiply'))return;
    const origin=document.getElementById('multiplication-lab-screen')?.dataset.gmReturnOrigin;
    if(returnToMath||origin==='subject'){
      // The Maths screen already exists beneath Gangemagi. Returning to that

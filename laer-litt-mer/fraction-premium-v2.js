@@ -118,7 +118,8 @@ function presentation(n,d,kind='circle',interactive=false,selected=null){
 }
 
 function mascot(message,small=false){return '<div class="fr2-guide'+(small?' compact':'')+'">'+fox()+'<div class="fr2-fox-speech">'+message+'<span class="fr2-guide-heart" aria-hidden="true">♥</span></div></div>'}
-function topBar(){const n=Object.entries(progress).filter(([k])=>['explored','built','equal','sorted','converted'].includes(k)).reduce((sum,[,v])=>sum+Object.keys(v||{}).length,0);return '<header class="fr2-top fr4-top">'+cta('back','‹','fr2-back','id="fraction-lab-back" aria-label="Tilbake"')+'<div class="fr2-brand">Læria<small>✦</small></div><div class="fr2-charm fr4-earned" aria-label="'+n+' oppdagelser i Brøklaben"><span aria-hidden="true">★</span><b>'+n+'</b></div><div class="fr4-top-token" aria-hidden="true">'+cardIllustration('explore')+'</div></header>'}
+function topBar(){const fromTallvika=document.getElementById('fraction-lab-screen')?.dataset.tvOrigin==='fraction';
+ const n=Object.entries(progress).filter(([k])=>['explored','built','equal','sorted','converted'].includes(k)).reduce((sum,[,v])=>sum+Object.keys(v||{}).length,0);return '<header class="fr2-top fr4-top">'+cta('back','‹','fr2-back','id="fraction-lab-back" aria-label="'+(fromTallvika?'Tilbake til Tallvika':'Tilbake')+'"')+'<div class="fr2-brand">Læria<small>✦</small>'+(fromTallvika?'<span class="tv-origin-breadcrumb">TALLVIKA / BRØKLAB</span>':'')+'</div><div class="fr2-charm fr4-earned" aria-label="'+n+' oppdagelser i Brøklaben"><span aria-hidden="true">★</span><b>'+n+'</b></div><div class="fr4-top-token" aria-hidden="true">'+cardIllustration('explore')+'</div></header>'}
 function sign(text,sub){return '<div class="fr2-sign"><span class="fr2-sign-decoration" aria-hidden="true">'+cardIllustration('build')+'</span><h1>'+text+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</div>'}
 function screenTabs(){
   const items=[['build','◕','Kaken'],['home','✦','Flere leker'],['mastery','★','Oppdagelser']];
@@ -460,6 +461,9 @@ function actionHandler(e){
  const a=btn.dataset.frAction;
  // Normal taps must always work, including immediately after a drag or reset.
  if(a==='back'){
+  // Tallvika returns are always one tap, including inside other Brøklab tabs.
+  // Opens from other parents retain the original step-back semantics.
+  if(window.LARIA_TALLVIKA?.returnFromActivity?.('fraction'))return;
   if(u.page!=='build'){enter('build');return;}
   // The actual premium lab overrides the legacy openFractionLab. Keep the
   // same Tallenga return contract when opened from the painted Brøklaben sign.
