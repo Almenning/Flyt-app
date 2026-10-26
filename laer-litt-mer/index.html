@@ -5017,6 +5017,25 @@ function englishPool(grade,module){
         ['The boat is near the wall.',['The','boat','is','near','the','wall.']]
       ];
       for(const [answer,words] of coastSentences)sent(answer,words);
+      // Words is a place to discover the same coast through language.
+      // Norwegian prompts keep these new words accessible to early readers,
+      // while correct-answer feedback reinforces the English/Norwegian pair.
+      const coastWords=[
+        ['hav','sea',['sea','sky','sun'],'🌊'],
+        ['fugl','bird',['bird','book','boat'],'🐦'],
+        ['øy','island',['island','garden','house'],'🏝️'],
+        ['skjell','shell',['shell','shoe','star'],'🐚'],
+        ['stein','rock',['rock','rain','road'],'🪨'],
+        ['fjell','mountain',['mountain','market','morning'],'⛰️'],
+        ['kirke','church',['church','chair','cheese'],'⛪'],
+        ['vann','water',['water','window','winter'],'💧'],
+        ['bølge','wave',['wave','wall','wheel'],'🌊'],
+        ['krabbe','crab',['crab','cat','car'],'🦀']
+      ];
+      for(const [norwegianMeaning,englishWord,options,visual] of coastWords){
+        add('words','Hva heter «'+norwegianMeaning+'» på engelsk?',
+          englishWord,options,{visual,englishWord,norwegianMeaning});
+      }
     }
 
   }else if(grade<=4){
