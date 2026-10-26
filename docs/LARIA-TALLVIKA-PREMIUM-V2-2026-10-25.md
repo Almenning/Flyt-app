@@ -76,3 +76,14 @@ En egen kontroll av faktiske WebKit-skjermbilder og originalens geometri viste a
 Faktiske WebKit-bilder fra PR #223 viste 10–11 px beskrivelser på aktivitetshyttene i liggende visninger og store kremfargede pilmerker som skygget for maleriet. Størrelsene justeres i eksisterende grunn- og breakpointregler: minst 12 px beskrivelser og 10 px aktivitetsetiketter, med litt større forklaring på iPhone. Dekorative huspiler reduseres fra 36 til 30 px, mens trykkflatene fortsatt er de samme store knappene. QA kontrollerer størrelsene direkte i Chromium/WebKit. Ingen illustrasjon, skogstroll eller spillmotor er endret.
 
 Samtidig er Bokskogen-testen korrigert fordi kort iPhone-landskap tilsiktet ruller til gjeldende oppdrag etter 350 ms. Testen verifiserer nå kartets dokumentposisjon og at oppdraget er synlig. Koden for Norsk er uendret. Full Laria QA på eksakt commit gjenstår.
+
+
+## Fase 6: rent illustrasjonsutsnitt for Gangetabellen (26.10.2026)
+
+En kontroll av **faktiske WebKit-skjermbilder** fra PR #223, commit `3df3d71`, viser at Gangetabellens illustrerte inngang på iPhone liggende og iPad liggende delvis klipper selve husets malte skilt. Dette gir en halv tekstlinje øverst i aktivitetskortet og bryter med kravet om kildetro, ryddig visuell komposisjon.
+
+**Rotårsak:** Kortets brede CSS-bakgrunnsvindu (470–550 %) er for høyt i kildekoordinater; det eksponerer enten det malte «Gangetabellen»-skiltet øverst eller «Neste eventyr»-skiltet nederst. Originalillustrasjonen er korrekt og skal ikke endres.
+
+**Avgrenset rettelse:** Behold original PNG uendret. Bruk et tettere utsnitt av selve regnetavlen på 650 % ved liggende iPad/telefon og 560 % på stående telefon; stående iPad beholder sitt allerede rene 340 %-utsnitt. Skjermbildesimulering direkte fra den originale PNG-en er sammenlignet for alle fire visningsformer. En egen WebKit/Chromium-regresjon måler hvilket vertikalt kildeintervall som faktisk vises og avviser utilsiktet gjensyn av skilt-tekst. Tallvikas CSS-release-URL og serviceworker-cache er revidert for å unngå gammel CSS etter publisering, uten å endre Gangemagis egne godkjente ressursnøkler.
+
+**Kvalitetsport:** Kontrakt/CI og ferske Chromium-/WebKit-skjermbilder på eksakt siste head må være grønne og vurderes. Dette er en **draft-forbedring**, ikke visuell godkjenning og ikke merge/publisering. Skogtrollenes originalfiler, navigasjon, læringsmotorer og lagret progresjon er uendret.

@@ -62,6 +62,20 @@ async function run(browserType,label,viewport){
       label+' must use original, unmodified image on each portal');
     assert(portalAudit.every(x=>x.detailPx>=12&&x.eyebrowPx>=10&&x.titlePx>=18),
       label+' activity card typography is too small: '+JSON.stringify(portalAudit));
+    // The source painting also carries the hut name and a separate
+    // "Neste eventyr" sign. The tight Gangetabellen window must not show
+    // fragments of either sign around the reused blackboard illustration.
+    const tableCrop=await page.locator('.tv-portal-art-table').evaluate(el=>{
+      const style=getComputedStyle(el),box=el.getBoundingClientRect();
+      const zoom=parseFloat(style.backgroundSize.split(',').pop().trim());
+      const yPercent=parseFloat(style.backgroundPosition.split(',').pop().trim().split(/\s+/)[1]);
+      const paintedWidth=box.width*zoom/100,paintedHeight=paintedWidth*941/1672;
+      const naturalScale=paintedWidth/1672;
+      const cropOffset=(paintedHeight-box.height)*yPercent/100;
+      return {sourceTop:cropOffset/naturalScale,sourceBottom:(cropOffset+box.height)/naturalScale};
+    });
+    assert(tableCrop.sourceTop>490&&tableCrop.sourceBottom<815,
+      label+' the Gangetabellen crop exposes a clipped painted sign: '+JSON.stringify(tableCrop));
     if(viewport.width>700){
       const cues=await page.locator('#tallvika-world .tv-scene .tv-hotspot-cue').evaluateAll(nodes=>
         nodes.map(n=>({w:n.getBoundingClientRect().width,h:n.getBoundingClientRect().height})));

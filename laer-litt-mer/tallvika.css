@@ -221,6 +221,8 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-mobile-actions{grid-template-columns:1fr;gap:10px}
   .tv-portal-card{min-height:118px;flex-direction:row}
   .tv-portal-art{height:auto;min-height:118px;flex:0 0 38%;background-size:100% 100%,550% auto}
+  /* Keep the blackboard, not a severed painted Gangetabellen sign. */
+  .tv-portal-art-table{background-size:100% 100%,650% auto;background-position:center,98% 78%}
   .tv-portal-copy{align-content:center;min-height:112px;padding:12px 31px 12px 12px}
   .tv-portal-copy b{font-size:20px}
   .tv-portal-copy small{font-size:13px}
@@ -243,6 +245,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-mobile-actions{grid-template-columns:1fr;gap:8px}
   .tv-portal-card{flex-direction:row;min-height:94px}
   .tv-portal-art{height:auto;min-height:94px;flex:0 0 35%;background-size:100% 100%,540% auto}
+  .tv-portal-art-table{background-size:100% 100%,650% auto;background-position:center,96% 78%}
   .tv-portal-copy{align-content:center;padding:7px 27px 7px 8px;min-height:94px}
   .tv-portal-copy b{font-size:18px}
   .tv-portal-copy small{font-size:12px}
@@ -287,7 +290,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   }
   .tv-portal-art-multiply{background-position:center,6% 63%}
   .tv-portal-art-fraction{background-position:center,48% 80%}
-  .tv-portal-art-table{background-position:center,96% 75%}
+  .tv-portal-art-table{background-size:100% 100%,560% auto;background-position:center,96% 78%}
   .tv-portal-copy{
     align-content:center;gap:3px;
     padding:8px 30px 10px 14px;min-height:132px
