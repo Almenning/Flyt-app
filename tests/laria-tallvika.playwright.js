@@ -100,10 +100,40 @@ async function run(browserType,label,viewport){
       assert.equal(await page.locator('.tv-hotspot-fraction .tv-hotspot-cue').evaluate(
         el=>getComputedStyle(el).transform!=='none'),true,label+' portal focus did not highlight the matching hut');
       await page.locator('.tv-portal-card[data-tv="fraction"]').evaluate(el=>el.blur());
-      assert.ok(layout.stage.right<=layout.dock.left+2,label+' landscape portal dock overlaps painting');
-      if(viewport.width>=1030)assert.ok(art.w>=viewport.width*.58,
-        label+' world is still compressed by the former 1000px app shell');
-      assert.ok(Math.abs(layout.stage.top-layout.dock.top)<55,label+' landscape should show portals beside the world');
+      const tabletLandscape=viewport.width>=1000&&viewport.width<=1400&&
+        viewport.width>viewport.height&&viewport.height>=720;
+      if(tabletLandscape){
+        // The approved world is larger, but keeps the complete source painting
+        // visible. Three games and the optional next quest must also fit.
+        const fold=await page.evaluate(()=>{
+          const art=document.querySelector('.tv-scene').getBoundingClientRect();
+          const dock=document.querySelector('.tv-dock').getBoundingClientRect();
+          const cards=[...document.querySelectorAll('.tv-portal-card')].map(el=>{
+            const r=el.getBoundingClientRect();
+            return {top:r.top,bottom:r.bottom,left:r.left,right:r.right};
+          });
+          const next=document.querySelector('.tv-next').getBoundingClientRect();
+          return {art:{width:art.width,height:art.height},dockTop:dock.top,
+            cards,next:{top:next.top,bottom:next.bottom,left:next.left},
+            viewportHeight:innerHeight,scrollHeight:document.scrollingElement.scrollHeight};
+        });
+        assert.ok(fold.art.width>=viewport.width*.76,
+          label+' premium iPad landscape still wastes the wide stage: '+JSON.stringify(fold));
+        assert.ok(Math.abs(fold.art.height-fold.art.width*941/1672)<2,
+          label+' must not crop or stretch the approved Tallvika artwork');
+        assert.ok(layout.dock.top>=layout.stage.bottom-3,
+          label+' landscape portal row must follow, not overlap, the painting');
+        assert.ok(fold.cards.every(x=>Math.abs(x.top-fold.cards[0].top)<3&&x.bottom<=viewport.height+26),
+          label+' three activities must share a visible bottom row: '+JSON.stringify(fold));
+        assert.ok(Math.abs(fold.next.top-fold.cards[0].top)<3&&fold.next.bottom<=viewport.height+26,
+          label+' optional quest must stay visible beside the activities: '+JSON.stringify(fold));
+        console.log('[TALLVIKA_IPAD_LANDSCAPE_FIRST_FOLD]',label,JSON.stringify(fold));
+      }else{
+        assert.ok(layout.stage.right<=layout.dock.left+2,label+' landscape portal dock overlaps painting');
+        if(viewport.width>=1030)assert.ok(art.w>=viewport.width*.58,
+          label+' world is still compressed by the former 1000px app shell');
+        assert.ok(Math.abs(layout.stage.top-layout.dock.top)<55,label+' landscape should show portals beside the world');
+      }
     }else{
       assert.ok(layout.dock.top>=layout.stage.bottom-2,label+' portrait portal panel must follow the uncropped art');
     }

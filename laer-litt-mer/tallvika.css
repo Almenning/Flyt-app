@@ -339,3 +339,100 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 @media(prefers-reduced-motion:reduce){
   .tv-portal-card,.tv-hotspot-cue,.tv-portal-art{transition:none}
 }
+
+/* iPad landscape: the world is the hero, not a little postcard beside a
+   tall menu. Fit the uncropped 1672:941 painting and all four invitations into
+   the visible stage. This is limited to tablet landscape; phone, iPad portrait
+   and desktop layouts keep their already tested geometry. */
+@media(min-width:1000px) and (max-width:1400px) and (orientation:landscape) and (min-height:720px){
+  .tv-top{height:64px}
+  .tv-main{
+    grid-template-columns:minmax(0,1fr);
+    gap:3px;
+    padding:0 clamp(16px,2.6vw,38px);
+    justify-items:center;
+  }
+  .tv-stage{
+    width:min(100%,calc((100dvh - 294px) * 1.77683));
+    max-width:none;
+  }
+  .tv-scene{
+    border-radius:21px;
+    box-shadow:0 14px 30px #563e2124;
+  }
+  .tv-scene-footer{padding:7px 0 6px;gap:9px;font-size:11px}
+  .tv-dock{
+    width:100%;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(235px,26%);
+    grid-template-rows:auto auto;
+    align-items:stretch;
+    column-gap:12px;
+    row-gap:8px;
+  }
+  .tv-dock-intro{
+    grid-column:1/-1;
+    display:flex;
+    justify-content:center;
+    align-items:baseline;
+    gap:12px;
+    margin:0;
+    text-align:center;
+  }
+  .tv-dock-intro h1{margin:0;font-size:24px;white-space:nowrap}
+  .tv-dock-intro p{font-size:13px;line-height:1.25}
+  .tv-kicker{font-size:9px;white-space:nowrap}
+  .tv-mobile-actions{
+    grid-column:1;
+    grid-row:2;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    min-width:0;
+  }
+  .tv-portal-card{
+    min-height:108px;
+    height:108px;
+    flex-direction:row;
+    border-radius:17px;
+  }
+  .tv-portal-art{
+    flex:0 0 34%;
+    min-height:108px;
+    height:auto;
+    background-size:100% 100%,550% auto;
+  }
+  .tv-portal-art-table{
+    background-size:100% 100%,650% auto;
+    background-position:center,98% 78%;
+  }
+  .tv-portal-copy{
+    min-height:108px;
+    align-content:center;
+    padding:9px 25px 9px 10px;
+  }
+  .tv-portal-kicker{font-size:9px}
+  .tv-portal-copy b{font-size:19px}
+  .tv-portal-copy small{font-size:12px;line-height:1.25}
+  .tv-portal-badge{
+    left:7px;top:7px;min-width:29px;width:29px;height:29px;
+    border-radius:10px;font-size:18px;
+  }
+  .tv-portal-arrow{
+    bottom:10px;right:8px;width:27px;height:27px;border-radius:10px;
+  }
+  .tv-next{
+    grid-column:2;
+    grid-row:2;
+    margin:0;
+    min-height:108px;
+    padding:12px;
+    gap:8px;
+    border-radius:17px;
+  }
+  .tv-next-crest{display:none}
+  .tv-next-content small{font-size:8px}
+  .tv-next-content b{font-size:16px}
+  .tv-next-content span{font-size:11px}
+  .tv-next button{min-height:44px;padding:0 9px;font-size:12px}
+  #tallvika-world{padding-bottom:12px}
+}
