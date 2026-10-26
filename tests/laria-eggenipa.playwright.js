@@ -20,6 +20,18 @@ async function shot(page,name){
   fs.mkdirSync(out,{recursive:true});
   await page.screenshot({path:path.join(out,name+'.png'),fullPage:true,animations:'disabled'});
 }
+async function returnFromBokskogen(page,name){
+  await page.waitForFunction(()=>
+    document.querySelector('#subject-screen.active .locked-journey-back')
+      ?.getAttribute('aria-label')==='Tilbake til Eggenipa',null,{timeout:12000});
+  assert.equal(await page.locator('#eggenipa-map-return').count(),0,
+    name+' redundant fixed return overlay must not obscure the painted map');
+  const floating=page.locator('#subject-screen.active .locked-journey-floating-back');
+  const back=page.locator('#subject-screen.active .locked-journey-back');
+  if(await floating.isVisible())await floating.click();
+  else await back.click();
+  await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:15000});
+}
 async function enter(page){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
   const subject=page.locator('.bc14-subject[data-camp="subject-norwegian"]');
@@ -111,8 +123,7 @@ async function run(browserType,engine,name,viewport){
       .waitFor({state:'visible',timeout:8000});
     await page.locator('#subject-screen.active .locked-sheet-close').click();
     await shot(page,name+'-bokskogen-settings-reachable');
-    await page.locator('#eggenipa-map-return').click();
-    await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:15000});
+    await returnFromBokskogen(page,name);
 
     await page.locator('.eg-grade').click();
     await page.locator('#eggenipa-world .eg-grade-dialog[open]').waitFor();
@@ -136,12 +147,12 @@ async function run(browserType,engine,name,viewport){
     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:12000});
 
     await page.locator('.eg-portal[data-eg="map"]').click();
-    await page.locator('#eggenipa-map-return').waitFor({state:'visible',timeout:15000});
+    await page.locator('#subject-screen.active .locked-journey-back')
+      .waitFor({state:'visible',timeout:15000});
     assert.equal(await page.locator('#subject-screen').evaluate(el=>el.classList.contains('eggenipa-active')),false,
       name+' old map must be visible when explicitly selected');
     await shot(page,name+'-original-bokskogen');
-    await page.locator('#eggenipa-map-return').click();
-    await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:15000});
+    await returnFromBokskogen(page,name);
 
     const post=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2'))?.journey?.nodes||{});
     assert.deepEqual(post,pre,name+' no activities or grade selection may reset learning progress');
