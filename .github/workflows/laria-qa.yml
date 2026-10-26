@@ -214,7 +214,7 @@ jobs:
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-http.log 2>&1 &
           echo $! >/tmp/laria-http.pid
-          for i in {1..30}; do
+          for i in $(seq 1 30); do
             if curl --fail --silent http://127.0.0.1:8765/laer-litt-mer/?app=laria >/dev/null; then
               exit 0
             fi
@@ -285,7 +285,7 @@ jobs:
       - name: Start exact-head local server
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-nav-http.log 2>&1 &
-          for i in {1..30}; do
+          for i in $(seq 1 30); do
             if curl --fail --silent http://127.0.0.1:8765/laer-litt-mer/?app=laria >/dev/null; then exit 0; fi
             sleep 1
           done
@@ -535,7 +535,7 @@ jobs:
       - name: Start exact-head local server
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-recovery-http.log 2>&1 &
-          for i in {1..30}; do
+          for i in $(seq 1 30); do
             if curl --fail --silent http://127.0.0.1:8765/laer-litt-mer/?app=laria >/dev/null; then exit 0; fi
             sleep 1
           done

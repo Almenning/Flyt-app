@@ -88,3 +88,10 @@ Etter rettelsen for synlig `Min rev`-visning på `9401060` bestod 9/11 PR-workfl
 **Rotrettelse:** Alle seks relevante QA-jobber med Playwright-basert Chromium/WebKit bruker nå **samme offisielle Playwright-container `mcr.microsoft.com/playwright:v1.62.1-noble`** som allerede er grønn i Tallvika, Gangemagi og smoke. Den store installasjonen av Linux-avhengigheter er fjernet. Hver jobb bekrefter nå eksplisitt at den låste Chromium- og WebKit-binæren eksisterer etter `npm ci`, før de opprinnelige testene startes.
 
 **Ingen kvalitetssvekkelse:** Alle funksjonelle/visuelle tester og screenshot-artefakter, jobbtidsgrenser, kontroll av læringsprogresjon, lagring og originalbilder beholdes. Ingen appfunksjon eller data endres; dette er kun CI-infrastruktur. Full PR-matrise må kjøres på **ny head** før merge, og GitHub Pages-deploy må verifiseres etterpå. Sikkerhetsgrenen for rollback beholdes.
+
+
+### 26.10: POSIX-kompatibel oppstart av lokal testserver i QA-container
+
+Den offisielle Playwright-containeren fra `9ebf7e2` løste treg pakkeinstallasjon og ga grønne browser-miljøkontroller, men avdekket en ny, separat CI-kontraktsfeil: GitHub Actions velger `sh -e` som standard shell inne i containeren. Tre serverstartsteg brukte Bash-only `for i in {1..30}`; i POSIX `sh` ble dette bare **ett** forsøk. Jobbene `laria-mapboard` (#121574149545) og `laria-journey-progress-recovery` (#121574149707) feilet dermed etter ca. ett sekund på serverens oppstart og testet ikke Læria.
+
+**Rotrettelse:** Erstatt alle tre `{1..30}`-løkker i `.github/workflows/laria-qa.yml` med `$(seq 1 30)`, som virker under både POSIX `sh` og Bash. Alle eksisterende HTTP-beredskapskontroller, trente 30 forsøk, feillogger og funksjonstester er beholdt. Ingen appkode, profil, samlingsdata eller låste motiver endret. Nye CI-resultater på eksakt head kreves før merge og Pages-deploy.
