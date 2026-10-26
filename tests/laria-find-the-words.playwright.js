@@ -67,7 +67,7 @@ async function geometry(page,label,view){
   const el=document.querySelector('.fw-art');
   const img=document.querySelector('.fw-scene-image');
   return {screen:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,
-   art:bounds('.fw-art'),picture:bounds('.fw-picture'),paint:bounds('.fw-scene-image'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),next:bounds('.fw-next'),
+   art:bounds('.fw-art'),picture:bounds('.fw-picture'),paint:bounds('.fw-scene-image'),list:bounds('.fw-list'),back:bounds('.fw-back'),hint:bounds('.fw-fox-button'),next:bounds('.fw-next'),
    scene:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
    words:[...document.querySelectorAll('.fw-word')].map(x=>x.getBoundingClientRect().height),
     wordFonts:[...document.querySelectorAll('.fw-word strong')].map(x=>parseFloat(getComputedStyle(x).fontSize)),
@@ -95,7 +95,7 @@ async function geometry(page,label,view){
     })(),
    active:el?.getAttribute('role')};
  });
- assert.ok(box.art&&box.picture&&box.paint&&box.list&&box.fox&&box.back,'picture game missing the aligned painted scene or personal fox '+label);
+ assert.ok(box.art&&box.picture&&box.paint&&box.list&&box.hint&&box.back,'picture game missing the aligned painted scene or accessible hint '+label);
  assert.ok(Math.abs(box.picture.w/box.picture.h-5/3)<.01,
    'The interactive plane does not match the SVG native 1200:720 geometry '+label+': '+JSON.stringify(box.picture));
  assert.ok(Math.abs(box.picture.w-box.paint.w)<2&&Math.abs(box.picture.h-box.paint.h)<2,
@@ -109,8 +109,8 @@ async function geometry(page,label,view){
    'The complete written word overlaps the tick control '+label+': '+JSON.stringify(box.longWord));
  }
  if(view.width>=1001&&view.height>=700&&view.height<=900){
-  assert.ok(box.next&&box.next.b<=box.height+2&&box.fox.b<=box.height+2,
-   'Fox companion or next adventure is clipped below iPad landscape first fold '+label+': '+JSON.stringify(box));
+  assert.ok(box.next&&box.next.b<=box.height+2&&box.hint.b<=box.height+2,
+   'Hint or next adventure is clipped below iPad landscape first fold '+label+': '+JSON.stringify(box));
  }
  const gardenScene=label.includes('secret-garden');
  assert.ok(box.scene.complete&&
@@ -132,8 +132,8 @@ async function geometry(page,label,view){
  if(view.width>=361&&view.width<=700&&view.height>=750){
   assert.ok(box.picture.h>=205,'Tall phone illustration too small to see and touch: '+JSON.stringify(box));
    assert.ok(box.wordFonts.every(n=>n>=18),'Tall phone words must be readable at 18px or larger: '+JSON.stringify(box.wordFonts));
-  assert.ok(box.fox.h>=100,'Child-selected fox is too small on tall phone: '+JSON.stringify(box));
-  assert.ok(box.fox.y+box.fox.h<=box.height+2,'Fox companion is pushed below the phone viewport: '+JSON.stringify(box));
+  assert.ok(box.hint.w>=44&&box.hint.h>=44,'The hint button is too small: '+JSON.stringify(box));
+  assert.ok(box.hint.b<=box.height+2,'Hint is below the phone viewport: '+JSON.stringify(box));
  }
  if(view.height>=750&&view.width<700){
   assert.ok(box.list.y>=0&&box.list.b<=box.height,'word list hidden below first screen '+label);
@@ -164,9 +164,10 @@ async function run(engine,label,viewport,url,avatar){
    await open(page,url,label);
    await page.locator('.fw-scene-image').evaluate(img=>img.decode());
    await geometry(page,label,viewport);
-   const foxSource=await page.locator('.fw-fox').getAttribute('src');
-   assert.match(foxSource,avatar==='girl'?/girl-braids-blue-dress/:/boy-adventurer-green-vest/,
-     'Picture mode does not use the personal selected fox');
+   assert.equal(await page.locator('.fw-fox').evaluate(el=>el.tagName),'SPAN',
+     'Retired static fox artwork is still in Finn ordene');
+   assert.equal(await page.locator('.fw-fox-button').getAttribute('aria-label'),'Få et hint',
+     'The new hint control lost its accessible label');
    assert.equal(await page.locator('.fw-word').count(),6);
    assert.deepEqual((await page.locator('.fw-word strong').allTextContents()).sort(),[...targetWords].sort());
    // Correct objects do not score until a written word has been selected.
