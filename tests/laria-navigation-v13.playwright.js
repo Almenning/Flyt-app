@@ -119,8 +119,15 @@ async function run(engine,label,viewport){
        label+' Tallvika return touch area inaccessible: '+JSON.stringify(size));
      await page.screenshot({path:folder+'/'+label+'-math-back-reachable.png',fullPage:false});
      await back.click();
+   }else if(subject==='english'){
+   // English enters Kinnaklova directly. The old Ordlandsbyen map is hidden.
+   const world=page.locator('#subject-screen.active #kinnaklova-world');
+   await world.waitFor({state:'visible',timeout:16000});
+   const utility=world.locator('.ki-utility [data-ki="home"]');
+   if(await utility.isVisible())await utility.click();
+   else await world.locator('.ki-painted-home').click();
    }else{
-   // Non-Math subjects continue to use their approved painted journey maps.
+   // Norsk and Geografi retain their approved painted journey maps.
    const journeyBack=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await journeyBack.waitFor({state:'visible',timeout:16000});
    // Return from the actual painted mission, which is below the fold on
