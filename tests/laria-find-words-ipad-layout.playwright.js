@@ -150,14 +150,18 @@ async function run(engine, name, size, url) {
     await page.evaluate(() => window.openFindTheWords());
     await inspect(page, name + '-forest');
     await page.locator('.fw-word[data-fw-read="sol"]').click();
-    await page.locator('.fw-hint').click();
+    assert.equal(await page.locator('.fw-hint').count(), 0,
+      name + ': duplicate hint control has returned');
+    await page.locator('.fw-fox-button').click();
     await page.locator('.fw-fox-button').click();
     await inspect(page, name + '-forest-hint');
     await page.locator('.fw-next').click();
     const garden = await inspect(page, name + '-garden');
     assert.match(garden.svg, /find-the-words-garden-premium\.webp/, name + ': premium garden scene did not load');
     await page.locator('.fw-word[data-fw-read="sommerfugl"]').click();
-    await page.locator('.fw-hint').click();
+    assert.equal(await page.locator('.fw-hint').count(), 0,
+      name + ': duplicate hint control has returned');
+    await page.locator('.fw-fox-button').click();
     await page.locator('.fw-fox-button').click();
     await inspect(page, name + '-garden-hint');
     await page.setViewportSize({ width: size.height, height: size.width });

@@ -175,7 +175,12 @@ async function run(engine,label,viewport,url,avatar){
    assert.equal(await page.locator('.fw-word.is-found').count(),0,
      'Random scene taps must not award a word');
    assert.match(await page.locator('.fw-speech').innerText(),/Velg et ord/);
-   const hint=page.locator('.fw-hint');
+   assert.equal(await page.locator('.fw-hint').count(),0,
+     'Finn ordene must have one, not two, child-facing hint controls');
+   const hint=page.locator('.fw-fox-button');
+   assert.equal(await hint.count(),1,'One usable magical hint control must remain');
+   assert.match(await page.locator('.fw-next').innerText(),/Nye ord/,
+     'Next round must not be confused with the separate Ordjakt activity');
    await hint.click();
    assert.match(await page.locator('.fw-speech').innerText(),/Velg først ordet/,
      'Hints must target the selected word, not an automatic answer');
@@ -189,8 +194,9 @@ async function run(engine,label,viewport,url,avatar){
      'Chosen word is not displayed as an obvious goal');
    await page.locator('.fw-audio').click();
    await hint.click();
-   assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not give the selected-word clue');
-   await page.locator('.fw-fox-button').click();
+   assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,
+     'First hint did not give the selected-word clue');
+   await hint.click();
    assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight the selected object');
    assert.equal(await page.locator('.fw-fx .fw-target-flower[data-fx-object="sol"]').count(),1,
     'Fox second hint must point inside the illustrated scene');

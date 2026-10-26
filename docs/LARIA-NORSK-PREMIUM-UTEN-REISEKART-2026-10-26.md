@@ -162,3 +162,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Samtidig ble en potensiell repetisjonsfeil rettet: en listener på permanente `#question-wrap` kunne feire flere ganger etter et riktig svar. Listeneren festes nå til nye `.task-interaction` for hver oppgave og stopper etter første riktige reaksjon. Neste oppgave får egen listener; opplesning og navigasjon er utenfor.
 - Nettlesertesten kontrollerer også at oppgave 2 feirer riktig svar, og at symbolet går tilbake til hvile. CSS, figurer, Eggenipa-original og læringsdata er urørt.
 - Separat Gangemagi-CI feilet etter tre grønne Chromium-størrelser fordi WebKit ikke startet uten `libicudata.so.74` på runneren. Det er et miljøavvik, ikke dokumentert appregresjon. Krever separat verifisering.
+
+
+### 26.10 – visuell kontroll og én Hint-knapp i Finn ordene
+
+- Reelle WebKit/Chromium-skjermbilder viste samme handling to ganger i Finn ordene: én «💡 Hint» i ordpanelet og én magisk «Hint» i foteren. Dette skaper unødvendige valg, særlig på iPhone. Den ekstra knappen er fjernet fra komponentens HTML-kilde; foteren beholder tilgjengelig hjelpekontroll med minst 44×44 px og samme eksisterende totrinnshint (først verbal ledetråd, så markering i illustrasjonen).
+- «Ny ordjakt» i Finn ordene er endret til «Nye ord» slik at barnet ikke tror knappen navigerer til den separate aktiviteten Ordjakt. Oppgaven fortsetter med eksisterende `nextRound()`, uten endring av bildekoordinater, hintlogikk, fremgang eller lokal lagring.
+- Faktiske totrinnshint og navigasjonstester for iPhone/iPad i Chromium/WebKit er oppdatert til den ene hjelpekontrollen. Testene krever uttrykkelig at duplikatet ikke kan komme tilbake. Script-URL er versjonert for Safari-cache. Ingen CSS-overstyringer er lagt til.

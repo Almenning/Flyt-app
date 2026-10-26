@@ -93,7 +93,6 @@
       '<h2 id="fw-list-title">Finn ordene</h2></div><span class="fw-counter"></span></div>'+
       '<p class="fw-panel-copy">Se deg rundt i '+(garden?'den hemmelige hagen':'Eggenipas skog')+'. Velg et ord og finn tingen i bildet.</p>'+
       '<div class="fw-list" role="list"></div><div class="fw-progress" aria-hidden="true"><span></span></div>'+
-      '<button type="button" class="fw-hint">💡 Hint</button>'+
       '<p class="fw-list-foot">Trykk på ordet og finn tingen, eller dra ordet rett til bildet.</p></aside>'+
       '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">2. Finn ordet i bildet</strong><span aria-hidden="true">✦</span></div>'+
       '<div class="fw-art" role="group" aria-label="Eventyrbilde med ting du kan finne">'+
@@ -105,7 +104,7 @@
       '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
       '<button type="button" class="fw-fox-button" aria-label="Få et hint"><span class="fw-fox" aria-hidden="true">✦</span><span class="fw-hint-label" aria-hidden="true">Hint</span></button>'+ 
       '<div class="fw-speech" role="status" aria-live="polite">Jeg blir med! Velg et ord, så finner vi tingen.</div></div>'+
-      '<div class="fw-controls"><button type="button" class="fw-next">Ny ordjakt <span aria-hidden="true">↗</span></button></div></footer></div>';
+      '<div class="fw-controls"><button type="button" class="fw-next">Nye ord <span aria-hidden="true">↗</span></button></div></footer></div>';
   }
   function refresh(){
     if(!overlay||!active)return;
@@ -368,7 +367,7 @@
     }
     if(!button||!overlay.contains(button))return;
     if(button.classList.contains('fw-back')){close();return}
-    if(button.classList.contains('fw-hint')||button.classList.contains('fw-fox-button')){hint();return}
+    if(button.classList.contains('fw-fox-button')){hint();return}
     if(button.classList.contains('fw-next')){nextRound();return}
     if(button.classList.contains('fw-repeat')||button.classList.contains('fw-audio')){
       say('Finn ordene. Velg et ord fra listen. Finn så riktig ting i bildet.');return;
