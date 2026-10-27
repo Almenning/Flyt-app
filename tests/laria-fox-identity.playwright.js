@@ -89,12 +89,16 @@ async function run(engine,name,viewport,which){
    const target=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    if(subject==='math'){
-     // The child's Tallvika friend is an original troll, rather than the
-     // retired fox on the old Math map. Profile data itself remains intact.
+     // Tallvika is troll-led. Storesøster keeps the same locked identity but
+     // uses the separately user-approved painterly scene asset inside Tallvika.
+     // The saved profile/progress contract must remain untouched.
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     const original=tv.locator('.tv-companion img');
-     assert.match(await original.getAttribute('src'),/gangemagi-troll\/storesoster\.webp$/,name+' incorrect original troll');
+     const original=tv.locator('.tv-companion[data-troll-id="storesoster"] img');
+     assert.match(await original.getAttribute('src'),/assets\/tallvika\/storesoster-inworld-approved-20261026\.webp$/,
+       name+' incorrect approved Tallvika Storesoster');
+     assert.equal(await page.evaluate(()=>state.profile?.tallvikaTroll||'storesoster'),'storesoster',
+       name+' Tallvika changed the stored troll identity');
      await original.evaluate(img=>img.decode());
      await page.screenshot({path:folder+'/'+name+'-math-tallvika.png',fullPage:true});
      await tv.locator('[data-tv="next"]').click();
