@@ -1,6 +1,6 @@
 'use strict';
-/* Journey mission menu: before/after completion, correct continuation and
-   the SAME selected fox. Four approved subjects, real app and real assets. */
+/* Journey mission menu: before/after completion and correct continuation.
+   Direct worlds keep their own character contract; Nordlysleiren uses the same selected troll. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -174,17 +174,22 @@ async function run(engine,label,viewport,url){
    });
    assert(firstFold,label+' '+subject+' main mission is hidden below the first panel');
    assert(metrics.close?.height>=44&&metrics.close?.width>=44,label+' '+subject+' close target is too small');
-   assert.equal(await map.locator('.locked-journey-traveler').count(),1,label+' '+subject+' cloned the personal fox');
-   assert.equal(await sheet.locator('.mission-fox-stage .locked-journey-traveler').getAttribute('data-avatar'),'girl',
-     label+' '+subject+' selected avatar changed');
-   // The same DOM fox must also have visible, actual illustrated art.
-   const liveArt=sheet.locator('.mission-fox-stage .laria-fox-wardrobe-placed');
+   const traveler=sheet.locator('.mission-fox-stage .locked-journey-traveler');
+   assert.equal(await map.locator('.locked-journey-traveler').count(),1,label+' '+subject+' cloned the companion');
+   assert.equal(await traveler.getAttribute('data-troll'),'storesoster',
+     label+' '+subject+' selected troll changed');
+   assert.equal(await traveler.getAttribute('data-avatar'),null,
+     label+' '+subject+' retired fox identity returned');
+   assert.equal(await traveler.locator(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').count(),0,
+     label+' '+subject+' fox wardrobe leaked onto troll');
+   // The same DOM troll must also have visible, actual illustrated art.
+   const liveArt=traveler.locator(':scope > .locked-journey-troll-art');
    await liveArt.waitFor({state:'visible',timeout:5000});
-   const visibleFox=await liveArt.evaluate(el=>{
+   const visibleTroll=await liveArt.evaluate(el=>{
      const box=el.getBoundingClientRect(),style=getComputedStyle(el);
      return box.width>20&&box.height>20&&style.visibility!=='hidden'&&style.display!=='none'&&Number(style.opacity)>0;
    });
-   assert(visibleFox,label+' '+subject+' personalized fox artwork did not render');
+   assert(visibleTroll,label+' '+subject+' selected troll artwork did not render');
    if(process.env.MISSION_QA_SCREENSHOTS&&['webkit-iphone','webkit-ipad-landscape'].includes(label)){
      fs.mkdirSync(process.env.MISSION_QA_SCREENSHOTS,{recursive:true});
      await page.screenshot({path:path.join(process.env.MISSION_QA_SCREENSHOTS,label+'-'+subject+'-before.png'),animations:'disabled'});
@@ -213,7 +218,7 @@ async function run(engine,label,viewport,url){
    assert.deepEqual(launch?.args,subject==='geography'?[mainId,2]:[subject,mainId,2],
      label+' '+subject+' broke original mission routing');
    assert.equal(await map.locator('.locked-journey-board > .locked-journey-traveler').count(),1,
-     label+' '+subject+' failed to restore fox after launching lesson');
+     label+' '+subject+' failed to restore troll after launching lesson');
    assert.equal(await page.locator('.locked-journey-overlay:not([hidden])').count(),0,
      label+' '+subject+' mission sheet stayed open after launch');
 
@@ -252,7 +257,7 @@ async function run(engine,label,viewport,url){
    }
    assert.match(await completed.locator('.mission-complete').innerText(),/Du klarte oppdraget|Hele reisen er fullført/);
    assert.equal(await completed.locator('.mission-fox-stage .locked-journey-traveler').count(),1,
-    label+' '+subject+' lost selected fox after completion');
+    label+' '+subject+' lost selected troll after completion');
    const replayedIds=await completed.locator('button.mission-activity.is-replay[data-locked-node]').evaluateAll(
       buttons=>buttons.map(button=>button.dataset.lockedNode));
    assert.deepEqual([...new Set(replayedIds)].sort(),[...completion.doneIds].sort(),
@@ -265,14 +270,14 @@ async function run(engine,label,viewport,url){
      assert.equal((await page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet h2').innerText()).trim(),
        LARIA_NAMES[subject][nextIndex],label+' '+subject+' continue opened wrong place');
      assert.equal(await afterReload.locator('.locked-journey-traveler').count(),1,
-       label+' '+subject+' continue duplicated selected fox');
+       label+' '+subject+' continue duplicated selected troll');
    }else{
      assert.equal(await completed.locator('[data-locked-map]').count(),1,
        label+' '+subject+' missing graceful fallback when no next place is open');
    }
    await page.locator('.locked-sheet-close').click();
    assert.equal(await afterReload.locator('.locked-journey-board > .locked-journey-traveler').count(),1,
-      label+' '+subject+' fox was not returned to the illustrated map');
+      label+' '+subject+' troll was not returned to the illustrated map');
    await afterReload.locator('.locked-journey-back').click();
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }

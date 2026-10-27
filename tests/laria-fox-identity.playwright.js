@@ -1,6 +1,6 @@
 'use strict';
-/* Runtime proof: saved profile identity survives Kinnaklova's approved troll
- * sources as well as the existing task actor and legacy journey foxes. */
+/* Runtime proof: saved profile identity survives the approved troll worlds
+ * while the existing task actor keeps the saved profile avatar where still used. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {chromium,webkit}=require('playwright');
@@ -172,18 +172,31 @@ async function run(engine,name,viewport,which){
    }
    const root=page.locator('#'+target+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await root.waitFor({timeout:16000});
-   await imageIsChosen(page,'#'+target+'-screen.active .locked-journey-profile img',which,name+' '+subject+' profile');
-   const traveler=root.locator('.locked-journey-traveler');
-   assert.equal(await traveler.getAttribute('data-avatar'),which,name+' '+subject+' traveler identity');
-   await imageIsChosen(page,'#'+target+'-screen.active .locked-journey-traveler img',which,name+' '+subject+' traveler');
+   // Nordlysleiren now uses the same original forest troll selected in Tallvika.
+   // The saved legacy avatar remains untouched for task scenes that still use it.
+   const trollId='storesoster';
+   const profile=root.locator('.locked-journey-profile[data-troll="'+trollId+'"]');
+   await profile.waitFor({timeout:16000});
+   const profileSrc=await profile.locator('img').getAttribute('src');
+   assert.ok(profileSrc?.endsWith('/'+trollId+'.webp'),
+     name+' '+subject+' profile badge lost selected troll');
+   const traveler=root.locator('.locked-journey-traveler[data-troll="'+trollId+'"]');
+   await traveler.waitFor({timeout:16000});
+   assert.equal(await traveler.getAttribute('data-avatar'),null,
+     name+' '+subject+' retired fox identity returned');
+   const travelerSrc=await traveler.locator('.locked-journey-troll-art img').getAttribute('src');
+   assert.ok(travelerSrc?.endsWith('/'+trollId+'.webp'),
+     name+' '+subject+' traveler uses wrong troll');
+   assert.equal(await traveler.locator(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').count(),0,
+     name+' '+subject+' fox wardrobe leaked onto troll');
    const scene=await traveler.evaluate(el=>({
     pointer:getComputedStyle(el).pointerEvents,
     border:getComputedStyle(el).borderRadius,
     x:el.getBoundingClientRect().x,
     w:el.getBoundingClientRect().width
    }));
-   assert.equal(scene.pointer,'none',name+' '+subject+' fox intercepts landmark taps');
-   assert.ok(scene.w>=28,name+' '+subject+' tiny traveling fox');
+   assert.equal(scene.pointer,'none',name+' '+subject+' troll intercepts landmark taps');
+   assert.ok(scene.w>=28,name+' '+subject+' tiny traveling troll');
    await page.screenshot({path:folder+'/'+name+'-'+subject+'.png',fullPage:true});
    await root.locator('.locked-journey-hotspot.state-current').first().click();
    const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
@@ -237,7 +250,7 @@ async function run(engine,name,viewport,which){
   }
   assert.deepEqual(errors,[],name+' uncaught errors');
   await context.close();
-  console.log('Personal fox verified',name,which,'Home + four real journeys + four tasks + reload');
+  console.log('Profile identity verified',name,which,'troll-led worlds + existing task actor + reload');
  }finally{await browser.close()}
 }
 (async()=>{

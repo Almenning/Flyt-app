@@ -91,6 +91,28 @@
 #geography-screen .locked-journey-board .locked-journey-traveler{
   width:clamp(76px,20%,124px);height:auto;aspect-ratio:1;
 }
+/* Nordlysleiren uses the exact approved 1:2 skogstroll art. Keep its feet on
+   the same painted route anchors while scaling gently into the scene depth. */
+#geography-screen .locked-journey-board .locked-journey-traveler[data-troll]{
+  position:absolute!important;
+  width:clamp(44px,11.5%,78px)!important;height:auto!important;aspect-ratio:1 / 2!important;
+  transform:translate(-50%,-100%)!important;
+  overflow:visible!important;border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;
+  filter:drop-shadow(0 4px 4px rgba(16,43,37,.32));
+  transition:left 1.05s cubic-bezier(.25,.66,.29,1),top 1.05s cubic-bezier(.25,.66,.29,1),width .9s ease-out!important;
+}
+#geography-screen .locked-journey-board .locked-journey-traveler[data-troll]>.locked-journey-troll-art{
+  display:block;width:100%;height:100%;overflow:visible;
+}
+#geography-screen .locked-journey-board .locked-journey-traveler[data-troll]>.locked-journey-troll-art>img{
+  display:block;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center bottom!important;
+  border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+}
+#geography-screen .locked-journey-board .locked-journey-traveler[data-troll][data-laria-troll-stop="1"]{width:clamp(40px,10.5%,70px)!important}
+#geography-screen .locked-journey-board .locked-journey-traveler[data-troll][data-laria-troll-stop="2"]{width:clamp(36px,9.5%,63px)!important}
+#geography-screen .locked-journey-board .locked-journey-traveler[data-troll][data-laria-troll-stop="3"]{width:clamp(32px,8.5%,57px)!important}
+#geography-screen .locked-journey-board .locked-journey-traveler[data-troll][data-laria-troll-stop="4"]{width:clamp(29px,7.5%,51px)!important}
 #session-screen .task-fox-companion.laria-fox-wardrobe-anchor{
   overflow:visible!important;border:0!important;border-radius:0!important;
   background:none!important;

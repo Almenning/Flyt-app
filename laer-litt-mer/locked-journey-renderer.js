@@ -26,6 +26,17 @@
       return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
     }catch(_){return './lia-fox-explorer-home.webp'}
   }
+  const TROLL_COMPANIONS=Object.freeze({
+    storesoster:Object.freeze({name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'}),
+    lillesoster:Object.freeze({name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp'}),
+    lillebror:Object.freeze({name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'})
+  });
+  function selectedTroll(){
+    try{
+      const id=state?.profile?.tallvikaTroll;
+      return TROLL_COMPANIONS[id]?id:'storesoster';
+    }catch(_){return 'storesoster'}
+  }
   // Reversible transparent cleanup patches. The four approved original
   // paintings remain byte-for-byte intact and own all hotspots and geometry.
   // Coordinates are source-image pixels on the unchanged 941x1672 canvas.
@@ -45,7 +56,17 @@
       '" width="'+w+'" height="'+h+'" style="left:'+px(x,941)+';top:'+px(y,1672)+
       ';width:'+px(w,941)+';height:'+px(h,1672)+'">';
   }
-  function liveProfileMarkup(progress){
+  function liveProfileMarkup(progress,subject){
+    // Nordlysleiren follows the locked skogstroll decision. Other legacy
+    // journeys retain their existing fox identity until their art-first worlds
+    // replace those maps.
+    if(subject==='geography'){
+      const id=selectedTroll(),troll=TROLL_COMPANIONS[id];
+      return '<div class="locked-journey-profile locked-journey-profile-troll" data-troll="'+id+'" aria-label="Ditt valgte skogstroll: '+esc(troll.name)+'">'+
+        '<span class="locked-journey-troll-art"><img src="'+esc(troll.src)+'" alt=""></span></div>'+
+        '<div class="locked-journey-live-progress" role="status" aria-label="'+esc(progress.done+' av '+progress.total+' oppdrag fullført i denne reisen')+'">'+
+        '<span aria-hidden="true">★</span><b>'+progress.done+' / '+progress.total+'</b></div>';
+    }
     const which=selectedAvatar(),label=which==='girl'?'Din valgte revejente':'Din valgte revegutt';
     // The approved painting contains a sample portrait and "127". Cover both
     // with real local profile/progress UI so decorative pixels are never
@@ -381,7 +402,7 @@
     host.innerHTML='<section class="locked-journey-board" aria-label="'+esc(def.subjectLabel+' – '+def.title+', interaktivt eventyrkart')+'">'+
       '<img class="locked-journey-image" src="./'+esc(def.asset)+'" alt="" draggable="false" width="941" height="1672">'+
       foxFreeOverlayMarkup(subject)+
-      liveProfileMarkup(s.progress)+
+      liveProfileMarkup(s.progress,subject)+
       (places.length?(()=>{
         // A completed journey still has its personal fox at the last reached stop.
         const here=places.find(p=>p.recommended)||[...places].reverse().find(p=>p.done>0)||places[0];
@@ -389,6 +410,10 @@
         // The reusable character is positioned by its feet. The original
         // painted generic fox still requires artwork retouch before publishing.
         const point=contract.foxFootAnchor(subject,here.index);
+        if(subject==='geography'){
+          const id=selectedTroll(),troll=TROLL_COMPANIONS[id];
+          return '<div class="locked-journey-traveler locked-journey-troll-traveler" data-troll="'+id+'" data-laria-troll-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="Ditt skogstroll er med på reisen: '+esc(troll.name)+'"><span class="locked-journey-troll-art"><img src="'+esc(troll.src)+'" alt=""></span><span class="locked-fox-label">Mitt troll</span></div>';
+        }
         return '<div class="locked-journey-traveler" data-avatar="'+selectedAvatar()+'" data-laria-fox-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="Din rev er med på reisen"><img src="'+esc(selectedAvatarSource())+'" alt=""><span class="locked-fox-label">Min rev</span></div>';
       })():'')+
       '<div class="locked-journey-hits">'+places.map(p=>placeButton(subject,p,model,s.firstOpen)).join('')+'</div>'+
@@ -434,8 +459,10 @@
       if(!traveler||!board||traveler.parentElement===board)return;
       if(hitLayer)board.insertBefore(traveler,hitLayer);
       else board.appendChild(traveler);
-      window.LARIA_FOX_PRESENCE?.react?.('idle',traveler);
-      window.LARIA_FOX_WARDROBE?.refresh?.();
+      if(!traveler.dataset.troll){
+        window.LARIA_FOX_PRESENCE?.react?.('idle',traveler);
+        window.LARIA_FOX_WARDROBE?.refresh?.();
+      }
     }
     function close(){
       restoreTraveler();
@@ -454,12 +481,12 @@
         const stage=dialog.querySelector('.mission-fox-stage');
         if(stage){
           stage.appendChild(traveler);
-          window.LARIA_FOX_WARDROBE?.refresh?.();
+          if(!traveler.dataset.troll)window.LARIA_FOX_WARDROBE?.refresh?.();
           requestAnimationFrame(()=>{
             if(overlay.hidden||traveler.parentElement!==stage)return;
             // Preserve the walking reaction started by the tapped painted
             // landmark. Only a completed mission replaces it with celebration.
-            if(dialog.querySelector('.mission-complete'))
+            if(dialog.querySelector('.mission-complete')&&!traveler.dataset.troll)
               window.LARIA_FOX_PRESENCE?.react?.('celebrate',traveler);
           });
         }

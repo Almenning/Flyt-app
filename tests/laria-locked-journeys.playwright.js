@@ -33,7 +33,10 @@ async function run(engine,label,viewport){
   const page=await ctx.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(value=>{
-    localStorage.setItem('laerlittmer-v2',JSON.stringify(value));
+    // Seed only the first document. Reloads must preserve the exact profile
+    // written by the test, just like a real child returning to the app.
+    if(!localStorage.getItem('laerlittmer-v2'))
+      localStorage.setItem('laerlittmer-v2',JSON.stringify(value));
     window.LARIA_LOCKED_JOURNEY_QA_ART=true;
   },seed);
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
@@ -107,6 +110,57 @@ async function run(engine,label,viewport){
      await tv.locator('[data-tv="back"]').click();
      await page.locator('#home-screen.active').waitFor({timeout:12000});
      continue;
+   }
+   // Nordlysleiren reuses the exact original Tallvika troll selection.
+   // Switching companion art must never modify the journey's saved progress.
+   if(subject==='geography'){
+     const companion=page.locator('#geo-journey-now #geo-journey-troll');
+     await companion.waitFor({state:'attached',timeout:16000});
+     const previous=await page.evaluate(()=>({
+       choice:state.profile?.tallvikaTroll,journey:JSON.stringify(state.journey)
+     }));
+     assert.equal(await companion.getAttribute('data-troll'),'storesoster',
+       label+' default Nordlysleiren companion is not original Storesøster');
+     assert.equal((await page.locator('#geo-journey-now').innerText()).includes('🦊'),false,
+       label+' retired fox is still visible in Nordlysleiren');
+     for(const choice of ['lillesoster','lillebror','storesoster']){
+       // The companion contract is a persisted profile contract. Reloading from
+       // storage avoids coupling this browser test to a transient render queue.
+       await page.evaluate(id=>{
+         const saved=JSON.parse(localStorage.getItem('laerlittmer-v2'));
+         saved.profile={...saved.profile,tallvikaTroll:id};
+         localStorage.setItem('laerlittmer-v2',JSON.stringify(saved));
+       },choice);
+       await page.reload({waitUntil:'domcontentloaded'});
+       await page.locator('.bc14-subject[data-camp="subject-geography"]').waitFor({timeout:16000});
+       await page.locator('.bc14-subject[data-camp="subject-geography"]').click();
+       await page.locator('#geography-screen.active').waitFor({timeout:16000});
+       await companion.waitFor({state:'attached',timeout:16000});
+       assert.equal(await companion.getAttribute('data-troll'),choice,
+         label+' Geografi did not reuse selected original troll '+choice);
+       assert.ok((await companion.getAttribute('src')).endsWith('/'+choice+'.webp'),
+         label+' Geografi rendered wrong original asset for '+choice);
+       const traveler=page.locator('#geography-screen.active .locked-journey-traveler[data-troll]');
+       await traveler.waitFor({state:'attached',timeout:20000});
+       assert.equal(await traveler.getAttribute('data-troll'),choice,
+         label+' Nordlysleiren map did not reuse selected troll '+choice);
+       assert.ok((await traveler.locator('.locked-journey-troll-art img').getAttribute('src')).endsWith('/'+choice+'.webp'),
+         label+' Nordlysleiren map rendered wrong troll asset for '+choice);
+       assert.equal(await traveler.locator(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').count(),0,
+         label+' fox wardrobe was layered over Nordlysleiren troll '+choice);
+       const profileTroll=page.locator('#geography-screen.active .locked-journey-profile[data-troll]');
+       assert.equal(await profileTroll.getAttribute('data-troll'),choice,
+         label+' Nordlysleiren profile badge did not reuse selected troll '+choice);
+     }
+     await page.evaluate(choice=>{
+       const saved=JSON.parse(localStorage.getItem('laerlittmer-v2'));
+       const profile={...saved.profile};
+       if(choice)profile.tallvikaTroll=choice;else delete profile.tallvikaTroll;
+       saved.profile=profile;
+       localStorage.setItem('laerlittmer-v2',JSON.stringify(saved));
+     },previous.choice);
+     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),previous.journey,
+       label+' changing the Geografi companion modified stored journey evidence');
    }
    // A map host exists immediately for the approved loading frame. Geometry
    // must be inspected only once the exact 941x1672 interactive map is ready.

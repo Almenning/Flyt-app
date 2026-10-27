@@ -346,6 +346,9 @@
     .journey-now-card{display:flex;align-items:center;gap:12px;margin:12px 0 10px;padding:13px 15px;border-radius:23px;background:linear-gradient(145deg,#263A66,#40558B);color:#fff;box-shadow:0 7px 0 rgba(38,52,93,.14),0 14px 25px rgba(46,60,102,.16)}
     .journey-now-card.geo-now{background:linear-gradient(145deg,#24556A,#39798A)}
     .journey-now-fox{width:49px;height:49px;border-radius:17px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:29px;flex:0 0 auto}
+    /* Geografi shows the original child-selected forest troll, not the retired fox. */
+    .geo-now .geo-journey-companion{overflow:visible;background:transparent;border-radius:0}
+    .geo-now .geo-journey-companion img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
     .journey-now-card span{display:block;font-size:8px;letter-spacing:.13em;font-weight:950;opacity:.72}.journey-now-card strong{display:block;margin-top:2px;font-size:15px;font-weight:950}.journey-now-card small{display:block;margin-top:3px;font-size:9px;line-height:1.35;font-weight:750;color:rgba(255,255,255,.78)}
     .journey-collection{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 11px;scrollbar-width:none}.journey-collection::-webkit-scrollbar{display:none}
     .journey-collectible{flex:0 0 auto;min-width:82px;border-radius:19px;padding:10px 9px;text-align:center;background:rgba(255,255,255,.74);border:2px solid rgba(255,255,255,.88);box-shadow:0 4px 12px rgba(53,63,97,.07)}
@@ -2403,12 +2406,12 @@
   <!-- UX phase 2 owns the responsive geography geometry in one place. -->
   <link rel="stylesheet" href="./globe-ux-phase2.css?v=20261013-ipad-controls" />
   <!-- Original approved art: guarded rendering, no substitutions -->
-  <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261015-floating-back1" />
+  <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261027-nordlys-troll1" />
   <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261015-ipad-mac-stage1-iphone-c3" />
   <link rel="stylesheet" href="./laria-fox-identity.css?v=20261011-personalfox2" />
-  <link rel="stylesheet" href="./laria-fox-presence.css?v=20261013-task-world-sprite3-noflash" />
+  <link rel="stylesheet" href="./laria-fox-presence.css?v=20261027-nordlys-troll1" />
   <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
-  <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261015-missions-v1" />
+  <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261027-nordlys-troll1" />
   <link rel="stylesheet" href="./laria-country-detail-premium-v1.css?v=20261015-story3-curated1" />
   <link rel="stylesheet" href="./country-discoveries-v1.css?v=20261015-discoveries1" />
 <link rel="stylesheet" href="./discovery-globe-view-v1.css?v=20261018-continent3-relief3-stories1-marker1" />
@@ -2763,7 +2766,7 @@
           <div class="journey-summary-ring" id="geo-journey-ring" style="--journey-pct:0"><span id="geo-journey-pct">0%</span></div>
         </div>
         <div class="journey-now-card geo-now" id="geo-journey-now">
-          <div class="journey-now-fox" aria-hidden="true">🦊</div>
+          <div class="journey-now-fox geo-journey-companion" aria-hidden="true"><img id="geo-journey-troll" src="./assets/gangemagi-troll/storesoster.webp" alt="" loading="lazy" decoding="async"></div>
           <div><span>DU ER HER</span><strong id="geo-journey-now-title">Første etappe</strong><small id="geo-journey-now-copy">Start ekspedisjonen og samle ditt første stempel.</small></div>
         </div>
         <div class="journey-collection" id="geo-journey-collection" aria-label="Stempler fra geografireisen"></div>
@@ -4190,6 +4193,15 @@ function geoJourneyRouteSvg(area){
 
 function renderGeoJourney(){
   const host=document.getElementById('geo-journey-map');if(!host)return;
+  // Reuse the exact approved Tallvika character selection across subjects.
+  // Never put old fox art back or alter the stored choice/progress model.
+  const trollChoice=state.profile?.tallvikaTroll;
+  const trollId=['storesoster','lillesoster','lillebror'].includes(trollChoice)?trollChoice:'storesoster';
+  const trollImage=document.getElementById('geo-journey-troll');
+  if(trollImage){
+    trollImage.src='./assets/gangemagi-troll/'+trollId+'.webp';
+    trollImage.dataset.troll=trollId;
+  }
   host.className='journey-map journey-map-v5';
   const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,currentAreaIndex=journeyFirstOpenArea(model,geoJourneyAreaComplete);
   document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[viewGrade].label;
@@ -7156,7 +7168,7 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./geography-continent-voyage-preview-v1.js?v=20261017-geo2a" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
-<script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>
+<script src="./locked-journey-renderer.js?v=20261027-nordlys-troll1" defer></script>
 <!-- Free play + Home -->
 <script src="./word-hunt-themes.js?v=20261026-norsk-themes2" defer></script>
 <script src="./word-hunt.js?v=20261026-norsk-recovery2" defer></script>
@@ -7169,7 +7181,7 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./laria-navigation-v13.js?v=20261026-norsk-no-map1" defer></script>
 <script src="./norsk-object-extras-v1.js?v=20261026-all-early-norsk1" defer></script>
 <script src="./laria-task-scene-v15.js?v=20261026-norsk-art-isolated1-kinnaklova-reading2-ki-a11y1" defer></script>
-<script src="./laria-fox-presence.js?v=20261011-livefoxart1" defer></script>
+<script src="./laria-fox-presence.js?v=20261027-nordlys-troll1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>

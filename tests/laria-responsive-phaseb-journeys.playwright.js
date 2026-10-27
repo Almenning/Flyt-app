@@ -1,7 +1,7 @@
 'use strict';
-/* Læria responsive phase B: four exact portrait maps on tablet/desktop.
- * The screenshots are WebKit/Chromium output of the REAL original PNGs.
- * No mock illustration is used. iPhone layout is deliberately unchanged. */
+/* Læria responsive phase B: the remaining active exact portrait map on tablet/desktop.
+ * Eggenipa, Tallvika and Kinnaklova now own their own responsive presentation.
+ * This gate keeps Nordlysleiren's real original PNG full-width and undistorted. */
 process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY='1';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -11,7 +11,7 @@ const {webkit,chromium}=require('playwright');
 
 const root=path.resolve(__dirname,'..');
 const out=process.env.LARIA_RESPONSIVE_PHASEB_IMAGES||'/tmp/laria-responsive-phaseb';
-const subjects=['norwegian','math','english','geography'];
+const subjects=['geography'];
 const seed={
  version:7,progressSchemaVersion:3,
  profile:{grade:2,onboarded:true,name:'ResponsiveQA',avatar:'girl',setupVersion:2},
@@ -87,7 +87,8 @@ async function validateStage(page,subject,label,viewport,screen){
    bodyContext:document.body.className,
    visibleOutside,activeSubject:map.dataset.journeySubject,
    originalMarkup:map.dataset.lockedIllustration,
-   foxCount:map.querySelectorAll('.locked-journey-traveler[data-avatar="girl"]').length,
+   companionCount:map.querySelectorAll('.locked-journey-traveler[data-troll="storesoster"]').length,
+   retiredFoxCount:map.querySelectorAll('.locked-journey-traveler[data-avatar]').length,
    hotspots:markers.map(node=>rect(node)),hotspotLabels:markers.map(node=>node.getAttribute('aria-label')),
    horizontalOverflow:document.documentElement.scrollWidth-innerWidth,
    pageScrollHeight:document.documentElement.scrollHeight
@@ -109,7 +110,8 @@ async function validateStage(page,subject,label,viewport,screen){
  assert(data.board.right<=width+1&&data.board.x>=-1,label+' map is clipped horizontally');
  assert(data.horizontalOverflow<=2,label+' document has horizontal overflow '+data.horizontalOverflow);
  assert.equal(data.hotspots.length,5,label+' lost mapped landmarks');
- assert.equal(data.foxCount,1,label+' chosen fox is missing or duplicated');
+ assert.equal(data.companionCount,1,label+' chosen forest troll is missing or duplicated');
+ assert.equal(data.retiredFoxCount,0,label+' retired fox traveler returned');
  assert(data.hotspotLabels.every(s=>s&&s.includes('Sted ')),label+' landmark accessible names missing');
  assert(data.hotspots.every(hit=>hit.w>=44&&hit.h>=44&&hit.x>=data.board.x-2&&
    hit.right<=data.board.right+2&&hit.y>=data.board.y-2&&hit.bottom<=data.board.bottom+2),
@@ -216,7 +218,7 @@ async function run(engine,label,viewport,url){
   await page.route('https://raw.githubusercontent.com/**',route=>route.abort());
   await page.route('https://api.worldbank.org/**',route=>route.abort());
   await page.goto(url+'&responsive-phaseb='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]:visible').waitFor({timeout:16000});
+  await page.locator('.bc14-subject[data-camp="subject-geography"]:visible').waitFor({timeout:16000});
   for(const subject of subjects){
    const screen=await visit(page,subject);
    await validateStage(page,subject,label,viewport,screen);
@@ -229,13 +231,13 @@ async function run(engine,label,viewport,url){
    }
   }
   assert.deepEqual(errors,[],label+' uncaught script errors');
-  console.log('PASS '+label+' all four original maps: full-width scenic stage, no distortion, correct taps/fox, preserved return');
+  console.log('PASS '+label+' Nordlysleiren: full-width scenic stage, no distortion, correct taps/troll, preserved return');
  }finally{if(context)await context.close();await browser.close();}
 }
 (async()=>{
  const {server,url}=await serve();
  try{
-  await protectPhaseACompactPhone(url);
+  // Compact phone protection is owned by the dedicated phase C3 workflow.
   await run(webkit,'webkit-ipad-portrait',{width:820,height:1180,tablet:true,minimumWidth:720},url);
   await run(webkit,'webkit-ipad-landscape',{width:1180,height:820,tablet:true,minimumWidth:800},url);
   await run(webkit,'webkit-small-ipad-landscape',{width:1024,height:768,tablet:true,minimumWidth:700},url);

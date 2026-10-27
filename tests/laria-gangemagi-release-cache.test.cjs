@@ -39,8 +39,8 @@ test('all changed Gangemagi entry assets have distinct release URLs', () => {
   // stale as soon as the clean Kinnaklova master was added.
   assert.ok(activeCache.includes('-storybookcss2-tallvika-main-sync1'),
     'Tallvika and Kinnaklova integration cache segment must remain present');
-  assert.ok(activeCache.endsWith('-storybookcss2-tallvika-main-sync1-kinnaklova-cleanart1'),
-    'Clean Kinnaklova art must have its own final cache release key');
+  assert.ok(activeCache.includes('-kinnaklova-cleanart1'),
+    'Clean Kinnaklova art cache release key must be retained when later releases are appended');
 });
 test('activation removes old Laria caches but preserves unrelated application caches', async () => {
   const active = worker.match(/^const CACHE='([^']+)';/)[1];
