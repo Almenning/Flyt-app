@@ -62,9 +62,27 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 }
 .tv-companion{
   position:absolute;z-index:4;left:64%;bottom:7%;width:13.5%;height:46%;
-  display:flex;align-items:end;justify-content:center;pointer-events:none
+  display:flex;align-items:end;justify-content:center;pointer-events:none;isolation:isolate
 }
-.tv-companion img{width:auto;height:100%;max-width:100%;object-fit:contain}
+.tv-companion__ground{display:none}
+.tv-companion img{
+  position:relative;z-index:1;width:auto;height:100%;max-width:100%;object-fit:contain;
+  transform-origin:50% 96%
+}
+/* User-approved 26.10 Storesøster: preserve the exact painterly pixels and
+   change only world placement/contact. Other two locked trolls stay untouched. */
+.tv-companion[data-troll-id="storesoster"]{
+  left:58.1%;bottom:14.7%;width:9.3%;height:31.4%
+}
+.tv-companion[data-troll-id="storesoster"] .tv-companion__ground{
+  display:block;position:absolute;z-index:0;left:7%;right:4%;bottom:1.8%;height:8%;
+  border-radius:50%;
+  background:radial-gradient(ellipse,rgba(70,47,24,.42) 0 26%,rgba(73,52,31,.21) 42%,rgba(73,52,31,0) 73%);
+  filter:blur(2.5px);transform:rotate(-5deg) scaleX(1.12);mix-blend-mode:multiply
+}
+.tv-companion[data-troll-id="storesoster"] img{
+  filter:drop-shadow(1px 3px 1px rgba(67,49,29,.20)) drop-shadow(-2px 4px 5px rgba(67,49,29,.17))
+}
 .tv-hotspot{
   position:absolute;z-index:3;display:grid;place-items:center;
   border:0;border-radius:25px;background:transparent;color:#fff9e9;
@@ -291,6 +309,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-scene-footer{display:none}
   .tv-scene-copy{display:none!important}
   .tv-companion{width:13.5%;height:46%}
+  .tv-companion[data-troll-id="storesoster"]{left:55.5%;bottom:12.5%;width:13.2%;height:43.5%}
   .tv-dock{padding:0 14px 25px}
   .tv-dock-intro{
     display:flex;align-items:center;gap:9px;text-align:left;
