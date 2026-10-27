@@ -108,6 +108,33 @@ async function run(engine,label,viewport){
      await page.locator('#home-screen.active').waitFor({timeout:12000});
      continue;
    }
+   // Nordlysleiren reuses the exact original Tallvika troll selection.
+   // Switching companion art must never modify the journey's saved progress.
+   if(subject==='geography'){
+     const companion=page.locator('#geo-journey-now #geo-journey-troll');
+     await companion.waitFor({state:'attached',timeout:16000});
+     const previous=await page.evaluate(()=>({
+       choice:state.profile?.tallvikaTroll,journey:JSON.stringify(state.journey)
+     }));
+     assert.equal(await companion.getAttribute('data-troll'),'storesoster',
+       label+' default Nordlysleiren companion is not original Storesøster');
+     assert.equal((await page.locator('#geo-journey-now').innerText()).includes('🦊'),false,
+       label+' retired fox is still visible in Nordlysleiren');
+     for(const choice of ['lillesoster','lillebror','storesoster']){
+       await page.evaluate(id=>{state.profile.tallvikaTroll=id;renderGeoJourney()},choice);
+       assert.equal(await companion.getAttribute('data-troll'),choice,
+         label+' Geografi did not reuse selected original troll '+choice);
+       assert.ok((await companion.getAttribute('src')).endsWith('/'+choice+'.webp'),
+         label+' Geografi rendered wrong original asset for '+choice);
+     }
+     await page.evaluate(choice=>{
+       if(choice)state.profile.tallvikaTroll=choice;
+       else delete state.profile.tallvikaTroll;
+       renderGeoJourney();
+     },previous.choice);
+     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),previous.journey,
+       label+' changing the Geografi companion modified stored journey evidence');
+   }
    // A map host exists immediately for the approved loading frame. Geometry
    // must be inspected only once the exact 941x1672 interactive map is ready.
    await page.waitForFunction(s=>{
