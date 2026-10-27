@@ -140,6 +140,17 @@ async function run(engine,label,viewport){
          label+' Geografi did not reuse selected original troll '+choice);
        assert.ok((await companion.getAttribute('src')).endsWith('/'+choice+'.webp'),
          label+' Geografi rendered wrong original asset for '+choice);
+       const traveler=page.locator('#geography-screen.active .locked-journey-traveler[data-troll]');
+       await traveler.waitFor({state:'attached',timeout:20000});
+       assert.equal(await traveler.getAttribute('data-troll'),choice,
+         label+' Nordlysleiren map did not reuse selected troll '+choice);
+       assert.ok((await traveler.locator('.locked-journey-troll-art img').getAttribute('src')).endsWith('/'+choice+'.webp'),
+         label+' Nordlysleiren map rendered wrong troll asset for '+choice);
+       assert.equal(await traveler.locator(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').count(),0,
+         label+' fox wardrobe was layered over Nordlysleiren troll '+choice);
+       const profileTroll=page.locator('#geography-screen.active .locked-journey-profile[data-troll]');
+       assert.equal(await profileTroll.getAttribute('data-troll'),choice,
+         label+' Nordlysleiren profile badge did not reuse selected troll '+choice);
      }
      await page.evaluate(choice=>{
        const saved=JSON.parse(localStorage.getItem('laerlittmer-v2'));
