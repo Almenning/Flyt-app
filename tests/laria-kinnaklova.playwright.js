@@ -95,6 +95,14 @@ async function run(browserType,name,viewport){
     sessionLog:window.LARIA_TALLVIKA_BRIDGE.state().sessionLog||[],
     answerLog:window.LARIA_TALLVIKA_BRIDGE.state().answerLog||[]
   }));
+  const configuredArt=await world.locator('.ki-master').getAttribute('src');
+  if(configuredArt){
+    // A release candidate must complete its SHA verification before the
+    // capture. The former draft assertion accepted the temporary placeholder
+    // and could report green device QA while the child still saw no scene.
+    await page.waitForFunction(()=>document.querySelector('#kinnaklova-world')?.dataset.kiArt==='ready',
+      null,{timeout:20000});
+  }
   const art=await world.locator('.ki-master').evaluate(async img=>{
     try{await img.decode()}catch(_){}
     const rect=img.getBoundingClientRect();
