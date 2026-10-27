@@ -25,7 +25,7 @@
       host?.querySelector(':scope > .laria-fox-wardrobe-placed')||null;
   }
   function react(kind='greet',host=activeHost()){
-    if(!host||!VALID.has(kind))return false;
+    if(!host||host.dataset?.troll||!VALID.has(kind))return false;
     root.clearTimeout(activeTimers.get(host));
     host.dataset.lariaFoxMood='idle';
     const art=artworkFor(host);
@@ -58,6 +58,10 @@
     if(!point)return false;
     fox.style.setProperty('--fox-x',point.x+'%');
     fox.style.setProperty('--fox-y',point.y+'%');
+    if(fox.dataset.troll){
+      fox.dataset.lariaTrollStop=String(index);
+      return true;
+    }
     fox.dataset.lariaFoxStop=String(index);
     fox.dataset.lariaFoxSelected=String(root.LARIA_FOX?.choice?.()||'boy');
     react('walking',fox);
