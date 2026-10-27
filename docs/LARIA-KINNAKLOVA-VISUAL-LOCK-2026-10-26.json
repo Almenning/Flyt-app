@@ -45,7 +45,7 @@
     "Eksisterende engelsk læringsmotor, progresjon og Norsk/Matte/Geografi forblir urørt"
   ],
   "implementation": {
-    "status": "clean-source-imported-awaiting-visual-approval",
+    "status": "clean-source-and-device-qa-approved",
     "scene_asset": "laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
     "scene_asset_source": "The exact user-approved 1672x941 reference, with ONLY the three rejected trolls locally removed. Never show the original with the rejected trolls baked in.",
     "clean_master_sha256": "d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57",
@@ -64,7 +64,7 @@
       "lillesoster"
     ],
     "art_gate": "MUST fail without lossless cleaned background and separate user-verified identity/integration",
-    "release_approval": false,
+    "release_approval": true,
     "ci": "test:laria-kinnaklova contract, Playwright iPad/iPhone Chromium/WebKit, separate art release gate"
   }
 }
