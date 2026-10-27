@@ -63,51 +63,65 @@ async function run(engine,name,viewport,avatar){
     }
     await page.screenshot({path:path.join(dir,name+'-home.png'),animations:'disabled'});
 
+    // Norsk now uses Eggenipa's direct reading activity, never the retired Bokskogen map.
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
-     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    const map=page.locator('#subject-screen.active .locked-journey-map');
-    await map.waitFor({timeout:16000});
-    const fox=map.locator('.locked-journey-traveler');
-    // The approved PNG is deliberately decoded before the map's real fox
-    // enters the DOM; the warm loading scene has no synthetic traveler.
-    await fox.waitFor({state:'attached',timeout:20000});
-    assert.equal(await fox.count(),1,name+' must have exactly one movable personal fox');
-    await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
-    assert.equal(await fox.getAttribute('data-avatar'),avatar,name+' route changed fox identity');
-    const cameo=map.locator('.locked-journey-profile[data-avatar="'+avatar+'"]');
-    assert.equal(await cameo.count(),1,name+' chosen fox header cameo missing');
-    const cameoArt=await cameo.evaluate(el=>getComputedStyle(el,'::after').backgroundImage);
-    assert.match(cameoArt,avatar==='girl'?/girl-braids-face-v1\.webp/:/boy-adventurer-face-v1\.webp/,
-      name+' header portrait does not match the selected full-body explorer');
-
-    assert.equal(await fox.locator('.laria-fox-wardrobe-art [data-gear]').count(),0,name+' unreleased clothing leaked onto journey fox');
-    const initial=await fox.evaluate(el=>({x:el.style.getPropertyValue('--fox-x'),y:el.style.getPropertyValue('--fox-y')}));
-    const before=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
-    await map.locator('.locked-journey-hotspot').nth(3).click();
-    assert.equal(await fox.getAttribute('data-laria-fox-stop'),'3',name+' fox did not travel to clicked landmark');
-    assert.equal(await fox.getAttribute('data-laria-fox-mood'),'walking',name+' fox walking response missing');
-    const moved=await fox.evaluate(el=>({x:el.style.getPropertyValue('--fox-x'),y:el.style.getPropertyValue('--fox-y')}));
-    assert.notDeepEqual(moved,initial,name+' traveler stayed on previous stop');
-    await page.locator('.locked-sheet-close').click();
-    const after=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
-    assert.equal(after,before,name+' fox movement must not fake mastery');
-    assert.equal(await fox.evaluate(el=>getComputedStyle(el).pointerEvents),'none',name+' fox steals map taps');
-    await page.screenshot({path:path.join(dir,name+'-journey.png'),animations:'disabled'});
-    // Visit the remaining legacy Norwegian/Geography maps without changing learning.
-    // English now has three direct Kinnaklova activities, NOT a fox journey.
-    // Math already uses original forest trolls instead of the retired map.
-    const subjects=['norwegian','geography'];
+    const eg=page.locator('#eggenipa-world:visible');
+    await eg.waitFor({timeout:16000});
+    assert.deepEqual(await eg.locator('.eg-portal').evaluateAll(els=>els.map(el=>el.dataset.eg)),
+      ['words','find','reading'],name+' Norsk direct activities changed');
+    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+      name+' retired Bokskogen map is visible');
+    const journeyProgress=()=>page.evaluate(()=>{
+      const j=JSON.parse(localStorage.getItem('laerlittmer-v2')).journey||{};
+      return JSON.stringify({
+        nodes:j.nodes||{},gradeWins:j.gradeWins||{},
+        viewGrades:j.viewGrades||{},chapterProgress:j.chapterProgress||{}
+      });
+    });
+    const beforeReading=await journeyProgress();
+    await eg.locator('.eg-portal[data-eg="reading"]').click();
+    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+    assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian');
+    assert.equal(await page.evaluate(()=>sessionScope?.module),'reading');
+    assert.ok(await page.evaluate(()=>sessionQuestions[qIndex]?.prompt),name+' Lesekroken missing question');
+    assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+      name+' retired fox leaked into Norwegian reading');
+    assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
+      name+' Norwegian hint guide missing');
+    assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.activeAvatar()),avatar,
+      name+' Norsk redesign changed saved profile identity');
+    await page.screenshot({path:path.join(dir,name+'-eggenipa-reading.png'),animations:'disabled'});
+    await page.locator('#close-session').click();
+    await eg.waitFor({timeout:16000});
+    const afterReading=await journeyProgress();
+    assert.equal(afterReading,beforeReading,name+' browsing Lesekroken altered historical journey');
+    await eg.locator('[data-eg="home"]').click();
+    // Test direct English learning without a fabricated legacy fox map.
+    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-english"]').click();
+    const world=page.locator('#subject-screen.active #kinnaklova-world');
+    await world.waitFor({state:'visible',timeout:16000});
+    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,name+' old English map is visible');
+    assert.deepEqual(await world.locator('.ki-card').evaluateAll(cards=>cards.map(c=>c.dataset.ki)),['words','sentences','reading']);
+    const oldEnglishProgress=await journeyProgress();
+    await world.locator('.ki-card[data-ki="words"]').click();
+    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+    assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,name+' retired fox leaked into English');
+    assert.equal(await page.evaluate(()=>state.profile.avatar),avatar,name+' saved profile mutated');
+    await page.screenshot({path:path.join(dir,name+'-kinnaklova-words.png'),animations:'disabled'});
+    await page.locator('#close-session').click();
+    await world.waitFor({state:'visible',timeout:16000});
+    const exit=world.locator('.ki-utility [data-ki="home"]');
+    if(await exit.isVisible())await exit.click();
+    else await world.locator('.ki-painted-home').click();
+    await page.locator('#home-screen.active').waitFor({timeout:16000});
+    assert.equal(await journeyProgress(),oldEnglishProgress,name+' direct English modified historical journey');
+    // Geography is the remaining legacy moving-fox map.
+    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-geography"]').click();
+    const subjects=['geography'];
     for(let subjectIndex=0;subjectIndex<subjects.length;subjectIndex++){
       const subject=subjects[subjectIndex];
       if(subjectIndex>0){
         await page.locator('.screen.active .locked-journey-back').click();
-        if(subjects[subjectIndex-1]==='norwegian'){
-          // Bokskogen now returns to Eggenipa, then Home.
-          await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
-          assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian');
-          await page.locator('#eggenipa-world [data-eg="home"]').click();
-        }
         await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:12000});
         await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').click();
       }
@@ -177,7 +191,7 @@ async function run(engine,name,viewport,avatar){
         });
         assert.deepEqual(paintedSignOverlap,[],name+' '+subject+
           ' fox covers a real illustrated sign at stop '+stop+': '+JSON.stringify(paintedSignOverlap));
-        // Preserve one complete 20-stop visual evidence set in actual WebKit
+        // Preserve one complete five-stop visual evidence set in actual WebKit
         // iPhone mode, beyond the strict non-overlap geometry assertions.
         if(name==='webkit-girl-iphone')await page.screenshot({
           path:path.join(dir,name+'-'+subject+'-stop-'+(stop+1)+'.png'),
@@ -188,42 +202,12 @@ async function run(engine,name,viewport,avatar){
       assert.equal(afterMap,beforeMap,name+' '+subject+' fox movement changed learning progression');
       await page.screenshot({path:path.join(dir,name+'-'+subject+'-final-stop.png'),animations:'disabled'});
     }
-    // The former English fox map is retired. Test the real Kinnaklova portal
-    // and make sure its task has no fox, without changing saved journey data.
+    // Preserve identity and reactions in the remaining Geography journey.
     await page.locator('.screen.active .locked-journey-back').click();
-    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-english"]').click();
-    const kinnaklova=page.locator('#subject-screen.active #kinnaklova-world');
-    await kinnaklova.waitFor({state:'visible',timeout:16000});
-    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
-      name+' retired English fox map returned');
-    assert.deepEqual(await kinnaklova.locator('.ki-card').evaluateAll(cards=>cards.map(x=>x.dataset.ki)),
-      ['words','sentences','reading'],name+' Kinnaklova direct activities unavailable');
-    const beforeEnglishJourney=await page.evaluate(()=>JSON.stringify(
-      JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
-    await kinnaklova.locator('.ki-card[data-ki="words"]').click();
-    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
-    assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-      name+' Kinnaklova Words still displays the retired fox');
-    assert.equal(await page.evaluate(()=>state.profile.avatar),avatar,
-      name+' Kinnaklova changed stored profile identity');
-    await page.screenshot({path:path.join(dir,name+'-kinnaklova-words.png'),animations:'disabled'});
-    await page.locator('#close-session').click();
-    await kinnaklova.waitFor({state:'visible',timeout:16000});
-    const englishBack=kinnaklova.locator('.ki-utility [data-ki="home"]');
-    if(await englishBack.isVisible())await englishBack.click();
-    else await kinnaklova.locator('.ki-painted-home').click();
-    await page.locator('#home-screen.active').waitFor({timeout:16000});
-    assert.equal(await page.evaluate(()=>JSON.stringify(
-      JSON.parse(localStorage.getItem('laerlittmer-v2')).journey)),beforeEnglishJourney,
-      name+' playing English accidentally changed legacy journey mastery');
-
-    // Return through ordinary navigation and launch the Norwegian fox task,
-    // proving old journeys remain intact while Kinnaklova has retired the fox.
-    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-norwegian"]').click();
-     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    await map.waitFor({timeout:15000});
-    const current=map.locator('.locked-journey-hotspot.state-current').first();
+    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-geography"]').click();
+    const activeGeographyMap=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
+    await activeGeographyMap.waitFor({timeout:15000});
+    const current=activeGeographyMap.locator('.locked-journey-hotspot.state-current').first();
     await current.click();
     const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
     await mission.waitFor({timeout:10000});
@@ -247,7 +231,7 @@ async function run(engine,name,viewport,avatar){
     await page.screenshot({path:path.join(dir,name+'-task.png'),animations:'disabled'});
     assert.deepEqual(errors,[],name+' browser errors '+JSON.stringify(errors));
     await context.close();
-    console.log('[live fox]',name,'legacy Norwegian/Geography fox plus fox-free Kinnaklova and unchanged progress OK');
+    console.log('[live fox]',name,'troll-led Home, Eggenipa and Kinnaklova direct play, legacy Geography fox, saved progress OK');
   }finally{await browser.close()}
 }
 (async()=>{

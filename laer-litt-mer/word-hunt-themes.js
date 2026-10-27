@@ -7,18 +7,18 @@
 })(typeof window==='object'?window:(typeof globalThis==='object'?globalThis:null),function(){
   'use strict';
   const data=[
-    {id:'mixed',title:'Blandede ord',short:'Blandet',icon:'✨',description:'Litt av alt fra Bokskogen.',
+    {id:'mixed',title:'Blandede ord',short:'Blandet',icon:'✨',description:'Litt av alt fra Eggenipa.',
       easy:['SOL','MUS','REV','BOK','IS','MAT','HUS','BIL','TRE','SKO','LYS','HAV','FISK','KATT','BALL','LEK','UGLE','EPLE','TROLL','KART','BÆR','ELG','VANN','OST','BIE','HARE','ROM','KONGE','BRØD','HEKS','SEBRA','SLOTT'],
       hard:['SKOG','BRO','KART','VANN','LYKT','REVEN','FJELL','VENN','LEKE','TALL','PIZZA','BLOMST','STJERNE','SPRÅK','ORD','BOKA','MONSTER','KANIN','EVENTYR','PANTER','NØKKEL','PORTAL','MIDDAG','GROTTE','TIGER','SVERIGE','ITALIA','BANAN','KJØTT','HJORT']},
-    {id:'animals',title:'Dyrevenner',short:'Dyr',icon:'🦊',description:'Møt dyrene som bor i skogen.',
+    {id:'animals',title:'Dyrevenner',short:'Dyr',icon:'🦉',description:'Møt ugler, pinnsvin og andre dyrevenner.',
       easy:['REV','MUS','UGLE','HUND','KATT','HEST','KU','FISK','LAM','AND','ELG','BIE','HARE','GEIT','LØVE','SEBRA','EKORN','KANIN','HVAL','TIGER','MAUR','FUGL','ORM','RÅDYR'],
-      hard:['BJØRN','HJORT','EKORN','KANIN','ROVDYR','PANTER','SEBRA','TIGER','PINGVIN','GREVING','GEITER','HVALEN','FUGLER','MAUREN','FROSKE','DYRENE','KATTEN','REVENE','HUNDEN','HESTER','BJØRNER','KRABBE']},
+      hard:['BJØRN','HJORT','EKORN','KANIN','ROVDYR','PANTER','SEBRA','TIGER','PINGVIN','GREVING','GEITER','HVALEN','FUGLER','MAUREN','FROSKER','DYRENE','KATTEN','REVENE','HUNDEN','HESTER','BJØRNER','KRABBE']},
     {id:'magic',title:'Eventyr og magi',short:'Magi',icon:'🪄',description:'Oppdag slott, troll og magiske skatter.',
       easy:['HEKS','MAGI','FE','SKATT','KONGE','DRAGE','BORG','REV','KRONE','TROLL','ALV','STAV','SLOTT','NØKKEL','LYKT','RUNE','HELT','GULL','BOK','SKOG','ÅND'],
       hard:['DRAGE','TROLL','PORTAL','TRYLLE','STJERNE','EVENTYR','SKYGGE','GROTTE','KONGEN','KRONE','NØKKEL','MONSTER','FANTASI','MAGIEN','RIDDER','SKATTER','MÅNELY','SPØKEL','SVERDET','SKOGEN','SLANGE','RØVEREN','HEKS','GULL','SLOTT','MAGI','BORG','RUNE','STAV']},
     {id:'food',title:'Mat og hverdag',short:'Mat',icon:'🍎',description:'Finn ord fra kjøkkenet og hverdagen.',
       easy:['BRØD','OST','MELK','EPLE','IS','RIS','PÆRE','SAFT','KORN','KAKE','BÆR','SUPPE','FISK','MEL','AGURK','PIZZA','POTET','SMØR','BOLLE','MAT','VANN','BANAN','TOMAT'],
-      hard:['PIZZA','BANAN','BOLLER','YOGHURT','TOMAT','AGURK','PAPRIKA','GRØT','SALAT','HAVRE','KJØTT','MIDDAG','DESSERT','HONNING','FRUKT','GULROT','OSTENE','BRØDET','SAFTEN','MATPAKKE','KAKENE','GRØNNSAK']},
+      hard:['PIZZA','BANAN','BOLLER','YOGHURT','TOMAT','AGURK','PAPRIKA','GRØT','SALAT','HAVRE','KJØTT','MIDDAG','DESSERT','HONNING','FRUKT','GULROT','OSTENE','BRØDET','SAFTEN','MATBOKS','KAKENE','SPINAT']},
     {id:'world',title:'Verden rundt',short:'Verden',icon:'🌍',description:'Land, steder og ord fra verden.',
       easy:['NORGE','KINA','JAPAN','KENYA','EGYPT','INDIA','PERU','MALI','LAOS','CHILE','NEPAL','CUBA','POLEN','GHANA','SUDAN','ITALIA','SPANIA','HAV','KART','FJELL','ELV','BY','ØY'],
       hard:['SVERIGE','ISLAND','ITALIA','SPANIA','FINLAND','LONDON','BERLIN','MADRID','DUBLIN','ATHEN','ANKARA','TOKYO','PARIS','KARTET','FJELLET','LANDET','BYENE','NATUREN','NORGE','EUROPA','VERDEN','KENYA']}
@@ -30,7 +30,7 @@
   const BY_ID=new Map(PACKS.map(pack=>[pack.id,pack]));
   const EFFECTS=Object.freeze({
     UGLE:['🦉','En ugle hilser fra tretoppene.'],
-    REV:['🦊','Reven kjenner igjen en venn!'],
+    REV:['🦊','Et vennlig spor dukker opp mellom trærne!'],
     KATT:['🐈','En katt titter frem i skogen.'],
     HUND:['🐕','Et vennlig bjeff høres langt borte.'],
     FISK:['🐟','Noe glitrer under vannet.'],
@@ -45,18 +45,18 @@
     EPLE:['🍎','Et rødt eple faller fra et tre.'],
     BANAN:['🍌','En gul overraskelse dukker opp.'],
     PIZZA:['🍕','En duft av pizza sprer seg.'],
-    NORGE:['🇳🇴','Reven finner Norge på kartet.'],
+    NORGE:['🇳🇴','Norge lyser opp på kartet.'],
     KART:['🗺️','Et nytt spor vises på kartet.'],
-    JAPAN:['🌸','Reven drømmer om Japan.'],
+    JAPAN:['🌸','Et nytt eventyr venter i Japan.'],
     VERDEN:['🌍','Hele verden venter på å bli oppdaget.'],
     FJELL:['⛰️','Fjerne fjell blir synlige mellom trærne.']
   });
   const THEME_MOMENTS=Object.freeze({
-    mixed:['✨','Bokstavene glitrer i Bokskogen.'],
+    mixed:['✨','Bokstavene glitrer ved Eggenipa.'],
     animals:['🐾','Et lite dyrespor dukker opp mellom trærne.'],
     magic:['🌟','En magisk gnist svever over stien.'],
     food:['🍯','Det lukter noe godt fra skogshytta.'],
-    world:['🧭','Reven oppdager et nytt spor i verden.']
+    world:['🧭','Et nytt spor dukker opp på verdenskartet.']
   });
   const clamp=n=>Number.isFinite(Number(n))?Math.max(0,Math.min(100000,Math.floor(Number(n)))):0;
   function normalizeProgress(raw){

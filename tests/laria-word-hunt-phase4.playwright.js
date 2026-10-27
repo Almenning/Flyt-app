@@ -116,11 +116,11 @@ async function geometry(page,label,viewport,firstFold){
   }
  }
  if(viewport.width<=700 && viewport.height>viewport.width){
-  assert.match(m.environment,/bokskogen-verden\.png/,label+' portrait Ordjakt does not use the illustrated Bokskogen scene');
+  assert.match(m.environment,/eggenipa-master-laast-20261025\.png/,label+' portrait Ordjakt lost Eggenipa scene');
   assert.ok(m.shellBackground==='none'||/rgba\(255, 248, 222, 0\.1/.test(m.shellBackground)===false,
    label+' portrait shell still behaves like a full cream page: '+m.shellBackground);
  }else{
-  assert.match(m.environment,/bokskogen-(atlas32\.webp|verden\.png)/,label+' no Bokskogen environment behind the puzzle');
+  assert.match(m.environment,/eggenipa-master-laast-20261025\.png/,label+' Eggenipa art missing behind puzzle');
  }
 }
 async function pathFor(page,word){
@@ -185,13 +185,12 @@ async function testView(browser,engine,label,viewport,url){
   await open(page,url);
   assert.equal(await page.locator('.word-hunt-cell').count(),36,label+' easy puzzle not 6x6');
   assert.equal(await page.locator('.word-hunt-word').count(),4,label+' easy puzzle not 4 words');
-  const fox=await page.locator('.word-hunt-fox').evaluate(el=>({src:el.getAttribute('src'),expected:window.LARIA_FOX.source(window.LARIA_FOX.choice()),complete:el.complete,naturalWidth:el.naturalWidth}));
-  assert.equal(fox.src,fox.expected,label+' did not use child-selected persistent fox');
-  await page.locator('.word-hunt-fox').evaluate(img=>img.decode());
+  const guide=await page.locator('.word-hunt-fox').evaluate(el=>({tag:el.tagName,text:el.textContent.trim()}));
+  assert.deepEqual(guide,{tag:'SPAN',text:'✦'},label+' old fox has not been replaced with a subtle hint guide');
   await shot(page,label+'-01-words-and-board');
   await geometry(page,label,viewport,viewport.width<=700||viewport.height<=500||label.includes('ipad')||label.includes('mac'));
   const shortcut=page.locator('.word-hunt-fox-shortcut');
-  assert.equal(await shortcut.getAttribute('aria-label'),'Få hint fra reven',
+  assert.equal(await shortcut.getAttribute('aria-label'),'Få hint',
     label+' selected header fox does not offer an accessible optional hint');
   if(viewport.width<=700&&viewport.height>viewport.width){
    const b=await shortcut.boundingBox();
@@ -325,12 +324,12 @@ async function testView(browser,engine,label,viewport,url){
    for(const [r,c] of [tip.start,adjacent])
     await page.locator('.word-hunt-cell[data-r="'+r+'"][data-c="'+c+'"]').tap();
   }
-  assert.match(await page.locator('.word-hunt-companion-speech').innerText(),/Trykk på reven når du vil/,
+  assert.match(await page.locator('.word-hunt-companion-speech').innerText(),/Trykk på Hint når du vil/,
     label+' fox did not offer optional help after repeated misses');
   assert.equal(await page.locator('.word-hunt-word.found').count(),0,
     label+' offering help awarded a word without the child finding it');
   if(viewport.width<=700&&viewport.height>viewport.width){
-   assert.match(await page.locator('.word-hunt-intro').innerText(),/Trykk på reven når du vil/,
+   assert.match(await page.locator('.word-hunt-intro').innerText(),/Trykk på Hint når du vil/,
      label+' fox optional help is invisible above the phone board');
    await geometry(page,label+'-help-offer',viewport,true);
   }

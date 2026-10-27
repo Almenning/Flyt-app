@@ -55,10 +55,45 @@ async function run(engine,label,viewport,url){
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:20000});
   for(const subject of ['norwegian','math','english','geography']){
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
-    if(subject==='norwegian'){
-      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    }
+   if(subject==='norwegian'){
+     // The retired map is not part of the child's Norsk route. The reading
+     // engine must run while the historical node IDs stay untouched.
+     const eg=page.locator('#eggenipa-world:visible');
+     await eg.waitFor({timeout:16000});
+     assert.deepEqual(await eg.locator('.eg-portal').evaluateAll(a=>a.map(n=>n.dataset.eg)),
+       ['words','find','reading'],label+' Norwegian free-choice activities are missing');
+     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+       label+' retired Bokskogen map unexpectedly visible');
+     const original=await page.evaluate(()=>({
+       journey:JSON.stringify(state.journey),avatar:state.profile.avatar,grade:state.profile.grade
+     }));
+     await eg.locator('.eg-portal[data-eg="reading"]').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:14000});
+     assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian');
+     assert.equal(await page.evaluate(()=>sessionScope?.module),'reading');
+     assert.ok(await page.evaluate(()=>sessionQuestions[qIndex]?.prompt),label+' reading task missing');
+     assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+       label+' legacy Norwegian fox appears in reading activity');
+     assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
+       label+' Norwegian hint guide missing');
+     if(process.env.MISSION_QA_SCREENSHOTS&&['webkit-iphone','webkit-ipad-landscape'].includes(label)){
+       fs.mkdirSync(process.env.MISSION_QA_SCREENSHOTS,{recursive:true});
+       await page.screenshot({path:path.join(process.env.MISSION_QA_SCREENSHOTS,label+'-norwegian-reading.png'),animations:'disabled'});
+     }
+     await page.locator('#close-session').click();
+     await eg.waitFor({timeout:14000});
+     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),original.journey,
+       label+' reading incorrectly changed old journey data');
+     await eg.locator('[data-eg="home"]').click();
+     await page.reload({waitUntil:'domcontentloaded'});
+     assert.equal(await page.evaluate(()=>state.profile.avatar),original.avatar,
+       label+' saved avatar changed with Norsk redesign');
+     assert.equal(await page.evaluate(()=>state.profile.grade),original.grade,
+       label+' grade changed with Norsk redesign');
+     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),original.journey,
+       label+' historical node progress was lost after reload');
+     continue;
+   }
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
@@ -199,10 +234,6 @@ async function run(engine,label,viewport,url){
    await page.reload({waitUntil:'domcontentloaded'});
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:20000});
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
-    if(subject==='norwegian'){
-      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    }
    const afterReload=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await afterReload.waitFor({timeout:14000});
    await afterReload.locator('.locked-journey-hotspot').first().click();
@@ -236,15 +267,6 @@ async function run(engine,label,viewport,url){
    assert.equal(await afterReload.locator('.locked-journey-board > .locked-journey-traveler').count(),1,
       label+' '+subject+' fox was not returned to the illustrated map');
    await afterReload.locator('.locked-journey-back').click();
-   if(subject==='norwegian'){
-     // Norwegian now returns from Bokskogen to its approved Eggenipa
-     // landing, then to Home. All persisted progress assertions above
-     // remain unchanged.
-     await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
-     assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian',
-       label+' Bokskogen returned to wrong subject');
-     await page.locator('#eggenipa-world [data-eg="home"]').click();
-   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');

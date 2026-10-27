@@ -8,6 +8,7 @@ on:
       - 'laer-litt-mer/laria-navigation-v13.*'
       - 'tests/laria-find-the-words.playwright.js'
       - 'tests/laria-find-words-ipad-layout.playwright.js'
+      - '.github/workflows/laria-find-the-words.yml'
   pull_request:
     branches: [main]
     paths:
@@ -15,6 +16,7 @@ on:
       - 'laer-litt-mer/laria-navigation-v13.*'
       - 'tests/laria-find-the-words.playwright.js'
       - 'tests/laria-find-words-ipad-layout.playwright.js'
+      - '.github/workflows/laria-find-the-words.yml'
   workflow_dispatch:
 
 permissions:
@@ -85,10 +87,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
+      - uses: actions/checkout@v4
       - name: Verify real published Læria resources after merge
         shell: bash
         run: |
           set -eu
+          # Compare live bytes to the checked-out main commit instead of stale
+          # hard-coded asset version strings, which caused a false failure.
           base="https://almenning.github.io/Flyt-app/laer-litt-mer"
           for attempt in $(seq 1 42); do
             if curl -fsSL --max-time 15 -H "Cache-Control: no-cache" "$base/find-the-words.js?revision=$GITHUB_SHA" -o /tmp/find-words-live.js &&
@@ -99,17 +104,17 @@ jobs:
                curl -fsSL --max-time 15 "$base/laria-navigation-v13.css?revision=$GITHUB_SHA" -o /tmp/find-words-live-navigation.css &&
                curl -fsSL --max-time 15 "$base/bokskogen-reference-bg.webp?revision=$GITHUB_SHA" -o /tmp/find-words-live-painting.webp &&
                curl -fsSL --max-time 15 "$base/sw.js?revision=$GITHUB_SHA" -o /tmp/find-words-live-sw.js &&
-               grep -Fq 'root.openFindTheWords=open' /tmp/find-words-live.js &&
-               grep -Fq '.fw-art' /tmp/find-words-live.css &&
-               grep -Fq '<svg' /tmp/find-words-live.svg &&
-               grep -Fq '20261019-painted-card2' /tmp/find-words-live.html &&
-               grep -Fq '20261019-match-first2' /tmp/find-words-live.html &&
-               grep -Fq "find-words" /tmp/find-words-live-navigation.js &&
-               grep -Fq 'bokskogen-reference-bg.webp' /tmp/find-words-live-navigation.js &&
-               grep -Fq '.bc13-find-lens' /tmp/find-words-live-navigation.css &&
-               grep -Fq 'paintedfindcard2' /tmp/find-words-live-sw.js &&
+               cmp -s /tmp/find-words-live.js laer-litt-mer/find-the-words.js &&
+               cmp -s /tmp/find-words-live.css laer-litt-mer/find-the-words.css &&
+               cmp -s /tmp/find-words-live.svg laer-litt-mer/find-the-words-scene.svg &&
+               cmp -s /tmp/find-words-live.html laer-litt-mer/index.html &&
+               cmp -s /tmp/find-words-live-navigation.js laer-litt-mer/laria-navigation-v13.js &&
+               cmp -s /tmp/find-words-live-navigation.css laer-litt-mer/laria-navigation-v13.css &&
+               cmp -s /tmp/find-words-live-painting.webp laer-litt-mer/bokskogen-reference-bg.webp &&
+               cmp -s /tmp/find-words-live-sw.js laer-litt-mer/sw.js &&
+               test -s /tmp/find-words-live-navigation.css &&
                test "$(wc -c < /tmp/find-words-live-painting.webp)" -gt 8000; then
-              echo "PASS: Finn ordene JS, CSS, scene and Læria HTML are live on GitHub Pages."
+              echo "PASS: GitHub Pages serves exact published source bytes for Finn ordene and Læria HTML."
               exit 0
             fi
             echo "Waiting for real Pages publication ($attempt/42)..."

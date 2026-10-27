@@ -20,29 +20,28 @@ test('Norsk Eggenipa is registered only as an isolated presentation layer',()=>{
   assert.ok(html.indexOf('eggenipa.js')>html.indexOf('LARIA_TALLVIKA_BRIDGE'));
   assert.match(js,/dataset\.subject==='norwegian'/);
   assert.match(js,/LARIA_TALLVIKA_BRIDGE/);
-  assert.match(js,/startJourneyNode/);
-  assert.match(js,/journeyRecommendedNode/);
-  assert.match(js,/setJourneyViewGrade/);
+  // Norsk now enters the real learning engine directly; the removed
+  // journey map must not appear as a child-facing activity.
+  assert.match(js,/startLearningSession/);
+  assert.match(html,/startLearningSession:\(subject,module,label\)=>startLearningSession/);
+  assert.doesNotMatch(js,/startJourneyNode|journeyRecommendedNode|setJourneyViewGrade/);
   assert.match(css,/#subject-screen\.eggenipa-active/);
   assert.doesNotMatch(js,/localStorage\.setItem|\.journey\.nodes\s*=|\.progressSchemaVersion\s*=/);
   execFileSync(process.execPath,['--check',app('eggenipa.js')]);
 });
 
-test('All three existing activities remain direct and independent',()=>{
+test('Three independent Norsk activities, no journey map in the child UI',()=>{
   for(const [key,pattern] of Object.entries({
-    find:/window\.openFindTheWords\?\.\(\)/,
+    find:/window\.openFindTheWords\?\.\(\{preferPremium:true\}\)/,
     words:/window\.openWordHunt\?\.\(\)/,
-    map:/bridge\(\)\?\.setJourneyViewGrade\?\.\('norwegian',grade\(\),true\)/
-  })){
-    assert.match(js,pattern,key+' must use an established runtime');
-  }
-  for(const id of ['words','find','map'])assert.match(js,new RegExp("id:'"+id+"'"));
-  // Only one back route: reuse the map's painted back and floating back
-  // on 1.–2. trinn; retain the classic subject back on higher grades.
-  assert.match(js,/locked-journey-back,.locked-journey-floating-back,#subject-back/);
-  assert.match(js,/Tilbake til Eggenipa/);
-  assert.ok(!js.includes('eggenipa-map-return'),'must not render a duplicate fixed map back');
-  assert.ok(!css.includes('#eggenipa-map-return'),'must not style a duplicate return overlay');
+    reading:/startLearningSession\?\.\('norwegian','reading','Lesekroken'\)/
+  }))assert.match(js,pattern,key+' must use an established engine');
+  for(const id of ['words','find','reading'])
+    assert.match(js,new RegExp("id:'"+id+"'"));
+  assert.doesNotMatch(js,/data-eg="map"|id:'map'|openMap\(|"eg-next"|data-eg="next"|data-eg-grade/);
+  assert.doesNotMatch(js,/bokskogen-atlas32\.webp|locked-journey-back/);
+  assert.match(css,/\.eg-scene-reading/);
+  assert.match(html,/resumeSession:\(\)=>/);
 });
 
 test('Artwork stays an external unchanged source, not generated on screen',()=>{
@@ -65,4 +64,12 @@ test('Release gate: exact 1672x941 Eggenipa original is present and SHA-256 veri
   assert.equal(file.readUInt32BE(20),941);
   const actual=crypto.createHash('sha256').update(file).digest('hex');
   assert.equal(actual,EXPECTED_SHA,'Not the approved exact original; do not regenerate or retouch');
+});
+
+test('Eggenipa observer cannot schedule a class mutation loop',()=>{
+ const guarded=/if\(!screen\.classList\.contains\('eggenipa-active'\)\)screen\.classList\.add\('eggenipa-active'\)/g;
+ assert.equal([...js.matchAll(guarded)].length,2,
+  'Every build path must check the class before changing it');
+ assert.match(js,/if\(screen\.classList\.contains\(flag\)\)screen\.classList\.remove\(flag\)/,
+  'Do not emit an absent-class mutation inside MutationObserver callbacks');
 });

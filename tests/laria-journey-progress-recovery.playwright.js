@@ -231,6 +231,84 @@ async function run(engine,label,viewport){
   let index=0;
   for(const [subject,world] of Object.entries(worlds)){
    const before=await progress(page,subject);
+   if(subject==='norwegian'){
+     // Norsk is now free-choice reading, not a disguised journey node.
+     // Exercise its real interrupted-session recovery and explicitly prove
+     // that old map progress and stored profile survive unchanged.
+     const original=await page.evaluate(()=>({
+       nodes:structuredClone(state.journey.nodes),
+       grade:state.profile.grade,
+       avatar:state.profile.avatar
+     }));
+     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     assert.deepEqual(await page.locator('#eggenipa-world .eg-portal')
+       .evaluateAll(els=>els.map(el=>el.dataset.eg)),['words','find','reading'],
+       label+' Norsk direct learning routes are missing');
+     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+       label+' legacy Bokskogen map leaked into Norsk');
+     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',
+       label+' Lesekroken opened the wrong module');
+     assert.equal((await page.locator('.task-world-chip').innerText()).trim(),'Eggenipa');
+     const started=await activeSnapshot(page);
+     assert.equal(started.scope,'subject',label+' reading should not create a journey scope');
+     assert.equal(started.subject,'norwegian');
+     assert.equal(started.node,undefined,label+' reading must not claim an old journey node');
+     assert.ok(started.ids.length>=3,label+' missing grade-two reading questions');
+     await answerCurrent(page);
+     await page.locator('#next-question').click();
+     const paused=await activeSnapshot(page);
+     assert.equal(paused.correct,1,label+' reading answer was not saved');
+     assert.equal(paused.index,1,label+' reading should advance to the next question');
+     await page.locator('#close-session').click();
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     assert.deepEqual(await activeSnapshot(page),paused,
+       label+' closing reading session lost the interrupted answer');
+     assert.equal((await progress(page,'norwegian')).sessionCount,before.sessionCount,
+       label+' abandoned reading session was counted as completed');
+     await page.reload({waitUntil:'domcontentloaded'});
+     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:18000});
+     assert.deepEqual(await activeSnapshot(page),paused,label+' saved reading answer changed on reload');
+     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
+     await page.locator('#eggenipa-world [data-eg="resume"]:visible').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     const resumed=await activeSnapshot(page);
+     assert.deepEqual(resumed,paused,label+' Lesekroken failed to resume exact saved question');
+     const remaining=await page.evaluate(()=>sessionQuestions.length-qIndex);
+     for(let i=0;i<remaining;i++){
+       await answerCurrent(page);
+       await page.locator('#next-question:visible').click();
+     }
+     await page.locator('#complete-screen.active').waitFor({timeout:16000});
+     const finished=await page.evaluate(()=>({
+       active:state.activeSession,
+       sessions:state.sessionLog.length,
+       last:state.sessionLog.at(-1),
+       nodes:structuredClone(state.journey.nodes),
+       grade:state.profile.grade,
+       avatar:state.profile.avatar
+     }));
+     assert.equal(finished.active,null,label+' completed reading session not cleared');
+     assert.equal(finished.sessions,before.sessionCount+1,label+' lost or duplicated reading completion');
+     assert.equal(finished.last.correct,finished.last.total,label+' reading answers counted incorrectly');
+     assert.deepEqual(finished.nodes,original.nodes,label+' reading rewrote historical journey nodes');
+     assert.equal(finished.grade,original.grade,label+' reading changed child grade');
+     assert.equal(finished.avatar,original.avatar,label+' reading changed child identity');
+     await page.locator('#complete-home').click();
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     assert.equal(await page.locator('#eggenipa-world [data-eg="resume"]').count(),0,
+       label+' completed reading round incorrectly offers resume');
+     await page.locator('#eggenipa-world [data-eg="home"]').click();
+     await page.reload({waitUntil:'domcontentloaded'});
+     assert.equal((await progress(page,'norwegian')).sessionCount,before.sessionCount+1,
+       label+' completed reading session not durable after reload');
+     assert.deepEqual(await page.evaluate(()=>state.journey.nodes),original.nodes,
+       label+' historical Norwegian journey progress lost on reload');
+     console.log('[progress recovery]',label,'norwegian direct Lesekroken resume persisted, old progress kept');
+     continue;
+   }
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    if(subject==='english'){

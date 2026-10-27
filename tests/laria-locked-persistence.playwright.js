@@ -51,10 +51,19 @@ async function verify(engine,label,viewport){
   for(const [subject,title] of Object.entries(titles)){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
-    if(subject==='norwegian'){
-      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    }
+   if(subject==='norwegian'){
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     const saved=await page.evaluate(key=>state.journey.nodes[key],marked.norwegian.key);
+     assert.equal(saved?.passed,true,label+' Norwegian historical checkpoint was lost');
+     assert.equal(saved?.best,5,label+' Norwegian checkpoint evidence changed');
+     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     await page.locator('#session-screen.active').waitFor({timeout:16000});
+     await page.locator('#close-session').click();
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     await page.locator('#eggenipa-world [data-eg="home"]').click();
+     await page.locator('#home-screen.active').waitFor({timeout:16000});
+     continue;
+   }
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
@@ -191,7 +200,7 @@ async function verify(engine,label,viewport){
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,
    label+' journey navigation altered saved child progress');
   assert.deepEqual(errors,[],label+' runtime errors');
-  console.log('[locked real-PNG persistence]',label,'four historical checkpoints, Norwegian and geographic maps plus Kinnaklova/Tallvika direct play, replay and reload OK');
+  console.log('[locked persistence]',label,'historical checkpoints and Eggenipa/Kinnaklova direct play, remaining maps and reload OK');
   await context.close();
  }finally{await browser.close();}
 }

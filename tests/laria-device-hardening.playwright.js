@@ -163,15 +163,26 @@ async function verifyBasecamp(page,label,width,height){
   // correctly follow Geografi. Select Norsk for this subject geometry QA.
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]').tap();
    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').tap();
-  await page.locator('#subject-screen.active').waitFor();
-  await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-back').waitFor({state:'visible',timeout:16000});
-  await noOverflow(page,label+' subject');
-  const home=await rect(page,'#subject-screen.active .locked-journey-back');assertTap(home,label+' subject home');
-  await page.locator('#subject-screen.active .locked-journey-back').tap();
-  await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+  // The Norwegian map is retired. Touch the real reading entrance and
+  // verify readable lesson, return, and unchanged accessible geometry.
+  const norwegian=page.locator('#eggenipa-world:visible');
+  assert.deepEqual(await norwegian.locator('.eg-portal')
+    .evaluateAll(items=>items.map(item=>item.dataset.eg)),['words','find','reading'],
+    label+' three Norwegian activities missing');
+  assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+    label+' retired Norwegian map visible');
+  await noOverflow(page,label+' Eggenipa');
+  assertTap(await rect(page,'#eggenipa-world .eg-portal[data-eg="reading"]'),label+' Lesekroken entry');
+  await norwegian.locator('.eg-portal[data-eg="reading"]').tap();
+  await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+  assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian',label+' wrong subject');
+  assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',label+' wrong Norsk module');
+  assert.ok(await page.evaluate(()=>sessionQuestions[qIndex]?.prompt),label+' missing reading question');
+  await noOverflow(page,label+' Lesekroken');
+  await page.locator('#close-session').tap();
+  await norwegian.waitFor({timeout:16000});
   assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian',
-    label+' Bokskogen must return to Norsk landing');
+    label+' lost Norwegian origin after closing lesson');
   await page.locator('#eggenipa-world [data-eg="home"]').tap();
   await page.locator('#home-screen.active').waitFor();
 

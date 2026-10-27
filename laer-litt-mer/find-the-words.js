@@ -28,6 +28,10 @@
   // version 1 remains valid. A NEW garden alternates between them when the
   // child chooses another adventure; no forced level or locked curriculum.
   const ROUND_ORDER=Object.freeze([0,3,1,4,2,5]);
+  // Old saved rounds keep their exact IDs and rotation. For a completely new
+  // child entering through approved Eggenipa, begin with the fully painted
+  // garden and offer its three word sets before the legacy illustrated forest.
+  const PREMIUM_ORDER=Object.freeze([3,4,5,0,1,2]);
   const ROUNDS=[
     ['sol','tre','telt','vann','rev','sekk'],
     ['fugl','bat','tre','telt','sol','sekk'],
@@ -55,23 +59,24 @@
       typeof saved.completed==='boolean'&&
       saved.completed===(saved.found.length===ROUNDS[saved.round].length);
   }
-  function restore(){
+  function restore(preferPremium=false){
     const saved=read(ACTIVE_KEY);
-    active=validActive(saved)?{round:saved.round,found:new Set(saved.found),completed:saved.completed}:
-      {round:ROUND_ORDER[progress().rounds%ROUND_ORDER.length],found:new Set(),completed:false};
+    const existing=validActive(saved);
+    const newEggenipaAdventure=preferPremium===true&&!existing&&progress().rounds===0;
+    active=existing
+      ?{round:saved.round,found:new Set(saved.found),completed:saved.completed,
+        track:saved.track==='eggenipa'?'eggenipa':undefined}
+      :{round:newEggenipaAdventure?PREMIUM_ORDER[0]:ROUND_ORDER[progress().rounds%ROUND_ORDER.length],
+        found:new Set(),completed:false,track:newEggenipaAdventure?'eggenipa':undefined};
     selectedWord=typeof saved?.selected==='string'&&words().includes(saved.selected)&&
       !active.found.has(saved.selected)?saved.selected:null;
     wrongAttempts=0;
   }
   function persist(){
-    write(ACTIVE_KEY,{version:1,round:active.round,found:[...active.found],completed:active.completed,selected:selectedWord});
+    write(ACTIVE_KEY,{version:1,round:active.round,found:[...active.found],completed:active.completed,
+      selected:selectedWord,track:active.track});
   }
-  function chosenFox(){
-    const api=root.LARIA_FOX;
-    const choice=api?.choice?.()||'boy';
-    return {choice,label:api?.label?.(choice)||'Din rev',
-      source:api?.worldSource?.(choice)||'./lia-fox-explorer-home.webp'};
-  }
+  // Hint and progress are independent of the retired static companion.
   function words(){return ROUNDS[active.round]}
   function sceneId(){return active?.round>=3?'garden':'forest'}
   function sceneObjects(){return sceneId()==='garden'?GARDEN_IDS:FOREST_IDS}
@@ -82,25 +87,28 @@
       '" style="left:'+item.x+'%;top:'+item.y+'%;width:'+item.w+'%;height:'+item.h+'%">'+
       '<span class="fw-pin" aria-hidden="true">✓</span></button>'; }).join('');
   }
+  function returnsToNorsk(){
+    return !!previousFocus?.closest?.('#eggenipa-world')&&
+      !!DOC.querySelector('#subject-screen.active.eggenipa-active');
+  }
   function markup(){
-    const fox=chosenFox(),garden=sceneId()==='garden';
+    const garden=sceneId()==='garden';
     const scene= garden?'./find-the-words-garden-premium.webp?v=20261023-premiumgarden3':'./find-the-words-scene.svg?v=20261018-a';
     const sceneAlt=garden?
       'Magisk hage med rødt eple, ugle, sommerfugl, lykt, liten bro, sopp, bok og pinnsvin':
       'Illustrert skog med vann, telt, sol og mange små oppdagelser';
     return '<div class="fw-shell">'+
-      '<header class="fw-top"><button type="button" class="fw-back" aria-label="Tilbake til Utforsk">←</button>'+
-      '<div class="fw-title"><span class="fw-eyebrow">NORSK · '+(garden?'DEN HEMMELIGE HAGEN':'BOKSKOGEN')+'</span><h1 id="fw-title">Finn ordene</h1>'+
+      '<header class="fw-top"><button type="button" class="fw-back" aria-label="Tilbake til '+(returnsToNorsk()?'Norsk':'Utforsk')+'">←</button>'+
+      '<div class="fw-title"><span class="fw-eyebrow">NORSK · '+(garden?'DEN HEMMELIGE HAGEN':'EGGENIPAS SKOG')+'</span><h1 id="fw-title">Finn ordene</h1>'+
       '<p>Velg et ord. Finn riktig ting!</p></div>'+
       '<button type="button" class="fw-audio" aria-label="Les opp oppgaven">♪ <span>Hør</span></button></header>'+
       '<div class="fw-layout"><aside class="fw-word-panel" aria-labelledby="fw-list-title">'+
-      '<div class="fw-list-heading"><div><span class="fw-tiny">'+(garden?'DEN HEMMELIGE HAGEN':'BOKSKOGEN')+'</span>'+
+      '<div class="fw-list-heading"><div><span class="fw-tiny">'+(garden?'DEN HEMMELIGE HAGEN':'EGGENIPAS SKOG')+'</span>'+
       '<h2 id="fw-list-title">Finn ordene</h2></div><span class="fw-counter"></span></div>'+
-      '<p class="fw-panel-copy">Se deg rundt i '+(garden?'den hemmelige hagen':'Bokskogen')+'. Velg et ord og finn tingen i bildet.</p>'+
+      '<p class="fw-panel-copy">Se deg rundt i '+(garden?'den hemmelige hagen':'Eggenipas skog')+'. Velg et ord og finn tingen i bildet.</p>'+
       '<div class="fw-list" role="list"></div><div class="fw-progress" aria-hidden="true"><span></span></div>'+
-      '<button type="button" class="fw-hint">💡 Hint</button>'+
       '<p class="fw-list-foot">Trykk på ordet og finn tingen, eller dra ordet rett til bildet.</p></aside>'+
-      '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">2. Finn ordet i bildet</strong><span aria-hidden="true">✦</span></div>'+
+      '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">1. Velg et ord</strong><span aria-hidden="true">✦</span></div>'+
       '<div class="fw-art" role="group" aria-label="Eventyrbilde med ting du kan finne">'+
       '<div class="fw-picture">'+
       '<img src="'+scene+'" class="fw-scene-image" alt="'+sceneAlt+'" draggable="false">'+
@@ -108,9 +116,9 @@
       '<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div></div>'+
       '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Trykk på et ord eller dra det til tingen.</span></div></div></div>'+
       '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
-      '<button type="button" class="fw-fox-button" aria-label="Spør reven om et hint"><img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false"></button>'+ 
+      '<button type="button" class="fw-fox-button" aria-label="Få et hint"><span class="fw-fox" aria-hidden="true">✦</span><span class="fw-hint-label" aria-hidden="true">Hint</span></button>'+ 
       '<div class="fw-speech" role="status" aria-live="polite">Jeg blir med! Velg et ord, så finner vi tingen.</div></div>'+
-      '<div class="fw-controls"><button type="button" class="fw-next">Ny ordjakt <span aria-hidden="true">↗</span></button></div></footer></div>';
+      '<div class="fw-controls"><button type="button" class="fw-next">Nye ord <span aria-hidden="true">↗</span></button></div></footer></div>';
   }
   function refresh(){
     if(!overlay||!active)return;
@@ -118,8 +126,8 @@
     const garden=sceneId()==='garden';
     const placeLabel=overlay.querySelector('.fw-tiny');
     const panelCopy=overlay.querySelector('.fw-panel-copy');
-    if(placeLabel) placeLabel.textContent=garden?'DEN HEMMELIGE HAGEN':'BOKSKOGEN';
-    if(panelCopy) panelCopy.textContent='Se deg rundt i '+(garden?'den hemmelige hagen':'Bokskogen')+'. Velg et ord og finn tingen i bildet.';
+    if(placeLabel) placeLabel.textContent=garden?'DEN HEMMELIGE HAGEN':'EGGENIPAS SKOG';
+    if(panelCopy) panelCopy.textContent='Se deg rundt i '+(garden?'den hemmelige hagen':'Eggenipas skog')+'. Velg et ord og finn tingen i bildet.';
     const all=words();
     overlay.querySelector('.fw-list').innerHTML=all.map(word=>{
       const item=OBJECTS[word],found=active.found.has(word),selected=selectedWord===word;
@@ -134,7 +142,7 @@
     const goal=overlay.querySelector('.fw-active-target');
     const footer=overlay.querySelector('.fw-scenery-caption');
     const label=selectedWord?OBJECTS[selectedWord].label:null;
-    goal.textContent=label?'2. Finn «'+label+'» i bildet':'2. Velg et ord først';
+    goal.textContent=label?'2. Finn «'+label+'» i bildet':'1. Velg et ord';
     footer.textContent=label?'Finn '+label+' i bildet, eller dra ordet dit.':'Trykk på et ord eller dra det til tingen.';
     overlay.dataset.wordSelected=label?'true':'false';
     overlay.querySelector('.fw-progress span').style.width=(active.found.size/all.length*100)+'%';
@@ -145,7 +153,7 @@
       button.setAttribute('aria-pressed',String(found));
     });
     const next=overlay.querySelector('.fw-next');
-    next.textContent=active.completed?'Oppdag på nytt ↗':'Ny ordjakt ↗';
+    next.textContent=active.completed?'Oppdag på nytt ↗':'Nye ord ↗';
     overlay.classList.toggle('fw-complete',active.completed);
   }
   function react(mood,message){
@@ -352,15 +360,16 @@
   }
   function nextRound(){
     const old=active?.round||0;
-    const idx=ROUND_ORDER.indexOf(old);
-    active={round:ROUND_ORDER[(idx+1)%ROUND_ORDER.length],found:new Set(),completed:false};
+    const sequence=active?.track==='eggenipa'?PREMIUM_ORDER:ROUND_ORDER;
+    const idx=sequence.indexOf(old);
+    active={round:sequence[(idx+1)%sequence.length],found:new Set(),completed:false,track:active?.track};
     clearDrag();clearSceneEffect();
     hintStage=0;hintWord=null;selectedWord=null;wrongAttempts=0;
     persist();
     // The second illustrated world has its own hotspots, word list and art.
     // Rebuild DOM on scene change; never leave the previous world's image up.
     overlay.innerHTML=markup();refresh();
-    react('greet',sceneId()==='garden'?'Velkommen til den hemmelige hagen! Her er helt nye ting å oppdage.':'Nye ord i Bokskogen! Velg eller dra et ord til riktig ting.');
+    react('greet',sceneId()==='garden'?'Velkommen til den hemmelige hagen! Her er helt nye ting å oppdage.':'Nye ord ved Eggenipa! Velg eller dra et ord til riktig ting.');
     const first=overlay?.querySelector('.fw-word');
     first?.focus({preventScroll:true});
   }
@@ -373,7 +382,7 @@
     }
     if(!button||!overlay.contains(button))return;
     if(button.classList.contains('fw-back')){close();return}
-    if(button.classList.contains('fw-hint')||button.classList.contains('fw-fox-button')){hint();return}
+    if(button.classList.contains('fw-fox-button')){hint();return}
     if(button.classList.contains('fw-next')){nextRound();return}
     if(button.classList.contains('fw-repeat')||button.classList.contains('fw-audio')){
       say('Finn ordene. Velg et ord fra listen. Finn så riktig ting i bildet.');return;
@@ -392,8 +401,8 @@
       event.preventDefault();first.focus({preventScroll:true});
     }
   }
-  function open(){
-    if(!DOC||!root.LARIA_FOX)return;
+  function open(options){
+    if(!DOC)return;
     if(!overlay){
       overlay=DOC.createElement('section');overlay.id='find-the-words-overlay';
       overlay.className='fw-overlay';overlay.hidden=true;overlay.setAttribute('role','dialog');
@@ -413,7 +422,7 @@
     }
     if(!overlay.hidden)return;
     previousFocus=DOC.activeElement;previousOverflow=DOC.documentElement.style.overflow;
-    restore();
+    restore(options?.preferPremium===true && returnsToNorsk());
     overlay.innerHTML=markup();overlay.hidden=false;
     DOC.documentElement.style.overflow='hidden';
     refresh();react('greet',selectedWord?'Du leter etter '+OBJECTS[selectedWord].label+'. Se nøye etter!':'Velg et ord fra listen, så finner vi tingen sammen!');
@@ -428,8 +437,7 @@
     if(reactionTimer){root.clearTimeout(reactionTimer);reactionTimer=null}
     try{root.speechSynthesis?.cancel?.()}catch(_){}
     // Entry from Eggenipa should return to the Norwegian subject, not Home.
-    const fromEggenipa=!!previousFocus?.closest?.('#eggenipa-world')&&
-      !!DOC.querySelector('#subject-screen.active.eggenipa-active');
+    const fromEggenipa=returnsToNorsk();
     if(!fromEggenipa&&typeof root.LARIA_RETURN_TO_BASECAMP==='function')root.LARIA_RETURN_TO_BASECAMP();
     const origin=previousFocus;
     previousFocus=null;previousOverflow='';

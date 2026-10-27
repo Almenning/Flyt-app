@@ -39,11 +39,17 @@ assert.match(fraction,/LARIA_FOX\.worldSource/,'Brøklab must start with the cho
 assert.doesNotMatch(fraction,/src="\.\/lia-fox-explorer-home\.webp"/,'generic picture survives in Brøklab');
 assert.match(api.worldSource('girl'),/girl-braids-blue-dress-v1\.webp/);
 assert.match(api.worldSource('boy'),/boy-adventurer-green-vest-v1\.webp/);
-for(const name of ['multiplication-premium-v2.js','multiplication-pick-play-v1.js','word-hunt.js']){
+for(const name of ['multiplication-premium-v2.js','multiplication-pick-play-v1.js']){
  const src=file(name);
  assert.match(src,/LARIA_FOX\.source/,'nonpersonal fox in '+name);
  assert.doesNotMatch(src,/src="\.\/lia-fox-explorer-home\.webp"/,'generic picture survives in '+name);
 }
+// Norsk now intentionally has no old static fox companion. Keep the actual
+// hint engine and theme interactions, not its retired illustrative identity.
+const words=file('word-hunt.js');
+assert.doesNotMatch(words,/LARIA_FOX\.(?:source|worldSource)/);
+assert.match(words,/word-hunt-companion-hint/);
+assert.match(words,/word-hunt-companion-cheer/);
 const globe=file('globe-v25-renderer.js');
 assert.match(globe,/guide\.src='\.\/lia-fox-explorer-home\.webp'/);
 const home=file('home-basecamp-v12.js');

@@ -12,11 +12,11 @@ const {chromium,webkit}=require('playwright');
 const root=path.resolve(__dirname,'..','laer-litt-mer','locked-journeys');
 const output=process.env.LOCKED_ORIGINAL_QA||'/tmp/laria-locked-originals';
 const files={
- norwegian:'bokskogen-locked-20261010.png',
  math:'tallenga-locked-20261010.png',
  english:'ordlandsbyen-locked-20261010.png',
  geography:'nordlysleiren-locked-20261010.png'
 };
+const subjects=['norwegian',...Object.keys(files)];
 const missing=Object.values(files).filter(name=>!fs.existsSync(path.join(root,name)));
 if(missing.length){
  console.log('[ORIGINAL ART NOT VERIFIED] Missing: '+missing.join(', '));
@@ -45,13 +45,26 @@ async function check(engine,label,viewport){
   const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
   await page.goto(url+'&locked-original='+label,{waitUntil:'domcontentloaded'});
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
-  for(const subject of Object.keys(files)){
+  for(const subject of subjects){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor();
     if(subject==='norwegian'){
       await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+      const world=page.locator('#eggenipa-world');
+      const master=world.locator('.eg-master');
+      assert.deepEqual(await master.evaluate(async image=>{
+        await image.decode();return {width:image.naturalWidth,height:image.naturalHeight};
+      }),{width:1672,height:941},label+' wrong locked Eggenipa master');
+      assert.deepEqual(await world.locator('.eg-portal').evaluateAll(nodes=>nodes.map(node=>node.dataset.eg)),
+        ['words','find','reading'],label+' Eggenipa no longer exposes exactly three direct activities');
+      assert.equal(await world.locator('[data-eg="map"]').count(),0,label+' retired Bokskogen action returned');
+      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+        label+' retired Bokskogen map became visible');
+      await master.screenshot({path:path.join(output,label+'-norwegian-eggenipa-live.png')});
+      await world.locator('[data-eg="home"]').click();
+      await page.locator('#home-screen.active').waitFor({timeout:16000});
+      continue;
     }
    if(subject==='math'){
      // Tallvika's wide original is covered by the dedicated PNG-integrity
@@ -123,12 +136,6 @@ async function check(engine,label,viewport){
    await page.locator('.locked-journey-overlay:not([hidden])').waitFor();
    await page.locator('.locked-sheet-close').click();
    await board.locator('.locked-journey-back').click();
-   if(subject==='norwegian'){
-     // The approved Bokskogen PNG is unchanged; only the first return
-     // destination now goes through Eggenipa before Home.
-     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world [data-eg="home"]').click();
-   }
    await page.locator('#home-screen.active').waitFor();
   }
   assert.deepEqual(errors,[],label+' runtime errors');

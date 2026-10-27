@@ -700,7 +700,9 @@
   color:#33475c;font-family:inherit;text-align:center;cursor:pointer;touch-action:manipulation;
   transition:transform .14s ease,border-color .14s,box-shadow .14s;
 }
-.wh-theme-card:hover{transform:translateY(-2px)}
+/* Keep child touch geometry still on iPad WebKit: a 2px :hover
+   translate made the pressed card wobble and Playwright found it unstable. */
+.wh-theme-card:hover{transform:none;filter:brightness(1.035)}
 .wh-theme-card.selected{
   border-color:#c28b24;box-shadow:0 0 0 3px #ffdc6e,0 5px 0 #a87c30,0 12px 20px #8d68262c;
 }
@@ -1021,7 +1023,7 @@
     margin:6px 0 12px;font-size:12px;padding:0 18px;
   }
   .word-hunt-overlay.is-theme-entry .wh-theme-close{
-    top:7px;right:8px;width:39px;height:39px;font-size:23px;
+    top:7px;right:8px;width:44px;height:44px;min-width:44px;min-height:44px;font-size:23px;
   }
   .word-hunt-overlay.is-theme-entry .wh-theme-cards{
     display:grid;
@@ -1699,3 +1701,23 @@
 @media(prefers-reduced-motion:reduce){
   .word-hunt-fox-shortcut .word-hunt-fox.is-reacting{animation:none!important}
 }
+
+
+/* Eggenipa Norsk premium: hint is interactive magic, not the old pasted fox. */
+.word-hunt-overlay{background:linear-gradient(155deg,rgba(35,59,49,.62),rgba(36,55,49,.78)),url('./assets/norsk/eggenipa-master-laast-20261025.png') center/cover fixed no-repeat}
+.word-hunt-overlay .word-hunt-fox,.word-hunt-overlay .word-hunt-companion-stage>.word-hunt-companion-fox,.word-hunt-overlay .wh-theme-fox{
+ display:grid!important;place-items:center;border:2px solid rgba(230,205,146,.88);border-radius:24px;
+ background:radial-gradient(circle at 35% 25%,#fff9d7,#d7b676 74%,#89663c);color:#4d5f45;
+ font:900 clamp(28px,4.3vw,53px)/1 Georgia,serif;text-shadow:0 2px 0 rgba(255,253,231,.76);
+ box-shadow:inset 0 2px 5px rgba(255,255,255,.58),0 7px 16px rgba(47,39,28,.24);object-fit:initial;filter:none
+}
+.word-hunt-overlay .word-hunt-fox{width:100%;height:100%;font-size:29px}
+.word-hunt-overlay .word-hunt-companion-stage{max-width:92px!important;height:92px!important;min-height:72px!important;align-self:center;margin:0 auto!important}
+.word-hunt-overlay .word-hunt-companion-stage>.word-hunt-companion-fox{position:relative!important;inset:auto!important;width:100%!important;height:100%!important;max-width:none!important;min-height:70px!important}
+.word-hunt-overlay .wh-theme-fox{font-size:32px;line-height:1;z-index:1}
+@media(max-width:700px){
+ .word-hunt-overlay{background:linear-gradient(150deg,rgba(40,59,49,.67),rgba(35,62,55,.76)),url('./assets/norsk/eggenipa-master-laast-20261025.png') center/cover no-repeat}
+ .word-hunt-overlay .word-hunt-companion-stage{width:68px!important;height:68px!important;min-height:58px!important}
+ .word-hunt-overlay .word-hunt-companion-stage>.word-hunt-companion-fox{min-height:58px!important;font-size:35px}
+}
+@media(prefers-reduced-motion:reduce){.word-hunt-overlay .word-hunt-companion-stage>.word-hunt-companion-fox{animation:none!important}}
