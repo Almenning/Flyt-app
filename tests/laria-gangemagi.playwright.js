@@ -726,7 +726,8 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-action="open-book"]').click();
   assert.equal(await page.locator('.gm-book-mission').count(),8,'all market adventures available');
   assert.equal(await page.locator('.gm-book-open[role="dialog"][aria-modal="true"]').count(),1,'open journal is a real immersive view');
-  assert.equal(await page.locator('.gm-book-fox-art [data-avatar="girl"]').count(),1,'journal keeps the chosen fox');
+  assert.equal(await page.locator('.gm-book-fox-art .laria-troll-actor[data-troll-id="storesoster"]').count(),1,
+    'journal keeps the chosen forest troll');
   assert.equal(await page.locator('.gm-book-open .gm-book-pages').count(),1,'mission pages appear in the book');
    assert.equal(await page.locator('.gm-book-back').count(),1,'only one visible return control');
    assert.equal(await page.locator('.gm-book-open .gm-book-toggle').count(),0,'do not show a duplicate close control');
