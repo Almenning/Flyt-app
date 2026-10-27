@@ -110,6 +110,8 @@
   pointer-events:none;
 }
 .locked-journey-profile img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
+.locked-journey-profile-troll .locked-journey-troll-art{display:block;width:100%;height:100%;overflow:hidden;border-radius:inherit}
+.locked-journey-profile-troll .locked-journey-troll-art img{display:block;width:100%;height:155%;object-fit:contain;object-position:center top;transform:translateY(-4%)}
 .locked-journey-live-progress{
   position:absolute;z-index:12;
   left:71.4%;top:1.72%;width:17.8%;height:5.45%;
