@@ -268,7 +268,9 @@ async function run(browserType,label,viewport){
       await page.locator('[data-tv-troll="'+id+'"]').click();
       assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),id,label+' does not persist '+id);
       const image=page.locator('#tallvika-world .tv-companion img');
-      assert.ok((await image.getAttribute('src')).includes('/'+id+'.webp'),label+' shows wrong troll for '+id);
+      const expected=id==='storesoster'?'./assets/tallvika/storesoster-inworld-approved-20261026.webp':'./assets/gangemagi-troll/'+id+'.webp';
+      assert.ok((await image.getAttribute('src')).endsWith(expected),label+' shows wrong troll for '+id);
+      assert.equal(await page.locator('#tallvika-world .tv-companion').getAttribute('data-troll-id'),id,label+' companion identity marker drifted');
       await image.evaluate(img=>img.decode());
       if(viewport.width<=480&&output)await shot(page,label+'-'+id);
     }
