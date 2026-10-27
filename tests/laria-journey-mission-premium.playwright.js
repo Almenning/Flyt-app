@@ -135,6 +135,13 @@ async function run(engine,label,viewport,url){
      await world.waitFor({state:'visible',timeout:16000});
      assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),before,
        label+' entering a direct English activity changed hidden journey progress');
+     // The clean painted background switches navigation controls when image integrity
+     // settles. Wait before deciding, otherwise the temporary utility link can vanish
+     // during a Playwright click on iPad.
+     await page.waitForFunction(()=>{
+       const host=document.querySelector('#subject-screen.active #kinnaklova-world');
+       return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
+     },null,{timeout:20000});
      const back=world.locator('.ki-utility [data-ki="home"]');
      if(await back.isVisible())await back.click();
      else await world.locator('.ki-painted-home').click();
