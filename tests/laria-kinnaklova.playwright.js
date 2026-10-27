@@ -100,8 +100,17 @@ async function run(browserType,name,viewport){
     // A release candidate must complete its SHA verification before the
     // capture. The former draft assertion accepted the temporary placeholder
     // and could report green device QA while the child still saw no scene.
-    await page.waitForFunction(()=>document.querySelector('#kinnaklova-world')?.dataset.kiArt==='ready',
-      null,{timeout:20000});
+    try{
+      await page.waitForFunction(()=>document.querySelector('#kinnaklova-world')?.dataset.kiArt==='ready',
+        null,{timeout:20000});
+    }catch(error){
+      const state=await page.evaluate(()=>{
+        const world=document.querySelector('#kinnaklova-world'),image=world?.querySelector('.ki-master');
+        return {status:world?.dataset.kiArt,reason:world?.dataset.kiArtReason,
+          src:image?.getAttribute('src'),natural:[image?.naturalWidth,image?.naturalHeight]};
+      });
+      throw Error(name+' configured clean art did not become ready: '+JSON.stringify(state)+'; '+error.message);
+    }
   }
   const art=await world.locator('.ki-master').evaluate(async img=>{
     try{await img.decode()}catch(_){}

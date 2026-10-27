@@ -49,21 +49,22 @@
   }
   async function onArtStatus(image){
     if(!root||!image.isConnected)return;
-    const setStatus=(status)=>{
+    const setStatus=(status,reason='')=>{
       if(!root?.contains(image))return;
       root.dataset.kiArt=status;
+      root.dataset.kiArtReason=reason;
       const failure=root.querySelector('.ki-art-unavailable');
       if(failure)failure.hidden=status==='ready'||status==='loading';
     };
-    if(!image.complete){setStatus('loading');return;}
+    if(!image.complete){setStatus('loading','image-pending');return;}
     if(image.naturalWidth!==1672||image.naturalHeight!==941){
-      setStatus('missing');return;
+      setStatus('missing','unexpected-dimensions');return;
     }
     // Fail closed until the CLEAN art has its own approved SHA. Never use
     // the reference SHA: it proves that the three rejected trolls are baked in.
     if(!/^[0-9a-f]{64}$/.test(APPROVED_ART_SHA256) ||
         APPROVED_ART_SHA256===REJECTED_REFERENCE_SHA256){
-      setStatus('unapproved');return;
+      setStatus('unapproved','missing-approved-sha');return;
     }
     try{
       const response=await fetch(ART,{cache:'no-store'});
@@ -71,7 +72,7 @@
       const bytes=await response.arrayBuffer();
       const digest=await globalThis.crypto.subtle.digest('SHA-256',bytes);
       const actual=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
-      if(actual!==APPROVED_ART_SHA256){setStatus('unapproved');return;}
+      if(actual!==APPROVED_ART_SHA256){setStatus('unapproved','sha-mismatch');return;}
       // The browser must display *these same verified bytes*, not an
       // independently cached <img src> from an old Safari/service-worker build.
       const trustedURL=URL.createObjectURL(new Blob([bytes],{type:'image/webp'}));
@@ -80,10 +81,11 @@
       verifiedArtUrl=trustedURL;
       image.src=trustedURL;
       try{await image.decode();}
-      catch(_){setStatus('unapproved');revokeArt();return;}
+      catch(_){setStatus('unapproved','verified-decode-failed');revokeArt();return;}
       if(!root?.contains(image))return;
-      setStatus(image.naturalWidth===1672&&image.naturalHeight===941?'ready':'unapproved');
-    }catch(_){setStatus('unapproved');}
+      setStatus(image.naturalWidth===1672&&image.naturalHeight===941?'ready':'unapproved',
+        image.naturalWidth===1672&&image.naturalHeight===941?'verified':'verified-dimensions-failed');
+    }catch(error){setStatus('unapproved',error?.message||'integrity-error');}
   }
   function portal(action){
     return '<button type="button" class="ki-card ki-card-'+action.id+'" data-ki="'+action.id+
