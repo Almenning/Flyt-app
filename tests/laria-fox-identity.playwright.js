@@ -177,7 +177,26 @@ async function run(engine,name,viewport,which){
    const trollId='storesoster';
    const profile=root.locator('.locked-journey-profile[data-troll="'+trollId+'"]');
    await profile.waitFor({timeout:16000});
-   assert.match(await profile.locator('img').getAttribute('src'),new RegExp('/'+trollId+'\\.webp
+   const profileSrc=await profile.locator('img').getAttribute('src');
+   assert.ok(profileSrc?.endsWith('/'+trollId+'.webp'),
+     name+' '+subject+' profile badge lost selected troll');
+   const traveler=root.locator('.locked-journey-traveler[data-troll="'+trollId+'"]');
+   await traveler.waitFor({timeout:16000});
+   assert.equal(await traveler.getAttribute('data-avatar'),null,
+     name+' '+subject+' retired fox identity returned');
+   const travelerSrc=await traveler.locator('.locked-journey-troll-art img').getAttribute('src');
+   assert.ok(travelerSrc?.endsWith('/'+trollId+'.webp'),
+     name+' '+subject+' traveler uses wrong troll');
+   assert.equal(await traveler.locator(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').count(),0,
+     name+' '+subject+' fox wardrobe leaked onto troll');
+   const scene=await traveler.evaluate(el=>({
+    pointer:getComputedStyle(el).pointerEvents,
+    border:getComputedStyle(el).borderRadius,
+    x:el.getBoundingClientRect().x,
+    w:el.getBoundingClientRect().width
+   }));
+   assert.equal(scene.pointer,'none',name+' '+subject+' troll intercepts landmark taps');
+   assert.ok(scene.w>=28,name+' '+subject+' tiny traveling troll');
    await page.screenshot({path:folder+'/'+name+'-'+subject+'.png',fullPage:true});
    await root.locator('.locked-journey-hotspot.state-current').first().click();
    const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
