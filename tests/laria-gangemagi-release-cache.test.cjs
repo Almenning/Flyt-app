@@ -13,7 +13,7 @@ const version = '20261027-trollactor-core1';
 const suffix = '-gangemagi-premium-20261023-release37';
 const releases = Object.freeze({
   'multiplication-gangemagi-v1.css': version,
-  'gangemagi-dagens-oppdrag-v1.css': '20261023-gangemagi-release37',
+  'gangemagi-dagens-oppdrag-v1.css': '20261027-trollactor-complete1',
   'laria-troll-actor.js': '20261027-core1',
   'multiplication-gangemagi-v1.js': version
 });
