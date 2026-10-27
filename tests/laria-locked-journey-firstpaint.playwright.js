@@ -13,7 +13,7 @@ const http=require('node:http');
 const {chromium,webkit}=require('playwright');
 const root=path.resolve(__dirname,'..');
 const out=process.env.LARIA_JOURNEY_FIRSTPAINT_IMAGES||'/tmp/laria-journey-firstpaint';
-const subjects=['norwegian','math','english','geography'];
+// Eggenipa, Tallvika and Kinnaklova now own first paint for Norsk, Matte and Engelsk.\n// Nordlysleiren is the only active grade-2 world still using the locked journey renderer.\nconst subjects=['geography'];
 const seed={
  version:7,progressSchemaVersion:3,
  profile:{grade:2,onboarded:true,name:'KartQA',avatar:'girl',setupVersion:2},
@@ -149,7 +149,7 @@ async function proof(engine,label,viewport,url){
   }
   assert.deepEqual(errors,[],label+' unhandled script errors');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),'girl');
-  console.log('PASS '+label+' four original journeys; slow PNG, no legacy flash, full decoded images, navigation/identity');
+  console.log('PASS '+label+' Nordlysleiren; slow PNG, no legacy flash, full decoded image, navigation/troll identity');
  }finally{if(ctx)await ctx.close();await browser.close();}
 }
 async function missingArtRecovery(url){
