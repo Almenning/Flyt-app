@@ -346,6 +346,9 @@
     .journey-now-card{display:flex;align-items:center;gap:12px;margin:12px 0 10px;padding:13px 15px;border-radius:23px;background:linear-gradient(145deg,#263A66,#40558B);color:#fff;box-shadow:0 7px 0 rgba(38,52,93,.14),0 14px 25px rgba(46,60,102,.16)}
     .journey-now-card.geo-now{background:linear-gradient(145deg,#24556A,#39798A)}
     .journey-now-fox{width:49px;height:49px;border-radius:17px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:29px;flex:0 0 auto}
+    /* Geografi shows the original child-selected forest troll, not the retired fox. */
+    .geo-now .geo-journey-companion{overflow:visible;background:transparent;border-radius:0}
+    .geo-now .geo-journey-companion img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
     .journey-now-card span{display:block;font-size:8px;letter-spacing:.13em;font-weight:950;opacity:.72}.journey-now-card strong{display:block;margin-top:2px;font-size:15px;font-weight:950}.journey-now-card small{display:block;margin-top:3px;font-size:9px;line-height:1.35;font-weight:750;color:rgba(255,255,255,.78)}
     .journey-collection{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 11px;scrollbar-width:none}.journey-collection::-webkit-scrollbar{display:none}
     .journey-collectible{flex:0 0 auto;min-width:82px;border-radius:19px;padding:10px 9px;text-align:center;background:rgba(255,255,255,.74);border:2px solid rgba(255,255,255,.88);box-shadow:0 4px 12px rgba(53,63,97,.07)}
@@ -2763,7 +2766,7 @@
           <div class="journey-summary-ring" id="geo-journey-ring" style="--journey-pct:0"><span id="geo-journey-pct">0%</span></div>
         </div>
         <div class="journey-now-card geo-now" id="geo-journey-now">
-          <div class="journey-now-fox" aria-hidden="true">🦊</div>
+          <div class="journey-now-fox geo-journey-companion" aria-hidden="true"><img id="geo-journey-troll" src="./assets/gangemagi-troll/storesoster.webp" alt="" loading="lazy" decoding="async"></div>
           <div><span>DU ER HER</span><strong id="geo-journey-now-title">Første etappe</strong><small id="geo-journey-now-copy">Start ekspedisjonen og samle ditt første stempel.</small></div>
         </div>
         <div class="journey-collection" id="geo-journey-collection" aria-label="Stempler fra geografireisen"></div>
@@ -4190,6 +4193,15 @@ function geoJourneyRouteSvg(area){
 
 function renderGeoJourney(){
   const host=document.getElementById('geo-journey-map');if(!host)return;
+  // Reuse the exact approved Tallvika character selection across subjects.
+  // Never put old fox art back or alter the stored choice/progress model.
+  const trollChoice=state.profile?.tallvikaTroll;
+  const trollId=['storesoster','lillesoster','lillebror'].includes(trollChoice)?trollChoice:'storesoster';
+  const trollImage=document.getElementById('geo-journey-troll');
+  if(trollImage){
+    trollImage.src='./assets/gangemagi-troll/'+trollId+'.webp';
+    trollImage.dataset.troll=trollId;
+  }
   host.className='journey-map journey-map-v5';
   const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,currentAreaIndex=journeyFirstOpenArea(model,geoJourneyAreaComplete);
   document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[viewGrade].label;
