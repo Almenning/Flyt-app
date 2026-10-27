@@ -103,7 +103,7 @@ async function proof(engine,label,viewport,url){
   await page.route('**/locked-journeys/*-locked-20261010.png',async route=>{
    const match=/\/(bokskogen|tallenga|ordlandsbyen|nordlysleiren)-locked-20261010\.png/.exec(route.request().url());
    const key={bokskogen:'norwegian',tallenga:'math',ordlandsbyen:'english',nordlysleiren:'geography'}[match?.[1]];
-   if(key)await held[key].ready;
+   if(key&&held[key])await held[key].ready;
    await route.continue();
   });
   await page.goto(url+'&firstpaint='+label,{waitUntil:'domcontentloaded'});
