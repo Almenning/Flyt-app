@@ -81,7 +81,15 @@ async function run(engine,label,viewport){
      console.error('[NORSK_BOKSKOGEN_TIMEOUT]',label,JSON.stringify(after));
      throw error;
    }
-   await root.locator('.locked-journey-hotspot.state-current').first().click();
+   const currentStop=root.locator('.locked-journey-hotspot.state-current').first();
+   // The painted board is revealed asynchronously.  A visible hotspot alone
+   // is not enough: wait until its real tap handler has been installed, then
+   // use Playwright's normal touch-capable click.  This keeps the test from
+   // racing the iPad landscape artwork decode without bypassing user input.
+   await currentStop.evaluate(node=>{
+     if(typeof node.onclick!=='function')throw new Error('current journey stop is visible before it is interactive');
+   });
+   await currentStop.click();
    const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
    await mission.waitFor({timeout:10000});
    await mission.click();
