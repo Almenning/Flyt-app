@@ -346,6 +346,9 @@
     .journey-now-card{display:flex;align-items:center;gap:12px;margin:12px 0 10px;padding:13px 15px;border-radius:23px;background:linear-gradient(145deg,#263A66,#40558B);color:#fff;box-shadow:0 7px 0 rgba(38,52,93,.14),0 14px 25px rgba(46,60,102,.16)}
     .journey-now-card.geo-now{background:linear-gradient(145deg,#24556A,#39798A)}
     .journey-now-fox{width:49px;height:49px;border-radius:17px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:29px;flex:0 0 auto}
+    /* Geografi shows the original child-selected forest troll, not the retired fox. */
+    .geo-now .geo-journey-companion{overflow:visible;background:transparent;border-radius:0}
+    .geo-now .geo-journey-companion img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
     .journey-now-card span{display:block;font-size:8px;letter-spacing:.13em;font-weight:950;opacity:.72}.journey-now-card strong{display:block;margin-top:2px;font-size:15px;font-weight:950}.journey-now-card small{display:block;margin-top:3px;font-size:9px;line-height:1.35;font-weight:750;color:rgba(255,255,255,.78)}
     .journey-collection{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 11px;scrollbar-width:none}.journey-collection::-webkit-scrollbar{display:none}
     .journey-collectible{flex:0 0 auto;min-width:82px;border-radius:19px;padding:10px 9px;text-align:center;background:rgba(255,255,255,.74);border:2px solid rgba(255,255,255,.88);box-shadow:0 4px 12px rgba(53,63,97,.07)}
@@ -2386,28 +2389,29 @@
   <link rel="stylesheet" href="./fortellingsdalen-preview-v1.css?v=20261017-c2foxhint1" />
   <link rel="stylesheet" href="./norwegian-chapter-picker-v1.css?v=20261016-c2chooser1" />
   <!-- Free play -->
-  <link rel="stylesheet" href="./word-hunt.css?v=20261017-visible-fox-reactions1" />
-  <link rel="stylesheet" href="./find-the-words.css?v=20261023-premium-garden2" />
+  <link rel="stylesheet" href="./word-hunt.css?v=20261026-theme-back44" />
+  <link rel="stylesheet" href="./find-the-words.css?v=20261026-eggenipa-guide1" />
   <!-- Shared inner screens and task scene; young task styling intentionally extends the shared scene -->
   <link rel="stylesheet" href="./laria-unified-v13.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-navigation-v13.css?v=20261019-painted-card2" />
   <link rel="stylesheet" href="./home-subjects-v14.css?v=20261013-phase4c-young-explore-visible" />
   <link rel="stylesheet" href="./home-kjosnes-v15.css?v=20261024-alive1" />
   <link rel="stylesheet" href="./home-grades-v16.css?v=20261011-unified-home2" />
-  <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261007-p15rc1" />
+  <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261026-norsk-readaloud44" />
   <!-- Kloden: one active scene stylesheet; art + renderer are loaded below in runtime order -->
   <link rel="stylesheet" href="./globe-v24.css?v=20261011-iphone-shortportrait1" />
-  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261013-phase3-read44-noflash2" />
+  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261026-norsk-readaloud44" />
+<link rel="stylesheet" href="./norsk-lesekroken-premium-v1.css?v=20261026-centered-two-choices1" />
   <link rel="stylesheet" href="./atlas-perspective-v1.css?v=20261009-atlas-story2" />
   <!-- UX phase 2 owns the responsive geography geometry in one place. -->
   <link rel="stylesheet" href="./globe-ux-phase2.css?v=20261013-ipad-controls" />
   <!-- Original approved art: guarded rendering, no substitutions -->
-  <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261015-floating-back1" />
+  <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261027-nordlys-troll1" />
   <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261015-ipad-mac-stage1-iphone-c3" />
   <link rel="stylesheet" href="./laria-fox-identity.css?v=20261011-personalfox2" />
-  <link rel="stylesheet" href="./laria-fox-presence.css?v=20261013-task-world-sprite3-noflash" />
+  <link rel="stylesheet" href="./laria-fox-presence.css?v=20261027-nordlys-troll1" />
   <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
-  <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261015-missions-v1" />
+  <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261027-nordlys-troll1" />
   <link rel="stylesheet" href="./laria-country-detail-premium-v1.css?v=20261015-story3-curated1" />
   <link rel="stylesheet" href="./country-discoveries-v1.css?v=20261015-discoveries1" />
 <link rel="stylesheet" href="./discovery-globe-view-v1.css?v=20261018-continent3-relief3-stories1-marker1" />
@@ -2762,7 +2766,7 @@
           <div class="journey-summary-ring" id="geo-journey-ring" style="--journey-pct:0"><span id="geo-journey-pct">0%</span></div>
         </div>
         <div class="journey-now-card geo-now" id="geo-journey-now">
-          <div class="journey-now-fox" aria-hidden="true">🦊</div>
+          <div class="journey-now-fox geo-journey-companion" aria-hidden="true"><img id="geo-journey-troll" src="./assets/gangemagi-troll/storesoster.webp" alt="" loading="lazy" decoding="async"></div>
           <div><span>DU ER HER</span><strong id="geo-journey-now-title">Første etappe</strong><small id="geo-journey-now-copy">Start ekspedisjonen og samle ditt første stempel.</small></div>
         </div>
         <div class="journey-collection" id="geo-journey-collection" aria-label="Stempler fra geografireisen"></div>
@@ -3719,6 +3723,23 @@ function appBack(){
     const tallvikaBack=document.querySelector('#tallvika-world [data-tv="back"]');
     if(tallvikaBack){tallvikaBack.click();return true;}
   }
+  // English uses a direct Kinnaklova hub rather than the retired map.
+  if(current==='subject'&&document.querySelector('#subject-screen.active.kinnaklova-active')){
+    const back=document.querySelector('#kinnaklova-world [data-ki="home"]');
+    if(back){back.click();return true;}
+  }
+  // Eggenipa has its own navigation inside the shared subject screen.
+  if(current==='subject'&&document.querySelector('#subject-screen.active.eggenipa-active')){
+    const back=document.querySelector('#eggenipa-world [data-eg="home"]');
+    if(back){back.click();return true;}
+  }
+  // Eggenipa reuses the original Bokskogen map controls. On a physical
+  // iPhone/iPad edge gesture there is no click event on the painted back
+  // arrow, so ask the active Norwegian landing to close its map directly.
+  // Never skip the Eggenipa return destination for an iOS edge swipe.
+  if(current==='subject'&&window.LARIA_EGGENIPA?.isMapOpen?.()){
+    window.LARIA_EGGENIPA.closeMap();return true;
+  }
   // One source of truth: a swipe performs the active screen's own back action.
   // In the labs this also respects their internal pages before exiting.
   const visibleBack={
@@ -4172,6 +4193,15 @@ function geoJourneyRouteSvg(area){
 
 function renderGeoJourney(){
   const host=document.getElementById('geo-journey-map');if(!host)return;
+  // Reuse the exact approved Tallvika character selection across subjects.
+  // Never put old fox art back or alter the stored choice/progress model.
+  const trollChoice=state.profile?.tallvikaTroll;
+  const trollId=['storesoster','lillesoster','lillebror'].includes(trollChoice)?trollChoice:'storesoster';
+  const trollImage=document.getElementById('geo-journey-troll');
+  if(trollImage){
+    trollImage.src='./assets/gangemagi-troll/'+trollId+'.webp';
+    trollImage.dataset.troll=trollId;
+  }
   host.className='journey-map journey-map-v5';
   const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,currentAreaIndex=journeyFirstOpenArea(model,geoJourneyAreaComplete);
   document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[viewGrade].label;
@@ -4484,7 +4514,7 @@ function setJourneyViewGrade(subject,grade,rerender=true){
   state.journey.viewGrades[subject]=grade;saveState();
   if(!rerender)return grade;
   if(subject==='geography'){renderGeographyContinue();return grade}
-  if(activeSubject===subject){renderSubjectJourney();renderSubjectContinue();renderSubjectModules()}
+  if(activeSubject===subject){if(subject!=='norwegian')renderSubjectJourney();renderSubjectContinue();renderSubjectModules()}
   return grade;
 }
 function subjectGradeComplete(subject,grade){
@@ -4503,7 +4533,16 @@ function renderJourneyGradeStrip(subject,hostId,noteId,selectedGrade){
   if(note)note.textContent=selectedGrade===mine
     ?'Dette er ditt klassetrinn. Du kan også prøve andre trinn uten å endre profilen.'
     :'Du utforsker '+GRADE_CONFIG[selectedGrade].label+'. Ditt klassetrinn er fortsatt '+GRADE_CONFIG[mine].label+'.';
-  requestAnimationFrame(()=>host.querySelector('.journey-grade-choice.active')?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}));
+  // Center the chosen grade *horizontally inside its own strip*. Calling
+  // scrollIntoView() here also scrolls the whole page vertically after
+  // Eggenipa opens Bokskogen from a below-the-fold portal. That deferred
+  // smooth document scroll can undo navigation's 0px reset in Safari/Chromium.
+  requestAnimationFrame(()=>{
+    const selected=host.querySelector('.journey-grade-choice.active');
+    if(!selected||!host.isConnected||host.clientWidth===0)return;
+    const item=selected.getBoundingClientRect(),box=host.getBoundingClientRect();
+    host.scrollTo({left:host.scrollLeft+item.left-box.left-(box.width-item.width)/2,behavior:'smooth'});
+  });
 }
 function journeyNodeKey(subject,grade,nodeId){return subject+':'+grade+':'+nodeId}
 function journeyNodeRecord(node){ensureJourneyState();return state.journey.nodes[journeyNodeKey(node.subject,node.grade,node.id)]||{}}
@@ -4748,7 +4787,7 @@ function openSubject(subject){
   const bannerIcon=document.getElementById('subject-banner-icon');if(bannerIcon)bannerIcon.textContent=s.icon;
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
-  renderSubjectModules();renderSubjectJourney();renderSubjectContinue();showScreen('subject');
+  renderSubjectModules();if(subject!=='norwegian')renderSubjectJourney();renderSubjectContinue();showScreen('subject');
   // The approved locked Tallenga journey hides #subject-modules. A private
   // preview launcher must therefore live directly in the visible subject
   // screen, not in the hidden free-practice area.
@@ -4853,7 +4892,7 @@ window.addEventListener('norwegian-content-ready',()=>{
   try{
     renderAll();
     if(activeScreenName()==='subject'&&activeSubject==='norwegian'){
-      renderSubjectModules();renderSubjectJourney();renderSubjectContinue();
+      renderSubjectModules();renderSubjectContinue();
     }
   }catch(_){}
 });
@@ -4945,14 +4984,80 @@ function englishPool(grade,module){
     add('words','What is this?','fish',['fish','book','car'],{visual:'🐟'});add('words','What is this?','car',['car','boat','house'],{visual:'🚗'});add('words','What is this?','boat',['boat','book','ball'],{visual:'⛵'});add('words','What is this?','book',['book','fish','sun'],{visual:'📘'});add('words','What colour is the sun?','yellow',['yellow','green','blue'],{visual:'☀️'});
     q.push(makeEnglishBuild('CAT','🐱'));q.push(makeEnglishBuild('SUN','☀️'));q.push(makeEnglishBuild('FISH','🐟'));
     add('phrases','How are you?','I am fine.',['I am fine.','Seven.','Blue.']);add('phrases','What do you say in the morning?','Good morning!',['Good morning!','Good night!','Thank you!']);add('sentence','Choose the correct sentence.','I have a red ball.',['I have a red ball.','I red have ball.','Have I ball red.']);add('sentence','Choose the correct sentence.','The dog is big.',['The dog is big.','Dog the big is.','The dog big are.']);sent('I like apples.',['I','like','apples.']);sent('She has a book.',['She','has','a','book.']);sent('This is my dog.',['This','is','my','dog.']);sent('The sun is yellow.',['The','sun','is','yellow.']);sent('I can see a boat.',['I','can','see','a','boat.']);
+    if(grade===1){
+      // Picture-free first readers: one short situation, one answer children
+      // can find directly in the text. No pressure to unlock a journey map.
+      const firstReads=[
+        ['What colour is the ball?','Red',['Red','Blue','Green'],'I see a red ball. It is big.'],
+        ['What pet does Tom have?','A cat',['A cat','A dog','A fish'],'Tom has a cat. The cat is black.'],
+        ['How is the day?','Hot',['Hot','Cold','Rainy'],'The sun is up. It is hot.'],
+        ['What is blue?','The cup',['The cup','The bed','The car'],'Mia has a cup. It is blue.'],
+        ['What can the dog do?','Run and jump',['Run and jump','Fly and sing','Read a book'],'A dog can run. It can jump.'],
+        ['What do I eat?','An apple',['An apple','A cookie','A banana'],'I have two apples. I eat one.'],
+        ['Where is the boat?','On the sea',['On the sea','In a tree','At school'],'A boat is on the sea. It is small.'],
+        ['Who comes in?','A cat',['A cat','A bird','A dog'],'Dad opens the door. A cat comes in.']
+      ];
+      for(const [prompt,answer,options,passage] of firstReads)
+        add('reading',prompt,answer,options,{passage});
+    }
     if(grade>=2){add('reading','Where is Ben going?','To school',['To school','To London','To bed'],{passage:'Ben puts on his jacket and walks to school with his sister.'});add('reading','What colour is the kite?','Yellow',['Yellow','Green','Black'],{passage:'Emma has a yellow kite. She flies it in the park.'});add('reading','Who has a dog?','Sam',['Sam','Mia','Dad'],{passage:'Sam has a small dog. The dog is called Max.'});add('reading','What does Lily eat?','An apple',['An apple','A sandwich','A banana'],{passage:'Lily opens her lunch box and eats an apple.'});add('reading','Where is the cat?','On the chair',['On the chair','Under the bed','In the garden'],{passage:'The cat sleeps on the chair next to Tom.'});}
+    if(grade===2){
+      // A second-grader can revisit Kinnaklova for a fresh, readable small
+      // discovery without repeating the same five Reading passages forever.
+      const coastReads=[
+        ['What colour is the door?','Blue',['Blue','Green','Yellow'],'Mia sees a little red house by the sea. The door is blue.'],
+        ['What does the boat pass?','Two islands',['Two islands','A school','A farm'],'A small boat sails on the sea. It passes two islands.'],
+        ['What does the bird do?','Flies over the water',['Flies over the water','Sleeps in a tree','Reads a book'],'A white bird sits on a rock. Then it flies over the water.'],
+        ['What is next to the path?','A church',['A church','A castle','A shop'],'Ella walks along a path. A little white church is next to it.'],
+        ['How many shells does Lily find?','Three',['Three','Two','Five'],'Lily finds three shells on the beach. She gives one to Max.'],
+        ['What is between the mountains?','A gap',['A gap','A house','A bridge'],'Ben sees two tall mountains. There is a gap between them.'],
+        ['What does Max hear?','Waves',['Waves','Music','Rain'],'Max sits on the grass with Dad. They listen to the waves.'],
+        ['Where is the red boat?','Near the stone wall',['Near the stone wall','Behind the school','In a tree'],'A red boat comes home. It stops near the stone wall.']
+      ];
+      for(const [prompt,answer,options,passage] of coastReads)
+        add('reading',prompt,answer,options,{passage});
+      // More choices within the SAME Sentences activity, not a new
+      // journey or a forced curriculum step. Every line can be rebuilt
+      // from the exact word tiles shown to the child.
+      const coastSentences=[
+        ['I see a red boat.',['I','see','a','red','boat.']],
+        ['We can hear the waves.',['We','can','hear','the','waves.']],
+        ['A white bird can fly.',['A','white','bird','can','fly.']],
+        ['The sea is blue.',['The','sea','is','blue.']],
+        ['There are two mountains.',['There','are','two','mountains.']],
+        ['The small church is white.',['The','small','church','is','white.']],
+        ['My sister finds a shell.',['My','sister','finds','a','shell.']],
+        ['The boat is near the wall.',['The','boat','is','near','the','wall.']]
+      ];
+      for(const [answer,words] of coastSentences)sent(answer,words);
+      // Words is a place to discover the same coast through language.
+      // Norwegian prompts keep these new words accessible to early readers,
+      // while correct-answer feedback reinforces the English/Norwegian pair.
+      const coastWords=[
+        ['hav','sea',['sea','sky','sun'],'🌊'],
+        ['fugl','bird',['bird','book','boat'],'🐦'],
+        ['øy','island',['island','garden','house'],'🏝️'],
+        ['skjell','shell',['shell','shoe','star'],'🐚'],
+        ['stein','rock',['rock','rain','road'],'🪨'],
+        ['fjell','mountain',['mountain','market','morning'],'⛰️'],
+        ['kirke','church',['church','chair','cheese'],'⛪'],
+        ['vann','water',['water','window','winter'],'💧'],
+        ['bølge','wave',['wave','wall','wheel'],'🌊'],
+        ['krabbe','crab',['crab','cat','car'],'🦀']
+      ];
+      for(const [norwegianMeaning,englishWord,options,visual] of coastWords){
+        add('words','Hva heter «'+norwegianMeaning+'» på engelsk?',
+          englishWord,options,{visual,englishWord,norwegianMeaning});
+      }
+    }
+
   }else if(grade<=4){
-    ['hungry','happy','quiet','before','always'].forEach((w,i)=>{const data=[['sulten','trøtt','rask'],['glad','sint','våt'],['stille','høy','varm'],['før','etter','aldri'],['alltid','sjelden','kanskje']][i];add('vocabulary','What does “'+w+'” mean?',data[0],data)});
+    ['hungry','happy','quiet','before','always'].forEach((w,i)=>{const data=[['sulten','trøtt','rask'],['glad','sint','våt'],['stille','høy','varm'],['før','etter','aldri'],['alltid','sjelden','kanskje']][i];add('vocabulary','What does “'+w+'” mean?',data[0],data,{answerLanguage:'nb'})});
     add('verbs','Choose the verb.','run',['run','blue','table','happy']);add('grammar','Choose the correct form.','She likes apples.',['She likes apples.','She like apples.','She liking apples.']);add('pronouns','Tom and Mia = ...','they',['they','he','she','it']);add('grammar','Choose the correct word: I ___ a bike.','have',['have','has','is','are']);add('past-tense','Yesterday I ___ home.','walked',['walked','walk','walking','walks']);
     sent('We play football.',['We','play','football.']);sent('My sister reads books.',['My','sister','reads','books.']);add('sentence','Choose the correct question.','Where do you live?',['Where do you live?','Where you do live?','Do where live you?']);add('phrases','What can you say when you meet someone?','Nice to meet you.',['Nice to meet you.','Good night yesterday.','I am a table.']);add('sentence','Choose the correct sentence.','There are two cats.',['There are two cats.','There is two cats.','Two cats there is.']);
     add('reading','Why does Ben take an umbrella?','Because it is raining',['Because it is raining','Because it is hot','Because he is swimming'],{passage:'Rain hits the window. Ben takes his umbrella before he leaves.'});add('reading','What is Ava looking for?','Her keys',['Her keys','Her shoes','Her book'],{passage:'Ava checks her bag and the table. She cannot find her keys.'});add('reading','Where do they eat lunch?','In the park',['In the park','At school','On a bus'],{passage:'The family walks to the park and eats lunch under a tree.'});add('reading','What did Max win?','A race',['A race','A book','A bike'],{passage:'Max ran faster than everyone else and won the school race.'});add('reading','How is the weather?','Cold',['Cold','Hot','Sunny'],{passage:'Snow covers the ground and Ella wears a thick coat.'});
   }else if(grade<=7){
-    ['difficult','careful','improve','journey','environment'].forEach((w,i)=>{const data=[['hard','easy','tiny'],['forsiktig','rask','sulten'],['forbedre','glemme','stanse'],['reise','måltid','regel'],['miljø','lekse','butikk']][i];add('vocabulary','What is the closest meaning of “'+w+'”?',data[0],data)});
+    ['difficult','careful','improve','journey','environment'].forEach((w,i)=>{const data=[['hard','easy','tiny'],['forsiktig','rask','sulten'],['forbedre','glemme','stanse'],['reise','måltid','regel'],['miljø','lekse','butikk']][i];add('vocabulary','What is the closest meaning of “'+w+'”?',data[0],data,{answerLanguage:i===0?'en':'nb'})});
     add('past-tense','Yesterday I ___ to school.','went',['went','go','gone','going']);add('pronouns','Emma and I = ...','we',['we','they','she','it']);add('grammar','Choose the correct sentence.','He has lived here for two years.',['He has lived here for two years.','He live here for two years.','He living here two years.']);add('grammar','Choose the correct comparative.','This book is better.',['This book is better.','This book is gooder.','This book is best than.']);add('verbs','Choose the modal verb.','should',['should','school','slow','show']);
     sent('We are going to London.',['We','are','going','to','London.']);sent('She finished her homework yesterday.',['She','finished','her','homework','yesterday.']);add('sentence','Choose the best reply: “Could you help me?”','Of course.',['Of course.','Yesterday.','Blue.']);add('sentence','Choose the correct question.','Have you seen this film?',['Have you seen this film?','You have seen this film?','Seen have you this film?']);add('sentence','Choose the correct sentence.','I would like some water.',['I would like some water.','I would likes water.','I like would some water.']);
     add('reading','Why did Maya stay inside?','Because it was raining',['Because it was raining','Because she was hungry','Because it was dark'],{passage:'It rained all afternoon, so Maya stayed inside and finished her book.'});add('reading','What is the main idea?','Exercise can improve health',['Exercise can improve health','Running is the only sport','Everyone must exercise daily'],{passage:'Regular movement can strengthen the body, improve sleep and help people feel better.'});add('reading','What can we infer about Liam?','He is nervous',['He is nervous','He is asleep','He is angry'],{passage:'Liam checks his notes again and takes a deep breath before his presentation.'});add('reading','Why is the library closed?','It is being renovated',['It is being renovated','It is Sunday','There are no books'],{passage:'The library will reopen next month after workers finish the renovation.'});add('reading','Which detail supports the main point?','Plastic can harm sea animals',['Plastic can harm sea animals','The ocean is blue','Boats are fast'],{passage:'Plastic waste can remain in the ocean for years and can harm animals that eat it.'});
@@ -4960,7 +5065,7 @@ function englishPool(grade,module){
     ['reliable','significant','approach','evidence','consequence'].forEach((w,i)=>{const data=[['trustworthy','temporary','silent'],['important','tiny','accidental'],['method','holiday','colour'],['proof','rumour','joke'],['result','question','beginning']][i];add('vocabulary','What is the closest meaning of “'+w+'”?',data[0],data)});
     add('grammar','Choose the correct conditional sentence.','If I had time, I would help.',['If I had time, I would help.','If I have time, I would helped.','If I had time, I will helped.']);add('grammar','Which sentence uses the present perfect?','She has finished her work.',['She has finished her work.','She finished yesterday.','She is finishing now.','She will finish.']);add('grammar','Choose the correct passive sentence.','The bridge was built in 1990.',['The bridge was built in 1990.','The bridge built in 1990.','The bridge was build in 1990.']);add('grammar','Choose the correct relative pronoun.','The person who called me ...',['who','where','when','what']);add('grammar','Choose the correct form.','I wish I knew the answer.',['I wish I knew the answer.','I wish I know the answer.','I wish I knowing the answer.']);
     sent('Technology can change how we learn.',['Technology','can','change','how','we','learn.']);sent('She would have called if she had known.',['She','would','have','called','if','she','had','known.']);add('sentence','Choose the most formal sentence.','I would appreciate your response.',['I would appreciate your response.','Text me back, okay?','Answer me now!']);add('sentence','Choose the clearest sentence.','The results suggest that the method worked.',['The results suggest that the method worked.','Results thing method worked maybe.','Worked the method results.']);add('sentence','Choose the correct connector.','However, the results were different.',['However, the results were different.','Because the results were different however.','Results however because different.']);
-    add('reading','What is the main point?','Technology can help, but it should be used thoughtfully.',['Technology can help, but it should be used thoughtfully.','All technology is harmful.','Schools should ban computers.'],{passage:'Digital tools can make learning easier, but they can also distract us. The best results come when we use them for a clear purpose.'});add('reading','What does the writer suggest?','Check evidence before sharing claims',['Share first and check later','Trust every headline','Ignore all online information'],{passage:'A dramatic claim may spread quickly online. Before sharing it, look for evidence and check who published it.'});add('reading','Which statement is supported by the text?','Sleep can affect concentration',['Sleep never matters','Everyone needs exactly eight hours','Only children need sleep'],{passage:'Research links adequate sleep with attention and memory, although individual sleep needs vary.'});add('reading','Why does the author mention both benefits and risks?','To present a balanced view',['To tell a joke','To avoid a topic','To advertise a product'],{passage:'Social media can help people stay connected, but it can also increase distraction and spread misleading information.'});add('reading','What is the tone of the passage?','Cautious',['Celebratory','Angry','Comical'],{passage:'The early results are promising, but more data is needed before firm conclusions can be drawn.'});
+    add('reading','What is the main point?','Technology can help, but it should be used thoughtfully.',['Technology can help, but it should be used thoughtfully.','All technology is harmful.','Schools should ban computers.'],{passage:'Digital tools can make learning easier, but they can also distract us. The best results come when we use them for a clear purpose.'});add('reading','What does the writer suggest?','Check evidence before sharing claims',['Check evidence before sharing claims','Share first and check later','Trust every headline','Ignore all online information'],{passage:'A dramatic claim may spread quickly online. Before sharing it, look for evidence and check who published it.'});add('reading','Which statement is supported by the text?','Sleep can affect concentration',['Sleep can affect concentration','Sleep never matters','Everyone needs exactly eight hours','Only children need sleep'],{passage:'Research links adequate sleep with attention and memory, although individual sleep needs vary.'});add('reading','Why does the author mention both benefits and risks?','To present a balanced view',['To present a balanced view','To tell a joke','To avoid a topic','To advertise a product'],{passage:'Social media can help people stay connected, but it can also increase distraction and spread misleading information.'});add('reading','What is the tone of the passage?','Cautious',['Cautious','Celebratory','Angry','Comical'],{passage:'The early results are promising, but more data is needed before firm conclusions can be drawn.'});
   }
   const filter={words:new Set(['words','numbers','vocabulary','spelling']),sentences:new Set(['sentence','phrases']),reading:new Set(['reading']),grammar:new Set(['grammar','past-tense','pronouns','verbs'])};
   return module&&filter[module]?q.filter(x=>filter[module].has(x.skill)):q;
@@ -4978,10 +5083,13 @@ function validLearningQuestion(q){
   return false;
 }
 
-function buildLearningQuestions(subject,module,allowCooldown=false){
+function buildLearningQuestions(subject,module,allowCooldown=false,strictModule=false){
   const getPool=(m)=>subjectPoolForGrade(subject,currentGrade(),m);
   const focused=module?getPool(module).filter(validLearningQuestion):[];
-  const mixed=getPool(null).filter(validLearningQuestion),seen=new Set(),pool=[];
+  // Kinnaklova's painted activity signs describe real learning categories.
+  // Preserve that promise when a module has enough questions. Allow the
+  // existing mixed fallback for an unavailable/too-small module (grade 1 Reading).
+  const mixed=(strictModule&&focused.length>=5?[]:getPool(null).filter(validLearningQuestion)),seen=new Set(),pool=[];
   for(const q of [...focused,...mixed]){
     const sig=questionIdentity(q),cooling=questionOnCooldown(q);if(seen.has(sig)||(cooling&&!allowCooldown))continue;
     seen.add(sig);q._focused=focused.includes(q);q.practiceRepeat=!!cooling;
@@ -5665,12 +5773,12 @@ function renderSubjectJourney(){
   document.getElementById('journey-review').onclick=()=>startJourneyReview(activeSubject,viewGrade);
   document.getElementById('journey-challenge').onclick=()=>startJourneyChallenge(activeSubject,viewGrade);
 }
-function startLearningSession(subject,module,label){
+function startLearningSession(subject,module,label,strictModule=false){
   if(!window.LARIA_COMMERCE_V18?.requirePremium?.('learning'))return;
   sessionScope={type:'subject',subject,module:module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
   state.lastActivity={kind:'subject',subject,module:module||null,label:label||SUBJECTS[subject]?.mission||'Blandet'};
-  const fresh=buildLearningQuestions(subject,module);
-  const all=fresh.length<5?buildLearningQuestions(subject,module,true):fresh;
+  const fresh=buildLearningQuestions(subject,module,false,strictModule);
+  const all=fresh.length<5?buildLearningQuestions(subject,module,true,strictModule):fresh;
   sessionQuestions=topUpSessionQuestions(fresh,all,5);
   sessionScope.practiceOnly=sessionQuestions.length>0&&sessionQuestions.every(q=>q.practiceRepeat);
   if(sessionQuestions.length<5){toast('Fant ikke nok oppgaver akkurat nå.');return}
@@ -6200,8 +6308,19 @@ function renderLearningQuestion(){
   document.getElementById('session-count').textContent=shortMission?`Oppdrag ${qIndex+1} av ${sessionQuestions.length}`:(qIndex+1)+'/'+sessionQuestions.length;
   const wrap=document.getElementById('question-wrap');
   const label=q.subject==='norwegian'?'Norsk':q.subject==='math'?'Matte':q.subject==='english'?'English':'Geografi';
-  let html='<div class="question-tools"><div class="qtype">'+label+' · '+GRADE_CONFIG[currentGrade()].label+'</div>'+readAloudButton(q)+'</div><div class="question">'+q.prompt+'</div>';
-  if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';
+  // Only the direct English Reading module uses the story-first page.
+  // The child reads the passage before answering, matching spoken order.
+  const kiReading=q.subject==='english'&&q.skill==='reading'&&
+    sessionScope?.type==='subject'&&sessionScope?.module==='reading'&&
+    typeof q.passage==='string'&&q.passage.trim().length>0;
+  let html='<div class="question-tools"><div class="qtype">'+label+' · '+GRADE_CONFIG[currentGrade()].label+'</div>'+readAloudButton(q)+'</div>';
+  if(kiReading){
+    html+='<section class="learning-passage ki-reading-story" lang="en" aria-label="Engelsk historie">'+escapeAttr(q.passage)+'</section>';
+    html+='<div class="question ki-reading-question" lang="en">'+escapeAttr(q.prompt)+'</div>';
+  }else{
+    html+='<div class="question">'+q.prompt+'</div>';
+    if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';
+  }
   if(q.visual)html+='<div class="big-flag">'+q.visual+'</div>';
   if(q.type==='build-word'){
     html+='<div class="letter-slots" id="letter-slots"></div><div class="letter-helper" id="letter-helper" aria-live="polite">Trykk på en rute og en bokstav, eller dra bokstaven dit.</div><div class="letter-bank">'+q.letters.map((x,i)=>'<button type="button" class="letter-tile" data-idx="'+i+'" aria-label="Bokstav '+x.l+'">'+x.l+'</button>').join('')+'</div><button class="secondary" id="check-build" type="button">Sjekk ordet</button>';
@@ -6591,7 +6710,9 @@ function updateAnswerPronunciation(q,correct){
   button.onclick=available?()=>speakEnglishWord(word):null;
 }
 function readAloudButton(q){
-  return currentGrade()<=2&&canSpeak()?'<button type="button" class="read-aloud" id="read-aloud" aria-pressed="false" aria-label="Les opp spørsmålet">🔊 Les opp</button>':'';
+  const label=q?.subject==='english'&&q?.skill==='reading'
+    ?'Les opp historien og spørsmålet':'Les opp spørsmålet';
+  return currentGrade()<=2&&canSpeak()?'<button type="button" class="read-aloud" id="read-aloud" aria-pressed="false" aria-label="'+label+'">🔊 Les opp</button>':'';
 }
 function bindReadAloud(q){
   const b=document.getElementById('read-aloud');
@@ -6703,7 +6824,10 @@ function finishSession(){
   }
   document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Gå tilbake til hovedreisen når du er klar.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':chapterDone?'Første eventyr er ferdig. Reisekartet kan spilles igjen, og Utforsk er alltid åpent.':result.gradeCompleted?'Alle verdener på trinnet er fullført. Repetisjon gjør kunnskapen sterkere over tid.':result.journeyReward?'Neste verden er åpnet i hovedreisen.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
-  document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':'Tilbake til reisekartet 🗺️'):result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
+  // Direct Norwegian practice belongs to Eggenipa, not the retired map
+  // or the generic grade-two progress dashboard.
+  const returnToKinnaklova=sessionScope?.type==='subject'&&sessionScope?.subject==='english';
+  document.getElementById('complete-home').textContent=returnToKinnaklova?'Tilbake til Kinnaklova 🌿':(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':sessionScope?.subject==='norwegian'?'Tilbake til Eggenipa 🌿':'Tilbake til reisekartet 🗺️'):sessionScope?.subject==='norwegian'?'Tilbake til Eggenipa 🌿':result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }
@@ -6728,8 +6852,12 @@ function armJourneyWorldReaction(scope){
 document.getElementById('complete-home').onclick=()=>{
   const scope=lastCompletedScope||{};
   armJourneyWorldReaction(scope);
+  if(scope.type==='subject'&&scope.subject==='english'){openSubject('english');return}
   if(scope.type==='journey'&&scope.subject&&scope.subject!=='geography'){openSubject(scope.subject);return}
   if(scope.type==='geo-journey'||scope.subject==='geography'){renderGeographyContinue();showScreen('geography');return}
+  // The child who finishes Lesekroken should be back at their Norwegian
+  // world, able to choose another activity, even in grades 1–2.
+  if(scope.subject==='norwegian'){openSubject('norwegian');return}
   if(currentGrade()<=2){setTab('progress');return}
   returnToLearningHome();
 };
@@ -6972,7 +7100,7 @@ renderAll();updateOnboarding();
 // norwegian-content.js is deferred. Refresh journey-derived UI after deferred local content has executed.
 document.addEventListener('DOMContentLoaded',()=>{
   renderAll();
-  if(activeScreenName()==='subject'&&activeSubject){renderSubjectModules();renderSubjectJourney();renderSubjectContinue()}
+  if(activeScreenName()==='subject'&&activeSubject){renderSubjectModules();if(activeSubject!=='norwegian')renderSubjectJourney();renderSubjectContinue()}
   if(activeScreenName()==='geography')renderGeographyContinue();
 });
 const needsProfileSetup=Number(state.profile.setupVersion||0)<1||!String(state.profile.name||'').trim()||(state.profile.avatar!=='boy'&&state.profile.avatar!=='girl');
@@ -6992,31 +7120,35 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 // Narrow public bridge for Tallvika. The world is presentation-only and must
 // use the existing state and navigation functions rather than duplicate them.
 window.LARIA_TALLVIKA_BRIDGE={
-  state:()=>state,
-  save:()=>saveState(),
-  currentGrade:()=>currentGrade(),
+  state:()=>state,save:()=>saveState(),currentGrade:()=>currentGrade(),
   journeyViewGrade:subject=>journeyViewGrade(subject),
   setJourneyViewGrade:(subject,grade,rerender)=>setJourneyViewGrade(subject,grade,rerender),
   journeyProgress:(subject,grade)=>journeyProgress(subject,grade),
   journeyRecommendedNode:(subject,grade)=>journeyRecommendedNode(subject,grade),
   startJourneyNode:(subject,id,grade)=>startJourneyNode(subject,id,grade),
   startJourneyChallenge:subject=>startJourneyChallenge(subject),
-  setTab:tab=>setTab(tab)
+  startLearningSession:(subject,module,label,strictModule=false)=>startLearningSession(subject,module,label,strictModule),
+  // Norsk calls resumeSession(); Kinnaklova calls resumeSession('english').
+  resumeSession:(expectedSubject='norwegian')=>{
+    if(!window.LARIA_COMMERCE_V18?.requirePremium?.('learning'))return;
+    if(!loadActiveSession()||sessionScope?.subject!==expectedSubject)return;
+    showScreen('session');renderQuestion();
+  },setTab:tab=>setTab(tab)
 };
 </script>
 <!-- Prompt 18 commercial content depth: extends the active subject pools before presentation runtimes. -->
 <!-- Active Læria runtimes. Preserve this order: wrappers intentionally compose in sequence. -->
 <!-- Labs -->
 <script src="./fraction-lab.js?v=20261007-return1" defer></script>
-<script src="./fraction-premium-v2.js?v=20261011-intuitive-equivalents7" defer></script>
+<script src="./fraction-premium-v2.js?v=20261025-tallvika-one-tap-return1" defer></script>
 <script src="./multiplication-lab.js?v=20261007-return1" defer></script>
 <script src="./multiplication-illustrated-groups-v3.js?v=20261009-pick2" defer></script>
 <script src="./multiplication-pick-engine-v1.js?v=20261009-easy1" defer></script>
 <script src="./multiplication-pick-scenery-v2.js?v=20261009-storybook2" defer></script>
 <script src="./multiplication-pick-play-v1.js?v=20261011-personalfox2" defer></script>
-<script src="./multiplication-premium-v2.js?v=20261014-phasec2-firstfold1" defer></script>
+<script src="./multiplication-premium-v2.js?v=20261025-tallvika-one-tap-return1" defer></script>
 <script src="./multiplication-gangemagi-engine-v1.js?v=20261017-markedsbok1" defer></script>
-<script src="./multiplication-gangemagi-v1.js?v=20261025-tallvika-brand1" defer></script>
+<script src="./multiplication-gangemagi-v1.js?v=20261025-tallvika-one-tap-return1" defer></script>
 <!-- Journey / Bokskogen -->
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-learning-system-v1.js?v=20261016-language-system1" defer></script>
@@ -7036,19 +7168,20 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./geography-continent-voyage-preview-v1.js?v=20261017-geo2a" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
-<script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>
+<script src="./locked-journey-renderer.js?v=20261027-nordlys-troll1" defer></script>
 <!-- Free play + Home -->
-<script src="./word-hunt-themes.js?v=20261016-themes1" defer></script>
-<script src="./word-hunt.js?v=20261017-visible-fox-guidance1" defer></script>
-<script src="./find-the-words.js?v=20261023-premium-garden2" defer></script>
+<script src="./word-hunt-themes.js?v=20261026-norsk-themes2" defer></script>
+<script src="./word-hunt.js?v=20261026-norsk-recovery2" defer></script>
+<script src="./find-the-words.js?v=20261026-norsk-find-steps1" defer></script>
 <script src="./laria-magical-collection-v2.js?v=20261017-diorama2" defer></script>
 <script src="./home-basecamp-v12.js?v=20261017-magicalbook1" defer></script>
 <script defer src="./home-kjosnes-v15.js?v=20261024-alive1"></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
-<script src="./laria-navigation-v13.js?v=20261025-tallvika-brand1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261025-tallvika-brand1" defer></script>
-<script src="./laria-fox-presence.js?v=20261011-livefoxart1" defer></script>
+<script src="./laria-navigation-v13.js?v=20261026-norsk-no-map1" defer></script>
+<script src="./norsk-object-extras-v1.js?v=20261026-all-early-norsk1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261026-norsk-art-isolated1-kinnaklova-reading2-ki-a11y1" defer></script>
+<script src="./laria-fox-presence.js?v=20261027-nordlys-troll1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
@@ -7059,8 +7192,14 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./laria-country-detail-premium-v1.js?v=20261015-discoveries1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
 <!-- Tallvika: locked landscape and direct-play layer. It owns no learning data. -->
-<link rel="stylesheet" href="./tallvika.css?v=20261026-storesoster-picker-dialog4">
-<script src="./tallvika.js?v=20261026-storesoster-focus3" defer></script>
+<link rel="stylesheet" href="./tallvika.css?v=20261027-premium-storesoster-approved1">
+<script src="./tallvika.js?v=20261027-premium-storesoster-approved1" defer></script>
+<!-- Norsk: locked Eggenipa painting, direct-play subject screen. No new learning state. -->
+<link rel="stylesheet" href="./eggenipa.css?v=20261026-iphone-landscape-hotspots1">
+<script src="./eggenipa.js?v=20261026-garden-entry1" defer></script>
+<!-- Engelsk Kinnaklova: private standalone direct-play preview. Does not alter learning state. -->
+<link rel="stylesheet" href="./kinnaklova.css?v=20261026-paintedidentity-shagate2-readingstorybook1-style2">
+<script src="./kinnaklova.js?v=20261027-kinnaklova-cleanart1" defer></script>
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>
 <script src="./discovery-globe-phase1.js?v=20261018-antarctica-ne110-1" defer></script>
