@@ -389,32 +389,46 @@
     const mode=cardMode(q);
     const layout=youngMathChoice(q)?'young-math-choice-layout':answerLayout(q);
     const visual=taskVisualMarkup(q);
-    const passage=q.passage?'<div class="learning-passage">'+text(q.passage)+'</div>':'';
+    // The three direct Kinnaklova portals have replaced the old English map.
+    // Journey/other-subject task scenes keep their existing world identity.
+    const directKinnaklova=subject==='english'&&sessionScope?.type==='subject'&&
+      ['words','sentences','reading'].includes(sessionScope?.module);
+    const readingStory=directKinnaklova&&q.skill==='reading'&&
+      typeof q.passage==='string'&&q.passage.trim().length>0;
+    const passage=q.passage?(readingStory
+      ?'<section class="learning-passage ki-reading-story" lang="en" aria-label="Engelsk historie">'+text(q.passage)+'</section>'
+      :'<div class="learning-passage">'+text(q.passage)+'</div>'):'';
     const readButton=readAloudButton(q);
     const finalQuestion=position===total;
-    const avatar=foxChoice();
-    // In Norsk use a discrete symbol until the approved TrollActor is rigged.
-    // Other subjects continue to use their existing selected avatar.
-    const fox=subject==='norwegian'
+    // Kinnaklova removes the retired fox; Norsk keeps its current hint helper.
+    const avatar=directKinnaklova?null:foxChoice();
+    const fox=directKinnaklova?'':subject==='norwegian'
       ?'<div class="task-norsk-helper"><button class="task-norsk-guide" type="button" aria-label="Få et hint" aria-controls="task-norsk-hint" aria-expanded="false"><span aria-hidden="true">✦</span><small aria-hidden="true">Hint</small></button><p class="task-norsk-hint" id="task-norsk-hint" role="status" aria-live="polite" hidden></p></div>'
       :'<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
     // A number-choice question has no illustration to stand beside.
     // Give the ONE selected full-body fox a real place next to the prompt,
     // not an absolutely positioned thumbnail stuck to the card's corner.
     // The wardrobe/presence engine still owns its sprite and reactions.
-    const inlineFox=taskBand()==='young'&&!visual&&!passage;
-    const visualWithFox=visual?'<div class="task-visual-companion-stage">'+visual+fox+'</div>':fox;
+    const inlineFox=!directKinnaklova&&taskBand()==='young'&&!visual&&!passage;
+    const visualWithFox=visual?(directKinnaklova?visual:'<div class="task-visual-companion-stage">'+visual+fox+'</div>'):fox;
+    const norwegianPrompt=/^(?:Hva|Hvilket|Hvilken|Velg|Finn|Hvor)\b/i.test(prompt);
+    const promptLanguage=directKinnaklova?(norwegianPrompt?'nb':'en'):'';
+    const answerLanguage=directKinnaklova?(
+      q.answerLanguage==='nb'||/på norsk\??\s*$/i.test(prompt)?'nb':'en'
+    ):'';
     const questionScene=inlineFox?
       '<div class="task-prompt-fox-stage"><div class="question">'+text(prompt)+'</div>'+fox+'</div>':
-      '<div class="question">'+text(prompt)+'</div>'+passage+visualWithFox;
+      readingStory
+        ?passage+'<div class="question ki-reading-question" lang="en">'+text(prompt)+'</div>'+visualWithFox
+        :'<div class="question"'+(directKinnaklova?' lang="'+promptLanguage+'"':'')+'>'+text(prompt)+'</div>'+passage+visualWithFox;
 
     wrap.innerHTML=
       '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+(subject==='norwegian'?'task-norsk-storybook ':'')+taskTypeClass(q)+'">'+
         (subject==='norwegian'?'<div class="task-norsk-bookmark" aria-hidden="true">✦ <span>LESEKROKEN</span> ✦</div>':'')+
-        '<div class="task-world-chip">'+text(sceneName(subject))+'</div>'+
+        '<div class="task-world-chip">'+text(directKinnaklova?'Kinnaklova':sceneName(subject))+'</div>'+
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         questionScene+
-        '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
+        '<div class="task-interaction"'+(directKinnaklova?' lang="'+answerLanguage+'"':'')+'>'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
         '<div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p>'+(subject==='english'?'<button class="task-hear-word" id="task-hear-word" type="button" hidden aria-label="Hør engelsk uttale">🔊 Hør engelsk</button>':'')+'</div>'+
         '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button>'+
       '</article>';

@@ -1,0 +1,115 @@
+name: Læria Kinnaklova – Engelsk WebKit og Chromium
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/laria-kinnaklova.yml"
+      - "laer-litt-mer/kinnaklova.*"
+      - "laer-litt-mer/laria-task-scene-v15.js"
+      - "laer-litt-mer/assets/kinnaklova/**"
+      - "laer-litt-mer/assets/gangemagi-troll/**"
+      - "laer-litt-mer/index.html"
+      - "laer-litt-mer/laria-task-scene-v15.js"
+      - "docs/LARIA-KINNAKLOVA-VISUAL-LOCK-2026-10-26.json"
+      - "tests/laria-kinnaklova*"
+      - "tests/laria-locked-persistence.playwright.js"
+      - "tests/laria-journey-integrated-ux.playwright.js"
+      - "tools/kinnaklova/**"
+  push:
+    # GitHub App commits on this feature branch may not emit pull_request
+    # workflow runs. Execute exact-head QA on branch pushes before merging.
+    branches: [main, feat/laria-engelsk-kinnaklova-20261026]
+    paths:
+      - ".github/workflows/laria-kinnaklova.yml"
+      - "laer-litt-mer/kinnaklova.*"
+      - "laer-litt-mer/laria-task-scene-v15.js"
+      - "laer-litt-mer/assets/kinnaklova/**"
+      - "laer-litt-mer/index.html"
+      - "laer-litt-mer/laria-task-scene-v15.js"
+      - "tests/laria-kinnaklova*"
+      - "tests/laria-locked-persistence.playwright.js"
+      - "tools/kinnaklova/**"
+permissions:
+  contents: read
+jobs:
+  kinnaklova-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Compare changes against main even after merging multiple parents.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate Kinnaklova source and exact character identity
+        run: |
+          node --check laer-litt-mer/kinnaklova.js
+          node --test tests/laria-kinnaklova-*.test.cjs
+      - name: Validate proposed changes against main without blaming merged Norsk history
+        run: |
+          git fetch --no-tags origin main
+          git diff --check "$(git merge-base HEAD origin/main)" HEAD
+  kinnaklova-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Serve exact PR commit
+        run: python3 -m http.server 8765 --directory . >/tmp/kinnaklova-http.log 2>&1 &
+      - name: Verify direct English learning in iPhone and iPad WebKit and Chromium
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_KINNAKLOVA_SCREENSHOTS: /tmp/laria-kinnaklova
+        run: node tests/laria-kinnaklova.playwright.js
+      - name: Verify historical checkpoint evidence survives Kinnaklova direct play
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: node tests/laria-locked-persistence.playwright.js
+      - name: Upload Kinnaklova device screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-kinnaklova-devices
+          path: /tmp/laria-kinnaklova
+          if-no-files-found: warn
+          retention-days: 14
+  kinnaklova-mask-unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image verification and optional artist preview tools
+        run: python -m pip install 'Pillow>=11,<13' 'numpy>=2,<3' 'opencv-python-headless>=4.10,<5'
+      - name: Verify character masks and immutable painted signs
+        run: |
+          python -m unittest discover -s tools/kinnaklova -p 'test_*.py' -v
+          python -m py_compile tools/kinnaklova/verify_locked_scene.py tools/kinnaklova/import_clean_art.py tools/kinnaklova/prepare_art_candidates.py
+      - name: Export non-approved pixel mask handoff
+        run: python tools/kinnaklova/prepare_art_candidates.py --mask-only --output-dir /tmp/kinnaklova-handoff
+      - name: Upload strict edit mask and sign exclusion guide
+        uses: actions/upload-artifact@v4
+        with:
+          name: kinnaklova-artist-handoff
+          path: /tmp/kinnaklova-handoff
+          retention-days: 14
+          if-no-files-found: error
+  kinnaklova-art-release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: Block merge if clean locked master is absent or unapproved
+        env:
+          LARIA_KINNAKLOVA_RELEASE_GATE: "1"
+        run: node --test tests/laria-kinnaklova-contract.test.cjs

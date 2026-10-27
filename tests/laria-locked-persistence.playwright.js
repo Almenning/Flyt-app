@@ -80,6 +80,61 @@ async function verify(engine,label,viewport){
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
+   if(subject==='english'){
+     // Kinnaklova deliberately replaces the visible Ordlandsbyen map.
+     // The old checkpoint ID and evidence must STILL survive and remain
+     // available to the existing journey engine when the child uses
+     // the new direct Words/Sentences/Reading experience.
+     const ki=page.locator('#subject-screen.active #kinnaklova-world');
+     await ki.waitFor({state:'visible',timeout:16000});
+     assert.equal(await ki.locator('.ki-card').count(),3,
+       label+' Kinnaklova missing direct Words, Sentences and Reading');
+     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+       label+' retired English map unexpectedly shown');
+     const legacy=await page.evaluate(id=>({
+       checkpoint:state.journey.nodes[journeyNodeKey('english',2,id)],
+       progress:journeyProgress('english',2),
+       next:journeyRecommendedNode('english',2)?.id
+     }),marked.english.id);
+     assert.equal(legacy.checkpoint?.passed,true,
+       label+' old English checkpoint evidence was lost');
+     assert.equal(legacy.checkpoint?.best,5,
+       label+' old English checkpoint score changed');
+     assert.ok(legacy.progress.total>0&&legacy.next,
+       label+' original English journey engine no longer sees its checkpoints');
+     const beforeActivity=await page.evaluate(()=>JSON.stringify(state.journey.nodes));
+     await ki.locator('.ki-card[data-ki="words"]').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     const session=await page.evaluate(()=>({
+       subject:sessionScope?.subject,
+       module:sessionScope?.module,
+       count:sessionQuestions?.length||0,
+       skills:sessionQuestions?.map(q=>q.skill)||[]
+     }));
+     assert.equal(session.subject,'english',label+' wrong subject after Kinnaklova Words');
+     assert.equal(session.module,'words',label+' Words opened the wrong English module');
+     // Words includes approved vocabulary, number and spelling exercises.
+     // Keep the same strict module-to-skill contract as Kinnaklova's own QA.
+     const allowedWords=['words','numbers','spelling','vocabulary'];
+     assert.ok(session.count>=5&&session.skills.every(skill=>allowedWords.includes(skill)),
+       label+' Words mixed in unrelated questions: '+session.skills.join(','));
+     await page.locator('#close-session').click();
+     await ki.waitFor({state:'visible',timeout:16000});
+     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey.nodes)),beforeActivity,
+       label+' opening direct English play changed historical journey progress');
+     // The painted scene replaces the temporary utility bar once the clean
+     // master reaches ready. Prefer the real visible hit area, avoiding a
+     // loading-to-ready race where the utility button vanishes mid-click.
+     const paintedHome=ki.locator('.ki-painted-home');
+     await page.waitForFunction(()=>{
+       const world=document.querySelector('#kinnaklova-world');
+       return world?.dataset.kiArt==='ready'||world?.dataset.kiArt==='missing'||world?.dataset.kiArt==='unapproved';
+     },null,{timeout:20000});
+     if(await paintedHome.isVisible())await paintedHome.click();
+     else await ki.locator('.ki-utility [data-ki="home"]').click();
+     await page.locator('#home-screen.active').waitFor({timeout:16000});
+     continue;
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map');
    await root.waitFor({timeout:16000});
    await page.waitForFunction(s=>{
@@ -145,7 +200,7 @@ async function verify(engine,label,viewport){
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,
    label+' journey navigation altered saved child progress');
   assert.deepEqual(errors,[],label+' runtime errors');
-  console.log('[locked persistence]',label,'four checkpoints, Eggenipa direct learning plus three journey worlds, replay and reload OK');
+  console.log('[locked persistence]',label,'historical checkpoints and Eggenipa/Kinnaklova direct play, remaining maps and reload OK');
   await context.close();
  }finally{await browser.close();}
 }

@@ -64,6 +64,39 @@ async function run(engine,label,viewport){
      await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
      continue;
    }
+   if(subject==='english'){
+     // Kinnaklova replaces the old Ordlandsbyen map as the child-facing
+     // English entrance. The previous journey data and mission IDs remain
+     // intact, but the map must no longer be a required screen in this QA.
+     const ki=page.locator('#subject-screen.active #kinnaklova-world');
+     await ki.waitFor({state:'visible',timeout:16000});
+     assert.equal(await ki.locator('.ki-card').count(),3,label+' English direct activities missing');
+     assert.equal(await page.locator('#subject-screen.locked-journey-active').count(),0,
+       label+' English retained the retired map layout class');
+     const before=await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{}));
+     assert.equal(await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{})),before,
+       label+' English landing must not mutate journey progress');
+     await ki.locator('[data-ki="words"].ki-card').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     const state=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,question:sessionQuestions[qIndex]?.prompt}));
+     assert.equal(state.subject,'english',label+' English engine not reached');
+     assert.equal(state.module,'words',label+' Wrong English module');
+     assert.ok(state.question,label+' English question missing');
+     await page.locator('#close-session').click();
+     await ki.waitFor({state:'visible',timeout:16000});
+     // The clean painted background switches navigation controls when image integrity
+     // settles. Wait before deciding, otherwise the temporary utility link can vanish
+     // during a Playwright click on iPad.
+     await page.waitForFunction(()=>{
+       const host=document.querySelector('#subject-screen.active #kinnaklova-world');
+       return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
+     },null,{timeout:20000});
+     const back=ki.locator('.ki-utility [data-ki="home"]');
+     if(await back.isVisible())await back.click();
+     else await ki.locator('.ki-painted-home').click();
+     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     continue;
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    try{
      await root.waitFor({state:'visible',timeout:16000});
@@ -106,7 +139,7 @@ async function run(engine,label,viewport){
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');
-  console.log('[journey integrated UX]',label,'four approved world names and real mission back paths OK');
+  console.log('[journey integrated UX]',label,'Norsk and Geography maps, Tallvika and Kinnaklova direct worlds OK');
   await context.close();
  }finally{await browser.close()}
 }

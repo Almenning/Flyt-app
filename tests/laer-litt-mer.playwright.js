@@ -381,8 +381,25 @@ async function finishSession(page){
     const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const page=await context.newPage();
     page.__base=url;
+    // Kinnaklova's locked CLEAN master is intentionally absent in this
+    // draft. Record its exact missing URL instead of suppressing generic 404s.
+    // Every other missing resource, JS exception and console error must fail.
+    const knownMissingArt404=[];
+    const browser404Messages=[];
+    const expectedCleanArt='/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp';
+    page.on('response',response=>{
+      if(response.status()!==404)return;
+      const url=new URL(response.url());
+      if(url.pathname===expectedCleanArt)knownMissingArt404.push(url.href);
+      else errors.push('Unexpected HTTP 404: '+url.href);
+    });
     page.on('pageerror',e=>errors.push('pageerror: '+e.message));
-    page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+    page.on('console',m=>{
+      if(m.type()!=='error')return;
+      if(m.text()==='Failed to load resource: the server responded with a status of 404 (Not Found)'){
+        browser404Messages.push(m.text());
+      }else errors.push('console: '+m.text());
+    });
     await page.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));
     await page.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
 
@@ -1013,7 +1030,16 @@ async function finishSession(page){
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     assert.equal(await page.evaluate(()=>new Set(sessionQuestions.map(q=>q.prompt+'|'+q.answer)).size),5);
     await page.locator('#close-session').click();
-    await page.locator('#journey-map .locked-journey-back').click();
+    // Old Ordlandsbyen map navigation is hidden by Kinnaklova. Follow the
+    // real return control instead and assert all direct activity portals.
+    const englishWorld=page.locator('#subject-screen.active #kinnaklova-world');
+    await englishWorld.waitFor({state:'visible',timeout:16000});
+    assert.deepEqual(await englishWorld.locator('.ki-card').evaluateAll(cards=>cards.map(card=>card.dataset.ki)),
+      ['words','sentences','reading'],'English must retain its three child-facing choices');
+    const englishHome=englishWorld.locator('.ki-utility [data-ki="home"]');
+    if(await englishHome.isVisible())await englishHome.click();
+    else await englishWorld.locator('.ki-painted-home').click();
+    await page.locator('#home-screen.active').waitFor({timeout:16000});
 
     // Geography: default Land must work on a young grade.
     await page.evaluate(()=>document.getElementById('open-geography').click());
@@ -1103,6 +1129,10 @@ async function finishSession(page){
       await page.evaluate(s=>document.querySelector(s).click(),starter);
       if(subject==='geography'){
         await page.evaluate(()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()});
+      }else if(subject==='english'){
+        // Follow the live Kinnaklova portal, not the retired mixed English
+        // shortcut that still preserves legacy chapter-journey behavior.
+        await page.locator('#subject-screen.active #kinnaklova-world .ki-card[data-ki="words"]').click();
       }else{
         await page.evaluate(s=>startLearningSession(s,null,SUBJECTS[s]?.mission||'Blandet'),subject);
       }
@@ -1119,8 +1149,12 @@ async function finishSession(page){
         const bounds=await guide.boundingBox();
         assert.ok(bounds&&bounds.width>=44&&bounds.height>=44,
           'Norsk lost its visible, child-friendly help indicator');
+      }else if(subject==='english'){
+        assert.equal(await page.locator('.task-fox-companion').count(),0,'Kinnaklova must not show retired fox');
+        assert.equal((await page.locator('#session-screen.active .task-world-chip').innerText()).trim(),'Kinnaklova');
+        assert.equal(await page.evaluate(()=>sessionScope?.module),'words','English opened wrong module');
       }else{
-        // Identity requirements for the three subjects not migrated to Eggenipa.
+        // Existing profile actor remains in other subjects.
         assert.equal(await page.locator('.task-fox-companion img').count(),1,
           subject+' needs one in-world fox companion');
         const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
@@ -1649,8 +1683,12 @@ async function finishSession(page){
     assert.match(await page.locator('#grade-round-title').textContent(),/fire første eventyr fullført/i);
     assert.doesNotMatch(await page.locator('#grade-round-title').textContent(),/2\. klasse rundet|kjerneløp/i);
 
+    // Matching every browser 404 to the exact non-published art URL means
+    // no unrelated broken assets can hide behind the draft image exemption.
+    assert.equal(browser404Messages.length,knownMissingArt404.length,
+      'Browser 404 messages must match only the intentionally missing clean Kinnaklova art');
     assert.deepEqual(errors,[]);
-    console.log('laer-litt-mer browser QA passed');
+    console.log('laer-litt-mer browser QA passed; intentional draft-art 404s:',knownMissingArt404.length);
   }finally{
     await browser.close();
     await new Promise(resolve=>server.close(resolve));

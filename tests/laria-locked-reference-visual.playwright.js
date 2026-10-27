@@ -1,7 +1,7 @@
 'use strict';
 /* REAL original-image browser evidence. This is intentionally different from
- * the SVG decoder-stub interaction test: it runs only when all four approved
- * original PNGs have actually been committed. Screenshots + visible hotspots
+ * the SVG decoder-stub interaction test: it runs when the relevant approved
+ * original art is committed, and verifies Kinnaklova directly for English. Screenshots + visible hotspots
  * are evidence to compare with the 10 Oct library originals, NOT a substitute
  * for final human reference comparison.
  */
@@ -77,6 +77,39 @@ async function check(engine,label,viewport){
      await tv.locator('[data-tv="back"]').click();
      await page.locator('#home-screen.active').waitFor();
      continue;
+   }
+   if(subject==='english'){
+    // Kinnaklova is the approved visible subject world; Ordlandsbyen remains
+    // available only to the historical journey/progress engine.
+    const world=page.locator('#subject-screen.active #kinnaklova-world');
+    await world.waitFor({state:'visible',timeout:16000});
+    await page.waitForFunction(()=>{
+      const host=document.querySelector('#subject-screen.active #kinnaklova-world');
+      return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
+    },null,{timeout:20000});
+    assert.equal(await world.getAttribute('data-ki-art'),'ready',
+      label+' clean Kinnaklova master failed art integrity');
+    const image=world.locator('.ki-master');
+    assert.deepEqual(await image.evaluate(async el=>{
+      await el.decode();
+      return {width:el.naturalWidth,height:el.naturalHeight};
+    }),{width:1672,height:941},label+' wrong approved Kinnaklova dimensions');
+    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+      label+' old Ordlandsbyen must not appear');
+    assert.deepEqual(await world.locator('.ki-companions [data-ki-character]').evaluateAll(
+      nodes=>nodes.map(node=>node.dataset.kiCharacter)
+    ),['storesoster','lillebror','lillesoster'],
+      label+' three approved trolls are missing or reordered');
+    assert.equal(await world.locator('.ki-card').count(),3,
+      label+' three direct English activities are required');
+    const target=viewport.width<=700
+      ? world.locator('.ki-utility [data-ki="home"]')
+      : world.locator('.ki-painted-home');
+    await target.waitFor({state:'visible',timeout:16000});
+    await world.screenshot({path:path.join(output,label+'-english-kinnaklova-live.png')});
+    await target.click();
+    await page.locator('#home-screen.active').waitFor({timeout:16000});
+    continue;
    }
    await page.waitForFunction(s=>{
     const host=document.querySelector('.screen.active .locked-journey-map');

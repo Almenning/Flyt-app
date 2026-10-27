@@ -51,6 +51,15 @@ async function returnFromSubjectOrJourney(page,screen,back,subject){
    await page.locator('#home-screen.active').waitFor();
    return;
  }
+ if(subject==='english' && await page.locator('#kinnaklova-world:visible').count()){
+   // The direct Kinnaklova hub owns English navigation; #subject-back is hidden.
+   const world=page.locator('#subject-screen.active #kinnaklova-world');
+   const nav=world.locator('.ki-utility [data-ki="home"]');
+   if(await nav.isVisible())await nav.click();
+   else await world.locator('.ki-painted-home:visible').click();
+   await page.locator('#home-screen.active').waitFor();
+   return;
+ }
  if(subject==='math' && await page.locator('#tallvika-world:visible').count()){
    await page.locator('#tallvika-world [data-tv="back"]:visible').click();
    await page.locator('#home-screen.active').waitFor();

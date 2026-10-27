@@ -1,6 +1,6 @@
 'use strict';
-/* Runtime proof: selected fox, not a generic picture or icon, follows the child
- * through all four approved worlds and their actual question screens. */
+/* Runtime proof: saved profile identity survives Kinnaklova's approved troll
+ * sources as well as the existing task actor and legacy journey foxes. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {chromium,webkit}=require('playwright');
@@ -104,6 +104,47 @@ async function run(engine,name,viewport,which){
      await tv.waitFor({state:'visible',timeout:14000});
      await tv.locator('[data-tv="back"]').click();
      await page.locator('#home-screen.active').waitFor({timeout:14000});
+     continue;
+   }
+   if(subject==='english'){
+     // Kinnaklova displays the locked trolls, not the retired English fox
+     // journey. The current task actor must retain the saved profile choice.
+     const world=page.locator('#subject-screen.active #kinnaklova-world');
+     await world.waitFor({state:'visible',timeout:16000});
+     assert.deepEqual(await world.locator('.ki-card').evaluateAll(cards=>cards.map(card=>card.dataset.ki)),
+       ['words','sentences','reading'],name+' Kinnaklova must expose three direct portals');
+     const trolls=await world.locator('.ki-troll').evaluateAll(images=>images.map(img=>img.getAttribute('src')));
+     assert.deepEqual(trolls,[
+       './assets/kinnaklova/storesoster-inworld-approved-20261026.webp',
+       './assets/gangemagi-troll/lillebror.webp',
+       './assets/gangemagi-troll/lillesoster.webp'
+     ],name+' Kinnaklova must reuse the approved troll sources');
+     assert.equal(await page.evaluate(()=>state.profile.avatar),which,name+' world changed saved profile');
+     await page.screenshot({path:folder+'/'+name+'-english-kinnaklova.png',fullPage:true});
+     await world.locator('.ki-card[data-ki="words"]').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     assert.deepEqual(await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module})),
+       {subject:'english',module:'words'},name+' wrong English portal scope');
+     // Kinnaklova no longer mounts the retired fox in a task. The selected
+     // profile remains untouched for old journeys and future approved TrollActor.
+     assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+       name+' Kinnaklova must not show the retired fox');
+     assert.equal(await page.evaluate(()=>state.profile.avatar),which,
+       name+' English task changed the saved profile');
+     await page.screenshot({path:folder+'/'+name+'-english-task.png',fullPage:true,animations:'disabled'});
+     await page.locator('#close-session').click();
+     await world.waitFor({state:'visible',timeout:16000});
+     // The clean painted background switches navigation controls when image integrity
+     // settles. Wait before deciding, otherwise the temporary utility link can vanish
+     // during a Playwright click on iPad.
+     await page.waitForFunction(()=>{
+       const host=document.querySelector('#subject-screen.active #kinnaklova-world');
+       return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
+     },null,{timeout:20000});
+     const back=world.locator('.ki-utility [data-ki="home"]');
+     if(await back.isVisible())await back.click();
+     else await world.locator('.ki-painted-home').click();
+     await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
    if(subject==='norwegian'){

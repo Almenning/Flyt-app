@@ -86,6 +86,21 @@ async function returnFromLockedJourney(page,screen,subject,label){
    await page.locator('#close-session').click();
    await world.waitFor({timeout:16000});
    await world.locator('[data-eg="home"]').click();
+ }else if(subject==='english'){
+   // Direct Kinnaklova replaces the hidden Ordlandsbyen map. Navigate by
+   // the real controls a child can tap, not by a retired map back-button.
+   const world=page.locator(root+' #kinnaklova-world');
+   await world.waitFor({state:'visible',timeout:16000});
+   // The clean painted background switches navigation controls when image integrity
+   // settles. Wait before deciding, otherwise the temporary utility link can vanish
+   // during a Playwright click on iPad.
+   await page.waitForFunction(()=>{
+     const host=document.querySelector('#subject-screen.active #kinnaklova-world');
+     return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
+   },null,{timeout:20000});
+   const utility=world.locator('.ki-utility [data-ki="home"]');
+   if(await utility.isVisible())await utility.click();
+   else await world.locator('.ki-painted-home').click();
  }else{
    const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});

@@ -23,7 +23,7 @@ test('Norsk Eggenipa is registered only as an isolated presentation layer',()=>{
   // Norsk now enters the real learning engine directly; the removed
   // journey map must not appear as a child-facing activity.
   assert.match(js,/startLearningSession/);
-  assert.match(html,/startLearningSession:\(subject,module,label\)=>startLearningSession/);
+  assert.match(html,/startLearningSession:\(subject,module,label,strictModule=false\)=>startLearningSession\(subject,module,label,strictModule\)/);
   assert.doesNotMatch(js,/startJourneyNode|journeyRecommendedNode|setJourneyViewGrade/);
   assert.match(css,/#subject-screen\.eggenipa-active/);
   assert.doesNotMatch(js,/localStorage\.setItem|\.journey\.nodes\s*=|\.progressSchemaVersion\s*=/);
@@ -41,7 +41,8 @@ test('Three independent Norsk activities, no journey map in the child UI',()=>{
   assert.doesNotMatch(js,/data-eg="map"|id:'map'|openMap\(|"eg-next"|data-eg="next"|data-eg-grade/);
   assert.doesNotMatch(js,/bokskogen-atlas32\.webp|locked-journey-back/);
   assert.match(css,/\.eg-scene-reading/);
-  assert.match(html,/resumeSession:\(\)=>/);
+  assert.match(html,/resumeSession:\(expectedSubject='norwegian'\)=>/);
+  assert.match(html,/sessionScope\?\.subject!==expectedSubject/);
 });
 
 test('Artwork stays an external unchanged source, not generated on screen',()=>{
