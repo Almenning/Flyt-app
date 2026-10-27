@@ -119,7 +119,9 @@ async function verify(engine,label,viewport){
      await ki.waitFor({state:'visible',timeout:16000});
      assert.equal(await page.evaluate(()=>JSON.stringify(state.journey.nodes)),beforeActivity,
        label+' opening direct English play changed historical journey progress');
-     await ki.locator('.ki-utility [data-ki="home"]').click();
+     const utilityBack=ki.locator('.ki-utility [data-ki="home"]');
+     if(await utilityBack.isVisible())await utilityBack.click();
+     else await ki.locator('.ki-painted-home').click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
