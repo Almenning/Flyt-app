@@ -136,6 +136,13 @@ async function run(engine,label,viewport){
    // English enters Kinnaklova directly. The old Ordlandsbyen map is hidden.
    const world=page.locator('#subject-screen.active #kinnaklova-world');
    await world.waitFor({state:'visible',timeout:16000});
+   // The clean painted background switches navigation controls when image integrity
+   // settles. Wait before deciding, otherwise the temporary utility link can vanish
+   // during a Playwright click on iPad.
+   await page.waitForFunction(()=>{
+     const host=document.querySelector('#subject-screen.active #kinnaklova-world');
+     return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
+   },null,{timeout:20000});
    const utility=world.locator('.ki-utility [data-ki="home"]');
    if(await utility.isVisible())await utility.click();
    else await world.locator('.ki-painted-home').click();
