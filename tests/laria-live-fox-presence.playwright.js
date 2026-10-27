@@ -122,94 +122,88 @@ async function run(engine,name,viewport,avatar){
     else await world.locator('.ki-painted-home').click();
     await page.locator('#home-screen.active').waitFor({timeout:16000});
     assert.equal(await journeyProgress(),oldEnglishProgress,name+' direct English modified historical journey');
-    // Geography is the remaining legacy moving-fox map.
+    // Nordlysleiren is troll-led on the map and in its mission sheet.
+    // Keep the legacy profile avatar untouched for the separate task actor.
     await page.locator('#home-screen.active .bc14-subject[data-camp="subject-geography"]').click();
-    const subjects=['geography'];
-    for(let subjectIndex=0;subjectIndex<subjects.length;subjectIndex++){
-      const subject=subjects[subjectIndex];
-      if(subjectIndex>0){
-        await page.locator('.screen.active .locked-journey-back').click();
-        await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:12000});
-        await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').click();
-      }
-      const activeMap=page.locator('.screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
-      await activeMap.waitFor({timeout:15000});
-      const traveler=activeMap.locator('.locked-journey-traveler');
-      await traveler.locator('svg.laria-fox-wardrobe-art').waitFor({timeout:12000});
-      assert.equal(await traveler.count(),1,name+' '+subject+' duplicate traveler');
-      assert.equal(await traveler.getAttribute('data-avatar'),avatar,name+' '+subject+' selected a different fox');
-      assert.equal(await traveler.locator('[data-gear]').count(),0,name+' '+subject+' exposed deferred clothing');
-      const cleaned=activeMap.locator('.locked-journey-fox-free');
-      assert.equal(await cleaned.count(),1,name+' '+subject+' has no painted-fox removal');
-      await cleaned.evaluate(img=>img.decode());
-      const beforeMap=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
-      for(let stop=0;stop<5;stop++){
-        await activeMap.locator('.locked-journey-hotspot').nth(stop).click();
-        await page.locator('.locked-journey-overlay:not([hidden])').waitFor({timeout:10000});
-        assert.equal(await traveler.getAttribute('data-laria-fox-stop'),String(stop),
-          name+' '+subject+' traveler missed painted landmark '+stop);
-        // The premium sheet temporarily PORTALS the actual map fox, not a
-        // duplicate mascot. Check its only rig in the sheet first, then its
-        // grounded physical map position after the sheet closes.
-        const sheetFox=await traveler.evaluate(el=>{
-          const stage=el.closest('.mission-fox-stage');
-          return {stage:!!stage,oneRig:el.querySelectorAll(':scope > .laria-fox-wardrobe-placed').length,
-            width:el.getBoundingClientRect().width,interactive:getComputedStyle(el).pointerEvents};
-        });
-        assert.equal(sheetFox.stage,true,name+' '+subject+' fox not integrated in premium mission sheet');
-        assert.equal(sheetFox.oneRig,1,name+' '+subject+' duplicated full-body rig in mission sheet');
-        assert(sheetFox.width>=35,name+' '+subject+' fox hidden or too small in mission sheet');
-        assert.equal(sheetFox.interactive,'none',name+' '+subject+' fox blocks menu taps');
-        await page.locator('.locked-sheet-close').click();
-        assert.equal(await traveler.evaluate(el=>!!el.closest('.locked-journey-board')),true,
-          name+' '+subject+' original fox was not returned to its map');
-        const position=await traveler.evaluate(el=>{
-          const fox=el.getBoundingClientRect(),board=el.closest('.locked-journey-board').getBoundingClientRect();
-          return {left:fox.left-board.left,right:board.right-fox.right,
-            top:fox.top-board.top,bottom:board.bottom-fox.bottom,interactive:getComputedStyle(el).pointerEvents};
-        });
-        assert(position.left>=-3&&position.right>=-3&&position.top>=-3&&position.bottom>=-3,
-          name+' '+subject+' fox clipped at stop '+stop+' '+JSON.stringify(position));
-        assert.equal(position.interactive,'none',name+' '+subject+' mascot blocks destination taps');
-        const visibleCharacter=await traveler.evaluate(el=>{
-          const wrapper=el.getBoundingClientRect();
-          const svg=el.querySelector(':scope > .laria-fox-wardrobe-placed');
-          if(!svg)return {missing:true};
-          const rect=svg.getBoundingClientRect();
-          return {missing:false,width:rect.width,height:rect.height,
-            wrapperWidth:wrapper.width,wrapperHeight:wrapper.height,
-            leftDelta:rect.left-wrapper.left,topDelta:rect.top-wrapper.top};
-        });
-        assert(!visibleCharacter.missing&&
-          Math.abs(visibleCharacter.width-visibleCharacter.wrapperWidth)<=2&&
-          Math.abs(visibleCharacter.height-visibleCharacter.wrapperHeight)<=2&&
-          Math.abs(visibleCharacter.leftDelta)<=2&&Math.abs(visibleCharacter.topDelta)<=2,
-          name+' '+subject+' sprite overflowed its real standing anchor at stop '+stop+
-          ' '+JSON.stringify(visibleCharacter));
-        const paintedSignOverlap=await traveler.evaluate(el=>{
-          const fox=el.querySelector(':scope > .laria-fox-wardrobe-placed').getBoundingClientRect();
-          const signs=el.closest('.locked-journey-board').querySelectorAll('.locked-journey-hotspot');
-          return [...signs].map((sign,i)=>{
-            const box=sign.getBoundingClientRect();
-            const w=Math.max(0,Math.min(fox.right,box.right)-Math.max(fox.left,box.left));
-            const h=Math.max(0,Math.min(fox.bottom,box.bottom)-Math.max(fox.top,box.top));
-            return {sign:i+1,area:Math.round(w*h)};
-          }).filter(hit=>hit.area>8);
-        });
-        assert.deepEqual(paintedSignOverlap,[],name+' '+subject+
-          ' fox covers a real illustrated sign at stop '+stop+': '+JSON.stringify(paintedSignOverlap));
-        // Preserve one complete five-stop visual evidence set in actual WebKit
-        // iPhone mode, beyond the strict non-overlap geometry assertions.
-        if(name==='webkit-girl-iphone')await page.screenshot({
-          path:path.join(dir,name+'-'+subject+'-stop-'+(stop+1)+'.png'),
-          animations:'disabled'
-        });
-      }
-      const afterMap=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
-      assert.equal(afterMap,beforeMap,name+' '+subject+' fox movement changed learning progression');
-      await page.screenshot({path:path.join(dir,name+'-'+subject+'-final-stop.png'),animations:'disabled'});
+    const subject='geography';
+    const activeMap=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
+    await activeMap.waitFor({timeout:15000});
+    const traveler=activeMap.locator('.locked-journey-traveler[data-troll="storesoster"]');
+    await traveler.locator('.locked-journey-troll-art img').waitFor({timeout:12000});
+    assert.equal(await traveler.count(),1,name+' geography duplicate troll traveler');
+    assert.equal(await traveler.getAttribute('data-avatar'),null,name+' geography retired fox identity returned');
+    assert.equal(await traveler.getAttribute('data-troll'),'storesoster',name+' geography selected wrong troll');
+    assert.equal(await traveler.locator(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').count(),0,
+      name+' geography fox wardrobe leaked onto troll');
+    const cleaned=activeMap.locator('.locked-journey-fox-free');
+    assert.equal(await cleaned.count(),1,name+' geography has no painted-fox removal');
+    await cleaned.evaluate(img=>img.decode());
+    const beforeMap=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+    for(let stop=0;stop<5;stop++){
+      await activeMap.locator('.locked-journey-hotspot').nth(stop).click();
+      await page.locator('.locked-journey-overlay:not([hidden])').waitFor({timeout:10000});
+      assert.equal(await traveler.getAttribute('data-laria-troll-stop'),String(stop),
+        name+' geography troll missed painted landmark '+stop);
+      // The premium sheet temporarily portals the actual map troll, never a
+      // cloned mascot or old fox rig.
+      const sheetTroll=await traveler.evaluate(el=>{
+        const stage=el.closest('.mission-fox-stage');
+        return {stage:!!stage,oneArt:el.querySelectorAll(':scope > .locked-journey-troll-art').length,
+          foxRig:el.querySelectorAll(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').length,
+          width:el.getBoundingClientRect().width,interactive:getComputedStyle(el).pointerEvents};
+      });
+      assert.equal(sheetTroll.stage,true,name+' geography troll not integrated in premium mission sheet');
+      assert.equal(sheetTroll.oneArt,1,name+' geography duplicated troll art in mission sheet');
+      assert.equal(sheetTroll.foxRig,0,name+' geography mission sheet added an old fox rig');
+      assert(sheetTroll.width>=28,name+' geography troll hidden or too small in mission sheet');
+      assert.equal(sheetTroll.interactive,'none',name+' geography troll blocks menu taps');
+      await page.locator('.locked-sheet-close').click();
+      assert.equal(await traveler.evaluate(el=>!!el.closest('.locked-journey-board')),true,
+        name+' geography original troll was not returned to its map');
+      const position=await traveler.evaluate(el=>{
+        const actor=el.getBoundingClientRect(),board=el.closest('.locked-journey-board').getBoundingClientRect();
+        return {left:actor.left-board.left,right:board.right-actor.right,
+          top:actor.top-board.top,bottom:board.bottom-actor.bottom,interactive:getComputedStyle(el).pointerEvents};
+      });
+      assert(position.left>=-3&&position.right>=-3&&position.top>=-3&&position.bottom>=-3,
+        name+' geography troll clipped at stop '+stop+' '+JSON.stringify(position));
+      assert.equal(position.interactive,'none',name+' geography troll blocks destination taps');
+      const visibleCharacter=await traveler.evaluate(el=>{
+        const wrapper=el.getBoundingClientRect();
+        const art=el.querySelector(':scope > .locked-journey-troll-art');
+        if(!art)return {missing:true};
+        const rect=art.getBoundingClientRect();
+        return {missing:false,width:rect.width,height:rect.height,
+          wrapperWidth:wrapper.width,wrapperHeight:wrapper.height,
+          leftDelta:rect.left-wrapper.left,topDelta:rect.top-wrapper.top};
+      });
+      assert(!visibleCharacter.missing&&
+        Math.abs(visibleCharacter.width-visibleCharacter.wrapperWidth)<=2&&
+        Math.abs(visibleCharacter.height-visibleCharacter.wrapperHeight)<=2&&
+        Math.abs(visibleCharacter.leftDelta)<=2&&Math.abs(visibleCharacter.topDelta)<=2,
+        name+' geography troll overflowed its real standing anchor at stop '+stop+
+        ' '+JSON.stringify(visibleCharacter));
+      const paintedSignOverlap=await traveler.evaluate(el=>{
+        const actor=el.querySelector(':scope > .locked-journey-troll-art').getBoundingClientRect();
+        const signs=el.closest('.locked-journey-board').querySelectorAll('.locked-journey-hotspot');
+        return [...signs].map((sign,i)=>{
+          const box=sign.getBoundingClientRect();
+          const w=Math.max(0,Math.min(actor.right,box.right)-Math.max(actor.left,box.left));
+          const h=Math.max(0,Math.min(actor.bottom,box.bottom)-Math.max(actor.top,box.top));
+          return {sign:i+1,area:Math.round(w*h)};
+        }).filter(hit=>hit.area>8);
+      });
+      assert.deepEqual(paintedSignOverlap,[],name+
+        ' geography troll covers a real illustrated sign at stop '+stop+': '+JSON.stringify(paintedSignOverlap));
+      if(name==='webkit-girl-iphone')await page.screenshot({
+        path:path.join(dir,name+'-geography-stop-'+(stop+1)+'.png'),
+        animations:'disabled'
+      });
     }
-    // Preserve identity and reactions in the remaining Geography journey.
+    const afterMap=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+    assert.equal(afterMap,beforeMap,name+' geography troll movement changed learning progression');
+    await page.screenshot({path:path.join(dir,name+'-geography-final-stop.png'),animations:'disabled'});
+    // Preserve saved profile identity and reactions in the existing Geography task actor.
     await page.locator('.screen.active .locked-journey-back').click();
     await page.locator('#home-screen.active .bc14-subject[data-camp="subject-geography"]').click();
     const activeGeographyMap=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
@@ -238,7 +232,7 @@ async function run(engine,name,viewport,avatar){
     await page.screenshot({path:path.join(dir,name+'-task.png'),animations:'disabled'});
     assert.deepEqual(errors,[],name+' browser errors '+JSON.stringify(errors));
     await context.close();
-    console.log('[live fox]',name,'troll-led Home, Eggenipa and Kinnaklova direct play, legacy Geography fox, saved progress OK');
+    console.log('[live fox]',name,'troll-led Home/worlds, Nordlysleiren troll map, existing Geography task actor, saved progress OK');
   }finally{await browser.close()}
 }
 (async()=>{
