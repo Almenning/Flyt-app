@@ -38,7 +38,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          # Compare changes against main even after merging multiple parents.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -46,8 +47,10 @@ jobs:
         run: |
           node --check laer-litt-mer/kinnaklova.js
           node --test tests/laria-kinnaklova-*.test.cjs
-      - name: Validate committed diff whitespace
-        run: git diff --check HEAD^ HEAD
+      - name: Validate proposed changes against main without blaming merged Norsk history
+        run: |
+          git fetch --no-tags origin main
+          git diff --check "$(git merge-base HEAD origin/main)" HEAD
   kinnaklova-browser:
     runs-on: ubuntu-latest
     timeout-minutes: 25
