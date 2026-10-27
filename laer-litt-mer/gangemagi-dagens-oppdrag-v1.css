@@ -802,11 +802,11 @@
     margin-top:-154px;
     margin-left:0;
   }
-  /* Keep the completed full-body guide visually above the final equation.
-     Moving only the illustration preserves speech and document flow while
-     preventing the fox's feet from standing on the maths parchment. */
-  .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-fox-art{
-    transform:translateY(-48px);
+  /* Keep the completed guide above the final equation. TrollActor deliberately
+     forbids whole-image transforms because a flat fallback must not impersonate
+     rigging. Move the complete companion column as layout instead. */
+  .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-troll{
+    top:-28px;
   }
   /* When the fruit supply disappears at completion, the market becomes
      shorter. Reserve real scene space for the praise bubble so the final

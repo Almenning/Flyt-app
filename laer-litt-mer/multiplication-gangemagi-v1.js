@@ -21,13 +21,36 @@
  const berrySourceArt=Array.from({length:5},(_,i)=>'<span class="gm-source-berry gm-source-berry-'+i+'">'+berrySvg+'</span>').join('');
  function load(){try{return E.normalize(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(_){return E.initial();}}
  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(_){}}
- function selectedFox(){
-   const which=window.LARIA_FOX?.choice?.()==='girl'?'girl':'boy';
-   const wardrobe=window.LARIA_FOX_WARDROBE;
-   if(typeof wardrobe?.render==='function')
-     return wardrobe.render(which,wardrobe.inventory?.()||{equipped:{}},'world');
-   const path=window.LARIA_FOX?.worldSource?.(which)||window.LARIA_FOX?.source?.(which);
-   return path?'<img src="'+esc(path)+'" alt="" aria-hidden="true">':'';
+ function selectedTroll(actorState='idle'){
+   const actor=window.LARIA_TROLL_ACTOR;
+   if(typeof actor?.render==='function')return actor.render({state:actorState});
+   let id='storesoster';
+   try{
+     const saved=JSON.parse(localStorage.getItem('laerlittmer-v2')||'null')?.profile?.tallvikaTroll;
+     if(['storesoster','lillesoster','lillebror'].includes(saved))id=saved;
+   }catch(_){}
+   const src=id==='storesoster'
+     ?'./assets/tallvika/storesoster-inworld-approved-20261026.webp'
+     :'./assets/gangemagi-troll/'+id+'.webp';
+   return '<span class="laria-troll-actor" data-troll-id="'+id+'" data-troll-state="'+actorState+'" data-troll-rig="flat-fallback" aria-label="'+esc(trollName(id))+'"><img class="laria-troll-actor__flat" src="'+esc(src)+'" alt="" aria-hidden="true"></span>';
+ }
+ function trollName(id){
+   const actor=window.LARIA_TROLL_ACTOR;
+   if(typeof actor?.meta==='function')return actor.meta(id).name;
+   return id==='lillesoster'?'Lillesøster':id==='lillebror'?'Lillebror':'Storesøster';
+ }
+ function selectedTrollId(){
+   const actor=window.LARIA_TROLL_ACTOR;
+   if(typeof actor?.choice==='function')return actor.choice();
+   try{
+     const id=JSON.parse(localStorage.getItem('laerlittmer-v2')||'null')?.profile?.tallvikaTroll;
+     return ['storesoster','lillesoster','lillebror'].includes(id)?id:'storesoster';
+   }catch(_){return 'storesoster'}
+ }
+ function actorState(){
+   const mood=E.filled(state)?'celebrate':hintStep?'help':foxMood;
+   return window.LARIA_TROLL_ACTOR?.stateForMood?.(mood)||
+     (mood==='celebrate'?'celebrate':mood==='help'?'hint':mood==='think'?'think':mood==='cheer'?'wave':'idle');
  }
  function message(){
    const amount=E.total(state),left=E.target(state)-amount;
@@ -147,10 +170,10 @@
        '<section class="gm-world" aria-label="Jordbærmarkedet i Tallvika">'+
        (free?'<header class="gm-story"><div class="gm-story-main"><span class="gm-story-kicker">DU BESTEMMER</span><h2>'+esc(storyTitle())+'</h2><p>'+esc(challengeText())+'</p></div>'+
        '<span class="gm-story-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span></header>':questBoard(sum,goal))+
-       '<div class="gm-scene"><div class="gm-fox" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
-         '<div class="gm-fox-art" aria-hidden="true">'+selectedFox()+'</div>'+
-         '<div class="gm-fox-bubble"><span class="gm-fox-bubble-label">Din rev sier:</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
-         '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp det reven sier">◖))</button></div>'+
+       '<div class="gm-scene"><div class="gm-fox gm-troll" data-companion="troll" data-troll-id="'+selectedTrollId()+'" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
+         '<div class="gm-fox-art gm-troll-art" aria-hidden="true">'+selectedTroll(actorState())+'</div>'+
+         '<div class="gm-fox-bubble"><span class="gm-fox-bubble-label">'+esc(trollName(selectedTrollId()))+' sier:</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
+         '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp det følgesvennen sier">◖))</button></div>'+
        '</div>'+
        '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallvikas hage <span class="gm-sign-leaf">✿</span></div>'+
        '<div class="gm-crates" style="--gm-groups:'+state.groups+';--gm-cols:'+(state.each<=5?state.each:Math.ceil(state.each/2))+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
@@ -217,7 +240,7 @@
      '<button type="button" class="gm-book-back" data-gm-action="book" aria-label="Tilbake til Gangemagi"><span aria-hidden="true">‹</span> Tilbake til Gangemagi</button>'+
      '<div class="gm-book-v2-world"><div class="gm-book-v2-inner">'+
        '<header class="gm-book-intro">'+
-         '<div class="gm-book-fox-art" aria-hidden="true">'+selectedFox()+'</div>'+
+         '<div class="gm-book-fox-art gm-book-troll-art" aria-hidden="true">'+selectedTroll('idle')+'</div>'+
          '<div class="gm-book-intro-copy"><span class="gm-book-overline">✦ EVENTYRBOK FRA TALLVIKA ✦</span>'+
          '<h2>Min markedsbok</h2><p>Her kan du velge et eventyr og spille det så mange ganger du vil. Jeg blir med deg!</p></div>'+
          '<div class="gm-book-trophy" role="img" aria-label="'+n+' av '+total+' magiske blomster samlet">'+
@@ -226,7 +249,7 @@
        '</header>'+
        '<div class="gm-book-fox-line"><span class="gm-book-fox-sparkle" aria-hidden="true">✦</span>'+
          '<span>'+esc(bookFoxMessage())+'</span>'+
-         '<button type="button" data-gm-action="book-read" aria-label="Hør hva reven sier" title="Hør reven">◖))</button></div>'+
+         '<button type="button" data-gm-action="book-read" aria-label="Hør hva følgesvennen sier" title="Hør følgesvennen">◖))</button></div>'+
        '<div class="gm-book-pages" id="gm-book-pages">'+
          '<p class="gm-book-invite">Trykk på et oppdrag for å gå til kurvene. Blomstene du samler er dine for alltid.</p>'+
          '<div class="gm-book-grid">'+cards+'</div>'+
@@ -259,8 +282,12 @@
    return true;
  }
  function celebrate(){
-   const fox=root.querySelector('.gm-fox');
-   if(fox){fox.classList.remove('gm-jubilee');void fox.offsetWidth;fox.classList.add('gm-jubilee');}
+   const actor=root.querySelector('.laria-troll-actor');
+   if(actor&&window.LARIA_TROLL_ACTOR?.setState)window.LARIA_TROLL_ACTOR.setState(actor,'celebrate');
+   else{
+     const fox=root.querySelector('.gm-fox');
+     if(fox){fox.classList.remove('gm-jubilee');void fox.offsetWidth;fox.classList.add('gm-jubilee');}
+   }
    const world=root.querySelector('.gm-world');
    if(world){world.classList.remove('gm-bloom');void world.offsetWidth;world.classList.add('gm-bloom');}
  }

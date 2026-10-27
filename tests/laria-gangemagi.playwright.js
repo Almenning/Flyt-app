@@ -10,7 +10,7 @@ const base=path.resolve(__dirname,'..');
 const out=process.env.QA_SCREENSHOTS||'/tmp/laria-gangemagi-v1';
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.json':'application/json'};
 function serve(){return new Promise((resolve,reject)=>{const srv=http.createServer((req,res)=>{let name=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(name.endsWith('/'))name+='index.html';const file=path.resolve(base,'.'+name);if(!file.startsWith(base+path.sep)){res.writeHead(403);res.end();return;}fs.readFile(file,(err,buf)=>{if(err){res.writeHead(404);res.end('Not found');return;}res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.setHeader('Cache-Control','no-store');res.end(buf);});});srv.once('error',reject);srv.listen(0,'127.0.0.1',()=>resolve({srv,url:'http://127.0.0.1:'+srv.address().port+'/laer-litt-mer/?app=laria'}));});}
-const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Elev',avatar:'girl',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Elev',avatar:'girl',tallvikaTroll:'storesoster',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 async function shot(page,name){await fs.promises.mkdir(out,{recursive:true});await page.screenshot({path:path.join(out,name+'.png'),fullPage:true,animations:'disabled'});}
 /* All authored adventures must use real multiplication, unique collectibles,
    and keep progress after replays and saved-state restoration. */
@@ -205,7 +205,10 @@ async function check(engine,label,viewport,url){
     panel:el.closest('.gm-quest').getBoundingClientRect().toJSON()}));
   assert.ok(missionHeading.size>=17&&missionHeading.bounds.width>missionHeading.panel.width*.84,
     label+' child-sized assignment heading must dominate its painted board while leaving the fox its own scene space '+JSON.stringify(missionHeading));
-  assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
+  assert.equal(await page.locator('.gm-fox-art .laria-troll-actor[data-troll-id="storesoster"]').count(),1,
+    'Gangemagi must render the saved forest troll, not the retired fox');
+  assert.equal(await page.locator('.gm-fox-art .laria-fox-wardrobe-art').count(),0,
+    'retired fox wardrobe must not leak into Gangemagi');
   assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
   assert.equal(await page.locator('.gm-book-collapsed:visible').count(),0,
     label+' only one collection access point should remain on the mission screen');
@@ -366,12 +369,12 @@ async function check(engine,label,viewport,url){
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
   assert.ok(first.read.height>=44,label+' read aloud target too small');
-  // The painted SVG, not just its wrapper, must remain clear of the equation.
-  // A replaced SVG's intrinsic grid min-size previously painted 345px inside
-  // the nominal 227px fox slot. Keep the real personal character contained.
+  // TrollActor clips the flat fallback inside its scene slot. The bitmap
+  // itself may contain transparent canvas, so geometry must follow the visible
+  // clipped actor wrapper rather than invisible WebP pixels.
   const materialLayout=await page.evaluate(()=>{
     const box=s=>document.querySelector(s).getBoundingClientRect();
-    const painted=box('.gm-fox-art svg'),slot=box('.gm-fox-art');
+    const painted=box('.gm-fox-art .laria-troll-actor'),slot=box('.gm-fox-art');
     return {foxBottom:painted.bottom,slotBottom:slot.bottom,foxWidth:slot.width,mathTop:box('.gm-math').top,
       iconHeight:box('.gm-quest-icon').height,
       sourceArtWidth:box('.gm-market-fruit-supply .gm-pick-fruit').width,
@@ -379,7 +382,7 @@ async function check(engine,label,viewport,url){
   });
   assert.ok(materialLayout.foxBottom<=materialLayout.slotBottom+2&&
     materialLayout.foxBottom<=materialLayout.mathTop+3,
-    label+' actual personal fox must fit its slot and stay above the live equation '+JSON.stringify(materialLayout));
+    label+' TrollActor must fit its clipped slot and stay above the live equation '+JSON.stringify(materialLayout));
   if(viewport.width>=900&&viewport.height<=900){
     const wideBoard=await page.locator('.gm-quest-steps').evaluate(el=>({
       display:getComputedStyle(el).display,
@@ -611,6 +614,8 @@ async function check(engine,label,viewport,url){
     label+' on the second pick the previous berry must remain stable');
   assert.match(await page.locator('.gm-fox-message').innerText(),/2 av 3 i kurv 1/);
   assert.equal(await page.locator('.gm-fox').getAttribute('data-mood'),'cheer');
+  assert.equal(await page.locator('.gm-fox-art .laria-troll-actor').getAttribute('data-troll-state'),'wave',
+    label+' successful berry placement must map to TrollActor wave');
   await page.locator('[data-gm-action="undo"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0,
@@ -622,6 +627,8 @@ async function check(engine,label,viewport,url){
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[2,0,0]);
   await page.locator('[data-gm-action="hint"]').click();
   assert.match(await page.locator('.gm-fox-message').innerText(),/kurv/i);
+  assert.equal(await page.locator('.gm-fox-art .laria-troll-actor').getAttribute('data-troll-state'),'hint',
+    label+' hint action must map to TrollActor hint');
   assert.equal(await page.locator('.gm-fruit-pop').count(),0,
     label+' opening a fox hint must NOT replay the last fruit animation');
   await page.locator('[data-gm-action="remove"][data-group="0"]').click();
@@ -685,6 +692,8 @@ async function check(engine,label,viewport,url){
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[3,3,3],
     label+' undo restores the completed baskets without duplicating a flower');
   assert.equal(await page.locator('.gm-actions-complete .gm-next').count(),1,'one clear next action');
+  assert.equal(await page.locator('.gm-fox-art .laria-troll-actor').getAttribute('data-troll-state'),'celebrate',
+    label+' completed mission must map to TrollActor celebrate');
   const celebrationOverlap=await page.evaluate(()=>{
     const r=s=>document.querySelector(s).getBoundingClientRect();
     const a=r('.gm-celebration'),b=r('.gm-fox-bubble'),fox=r('.gm-fox-art'),math=r('.gm-math');
@@ -717,7 +726,8 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-action="open-book"]').click();
   assert.equal(await page.locator('.gm-book-mission').count(),8,'all market adventures available');
   assert.equal(await page.locator('.gm-book-open[role="dialog"][aria-modal="true"]').count(),1,'open journal is a real immersive view');
-  assert.equal(await page.locator('.gm-book-fox-art [data-avatar="girl"]').count(),1,'journal keeps the chosen fox');
+  assert.equal(await page.locator('.gm-book-fox-art .laria-troll-actor[data-troll-id="storesoster"]').count(),1,
+    'journal keeps the chosen forest troll');
   assert.equal(await page.locator('.gm-book-open .gm-book-pages').count(),1,'mission pages appear in the book');
    assert.equal(await page.locator('.gm-book-back').count(),1,'only one visible return control');
    assert.equal(await page.locator('.gm-book-open .gm-book-toggle').count(),0,'do not show a duplicate close control');
@@ -1083,10 +1093,9 @@ async function checkLandscape(engine,label,url){
  }finally{await context.close();}
 }
 
-/* The existing Læria character must be the child's real saved boy OR girl.
-   Ordinary Gangemagi tests exercise the girl; this checks the boy in the
-   SAME real WebKit browser and his original full-body source, including book. */
-async function checkBoyFox(browser,url){
+/* The saved forest-troll identity must survive mission, Markedsbok and free play.
+   Use Lillesøster here so the test proves this is not a hard-coded Storesøster. */
+async function checkSavedTroll(browser,url){
  const context=await browser.newContext({viewport:{width:1180,height:820},hasTouch:true,
    deviceScaleFactor:1,serviceWorkers:'block',reducedMotion:'reduce'});
  const page=await context.newPage(),errors=[];
@@ -1094,32 +1103,41 @@ async function checkBoyFox(browser,url){
  try{
    await page.addInitScript(s=>{
      localStorage.setItem('laerlittmer-v2',JSON.stringify(s));
-   },{...seed,profile:{...seed.profile,avatar:'boy'}});
+   },{...seed,profile:{...seed.profile,tallvikaTroll:'lillesoster'}});
    await page.goto(url,{waitUntil:'domcontentloaded'});
-   await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
-   assert.equal(await page.evaluate(()=>window.LARIA_FOX.choice()),'boy',
-     'profile-backed identity must remain the selected boy');
+   await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1'&&window.LARIA_TROLL_ACTOR?.version==='core-v1');
+   assert.equal(await page.evaluate(()=>window.LARIA_TROLL_ACTOR.choice()),'lillesoster',
+     'profile-backed troll identity must remain Lillesøster');
    await page.evaluate(()=>window.openMultiplicationLab());
-   const fox=page.locator('.gm-fox-art svg.laria-fox-wardrobe-art[data-avatar="boy"]');
-   await fox.waitFor({state:'attached'});
-   const source=await fox.locator('image').getAttribute('href');
-   assert.match(source,/^\.\/assets\/fox\/boy-adventurer-green-vest-v1\.webp$/,
-     'the real Læria boy artwork, not a generated mascot, must be the in-world sprite');
-   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),0,
-     'the wrong child-selected fox must not be present');
+   const troll=page.locator('.gm-fox-art .laria-troll-actor[data-troll-id="lillesoster"]');
+   await troll.waitFor({state:'attached'});
+   const source=await troll.locator('img').getAttribute('src');
+   assert.match(source,/^\.\/assets\/gangemagi-troll\/lillesoster\.webp$/,
+     'Gangemagi must use the locked Lillesøster source');
+   assert.equal(await page.locator('.gm-fox-art .laria-fox-wardrobe-art').count(),0,
+     'retired fox wardrobe must not return');
    const image=await page.request.get(new URL(source,url).href);
-   assert.equal(image.status(),200,'the full-body boy asset must really load');
+   assert.equal(image.status(),200,'the locked Lillesøster asset must really load');
    assert.match(image.headers()['content-type'],/image\/webp/);
-   await shot(page,'webkit-ipad-landscape-boy-fox');
+   const visible=await troll.locator('img').evaluate(async img=>{
+     await img.decode();
+     const r=img.getBoundingClientRect();
+     return {complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,width:r.width,height:r.height,opacity:getComputedStyle(img).opacity,display:getComputedStyle(img).display};
+   });
+   assert.ok(visible.complete&&visible.naturalWidth>0&&visible.naturalHeight>0&&visible.width>=80&&visible.height>=100&&visible.opacity!=='0'&&visible.display!=='none',
+     'Lillesøster must be decoded and visibly occupy the companion slot '+JSON.stringify(visible));
+   const animation=await page.locator('.gm-fox-art').evaluate(el=>getComputedStyle(el).animationName);
+   assert.ok(animation==='none'||animation==='', 'flat fallback must not fake rigging with whole-image animation: '+animation);
+   await shot(page,'webkit-ipad-landscape-lillesoster');
    await page.locator('[data-gm-action="open-book"]').click();
-   assert.equal(await page.locator('.gm-book-fox-art svg[data-avatar="boy"]').count(),1,
-     'the actual boy fox follows him into the Market Book');
+   assert.equal(await page.locator('.gm-book-fox-art .laria-troll-actor[data-troll-id="lillesoster"]').count(),1,
+     'Lillesøster follows the child into the Market Book');
    await page.keyboard.press('Escape');
    await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
-   assert.equal(await page.locator('.gm-fox-art svg[data-avatar="boy"]').count(),1,
-     'the real boy fox must remain in free play');
-   assert.deepEqual(errors,[],'no boy-fox render errors in real WebKit');
-   console.log('PASS GANGEMAGI WebKit personal boy fox and Market Book');
+   assert.equal(await page.locator('.gm-fox-art .laria-troll-actor[data-troll-id="lillesoster"]').count(),1,
+     'Lillesøster remains in free play');
+   assert.deepEqual(errors,[],'no troll render errors in real WebKit');
+   console.log('PASS GANGEMAGI WebKit saved forest troll across mission, Market Book and free play');
  }finally{await context.close()}
 }
 
@@ -1134,7 +1152,7 @@ async function checkBoyFox(browser,url){
    const browser=await browserType.launch({headless:true});
    try{for(const [device,viewport] of devices)await check(browser,type+'-'+device,viewport,url);
     await checkLandscape(browser,type+'-iphone-landscape',url);
-    if(type==='webkit')await checkBoyFox(browser,url);
+    if(type==='webkit')await checkSavedTroll(browser,url);
    }finally{await browser.close();}
   }
  }finally{await new Promise(resolve=>srv.close(resolve));}
