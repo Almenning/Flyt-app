@@ -121,15 +121,25 @@ async function run(engine,label,viewport){
      assert.equal((await page.locator('#geo-journey-now').innerText()).includes('🦊'),false,
        label+' retired fox is still visible in Nordlysleiren');
      for(const choice of ['lillesoster','lillebror','storesoster']){
-       await page.evaluate(id=>{state.profile.tallvikaTroll=id;renderGeoJourney()},choice);
+       // Use the same immutable-style profile replacement and persistence path as
+       // Tallvika's real character selector. Mutating the nested test object only
+       // checks an implementation detail and can be superseded by a queued render.
+       await page.evaluate(id=>{
+         state.profile={...state.profile,tallvikaTroll:id};
+         saveState();
+         renderGeoJourney();
+       },choice);
        assert.equal(await companion.getAttribute('data-troll'),choice,
          label+' Geografi did not reuse selected original troll '+choice);
        assert.ok((await companion.getAttribute('src')).endsWith('/'+choice+'.webp'),
          label+' Geografi rendered wrong original asset for '+choice);
      }
      await page.evaluate(choice=>{
-       if(choice)state.profile.tallvikaTroll=choice;
-       else delete state.profile.tallvikaTroll;
+       const profile={...state.profile};
+       if(choice)profile.tallvikaTroll=choice;
+       else delete profile.tallvikaTroll;
+       state.profile=profile;
+       saveState();
        renderGeoJourney();
      },previous.choice);
      assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),previous.journey,
