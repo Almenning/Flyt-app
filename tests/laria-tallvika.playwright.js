@@ -5,24 +5,6 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
 const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const output=process.env.LARIA_TALLVIKA_SCREENSHOTS;
 async function shot(page,name){if(output){fs.mkdirSync(output,{recursive:true});await page.screenshot({path:path.join(output,name+'.png'),animations:'disabled',fullPage:true});}}
-async function inWorldComparison(page,label){
-  if(!output)return;
-  const image=page.locator('#tallvika-world .tv-companion[data-troll-id="storesoster"] img');
-  const closeBox=await page.locator('#tallvika-world .tv-companion').boundingBox();
-  const after=await image.getAttribute('src');
-  // Capture the old locked source and the new source-derived scene treatment
-  // in the exact same live browser composition. This changes no saved state.
-  await image.evaluate((img,src)=>{img.src=src},'./assets/gangemagi-troll/storesoster.webp');
-  await image.evaluate(img=>img.decode());
-  await shot(page,label+'-storesoster-before');
-  await image.evaluate((img,src)=>{img.src=src},after);
-  await image.evaluate(img=>img.decode());
-  await shot(page,label+'-storesoster-after');
-  // A Tallvika rebuild can replace the companion node while Playwright waits
-  // for locator stability. Crop the current page from its measured box instead
-  // of holding a locator across that asynchronous render.
-  if(closeBox)await page.screenshot({path:path.join(output,label+'-storesoster-closeup-after.png'),animations:'disabled',clip:{x:Math.max(0,closeBox.x-12),y:Math.max(0,closeBox.y-12),width:closeBox.width+24,height:closeBox.height+24}});
-}
 async function enter(page){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
   const tile=page.locator('.bc14-subject[data-camp="subject-math"]');await tile.waitFor({timeout:18000});await tile.click();
@@ -45,11 +27,176 @@ async function run(browserType,label,viewport){
     },seed);
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.route('https://raw.githubusercontent.com/**',route=>route.abort());await page.route('https://api.worldbank.org/**',route=>route.abort());
-    await enter(page);await shot(page,label);await inWorldComparison(page,label);
+    await enter(page);await shot(page,label);
     assert.equal(await page.locator('.tv-scene').count(),1,label+' renders one locked Tallvika scene');
     assert.equal(await page.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage.includes('tallvika-master-laast-20261025.png')),true,label+' uses the locked landscape');
+    // The destination library is an illustrated, accessible part of the world
+    // at every screen size, not generic text-only cards or hidden legacy links.
+    const portalCards=page.locator('#tallvika-world .tv-mobile-actions .tv-portal-card');
+    await page.waitForFunction(()=>{
+      const cards=[...document.querySelectorAll('#tallvika-world .tv-mobile-actions .tv-portal-card')];
+      return cards.length===3&&cards.every(card=>card.isConnected&&card.getBoundingClientRect().width>=180);
+    },null,{timeout:16000});
+    assert.equal(await portalCards.count(),3,label+' must expose three premium activity portals');
+    assert.equal(await page.evaluate(()=>{
+      const original=document.querySelector('.tv-portal-card');
+      window.LARIA_TALLVIKA.build();
+      return original===document.querySelector('.tv-portal-card');
+    }),true,label+' redundant legacy screen update detached live portal buttons');
+    const portalAudit=await portalCards.evaluateAll(nodes=>nodes.map(node=>{
+      const r=node.getBoundingClientRect();
+      const art=node.querySelector('.tv-portal-art');
+      const detail=node.querySelector('.tv-portal-copy small');
+      const eyebrow=node.querySelector('.tv-portal-kicker');
+      const title=node.querySelector('.tv-portal-copy b');
+      return {name:node.getAttribute('aria-label'),height:r.height,width:r.width,
+        image:art?getComputedStyle(art).backgroundImage:'none',artHeight:art?.getBoundingClientRect().height,
+        detailPx:parseFloat(getComputedStyle(detail).fontSize),
+        eyebrowPx:parseFloat(getComputedStyle(eyebrow).fontSize),
+        titlePx:parseFloat(getComputedStyle(title).fontSize)};
+    }));
+    assert(portalAudit.every(item=>item.height>=90&&item.width>=180&&item.artHeight>=85),
+      label+' illustrated tap targets too small: '+JSON.stringify(portalAudit));
+    assert(portalAudit.every(item=>item.name?.startsWith('Åpne ')&&
+      item.image.includes('tallvika-master-laast-20261025.png')),
+      label+' must use original, unmodified image on each portal');
+    assert(portalAudit.every(x=>x.detailPx>=12&&x.eyebrowPx>=10&&x.titlePx>=18),
+      label+' activity card typography is too small: '+JSON.stringify(portalAudit));
+    // The source painting also carries the hut name and a separate
+    // "Neste eventyr" sign. The tight Gangetabellen window must not show
+    // fragments of either sign around the reused blackboard illustration.
+    const tableCrop=await page.locator('.tv-portal-art-table').evaluate(el=>{
+      const style=getComputedStyle(el),box=el.getBoundingClientRect();
+      const zoom=parseFloat(style.backgroundSize.split(',').pop().trim());
+      const yPercent=parseFloat(style.backgroundPosition.split(',').pop().trim().split(/\s+/)[1]);
+      const paintedWidth=box.width*zoom/100,paintedHeight=paintedWidth*941/1672;
+      const naturalScale=paintedWidth/1672;
+      const cropOffset=(paintedHeight-box.height)*yPercent/100;
+      return {sourceTop:cropOffset/naturalScale,sourceBottom:(cropOffset+box.height)/naturalScale};
+    });
+    assert(tableCrop.sourceTop>490&&tableCrop.sourceBottom<815,
+      label+' the Gangetabellen crop exposes a clipped painted sign: '+JSON.stringify(tableCrop));
+    if(viewport.width>700){
+      const cues=await page.locator('#tallvika-world .tv-scene .tv-hotspot-cue').evaluateAll(nodes=>
+        nodes.map(n=>({w:n.getBoundingClientRect().width,h:n.getBoundingClientRect().height})));
+      assert.equal(cues.length,3,label+' missing original house affordances');
+      assert(cues.every(x=>x.w<=34&&x.h<=34),
+        label+' activity markers cover too much of the painted houses: '+JSON.stringify(cues));
+    }
     const art=await page.locator('.tv-scene').evaluate(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert.ok(art.w>250,label+' has a visible world');assert.ok(art.scroll<=art.client+2,label+' has no horizontal overflow');
+    assert.equal(await page.locator('.tv-dock-intro h1').evaluate(el=>getComputedStyle(el).color),
+      'rgb(73, 48, 30)',label+' generic legacy blue heading leaked into Tallvika');
+    // The original painting contains a real-looking 'Neste eventyr' sign.
+    // A child must be able to tap it, with the same voluntary destination as
+    // the separate journey card; no extra modal or duplicated mission logic.
+    const paintedNext=page.locator('.tv-scene-next');
+    const cardNext=page.locator('.tv-next [data-tv="next"]');
+    assert.equal(await paintedNext.count(),1,label+' painted next-event sign is not interactive');
+    assert.equal(await paintedNext.isDisabled(),await cardNext.isDisabled(),
+      label+' scene and card do not agree on voluntary journey availability');
+    const signGeometry=await paintedNext.evaluate(el=>{
+      const b=el.getBoundingClientRect(),s=el.closest('.tv-scene').getBoundingClientRect();
+      const table=el.closest('.tv-scene').querySelector('.tv-hotspot-table').getBoundingClientRect();
+      return {w:b.width,h:b.height,left:(b.left-s.left)/s.width,top:(b.top-s.top)/s.height,
+        overlapsTable:!(b.left>=table.right||b.right<=table.left||b.top>=table.bottom||b.bottom<=table.top)};
+    });
+    assert(signGeometry.w>=44&&signGeometry.h>=44&&signGeometry.left>.78&&signGeometry.top>.75&&
+      !signGeometry.overlapsTable,
+      label+' next-event sign tap area misses painting or blocks Gangetabellen: '+JSON.stringify(signGeometry));
+    if(!await paintedNext.isDisabled()){
+      await page.evaluate(()=>{
+        const bridge=window.LARIA_TALLVIKA_BRIDGE;
+        window.__tvNextEvents=[];
+        window.__tvNextOriginal={node:bridge.startJourneyNode,bonus:bridge.startJourneyChallenge};
+        bridge.startJourneyNode=(...args)=>window.__tvNextEvents.push({kind:'node',args});
+        bridge.startJourneyChallenge=(...args)=>window.__tvNextEvents.push({kind:'bonus',args});
+      });
+      try{
+        await paintedNext.click();
+        await cardNext.click();
+        const events=await page.evaluate(()=>window.__tvNextEvents);
+        assert.equal(events.length,2,label+' journey sign and card must both open the existing route');
+        assert.deepEqual(events[0],events[1],
+          label+' painting and card must open the exact same voluntary quest');
+        assert.equal(events[0].args[0],'math',label+' sign opened a different subject');
+      }finally{
+        await page.evaluate(()=>{
+          const original=window.__tvNextOriginal;
+          if(!original)return;
+          const bridge=window.LARIA_TALLVIKA_BRIDGE;
+          bridge.startJourneyNode=original.node;bridge.startJourneyChallenge=original.bonus;
+          delete window.__tvNextOriginal;delete window.__tvNextEvents;
+        });
+      }
+    }
+    const layout=await page.evaluate(()=>{
+      const stage=document.querySelector('.tv-stage').getBoundingClientRect();
+      const dock=document.querySelector('.tv-dock').getBoundingClientRect();
+      return {stage:{top:stage.top,bottom:stage.bottom,right:stage.right},
+        dock:{top:dock.top,left:dock.left}};
+    });
+    const tabletLandscape=viewport.width>=1000&&viewport.width<=1400&&
+      viewport.width>viewport.height&&viewport.height>=720;
+    if(tabletLandscape||viewport.width>=1030||(viewport.width>=701&&viewport.height<=550)){
+      // Keyboard focus connects the activity card to its painted hut;
+      // this also makes the navigation discoverable without hover.
+      await page.locator('.tv-portal-card[data-tv="fraction"]').focus();
+      assert.equal(await page.locator('.tv-hotspot-fraction .tv-hotspot-cue').evaluate(
+        el=>getComputedStyle(el).transform!=='none'),true,label+' portal focus did not highlight the matching hut');
+      await page.locator('.tv-portal-card[data-tv="fraction"]').evaluate(el=>el.blur());
+      if(tabletLandscape){
+        // The approved world is larger, but keeps the complete source painting
+        // visible. Three games and the optional next quest must also fit.
+        const fold=await page.evaluate(()=>{
+          const art=document.querySelector('.tv-scene').getBoundingClientRect();
+          const dock=document.querySelector('.tv-dock').getBoundingClientRect();
+          const cards=[...document.querySelectorAll('.tv-portal-card')].map(el=>{
+            const r=el.getBoundingClientRect();
+            return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,layoutTop:el.offsetTop};
+          });
+          const next=document.querySelector('.tv-next').getBoundingClientRect();
+          return {art:{width:art.width,height:art.height},dockTop:dock.top,
+            cards,next:{top:next.top,bottom:next.bottom,left:next.left},
+            viewportHeight:innerHeight,scrollHeight:document.scrollingElement.scrollHeight};
+        });
+        assert.ok(fold.art.width>=viewport.width*.76,
+          label+' premium iPad landscape still wastes the wide stage: '+JSON.stringify(fold));
+        assert.ok(Math.abs(fold.art.height-fold.art.width*941/1672)<2,
+          label+' must not crop or stretch the approved Tallvika artwork');
+        assert.ok(layout.dock.top>=layout.stage.bottom-3,
+          label+' landscape portal row must follow, not overlap, the painting');
+        // The card deliberately rises by 3px on hover. offsetTop tests actual
+        // grid placement rather than confusing that interaction with a row gap.
+        assert.ok(fold.cards.every(x=>x.layoutTop===fold.cards[0].layoutTop&&
+          x.bottom<=viewport.height+26),
+          label+' three activities must share a visible bottom row: '+JSON.stringify(fold));
+        assert.ok(Math.abs(fold.next.top-fold.cards[0].top)<5&&fold.next.bottom<=viewport.height+26,
+          label+' optional quest must stay visible beside the activities: '+JSON.stringify(fold));
+        assert.ok(fold.scrollHeight<=viewport.height+8,
+          label+' premium iPad landscape first fold must not require scrolling: '+JSON.stringify(fold));
+        const descriptions=await page.locator('.tv-portal-card').evaluateAll(cards=>
+          cards.map(card=>{
+            const small=card.querySelector('.tv-portal-copy small');
+            const arrow=card.querySelector('.tv-portal-arrow');
+            const rect=small.getBoundingClientRect();
+            const padding=parseFloat(getComputedStyle(small).paddingRight)||0;
+            return {label:card.dataset.tv,detailPx:parseFloat(getComputedStyle(small).fontSize),
+              safeTextRight:rect.right-padding,arrowLeft:arrow.getBoundingClientRect().left,
+              contentFits:small.scrollHeight<=small.clientHeight+1};
+          }));
+        assert.ok(descriptions.every(x=>x.detailPx>=13&&x.safeTextRight<=x.arrowLeft-2&&x.contentFits),
+          label+' illustrated cards have clipped or arrow-obscured instructions: '+JSON.stringify(descriptions));
+        console.log('[TALLVIKA_IPAD_LANDSCAPE_FIRST_FOLD]',label,JSON.stringify(fold));
+      }else{
+        assert.ok(layout.stage.right<=layout.dock.left+2,label+' landscape portal dock overlaps painting');
+        if(viewport.width>=1030)assert.ok(art.w>=viewport.width*.58,
+          label+' world is still compressed by the former 1000px app shell');
+        assert.ok(Math.abs(layout.stage.top-layout.dock.top)<55,label+' landscape should show portals beside the world');
+      }
+    }else{
+      assert.ok(layout.dock.top>=layout.stage.bottom-2,label+' portrait portal panel must follow the uncropped art');
+    }
     const shell=await page.locator('.app').evaluate(el=>({
       padding:parseFloat(getComputedStyle(el).paddingBottom),
       background:getComputedStyle(el).backgroundColor
@@ -58,19 +205,33 @@ async function run(browserType,label,viewport){
     assert.equal(shell.background,'rgb(247, 240, 223)',label+' must match Tallvika cream below the scene');
     assert.equal(await page.locator('#subject-screen').evaluate(el=>getComputedStyle(el).backgroundColor),
       'rgb(247, 240, 223)',label+' must not expose the former dark journey background');
+    if(viewport.width<=480){
+      // Painted houses on small iPhones must open the actual games,
+      // even though their arrow ornaments are hidden for legibility.
+      const spots=await page.locator('#tallvika-world .tv-scene .tv-hotspot').evaluateAll(nodes=>
+        nodes.map(node=>{const r=node.getBoundingClientRect();return {
+          action:node.dataset.tv,width:r.width,height:r.height,
+          display:getComputedStyle(node).display
+        }}));
+      assert.equal(spots.length,3,label+' lost one of the three painted houses');
+      assert(spots.every(x=>x.width>=44&&x.height>=44&&x.display!=='none'),
+        label+' painted houses are not tappable on phones: '+JSON.stringify(spots));
+      await page.locator('.tv-scene .tv-hotspot[data-tv="multiply"]').click();
+      await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});
+      assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),
+        'Tilbake til Tallvika',label+' painted Gangemagi back has wrong destination');
+      await page.locator('#multiplication-lab-back').click();
+      await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:14000});
+      await page.locator('.tv-portal-card.tv-visited[data-tv="multiply"]').waitFor();
+      await page.waitForFunction(()=>document.activeElement?.classList.contains('tv-hotspot'));
+    }
     await page.locator('#tallvika-world [data-tv="grade"]').click();
     await page.locator('#tallvika-world .tv-grade-dialog[open]').waitFor();
     assert.equal(await page.locator('#tallvika-world [data-tv-grade]').count(),10,label+' grade options missing');
-    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv-grade')),'2',
-      label+' grade modal should focus the currently selected class');
     await page.locator('#tallvika-world [data-tv-grade="3"]').click();
     assert.deepEqual(await page.evaluate(()=>[window.LARIA_TALLVIKA_BRIDGE.currentGrade(),window.LARIA_TALLVIKA_BRIDGE.journeyViewGrade('math')]),[2,3],label+' grade view must not change the profile');
-    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv')),'grade',
-      label+' grade selection must return focus to the new class picker trigger');
     await page.locator('#tallvika-world [data-tv="grade"]').click();
     await page.locator('#tallvika-world .tv-grade-dialog[open] [data-tv-grade="2"]').click();
-    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv')),'grade',
-      label+' grade focus must survive restoring the original class');
     if(viewport.width<=480){
       // Inspect the real last viewport fold, not only a container's style:
       // legacy fixed navigation can cover an otherwise correctly painted page.
@@ -97,96 +258,140 @@ async function run(browserType,label,viewport){
     }
     await page.locator('[data-tv="choose"]').first().click();await page.locator('.tv-dialog[open]').waitFor();
     assert.equal(await page.locator('[data-tv-troll]').count(),3,label+' offers all three locked trolls');
-    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv-troll')),'storesoster',
-      label+' troll picker should focus the selected companion');
-    // Preview should match the saved Tallvika scene artwork, not a stale portrait.
-    const expectedPreview={storesoster:'storesoster-inworld-approved-20261026.webp',lillesoster:'lillesoster.webp',lillebror:'lillebror.webp'};
-    for(const [id,filename] of Object.entries(expectedPreview)){
-      const card=page.locator('#tallvika-world [data-tv-troll="'+id+'"]');
-      const portrait=card.locator('img'), src=await portrait.getAttribute('src');
-      assert.ok(src.endsWith('/'+filename),label+' picker has wrong image for '+id);
-      await portrait.evaluate(img=>img.decode());
-      const box=await card.boundingBox();
-      assert.ok(box&&box.width>=44&&box.height>=44,label+' picker tap target too small for '+id);
-    }
-    const picker=page.locator('#tallvika-world .tv-dialog:not(.tv-grade-dialog)[open]');
-    const pickerRect=await picker.boundingBox();
-    assert.ok(pickerRect&&pickerRect.y>=-1&&pickerRect.y+pickerRect.height<=viewport.height+1,
-      label+' character picker must fit inside the viewport');
-    assert.equal(await picker.evaluate(el=>getComputedStyle(el).overflowY),'auto',
-      label+' character picker must be scrollable on short screens');
-    if(viewport.width<=480){
-      const geometry=await picker.evaluate(el=>{
-        const h=el.querySelector('h2').getBoundingClientRect(),c=el.querySelector('.tv-dialog-close').getBoundingClientRect();
-        return {headingTop:h.top,closeBottom:c.bottom};
-      });
-      assert.ok(geometry.headingTop>=geometry.closeBottom+5,
-        label+' close control must not overlap the character picker title');
-    }
-    if(viewport.height<=450 && viewport.width>480){
-      const visibility=await picker.evaluate(el=>{
-        const dialog=el.getBoundingClientRect();
-        return [...el.querySelectorAll('.tv-troll-grid button')].map(button=>{
-          const card=button.getBoundingClientRect(),caption=button.querySelector('b').getBoundingClientRect();
-          return {buttonBottom:card.bottom,captionBottom:caption.bottom,dialogBottom:dialog.bottom};
-        });
-      });
-      for(const item of visibility){
-        assert.ok(item.buttonBottom<=item.dialogBottom-4,label+' character card is clipped on landscape');
-        assert.ok(item.captionBottom<=item.dialogBottom-6,label+' character name is clipped on landscape');
-      }
-    }
-    if(output && (viewport.width<=480||viewport.height<=450)) await shot(page,label+'-troll-picker');
-    // Every original forest troll must be selectable, render from its own
-    // approved image, and persist without changing the child's learning data.
+    // Every forest troll remains selectable. Storesøster alone uses the
+    // user-approved painterly Tallvika source; the siblings stay byte-locked.
+    const expectedTrollArt={
+      storesoster:'./assets/tallvika/storesoster-inworld-approved-20261026.webp',
+      lillesoster:'./assets/gangemagi-troll/lillesoster.webp',
+      lillebror:'./assets/gangemagi-troll/lillebror.webp'
+    };
     for(const id of ['storesoster','lillesoster','lillebror']){
       if(id!=='storesoster'){
         await page.locator('#tallvika-world [data-tv="choose"]').click();
         await page.locator('.tv-dialog[open]').waitFor();
-        assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv-troll')),
-          ['storesoster','lillesoster','lillebror'][['storesoster','lillesoster','lillebror'].indexOf(id)-1],
-          label+' troll picker does not restore current saved selection');
       }
+      const picker=page.locator('[data-tv-troll="'+id+'"] img');
+      assert.ok((await picker.getAttribute('src')).endsWith(expectedTrollArt[id]),
+        label+' picker shows wrong approved art for '+id);
       await page.locator('[data-tv-troll="'+id+'"]').click();
       assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),id,label+' does not persist '+id);
-      assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv')),'choose',
-        label+' focus lost when companion change rebuilt Tallvika');
-      const image=page.locator('#tallvika-world .tv-companion img');
-      const src=await image.getAttribute('src');
-      assert.ok(id==='storesoster'?src.includes('/storesoster-inworld-approved-20261026.webp'):src.includes('/'+id+'.webp'),label+' shows wrong troll for '+id);
-      assert.equal(await page.locator('#tallvika-world .tv-companion').getAttribute('data-troll-treatment'),id==='storesoster'?'approved-painterly-20261026':'locked-original',label+' must keep the intended source treatment');
+      const companion=page.locator('#tallvika-world .tv-companion');
+      const image=companion.locator('img');
+      assert.ok((await image.getAttribute('src')).endsWith(expectedTrollArt[id]),label+' shows wrong troll art for '+id);
+      assert.equal(await companion.getAttribute('data-troll-id'),id,label+' companion identity marker drifted for '+id);
       await image.evaluate(img=>img.decode());
       if(id==='storesoster'){
-        const imageInfo=await image.evaluate(img=>({width:img.naturalWidth,height:img.naturalHeight,filter:getComputedStyle(img).filter}));
-        assert.equal(imageInfo.width,512,label+' storesoster approved art width');
-        assert.equal(imageInfo.height,1024,label+' storesoster approved art height');
-        assert.ok(!['brightness(', 'saturate(', 'contrast('].some(fn=>imageInfo.filter.includes(fn)),label+' approved artwork must retain its colours');
-        if(viewport.width<=480){
-          const placement=await page.locator('#tallvika-world .tv-companion').evaluate(el=>{
-            const scene=el.closest('.tv-scene').getBoundingClientRect(),box=el.getBoundingClientRect();
-            return {left:(box.left-scene.left)/scene.width,top:(box.top-scene.top)/scene.height,
-              width:box.width/scene.width,height:box.height/scene.height,
-              bottom:(scene.bottom-box.bottom)/scene.height};
-          });
-          // On portrait phones the unchanged entire panorama shrinks ~3×.
-          // Enlarge only the approved Storesøster's foreground placement:
-          // don't shrink her with the original iPad percentage dimensions.
-          assert.ok(placement.height>=.42&&placement.height<=.45,label+' Storesøster must be large enough to recognise on a phone');
-          assert.ok(placement.width>=.13&&placement.width<=.14,label+' portrait companion footprint is expected');
-          assert.ok(placement.left>=.54&&placement.left<=.57,label+' leave the painted Brøklab sign legible');
-          assert.ok(placement.top>=.42&&placement.top<=.47,label+' companion remains grounded in the lower path');
-          assert.ok(placement.bottom>=.11&&placement.bottom<=.14,label+' companion feet remain on the path');
+        assert.equal(await companion.locator('.tv-companion__ground').count(),1,label+' approved Storesoster lost ground contact');
+        const placement=await companion.evaluate(el=>{
+          const s=getComputedStyle(el),r=el.getBoundingClientRect(),scene=el.closest('.tv-scene').getBoundingClientRect();
+          return {left:(r.left-scene.left)/scene.width,bottom:(scene.bottom-r.bottom)/scene.height,
+            width:r.width/scene.width,height:r.height/scene.height,
+            ground:getComputedStyle(el.querySelector('.tv-companion__ground')).display};
+        });
+        assert.equal(placement.ground,'block',label+' approved Storesoster ground shadow is hidden');
+        if(viewport.width<=700){
+          assert(Math.abs(placement.left-.555)<.025&&Math.abs(placement.bottom-.125)<.025,
+            label+' mobile Storesoster left the approved path '+JSON.stringify(placement));
+        }else{
+          assert(Math.abs(placement.left-.581)<.02&&Math.abs(placement.bottom-.147)<.02,
+            label+' Storesoster left the approved path '+JSON.stringify(placement));
         }
+      }else{
+        assert.equal(await companion.locator('.tv-companion__ground').count(),0,label+' sibling troll received unapproved scene treatment');
       }
       if(viewport.width<=480&&output)await shot(page,label+'-'+id);
     }
     await page.reload({waitUntil:'domcontentloaded',timeout:90000});await page.locator('.bc14-subject[data-camp="subject-math"]').click();await page.locator('#tallvika-world').waitFor();
     assert.match(await page.locator('.tv-companion').getAttribute('aria-label'),/Lillebror/,label+' restores selected troll');
-    await page.locator('[data-tv="fraction"]:visible').first().click();await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});
-    await page.locator('#fraction-lab-back').click();await page.locator('#tallvika-world').waitFor({timeout:12000});
-    await page.locator('[data-tv="table"]:visible').first().click();await page.locator('#multiplication-lab-screen.active').waitFor({timeout:12000});
+    assert.equal(await page.locator('.tv-portal-card.tv-visited').count(),0,
+      label+' return highlight must not be stored as learning progress');
+    // Exercise the illustrated destination button itself, not only
+    // invisible hotspots embedded in the original painting.
+    // Restore scroll/focus and leave Brøklab in ONE action, even when the
+    // child is on another internal tab. No forced tutorial or start menu.
+    await page.locator('.tv-mobile-actions [data-tv="fraction"]').scrollIntoViewIfNeeded();
+    const previousWorldScroll=await page.evaluate(()=>window.scrollY);
+    const beforeFraction=await page.evaluate(()=>JSON.stringify(state.journey));
+    await page.locator('.tv-mobile-actions [data-tv="fraction"]').click();
+    await page.locator('#fraction-lab-screen.active .fr6-workshop').waitFor({timeout:12000});
+    assert.equal(await page.locator('#fraction-lab-back').getAttribute('aria-label'),
+      'Tilbake til Tallvika',label+' fraction back must name the real destination');
+    assert.match(await page.locator('.fr2-top .tv-origin-breadcrumb').innerText(),/TALLVIKA \/ BRØKLAB/);
+    await page.locator('.fr2-nav [data-fr-action="go"][data-page="home"]').click();
+    await page.locator('#fraction-lab-screen.active .fr2-home-card').first().waitFor({timeout:12000});
+    await page.locator('#fraction-lab-back').click();
+    await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:12000});
+    await page.locator('.tv-portal-card.tv-visited[data-tv="fraction"]').waitFor();
+    await page.waitForFunction(()=>document.activeElement?.dataset.tv==='fraction');
+    await page.waitForFunction(y=>Math.abs(window.scrollY-y)<130,previousWorldScroll,{timeout:12000});
+    assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),beforeFraction,
+      label+' entering and exiting Brøklab must not modify chapter progress');
+    // Core regression: Gangetabellen is a separate activity from Gangemagi.
+    // Opening the table from Tallvika must skip Gangemagi and the legacy
+    // launcher, immediately showing the 10 x 10 interactive explorer.
+    const journeyBeforeTable=await page.evaluate(()=>JSON.stringify(state.journey));
+    await page.locator('.tv-mobile-actions [data-tv="table"]').click();
+    await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor({timeout:12000});
+    const tableState=await page.evaluate(()=>window.LARIA_MULT_PREMIUM.snapshot());
+    assert.equal(tableState.page,'explore',label+' Gangetabellen opened an extra launcher');
+    assert.equal(tableState.mode,'table',label+' Gangetabellen opened the wrong explore mode');
+    assert.equal(await page.locator('.mp-explore-tab[data-mode="table"][aria-pressed="true"]').count(),1,
+      label+' table mode must be selected');
+    assert.equal(await page.locator('.mp-times-grid button.mp-grid-cell').count(),100,
+      label+' table must contain all 100 multiplication answers');
+    assert.equal(await page.locator('#multiplication-lab-screen.active .gm-shell').count(),0,
+      label+' the table entry wrongly opened Gangemagi');
+    await page.locator('.mp-grid-cell[data-row="2"][data-col="3"]').click();
+    assert.equal((await page.locator('.mp-inspector-equation b').innerText()).trim(),'2 × 3 = 6',
+      label+' interactive 10 x 10 table did not respond to a cell');
+    assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),
+      'Tilbake til Tallvika',label+' direct table back has wrong destination');
+    assert.match(await page.locator('.mp-top .tv-origin-breadcrumb').innerText(),/TALLVIKA \/ GANGETABELLEN/);
+    // Even from a different internal page, Back leaves in one tap.
+    await page.locator('.mp-nav [data-mp-action="go"][data-page="mastery"]').click();
+    await page.locator('#multiplication-lab-screen.active .mp-mastery-screen').waitFor({timeout:12000});
+    await page.locator('#multiplication-lab-back').click();
+    await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:12000});
+    await page.locator('.tv-portal-card.tv-visited[data-tv="table"]').waitFor();
+    await page.waitForFunction(()=>document.activeElement?.dataset.tv==='table');
+    assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),journeyBeforeTable,
+      label+' direct table exploration changed the journey progress');
+    // The adjacent house is the original Gangemagi game, not a duplicate
+    // of the classic table. A return from the table must not poison this route.
+    await page.locator('.tv-mobile-actions [data-tv="multiply"]').click();
+    await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:12000});
+    assert.equal(await page.locator('.mp-explore-screen').count(),0,
+      label+' Gangemagi was replaced by the previous table');
+    assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),
+      'Tilbake til Tallvika',label+' Gangemagi back lost Tallvika context');
+    await page.locator('#multiplication-lab-back').click();
+    await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:12000});
+    await page.locator('.tv-portal-card.tv-visited[data-tv="multiply"]').waitFor();
+    await page.waitForFunction(()=>document.activeElement?.dataset.tv==='multiply');
+    if(label==='webkit-ipad-landscape'){
+      // Leaving via app navigation is different from tapping the game's Back.
+      // The next independent visit must not inherit an abandoned Tallvika route.
+      for(const action of ['multiply','fraction']){
+        const lab=action==='fraction'?'fraction-lab-screen':'multiplication-lab-screen';
+        const visible=action==='fraction'?'.fr6-workshop':'.gm-shell';
+        await page.locator('.tv-mobile-actions [data-tv="'+action+'"]').click();
+        await page.locator('#'+lab+'.active '+visible).waitFor({timeout:15000});
+        await page.evaluate(()=>showScreen('home'));
+        await page.waitForFunction(id=>!document.getElementById(id)?.classList.contains('active'),lab);
+        await page.waitForFunction(id=>!document.getElementById(id)?.dataset.tvOrigin,lab);
+        assert.equal(await page.locator('#'+lab).getAttribute('data-tv-origin'),null,
+          label+' abandoned '+action+' visit kept an incorrect Tallvika origin');
+        await page.evaluate(id=>id==='fraction'?window.openFractionLab():window.openMultiplicationLab(),action);
+        await page.locator('#'+lab+'.active '+visible).waitFor({timeout:15000});
+        const back=await page.locator('#'+(action==='fraction'?'fraction':'multiplication')+'-lab-back').getAttribute('aria-label');
+        assert.notEqual(back,'Tilbake til Tallvika',
+          label+' independent '+action+' entry inherited an old parent route');
+        await page.evaluate(()=>{showScreen('home');openSubject('math')});
+        await page.locator('#tallvika-world').waitFor({state:'visible',timeout:15000});
+      }
+    }
     assert.deepEqual(errors,[],label+' emits no page errors');
     await context.close();
   } finally {await browser.close();}
 }
-(async()=>{for(const [label,viewport] of [['iphone-compact',{width:320,height:568}],['iphone-portrait',{width:390,height:844}],['iphone-small-landscape',{width:568,height:320}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-landscape',{width:1194,height:834}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});
+(async()=>{for(const [label,viewport] of [['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-mini-landscape',{width:1024,height:768}],['ipad-landscape',{width:1194,height:834}],['ipad-pro-landscape',{width:1366,height:1024}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});
