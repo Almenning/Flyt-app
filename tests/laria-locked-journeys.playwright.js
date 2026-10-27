@@ -33,7 +33,10 @@ async function run(engine,label,viewport){
   const page=await ctx.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(value=>{
-    localStorage.setItem('laerlittmer-v2',JSON.stringify(value));
+    // Seed only the first document. Reloads must preserve the exact profile
+    // written by the test, just like a real child returning to the app.
+    if(!localStorage.getItem('laerlittmer-v2'))
+      localStorage.setItem('laerlittmer-v2',JSON.stringify(value));
     window.LARIA_LOCKED_JOURNEY_QA_ART=true;
   },seed);
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
