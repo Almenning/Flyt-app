@@ -121,7 +121,12 @@ async function check(engine,label,viewport){
    const board=page.locator('.screen.active .locked-journey-board');
    const hits=board.locator('.locked-journey-hotspot');
    assert.equal(await hits.count(),5);
-   assert.equal(await board.locator('.locked-journey-profile[data-avatar="girl"] img').count(),1,label+' '+subject+' real selected avatar missing');
+   const profile=board.locator('.locked-journey-profile[data-troll="storesoster"]');
+   assert.equal(await profile.locator('img').count(),1,label+' '+subject+' real selected troll missing');
+   assert.ok((await profile.locator('img').getAttribute('src'))?.endsWith('/storesoster.webp'),
+     label+' '+subject+' real selected troll uses wrong approved asset');
+   assert.equal(await board.locator('.locked-journey-profile[data-avatar]').count(),0,
+     label+' '+subject+' retired fox profile returned');
    const liveProgress=(await board.locator('.locked-journey-live-progress').innerText()).trim();
    assert.match(liveProgress,/^★\s*0\s*\/\s*\d+$/,label+' '+subject+' static 127 was not replaced by real progress');
    assert.equal(liveProgress.includes('127'),false,label+' '+subject+' must not expose the painted sample score as user data');
