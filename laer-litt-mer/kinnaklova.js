@@ -73,15 +73,10 @@
       const digest=await globalThis.crypto.subtle.digest('SHA-256',bytes);
       const actual=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
       if(actual!==APPROVED_ART_SHA256){setStatus('unapproved','sha-mismatch');return;}
-      // The browser must display *these same verified bytes*, not an
-      // independently cached <img src> from an old Safari/service-worker build.
-      const trustedURL=URL.createObjectURL(new Blob([bytes],{type:'image/webp'}));
-      if(!root?.contains(image)){URL.revokeObjectURL(trustedURL);return;}
-      revokeArt();
-      verifiedArtUrl=trustedURL;
-      image.src=trustedURL;
-      try{await image.decode();}
-      catch(_){setStatus('unapproved','verified-decode-failed');revokeArt();return;}
+      // ART carries a cache-busted script path and the fetch above uses
+      // no-store. Keep the already decoded static source in place: assigning
+      // a second blob URL makes Safari/WebKit reject an otherwise verified
+      // WebP on some iPhone/iPad configurations.
       if(!root?.contains(image))return;
       setStatus(image.naturalWidth===1672&&image.naturalHeight===941?'ready':'unapproved',
         image.naturalWidth===1672&&image.naturalHeight===941?'verified':'verified-dimensions-failed');
