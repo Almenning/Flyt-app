@@ -6,7 +6,7 @@ const {chromium,webkit}=require('playwright');
 const out=process.env.LARIA_FOX_FREEPLAY_SCREENSHOTS||'/tmp/laria-fox-freeplay';
 fs.mkdirSync(out,{recursive:true});
 function seed(which){return {version:7,progressSchemaVersion:3,
- profile:{grade:2,onboarded:true,name:'MinRev',avatar:which,setupVersion:2},
+ profile:{grade:2,onboarded:true,name:'MinRev',avatar:which,tallvikaTroll:which==='girl'?'storesoster':'lillebror',setupVersion:2},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};}
@@ -42,13 +42,19 @@ async function run(engine,name,viewport,which){
   await launch(page,url+'&part=mult',which);
   await page.waitForFunction(()=>typeof window.openMultiplicationLab==='function');
   await page.evaluate(()=>window.openMultiplicationLab());
-  const companion=page.locator('#multiplication-lab-screen.active .gm-fox-art svg.laria-fox-wardrobe-art[data-avatar]');
+  const expectedTroll=which==='girl'?'storesoster':'lillebror';
+  const companion=page.locator('#multiplication-lab-screen.active .gm-fox-art .laria-troll-actor[data-troll-id="'+expectedTroll+'"]');
   await companion.waitFor({state:'visible'});
-  assert.equal(await companion.getAttribute('data-avatar'),which,name+' Gangemagi uses wrong personal fox');
-  assert.equal(await companion.getAttribute('data-fox-art'),which+'-fullbody-v1',name+' Gangemagi should display the original full-body fox');
-  const fullBodySource=await companion.locator('image').getAttribute('href');
-  const expectedSource=await page.evaluate(w=>window.LARIA_FOX.worldSource(w),which);
-  assert.equal(fullBodySource,expectedSource,name+' Gangemagi fox image must match user choice');
+  assert.equal(await companion.getAttribute('data-troll-rig'),'flat-fallback',name+' Gangemagi must expose honest TrollActor fallback state');
+  assert.equal(await page.locator('#multiplication-lab-screen.active .gm-fox-art .laria-fox-wardrobe-art').count(),0,
+    name+' Gangemagi must not reintroduce the retired fox wardrobe');
+  const trollImage=companion.locator('img');
+  await trollImage.evaluate(async img=>{await img.decode();});
+  const source=await trollImage.getAttribute('src');
+  const expectedSource=expectedTroll==='storesoster'
+    ?'./assets/tallvika/storesoster-inworld-approved-20261026.webp'
+    :'./assets/gangemagi-troll/'+expectedTroll+'.webp';
+  assert.equal(source,expectedSource,name+' Gangemagi troll image must match saved forest-troll choice');
   await page.screenshot({path:out+'/'+name+'-gangemagi.png',fullPage:true});
   await page.locator('#multiplication-lab-screen.active [data-gm-action="classic"]').click();
   await page.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
@@ -92,7 +98,7 @@ async function run(engine,name,viewport,which){
     which,name+' globe scenery lost the saved profile context');
   await page.screenshot({path:out+'/'+name+'-globe.png',fullPage:true});
   assert.deepEqual(errors,[],name+' runtime exceptions');
-  console.log('Selected fox freeplay',name,which,'all relevant existing activities');
+  console.log('Selected companion freeplay',name,which,'legacy fox activities plus troll-led Gangemagi');
   await context.close();
  }finally{await browser.close()}
 }
