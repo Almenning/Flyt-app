@@ -42,8 +42,6 @@ async function run(engine,name,viewport,which){
   await launch(page,url+'&part=mult',which);
   await page.waitForFunction(()=>typeof window.openMultiplicationLab==='function');
   await page.evaluate(()=>window.openMultiplicationLab());
-  // The child's chosen full-body fox appears in the new game. Enter the
-  // retained classic mode before verifying its own older fox placements.
   const companion=page.locator('#multiplication-lab-screen.active .gm-fox-art svg.laria-fox-wardrobe-art[data-avatar]');
   await companion.waitFor({state:'visible'});
   assert.equal(await companion.getAttribute('data-avatar'),which,name+' Gangemagi uses wrong personal fox');
@@ -65,15 +63,16 @@ async function run(engine,name,viewport,which){
   await page.waitForFunction(()=>typeof window.openWordHunt==='function');
   await page.evaluate(()=>window.openWordHunt());
   await page.locator('.word-hunt-theme-picker:not([hidden])').waitFor();
-  await match(page,'.wh-theme-fox',which,name+' Ordjakt entrance');
+  assert.equal(await page.locator('.wh-theme-fox').evaluate(el=>el.tagName),'SPAN',
+    name+' Ordjakt entrance must use the neutral Norsk guide, not a retired fox image');
   await page.locator('.word-hunt-theme-picker [data-word-theme="mixed"]').click();
   await page.locator('.word-hunt-cell:visible').first().waitFor();
-  await match(page,'.word-hunt-fox',which,name+' Ordjakt game');
-  await match(page,'.word-hunt-companion-fox',which,name+' Ordjakt personal in-world fox',true);
-  assert.equal(await page.locator('.word-hunt-companion').getAttribute('data-avatar'),which,
-    name+' companion identity does not match the saved child profile');
-  assert.equal(await page.locator('.word-hunt-companion-fox').count(),1,
-    name+' must show one personal fox, not generic duplicates');
+  assert.equal(await page.locator('.word-hunt-fox').evaluate(el=>el.tagName),'SPAN',
+    name+' Ordjakt header must use the neutral Norsk guide, not a retired fox image');
+  assert.equal(await page.locator('.word-hunt-companion-fox').evaluate(el=>el.tagName),'SPAN',
+    name+' Ordjakt companion must use the neutral Norsk guide, not a retired fox image');
+  assert.equal(await page.locator('#word-hunt-overlay img[src*="/assets/fox/"],#word-hunt-overlay img[src*="lia-fox"]').count(),0,
+    name+' Ordjakt reintroduced a static fox image');
   assert.equal(await page.locator('.word-hunt-companion-hint').count(),1);
   await page.locator('.word-hunt-companion-hint').click();
   assert.equal(await page.locator('.word-hunt-cell.is-hint-start').count(),1,
@@ -87,8 +86,6 @@ async function run(engine,name,viewport,which){
   await page.waitForFunction(()=>typeof openGlobe==='function');
   await page.evaluate(()=>openGlobe());
   await match(page,'#world-screen.active .premium-globe-fox',which,name+' globe');
-  // The separate transparent, locked atlas guide is scenic art, not the child's
-  // profile; the visible profile portrait in the globe header must be personal.
   assert.equal(await page.locator('#world-screen.active .premium-globe-guide').getAttribute('src'),
     './lia-fox-explorer-home.webp',name+' locked physical globe guide must stay intact');
   assert.equal(await page.locator('#world-screen.active .premium-globe-guide').getAttribute('data-profile-avatar'),

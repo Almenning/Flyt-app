@@ -36,6 +36,20 @@ async function open(page,url){
  assert.equal(await first.locator('.wh-theme-card').count(),5,'Ordjakt must show all five topics on entry');
  assert.equal(await page.locator('.word-hunt-cell:visible').count(),0,'letter board must stay hidden until a topic is selected');
  assert.equal(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('is-theme-entry')),true);
+ assert.equal(await first.locator('.wh-theme-close').getAttribute('aria-label'),'Tilbake til Utforsk',
+   'Ordjakt entered from Utforsk must name its actual back destination');
+ assert.equal(await page.locator('#word-hunt-overlay .word-hunt-back').getAttribute('aria-label'),'Tilbake til Utforsk',
+   'Ordjakt board back button must follow the original Utforsk entry');
+ assert.equal(await page.locator('#word-hunt-overlay .word-hunt-title small').innerText(),'LEK & UTFORSK',
+   'Direct Utforsk entry must not masquerade as a Norsk lesson');
+ const back=await first.locator('.wh-theme-close').evaluate(el=>{
+  const r=el.getBoundingClientRect();
+  const x=(r.left+r.right)/2,y=(r.top+r.bottom)/2;
+  const top=document.elementFromPoint(x,y);
+  return {width:r.width,height:r.height,x,y,viewport:innerHeight,hit:top===el||el.contains(top)};
+ });
+ assert.ok(back.width>=44&&back.height>=44&&back.y>=0&&back.y<=back.viewport&&back.hit,
+   'Ordjakt mobile theme chooser lost a true 44x44 first-fold back target: '+JSON.stringify(back));
 }
 async function selectTopic(page,topic,label,fromEntry=false){
  if(!fromEntry){
@@ -49,7 +63,13 @@ async function selectTopic(page,topic,label,fromEntry=false){
  assert.ok(await picker.locator('.wh-theme-card.selected').count()===1);
  // Every scene is a local, small painted WebP, not a remote dependency.
  await picker.locator('.wh-theme-card img').first().evaluate(img=>img.decode());
- const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/assets/word-hunt/themes/')&&img.src.includes('.webp?v=20261017-painted1')&&img.getAttribute('alt')===''));
+ const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>{
+  const name=img.closest('[data-word-theme]')?.dataset.wordTheme;
+  const expected=name==='animals'?
+    '/find-the-words-garden-premium.webp?v=20261026-dyrevenner1':
+    '/assets/word-hunt/themes/'+name+'.webp?v=20261017-painted1';
+  return !!name&&img.src.includes(expected)&&img.getAttribute('alt')==='';
+ }));
  assert.ok(valid,label+' broken illustrated topic assets');
  const art=await picker.locator('.wh-theme-card img').evaluateAll(async imgs=>{
   // WebKit can defer loading cards in a horizontal mid-game selector.
@@ -63,15 +83,17 @@ async function selectTopic(page,topic,label,fromEntry=false){
       img.addEventListener('error',()=>{clearTimeout(limit);reject(new Error('Theme image failed: '+img.src))},{once:true});
     });
   }));
-  return imgs.map(img=>({width:img.naturalWidth,height:img.naturalHeight,
+  return imgs.map(img=>({theme:img.closest('[data-word-theme]')?.dataset.wordTheme,width:img.naturalWidth,height:img.naturalHeight,
    bg:getComputedStyle(img).backgroundImage,complete:img.complete}));
  });
  for(const piece of art){
-  assert.ok(piece.complete&&piece.width===160&&piece.height===169,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
-  assert.ok(piece.bg==='none',label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
+  const expected=piece.theme==='animals'?[480,288]:[160,169];
+  assert.ok(piece.complete&&piece.width===expected[0]&&piece.height===expected[1],
+    label+' failed to load premium topic illustration: '+JSON.stringify(piece));
+  assert.ok(piece.bg==='none',label+' missing painted theme scene: '+JSON.stringify(piece));
  }
- assert.equal(await picker.locator('.wh-theme-fox').evaluate(img=>img.currentSrc===window.LARIA_FOX.source(window.LARIA_FOX.choice())),true,
-  'chosen fox did not follow child to theme picker');
+ assert.equal(await picker.locator('.wh-theme-fox').evaluate(el=>el.tagName),'SPAN',
+  'Old fox art remains in the Eggenipa theme picker');
  await shot(page,label+'-choose-'+topic);
  const selectedCard=page.locator('.word-hunt-theme-picker [data-word-theme="'+topic+'"]');
  await selectedCard.click();
@@ -176,11 +198,10 @@ async function verify(engine,launcher,label,viewport,url){
    assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'0 av 4');
    assert.equal(await page.locator('.word-hunt-status').isVisible(),false,
      label+' redundant idle guide card is still covering the fox');
-   // Ordjakt uses the chosen girl's original in-world fox, never a generated lookalike.
+   // The hint/celebration channel remains, with no static old fox picture.
    const fox=page.locator('.word-hunt-companion');
-   assert.equal(await fox.getAttribute('data-avatar'),'girl');
-   assert.equal(await fox.locator('.word-hunt-companion-fox').getAttribute('src'),
-     await page.evaluate(()=>window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())));
+   assert.equal(await fox.getAttribute('data-norsk-guide'),'magic');
+   assert.equal(await fox.locator('.word-hunt-companion-fox').evaluate(el=>el.tagName),'SPAN');
    assert.equal(await fox.locator('.word-hunt-companion-hint').count(),1);
    assert.equal(await fox.locator('.word-hunt-companion-cheer').count(),1);
    const foxGeometry=await fox.evaluate(host=>{
@@ -197,16 +218,17 @@ async function verify(engine,launcher,label,viewport,url){
      };
      return {stage,art,controls,layout,fit:getComputedStyle(artEl).objectFit};
    });
-   assert.equal(foxGeometry.fit,'contain',label+' fox art lost contain behavior');
+   assert.ok(foxGeometry.art&&foxGeometry.stage,label+' missing Norwegian help stage');
    const stable=foxGeometry.layout;
-   const minFoxWidth=viewport.width>700?120:(viewport.width<=350?60:75);
-   assert.ok(stable.stageWidth>=minFoxWidth&&stable.stageHeight>=90&&
-     stable.width>=minFoxWidth&&stable.height>=90,
-     label+' invisible or tiny personal fox stage: '+JSON.stringify(foxGeometry));
+   const minGuideWidth=viewport.width>700?70:55;
+   const minGuideHeight=viewport.width>700?70:55;
+   assert.ok(stable.stageWidth>=minGuideWidth&&stable.stageHeight>=minGuideHeight&&
+     stable.width>=minGuideWidth&&stable.height>=minGuideHeight,
+     label+' invisible or too-small magic guide: '+JSON.stringify(foxGeometry));
    assert.ok(stable.left>=-1.5&&stable.top>=-1.5&&
      stable.left+stable.width<=stable.stageWidth+1.5&&
      stable.top+stable.height<=stable.stageHeight+1.5,
-     label+' full-body image grows beyond its fox stage: '+JSON.stringify(foxGeometry));
+     label+' magic guide grows beyond its own stage: '+JSON.stringify(foxGeometry));
    if(viewport.width>700){
      assert.ok(foxGeometry.stage.bottom<=foxGeometry.controls.top+2,
        label+' fox stage occupies the iPad/Mac help buttons: '+JSON.stringify(foxGeometry));

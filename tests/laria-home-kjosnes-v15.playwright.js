@@ -70,18 +70,22 @@ async function returnFromLockedJourney(page,screen,subject,label){
    await back.waitFor({state:'visible'});
    await back.click();
  }else if(subject==='norwegian'){
-   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-   await page.locator(root+' .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
-   // Bokskogen's original controls return to Eggenipa. The former
-   // fixed overlay was removed because it blocked the map's settings.
-   const native=page.locator(root+' .locked-journey-back');
-   const floating=page.locator(root+' .locked-journey-floating-back');
-   const back=await floating.isVisible()?floating:native;
-   assert.equal(await back.getAttribute('aria-label'),'Tilbake til Eggenipa',label+' native return target');
-   await back.click();
-   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-   await page.locator('#eggenipa-world [data-eg="home"]').click();
+   const world=page.locator('#eggenipa-world:visible');
+   await world.waitFor({timeout:16000});
+   assert.deepEqual(await world.locator('.eg-portal').evaluateAll(nodes=>nodes.map(n=>n.dataset.eg)),
+     ['words','find','reading'],label+' Norsk has not switched to direct learning activities');
+   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+     label+' retired Bokskogen map unexpectedly visible');
+   await world.locator('.eg-portal[data-eg="reading"]').click();
+   await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+   const learning=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
+     question:sessionQuestions[qIndex]?.prompt}));
+   assert.equal(learning.subject,'norwegian');
+   assert.equal(learning.module,'reading',label+' Lesekroken must use the Norwegian reading engine');
+   assert.ok(learning.question,label+' reading mission did not load a question');
+   await page.locator('#close-session').click();
+   await world.waitFor({timeout:16000});
+   await world.locator('[data-eg="home"]').click();
  }else{
    const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});
@@ -215,12 +219,32 @@ async function run(engine,label,viewport){
      await returnFromLockedJourney(page,screen,subject,label);
    }
 
-   /* Reisen stays a true primary action and uses the same locked-journey return flow. */
+   /* "Fortsett reisen" prioritizes a saved unfinished activity over the
+      decorative journey map. Verify actual resume semantics on this path. */
+   const pending=await page.evaluate(()=>state.activeSession?.scope?
+     {subject:state.activeSession.scope.subject,module:state.activeSession.scope.module,
+      index:state.activeSession.qIndex}:null);
    const journeySubject=await home.getAttribute('data-journey-subject')||'norwegian';
    await page.locator('.bc12-journey').click();
-   const journeyScreen=journeySubject==='geography'?'geography':'subject';
-   await page.locator('#'+journeyScreen+'-screen.active').waitFor({timeout:15000});
-   await returnFromLockedJourney(page,journeyScreen,journeySubject,label+' primary journey');
+   if(pending){
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:15000});
+     const resumed=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,index:qIndex}));
+     assert.deepEqual(resumed,pending,label+' Home journey changed interrupted question');
+     await page.locator('#close-session').click();
+     if(pending.subject==='norwegian'){
+       await page.locator('#eggenipa-world:visible').waitFor({timeout:15000});
+       await page.locator('#eggenipa-world [data-eg="home"]').click();
+       await page.locator('#home-screen.active').waitFor({timeout:12000});
+       await homeReady(page,label+' resumed reading');
+     }else{
+       const screen=pending.subject==='geography'?'geography':'subject';
+       await returnFromLockedJourney(page,screen,pending.subject,label+' resumed journey');
+     }
+   }else{
+     const journeyScreen=journeySubject==='geography'?'geography':'subject';
+     await page.locator('#'+journeyScreen+'-screen.active').waitFor({timeout:15000});
+     await returnFromLockedJourney(page,journeyScreen,journeySubject,label+' primary journey');
+   }
 
    /* Explore keeps the existing v13 map-board for now. Home v15 must yield to it cleanly. */
    await page.locator('.bc12-nav [data-camp="explore"]').click();

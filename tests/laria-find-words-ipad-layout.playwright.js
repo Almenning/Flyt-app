@@ -66,7 +66,7 @@ async function inspect(page, name) {
       width: innerWidth, height: innerHeight,
       title: bounds('.fw-title h1'), shell: bounds('.fw-shell'), picture: bounds('.fw-picture'),
       sceneBottom: bounds('.fw-scene-bottom'), footer: bounds('.fw-bottom'),
-      companion: bounds('.fw-companion'), fox: bounds('.fw-fox'),
+      companion: bounds('.fw-companion'), fox: bounds('.fw-fox-button'),
       speech: bounds('.fw-speech'), next: bounds('.fw-next'),
       words: [...document.querySelectorAll('.fw-word')].map(node => {
         const r = node.getBoundingClientRect();
@@ -80,7 +80,16 @@ async function inspect(page, name) {
         return { id: node.dataset.fwObject, reachable: hit === node || node.contains(hit) };
       }),
       svg: document.querySelector('.fw-scene-image').getAttribute('src'),
-      foxSource: document.querySelector('.fw-fox').getAttribute('src')
+      guideLabel:document.querySelector('.fw-fox-button')?.getAttribute('aria-label'),
+       guideSymbol:document.querySelector('.fw-fox')?.textContent?.trim(),
+       avatar:(()=>{try{return JSON.parse(localStorage.getItem('laerlittmer-v2'))?.profile?.avatar||null}catch{return null}})(),
+       guideHit:(()=>{
+         const button=document.querySelector('.fw-fox-button');
+         const r=button?.getBoundingClientRect();
+         if(!r)return false;
+         const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+         return hit===button||button.contains(hit);
+       })()
     };
   });
   // Save failing frames too. Without this, the first failing device disappears
@@ -100,7 +109,11 @@ async function inspect(page, name) {
     name + ': scene objects became unreachable: ' + JSON.stringify(layout.targets));
   assert.ok(layout.words.every(word => word.h >= 44 && word.font >= 16 && word.right <= layout.width + 1),
     name + ': unreadable or clipped word targets: ' + JSON.stringify(layout.words));
-  assert.match(layout.foxSource, /girl-braids-blue-dress/, name + ': chosen fox identity changed');
+  assert.equal(layout.avatar,'girl',name+': removing the fox changed the saved profile');
+   assert.equal(layout.guideLabel,'Få et hint',name+': accessible hint label changed');
+   assert.equal(layout.guideSymbol,'✦',name+': Eggenipa magic helper is missing');
+   assert.ok(layout.guideHit&&layout.fox.w>=44&&layout.fox.h>=44,
+     name+': magical hint control has blocked or undersized touch: '+JSON.stringify(layout));
   if (layout.height > layout.width) {
     const gap = layout.companion.y - layout.sceneBottom.bottom;
     assert.ok(gap >= 0 && gap <= 32,
@@ -113,8 +126,8 @@ async function inspect(page, name) {
       name + ': the panel border is still outside the portrait screen: ' + JSON.stringify(layout.shell));
     assert.ok(layout.words.every(word => word.h >= 54 && word.font >= 20),
       name + ': portrait fit was achieved by shrinking the learning words');
-    assert.ok(layout.fox.h >= 149,
-      name + ': portrait fit was achieved by shrinking the personal fox');
+    assert.ok(layout.fox.h >= 44,
+      name + ': portrait magical hint control is too small');
   }
   return layout;
 }
@@ -137,14 +150,18 @@ async function run(engine, name, size, url) {
     await page.evaluate(() => window.openFindTheWords());
     await inspect(page, name + '-forest');
     await page.locator('.fw-word[data-fw-read="sol"]').click();
-    await page.locator('.fw-hint').click();
+    assert.equal(await page.locator('.fw-hint').count(), 0,
+      name + ': duplicate hint control has returned');
+    await page.locator('.fw-fox-button').click();
     await page.locator('.fw-fox-button').click();
     await inspect(page, name + '-forest-hint');
     await page.locator('.fw-next').click();
     const garden = await inspect(page, name + '-garden');
     assert.match(garden.svg, /find-the-words-garden-premium\.webp/, name + ': premium garden scene did not load');
     await page.locator('.fw-word[data-fw-read="sommerfugl"]').click();
-    await page.locator('.fw-hint').click();
+    assert.equal(await page.locator('.fw-hint').count(), 0,
+      name + ': duplicate hint control has returned');
+    await page.locator('.fw-fox-button').click();
     await page.locator('.fw-fox-button').click();
     await inspect(page, name + '-garden-hint');
     await page.setViewportSize({ width: size.height, height: size.width });

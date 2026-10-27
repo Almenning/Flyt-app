@@ -246,13 +246,18 @@ async function finishSession(page){
           await p.locator('#home-screen.active .bc12').waitFor();
           await p.evaluate(()=>openSubject('norwegian'));
           await p.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-          await p.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-          await p.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
-          const travelerImg=p.locator('#subject-screen.active .locked-journey-profile[data-avatar="girl"] img');
-          await travelerImg.waitFor({state:'visible',timeout:16000});
-          const travelerSrc=await travelerImg.getAttribute('src');
-          const expectedTravelerSrc=await p.evaluate(()=>window.LARIA_PROFILE_AVATARS?.girl||'./lia-fox-explorer-home.webp');
-          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen must display the saved revejente avatar over the approved artwork');
+          assert.deepEqual(await p.locator('#eggenipa-world .eg-portal')
+            .evaluateAll(els=>els.map(x=>x.dataset.eg)),['words','find','reading'],
+            'Norsk lost direct Eggenipa learning choices');
+          assert.equal(await p.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+            'Retired Bokskogen map still visible');
+          assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
+            'Stored avatar preference changed when removing old Norwegian fox');
+          await p.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+          await p.locator('#session-screen.active .laria-task-card').waitFor();
+          assert.equal(await p.evaluate(()=>sessionScope?.module),'reading','Norsk reading module changed');
+          await p.locator('#close-session').click();
+          await p.locator('#eggenipa-world:visible').waitFor();
 
           await p.evaluate(()=>{
             sessionScope={type:'subject',subject:'norwegian',module:'reading',label:'Norsk',grade:2};
@@ -261,13 +266,12 @@ async function finishSession(page){
             showScreen('session');renderQuestion();
           });
           await p.locator('#session-screen.active').waitFor();
-          const taskFox=p.locator('.task-fox-companion');
-          await taskFox.waitFor();
-          assert.equal(await taskFox.getAttribute('data-avatar'),'girl','Oppgavescene fox did not follow saved revejente choice');
-          const taskMarker=taskFox.locator('.task-profile-marker');
-
-                    await taskMarker.waitFor({state:'hidden'});
-          assert.equal((await taskMarker.textContent()).trim(),'✿','Oppgavescene revejente has no visible profile marker');
+          assert.equal(await p.locator('#session-screen.active .task-fox-companion').count(),0,
+            'Old fox should be absent from Norsk task scene');
+          assert.equal(await p.locator('#session-screen.active .task-norsk-guide').count(),1,
+            'Norsk must display one accessible neutral hint guide');
+          assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
+            'Removing the Norwegian visual fox must not alter profile data');
           await p.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
           await p.locator('#home-screen.active .bc12').waitFor();
         }
@@ -656,44 +660,62 @@ async function finishSession(page){
     assert.match(await page.locator('.onboard-step[data-step="0"] .hero-copy').textContent(),/Velg reven din, skriv navnet ditt og start reisen/i);
     assert.equal(await page.locator('.onboard-step[data-step="0"] .grade-question').count(),1,'grade choice must remain on the same onboarding screen');
 
-    // Norsk 1.–2.: Eggenipa comes first, Bokskogen remains reachable.
+    // Norsk 1.–2.: three direct activities. Bokskogen is retired from the
+    // child's visible UI, but all historical journey nodes remain intact.
+    const norwegianBefore=await page.evaluate(()=>({
+      nodes:structuredClone(state.journey.nodes),
+      avatar:state.profile.avatar,
+      grade:state.profile.grade,
+      sessions:state.sessionLog.length
+    }));
     await page.evaluate(()=>openSubject('norwegian'));
-    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+    const eggenipa=page.locator('#eggenipa-world:visible');
+    await eggenipa.waitFor({timeout:16000});
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
-    await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
-    await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
-    assert.equal(await page.locator('#journey-map .locked-journey-image').count(),1,'Bokskogen should use one exact approved source image');
-    assert.equal(await page.locator('#journey-map .locked-journey-hotspot').count(),5,'Bokskogen should expose all five painted destinations');
-    assert.equal(await page.locator('#journey-map .locked-journey-hotspot.state-current').count(),1,'exactly one painted destination should be next');
-    assert.equal(await page.locator('#journey-map').getAttribute('data-journey-release'),'journey-rc1');
-    assert.equal(Number(await page.locator('#journey-map').getAttribute('data-journey-core-stops')),11,'Bokskogen RC must expose 11 distinct core destinations');
-    assert.equal(await page.locator('#journey-map .locked-journey-back').isVisible(),true);
-    assert.equal(await page.locator('#journey-map .locked-journey-options').isVisible(),true);
-    assert.match(await page.locator('#journey-map .locked-journey-live-progress').innerText(),/^★\s*0\s*\/\s*11$/);
-    assert.equal(await page.locator('#subject-screen > .detail-back').isVisible(),false,'world-first Bokskogen must not leak the old page back button below the map');
-    assert.equal(await page.locator('#subject-modules').isVisible(),false,'the old module dashboard should not compete with the game board');
-    await page.waitForTimeout(450);
-    const bokNextPosition=await page.locator('#journey-map .locked-journey-hotspot.state-current').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(bokNextPosition>=0&&bokNextPosition<844,'Bokskogen must open with the next destination in the mobile viewport');
+    assert.deepEqual(await eggenipa.locator('.eg-portal').evaluateAll(els=>els.map(x=>x.dataset.eg)),
+      ['words','find','reading'],'Norsk must provide three direct activities');
+    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+      'old Bokskogen journey map must not be child-facing');
+    assert.equal(await eggenipa.locator('[data-eg="map"],[data-eg="next"]').count(),0,
+      'old journey button appeared on approved Eggenipa art');
+    assert.equal(await page.locator('#subject-modules').isVisible(),false,
+      'old module dashboard must not compete with Eggenipa');
 
-    await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'map click must open the exercise directly');
-    await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary[data-locked-node]:not([disabled])').first().click();
-    await page.locator('#session-screen.active').waitFor();
-    assert.equal(await page.evaluate(()=>sessionScope.type),'journey');
-    assert.equal(await page.evaluate(()=>sessionScope.subject),'norwegian');
+    // The same reading engine still starts real questions and records a
+    // completed practice round, but must NOT overwrite journey nodes.
+    await eggenipa.locator('.eg-portal[data-eg="reading"]').click();
+    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+    const reading=await page.evaluate(()=>({
+      type:sessionScope?.type,
+      subject:sessionScope?.subject,
+      module:sessionScope?.module,
+      question:sessionQuestions[qIndex]?.prompt
+    }));
+    assert.equal(reading.type,'subject','Lesekroken must use free-choice learning, not an old map node');
+    assert.equal(reading.subject,'norwegian');
+    assert.equal(reading.module,'reading');
+    assert.ok(reading.question,'Lesekroken must contain a real reading question');
+    assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+      'the retired fox must not appear in Norwegian reading tasks');
     await finishSession(page);
-    assert.match(await page.locator('#complete-area').textContent(),/Norsk/);
+    await page.locator('#complete-screen.active').waitFor();
     await page.locator('#complete-home').click();
-    await page.locator('#subject-screen.active').waitFor();
-    await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
-    assert.equal(await page.locator('#journey-map .locked-journey-image').isVisible(),true,'the approved Bokskogen original should remain visible after completing a session');
-    // The native Bokskogen back arrow returns to Norsk's Eggenipa landing.
-    // Only its separate Hjem action should leave the Norwegian subject.
-    await page.locator('#journey-map .locked-journey-back').click();
-    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-    await page.locator('#eggenipa-world [data-eg="home"]').click();
+    await eggenipa.waitFor({timeout:16000});
+    const norwegianAfter=await page.evaluate(()=>({
+      nodes:state.journey.nodes,
+      avatar:state.profile.avatar,
+      grade:state.profile.grade,
+      sessions:state.sessionLog.length
+    }));
+    assert.deepEqual(norwegianAfter.nodes,norwegianBefore.nodes,
+      'direct reading changed previously saved journey data');
+    assert.equal(norwegianAfter.avatar,norwegianBefore.avatar,
+      'Norsk replaced the saved character identity');
+    assert.equal(norwegianAfter.grade,norwegianBefore.grade,
+      'Norsk changed the selected grade');
+    assert.equal(norwegianAfter.sessions,norwegianBefore.sessions+1,
+      'completed reading round was not recorded exactly once');
+    await eggenipa.locator('[data-eg="home"]').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('.bc12-journey').isVisible(),true);
 
@@ -1089,13 +1111,22 @@ async function finishSession(page){
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-subject'),subject,subject+' wrong task-scene subject');
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-band'),'young',subject+' grade 2 should use young task specialization');
       assert.equal(await page.locator('.laria-task-card').count(),1,subject+' should render exactly one premium task card');
-      assert.equal(await page.locator('.task-fox-companion img').count(),1,subject+' needs one in-world fox companion');
-      // The task companion is now the child's chosen profile fox, not the
-      // previously hard-coded mascot. Compare identity without dumping a
-      // large embedded WebP data URI into test logs on failure.
-      const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
-        img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
-      assert.equal(personalFox,true,subject+' must use the selected persistent fox');
+      if(subject==='norwegian'){
+        assert.equal(await page.locator('.task-fox-companion img').count(),0,
+          'Norsk must not render the retired fox');
+        const guide=page.locator('#session-screen.active .task-norsk-guide');
+        await guide.waitFor({state:'visible',timeout:12000});
+        const bounds=await guide.boundingBox();
+        assert.ok(bounds&&bounds.width>=44&&bounds.height>=44,
+          'Norsk lost its visible, child-friendly help indicator');
+      }else{
+        // Identity requirements for the three subjects not migrated to Eggenipa.
+        assert.equal(await page.locator('.task-fox-companion img').count(),1,
+          subject+' needs one in-world fox companion');
+        const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
+          img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
+        assert.equal(personalFox,true,subject+' must use the selected persistent fox');
+      }
       assert.ok((await page.locator('.answer,.letter-tile,.word-tile,.sequence-tile,#math-input,#quiz-map-canvas').count())>0,subject+' task scene has no active interaction');
       await page.locator('#close-session').click();
     }
@@ -1106,8 +1137,14 @@ async function finishSession(page){
 
     // Prompt 12: the locked grade 1–2 object set must use the premium SVG illustration system,
     // stay responsive on phone/tablet, and rendering art must never mutate learning progress.
-    const prompt12Visuals=['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽'];
-    assert.deepEqual(await page.evaluate(()=>window.LARIA_TASK_PREMIUM_VISUALS),prompt12Visuals,'Prompt 12 premium visual registry changed');
+    const prompt12Baseline=['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽'];
+    const norskObjectExtensions=['👟','🚆','🧀','🐭','🐄'];
+    const prompt12Visuals=[...prompt12Baseline,...norskObjectExtensions];
+    const registeredVisuals=await page.evaluate(()=>window.LARIA_TASK_PREMIUM_VISUALS);
+    assert.deepEqual(registeredVisuals.slice(0,prompt12Baseline.length),prompt12Baseline,
+      'Prompt 12 original premium illustrations changed');
+    assert.deepEqual(registeredVisuals,prompt12Visuals,
+      'Norwegian word-picture illustration expansions are missing or duplicated');
     const progressBeforeIllustrations=await page.evaluate(()=>JSON.stringify({
       answerLog:state.answerLog,journey:state.journey,skillMastery:state.skillMastery,mastery:state.mastery
     }));
@@ -1146,16 +1183,16 @@ async function finishSession(page){
     assert.equal(progressAfterIllustrations,progressBeforeIllustrations,'Prompt 12 illustration rendering changed learning progress');
     await page.locator('#close-session').click();
 
-    // Prompt 13: TaskScene fox must stay in-world, follow the saved avatar state,
+    // Prompt 13: subjects retaining a fox must keep avatar identity and reactions,
     // avoid covering the question/answers, and react briefly only after a correct answer.
     async function assertPrompt13Fox(width,height,label){
       await page.setViewportSize({width,height});
       await page.evaluate(()=>{
         state.profile.avatar='girl';saveState();
         sessionQuestions=[{
-          subject:'norwegian',skill:'word-picture',type:'learning-choice',
-          prompt:'Hvilket ord passer til bildet?',answer:'katt',options:['katt','hund','hus'],
-          visual:'🐱',curriculum:CURRICULUM.norwegian
+          subject:'english',skill:'vocabulary',type:'learning-choice',
+          prompt:'Which word matches the picture?',answer:'cat',options:['cat','dog','house'],
+          visual:'🐱',curriculum:CURRICULUM.english
         }];
         qIndex=0;currentAnswered=null;showScreen('session');renderQuestion();
       });
@@ -1180,7 +1217,7 @@ async function finishSession(page){
       // actual mood and that it settles without duplicating its artwork.
       await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
       const beforeCount=await page.evaluate(()=>state.answerLog.length);
-      await page.locator('.answer[data-answer="katt"]').click();
+      await page.locator('.answer[data-answer="cat"]').click();
       await page.waitForFunction(()=>
         document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaFoxMood==='celebrate',
         null,{polling:25,timeout:1500});

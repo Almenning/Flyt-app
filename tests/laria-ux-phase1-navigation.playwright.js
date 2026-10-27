@@ -157,22 +157,27 @@ async function run(engine,label,width,height){
     // A mission must return to its world, not jump to the wrong app section.
     await page.locator('.bc13-card[data-bc13-action="norwegian"]').click();
     await screen(page,'subject');
-    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-    await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    const norwegianStop=page.locator('#subject-screen.active .locked-journey-hotspot.state-current').first();
-    await norwegianStop.waitFor({state:'visible',timeout:16000});
-    await norwegianStop.click();
-    const firstTask=page.locator('#subject-screen.active .locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').first();
-    await firstTask.waitFor({state:'visible',timeout:12000});
-    await firstTask.click();
+    const eggenipa=page.locator('#eggenipa-world:visible');
+    await eggenipa.waitFor({timeout:16000});
+    assert.deepEqual(await eggenipa.locator('.eg-portal').evaluateAll(nodes=>nodes.map(x=>x.dataset.eg)),
+      ['words','find','reading'],label+' Norsk must offer three direct activities');
+    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+      label+' retired Bokskogen map is still visible');
+    await eggenipa.locator('.eg-portal[data-eg="reading"]').click();
     await screen(page,'session');
+    assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',
+      label+' Lesekroken did not start the real reading module');
     assert.match(await page.locator('#close-session').innerText(),/Tilbake/,
       label+' task back label does not describe its action');
     assert.equal(await page.locator('#close-session').getAttribute('aria-label'),'Tilbake til Norsk');
-    await edgeBack(page,label+' task');
+    await edgeBack(page,label+' Lesekroken');
     await screen(page,'subject');
-    await page.locator('#subject-screen.active .locked-journey-back').waitFor({state:'visible',timeout:16000});
-    await screenshot(page,label+'-returned-journey');
+    await eggenipa.waitFor({timeout:16000});
+    await screenshot(page,label+'-returned-eggenipa');
+    await edgeBack(page,label+' Eggenipa');
+    await panel(page,'norwegian');
+    assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),'travel',
+      label+' Norsk swipe skipped its Reisen origin');
     assert.deepEqual(errors,[],label+' unhandled script errors');
     console.log('[Læria UX phase 1]',label,'origin panels, nested globe, lab subpages, mission and edge-swipe PASS');
   }finally{await context.close();await browser.close();}

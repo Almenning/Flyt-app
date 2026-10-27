@@ -107,8 +107,27 @@ async function run(engine,name,viewport,which){
      continue;
    }
    if(subject==='norwegian'){
-     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+     const eg=page.locator('#eggenipa-world:visible');
+     await eg.waitFor({timeout:16000});
+     assert.deepEqual(await eg.locator('.eg-portal').evaluateAll(a=>a.map(x=>x.dataset.eg)),
+       ['words','find','reading'],name+' Norwegian direct play is missing');
+     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+       name+' retired Norwegian journey map is visible');
+     await eg.locator('.eg-portal[data-eg="reading"]').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',name+' wrong reading module');
+     assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+       name+' old fox appears on Norwegian reading scene');
+     assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
+       name+' missing Norwegian reading guidance');
+     assert.equal(await page.evaluate(()=>state.profile.avatar),which,
+       name+' approved Norwegian visual change changed saved profile');
+     await page.screenshot({path:folder+'/'+name+'-norwegian-reading.png',fullPage:true,animations:'disabled'});
+     await page.locator('#close-session').click();
+     await eg.waitFor({timeout:16000});
+     await eg.locator('[data-eg="home"]').click();
+     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:16000});
+     continue;
    }
    const root=page.locator('#'+target+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await root.waitFor({timeout:16000});

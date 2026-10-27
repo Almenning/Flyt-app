@@ -63,8 +63,21 @@ async function run(engine,label,viewport){
    await page.locator('[data-bc13-action="'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:10000});
    if(subject==='norwegian'){
-     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+     const world=page.locator('#eggenipa-world:visible');
+     await world.waitFor({timeout:16000});
+     assert.deepEqual(await world.locator('.eg-portal').evaluateAll(nodes=>nodes.map(x=>x.dataset.eg)),
+       ['words','find','reading'],label+' direct Norsk activities lost');
+     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+       label+' old Bokskogen map is visible');
+     await world.locator('.eg-portal[data-eg="reading"]').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',label+' reading route broke');
+     await page.locator('#close-session').click();
+     await world.waitFor({timeout:16000});
+     await world.locator('[data-eg="home"]').click();
+     await page.locator('.bc12-nav [data-camp="travel"]').click();
+     await checkBoard(page,'travel',label);
+     continue;
    }
    if(subject==='math'){
      const tallvika=page.locator('#subject-screen.active #tallvika-world');

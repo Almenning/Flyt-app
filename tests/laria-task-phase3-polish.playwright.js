@@ -67,22 +67,44 @@ async function run(engine,name,viewport,url){
    },{subject,question});
    const label=name+' '+subject;
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:12000});
-   assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,label+' duplicate fox');
-   // The legacy profile is hidden from the first paint in BOTH text-only
-   // and illustrated tasks. Wait for the selected full-body wardrobe SVG,
-   // then capture evidence; otherwise a screenshot can freeze the fallback
-   // portrait during the requestAnimationFrame composition handoff.
-   await page.waitForFunction(visual=>{
-    const fox=document.querySelector('#session-screen.active .task-fox-companion');
-    const original=fox?.querySelector('img');
-    const rig=fox?.querySelector('svg.laria-fox-wardrobe-placed[data-fox-art="girl-fullbody-v1"]');
-    const marker=fox?.querySelector('.task-profile-marker');
-    return !!original&&!!rig&&getComputedStyle(original).visibility==='hidden'&&
-      rig.getBoundingClientRect().width>30&&rig.getBoundingClientRect().height>40&&
-      (!visual||!marker||getComputedStyle(marker).display==='none');
-   },!!question.visual,{timeout:15000});
-   assert.equal(await page.locator('#session-screen .task-fox-companion .laria-fox-wardrobe-placed').count(),1,
-    label+' duplicate or missing chosen full-body fox');
+   if(subject==='norwegian'){
+     assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+       label+' retired fox must be absent from Norsk task scene');
+     const guide=page.locator('#session-screen.active .task-norsk-guide');
+     await guide.waitFor({state:'visible',timeout:15000});
+     assert.equal(await guide.count(),1,label+' Norsk has duplicate helper guides');
+     assert.ok((await guide.boundingBox())?.width>=44,label+' Norsk hint button is too small');
+     assert.equal(await guide.evaluate(el=>el.tagName),'BUTTON',label+' hint must be interactive');
+     assert.equal(await guide.getAttribute('aria-expanded'),'false');
+     const beforeHint=await page.evaluate(()=>({index:qIndex,answered:currentAnswered}));
+     await guide.click();
+     const help=page.locator('#task-norsk-hint');
+     await help.waitFor({state:'visible'});
+     assert.match(await help.innerText(),/Se nøye på bildet/,'first hint should encourage looking');
+     await guide.click();
+     assert.match(await help.innerText(),/starter med H/,'second hint should offer starting sound');
+     assert.doesNotMatch(await help.innerText(),/HUND/,'hint must not reveal the answer');
+     assert.deepEqual(await page.evaluate(()=>({index:qIndex,answered:currentAnswered})),beforeHint,
+       'hint altered the real question state');
+     await guide.click();
+     await help.waitFor({state:'hidden'});
+     assert.equal(await guide.getAttribute('aria-expanded'),'false');
+   }else{
+     assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,label+' duplicate fox');
+     // Other subjects still retain their own original full-body figure until
+     // their separately approved visual migrations ship.
+     await page.waitForFunction(visual=>{
+       const fox=document.querySelector('#session-screen.active .task-fox-companion');
+       const original=fox?.querySelector('img');
+       const rig=fox?.querySelector('svg.laria-fox-wardrobe-placed[data-fox-art="girl-fullbody-v1"]');
+       const marker=fox?.querySelector('.task-profile-marker');
+       return !!original&&!!rig&&getComputedStyle(original).visibility==='hidden'&&
+         rig.getBoundingClientRect().width>30&&rig.getBoundingClientRect().height>40&&
+         (!visual||!marker||getComputedStyle(marker).display==='none');
+     },!!question.visual,{timeout:15000});
+     assert.equal(await page.locator('#session-screen .task-fox-companion .laria-fox-wardrobe-placed').count(),1,
+       label+' duplicate or missing chosen full-body fox');
+   }
    const first=await page.evaluate(()=>{
     const progress=document.querySelector('#session-screen .session-progress');
     const read=document.querySelector('#session-screen .read-aloud');
@@ -152,7 +174,22 @@ async function run(engine,name,viewport,url){
      };
    });
    const anchoredBefore=await geometry();
+   if(subject==='norwegian'){
+     await page.locator('#session-screen.active .task-norsk-guide').click();
+     await page.locator('#task-norsk-hint').waitFor({state:'visible'});
+   }
    await page.locator('#session-screen .answer[data-answer="'+question.answer+'"]').click();
+   if(subject==='norwegian'){
+     const guide=page.locator('#session-screen.active .task-norsk-guide');
+     await page.locator('#task-norsk-hint').waitFor({state:'hidden'});
+     assert.equal(await guide.getAttribute('aria-expanded'),'false',
+       label+' Norsk hint must close immediately when answer is given');
+     await page.waitForFunction(()=>document.querySelector('#session-screen.active .task-norsk-guide')?.classList.contains('fox-correct'),
+       null,{polling:25,timeout:1000});
+     assert.equal(await guide.count(),1,label+' correct answer duplicated the Norsk guide');
+     await page.waitForFunction(()=>!document.querySelector('#session-screen.active .task-norsk-guide')?.classList.contains('fox-correct'),
+       null,{polling:50,timeout:2400});
+   }
    const anchoredAfter=await geometry();
    assert(Math.abs(anchoredAfter.cardY-anchoredBefore.cardY)<=3,
      label+' response recentered task by '+(anchoredAfter.cardY-anchoredBefore.cardY)+
@@ -172,11 +209,83 @@ async function run(engine,name,viewport,url){
    assert.equal(await page.locator('#next-question').innerText(),'Fullfør');
    assert.equal(await page.locator('#next-question').getAttribute('aria-label'),'Fullfør oppdraget');
    await page.locator('#session-screen .answer[data-answer="'+question.answer+'"]').click();
+   if(subject==='norwegian'){
+     await page.waitForFunction(()=>document.querySelector('#session-screen.active .task-norsk-guide')?.classList.contains('fox-correct'),
+       null,{polling:25,timeout:1000});
+     assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
+       label+' next task duplicated the Norsk guide');
+     await page.waitForFunction(()=>!document.querySelector('#session-screen.active .task-norsk-guide')?.classList.contains('fox-correct'),
+       null,{polling:50,timeout:2400});
+   }
    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/);
    await page.screenshot({path:path.join(shots,name+'-'+subject+'-02-complete-answer.png'),animations:'disabled',fullPage:true});
    await page.locator('#next-question').click();
    await page.locator('#complete-screen.active').waitFor({timeout:10000});
   }
+  // Supplemental art test: real, rendered images rather than fallback emoji.
+  for(const [symbol,kind] of [['👟','shoe'],['🚆','train'],['🧀','cheese'],['🐭','mouse'],['🐄','cow']]){
+    await page.evaluate(({symbol})=>{
+      sessionQuestions=[{subject:'norwegian',type:'learning-choice',skill:'word-picture',
+        prompt:'Hvilket ord passer til bildet?',visual:symbol,answer:'ord',options:['ord','annet']}];
+      sessionScope={type:'subject',subject:'norwegian',grade:2,label:'Lesekroken',practiceOnly:true};
+      qIndex=0;currentAnswered=null;state.activeSession={startedAt:Date.now()};
+      showScreen('session');renderQuestion();
+    },{symbol});
+    const artwork=page.locator('#session-screen.active .task-illustration-norsk-object');
+    await artwork.waitFor({state:'visible',timeout:12000});
+    assert.equal(await artwork.getAttribute('data-norsk-object'),kind,
+      name+' wrong illustration identity for '+kind);
+    assert.equal(await page.locator('#session-screen.active [data-task-visual-kind="fallback"]').count(),0,
+      name+' Norsk '+kind+' fell back to emoji');
+    const bound=await artwork.boundingBox();
+    assert.ok(bound&&bound.width>=70&&bound.height>=40,name+' '+kind+' vector is too small');
+    if(kind==='shoe'){
+      if(viewport.width>=701&&viewport.height>=600){
+        const alignment=await page.locator('#session-screen.active .laria-task-card').evaluate(card=>{
+          const row=card.querySelector('.answers'),buttons=[...row.querySelectorAll('.answer')];
+          const c=card.getBoundingClientRect(),r=row.getBoundingClientRect();
+          return {cardCenter:c.left+c.width/2,rowCenter:r.left+r.width/2,
+            count:buttons.length,columns:getComputedStyle(row).gridTemplateColumns};
+        });
+        assert.equal(alignment.count,2,name+' expected two answers');
+        assert.ok(Math.abs(alignment.cardCenter-alignment.rowCenter)<20,
+          name+' two Norwegian choices should be centered: '+JSON.stringify(alignment));
+      }
+      await page.screenshot({
+        path:path.join(shots,name+'-norsk-shoe-premium.png'),animations:'disabled',fullPage:false});
+    }
+  }
+  // Every remaining early-Norsk word object must be true illustration art.
+  for(const [symbol,id] of [['🍦','icecream'],['🧢','cap'],['🐑','sheep'],['☕','cup'],['🛏️','bed'],['🦊','fox-animal']]){
+    await page.evaluate(({symbol})=>{
+      sessionQuestions=[{subject:'norwegian',type:'learning-choice',skill:'word-picture',
+        prompt:'Hvilket ord passer til bildet?',visual:symbol,answer:'ord',options:['ord','annet']}];
+      sessionScope={type:'subject',subject:'norwegian',grade:2,label:'Lesekroken',practiceOnly:true};
+      qIndex=0;currentAnswered=null;state.activeSession={startedAt:Date.now()};
+      showScreen('session');renderQuestion();
+    },{symbol});
+    const art=page.locator('#session-screen.active .task-illustration-norsk-object');
+    await art.waitFor({state:'visible',timeout:12000});
+    assert.equal(await art.getAttribute('data-norsk-object'),id,name+' wrong object art for '+id);
+    assert.equal(await page.locator('#session-screen.active [data-task-visual-kind="fallback"]').count(),0,
+      name+' Norsk illustration fell back to emoji: '+id);
+    assert.ok((await art.boundingBox())?.width>=70,name+' '+id+' art did not render');
+    if(id==='icecream')await page.screenshot({
+      path:path.join(shots,name+'-norsk-icecream-premium.png'),animations:'disabled',fullPage:false});
+  }
+  // An identical emoji used in another subject must retain the pre-existing
+  // display behavior. The new Norwegian illustrations are not global art.
+  await page.evaluate(()=>{
+    sessionQuestions=[{subject:'english',type:'learning-choice',skill:'vocabulary',
+      prompt:'Which word is this?',visual:'🧀',answer:'cheese',options:['cheese','dog']}];
+    sessionScope={type:'subject',subject:'english',grade:2,label:'Wordland',practiceOnly:true};
+    qIndex=0;currentAnswered=null;state.activeSession={startedAt:Date.now()};
+    showScreen('session');renderQuestion();
+  });
+  assert.equal(await page.locator('#session-screen.active .task-illustration-norsk-object').count(),0,
+    name+' Norsk-specific visual leaked into English');
+  assert.equal(await page.locator('#session-screen.active [data-task-visual-kind="fallback"]').count(),1,
+    name+' English visual was modified by the Norsk-only release');
   assert.deepEqual(errors,[],name+' uncaught runtime error');
   await context.close();
   console.log('PASS Læria phase-3 final task UX',name,viewport,'four subjects, progression, dog art, feedback, completion');

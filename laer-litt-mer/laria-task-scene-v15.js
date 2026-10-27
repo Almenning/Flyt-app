@@ -38,9 +38,9 @@
   }
   function sceneName(subject){
     if(Number(currentGrade())<=2){
-      return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallvika':subject==='geography'?'Nordlysleiren':'Bokskogen';
+      return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallvika':subject==='geography'?'Nordlysleiren':'Eggenipa';
     }
-    return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallriket':subject==='geography'?'Oppdagelsesriket':'Bokskogen';
+    return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallriket':subject==='geography'?'Oppdagelsesriket':'Eggenipa';
   }
   function subjectName(subject){
     return subject==='english'?'ENGELSK':subject==='math'?'MATTE':subject==='geography'?'GEOGRAFI':'NORSK';
@@ -55,26 +55,83 @@
     try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }
   function foxSource(){return window.LARIA_FOX.source(foxChoice());}
-  function reactFox(correct){
-    const fox=document.querySelector('#session-screen.task-scene .task-fox-companion');
-    if(!fox)return;
-    fox.classList.remove('fox-correct');
-    if(!correct)return;
-    void fox.offsetWidth;
-    fox.classList.add('fox-correct');
-    window.setTimeout(()=>fox.classList.remove('fox-correct'),620);
+  // Norsk uses a neutral helper until the separately approved TrollActor exists.
+  // The shared fox-presence engine deliberately does not own this symbol, so
+  // successful answers must trigger its one short reaction here instead.
+  function reactNorskGuide(){
+    const guide=document.querySelector('#session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide');
+    if(!guide)return;
+    guide.classList.remove('fox-correct');
+    void guide.offsetWidth;
+    guide.classList.add('fox-correct');
+    window.setTimeout(()=>guide.classList.remove('fox-correct'),620);
   }
-  function bindFoxReaction(wrap){
-    if(!wrap||wrap.dataset.foxReactionBound==='true')return;
-    wrap.dataset.foxReactionBound='true';
-    const sync=()=>{
-      if(typeof currentAnswered!=='undefined'&&currentAnswered?.correct===true)reactFox(true);
-    };
-    wrap.addEventListener('click',sync);
-    wrap.addEventListener('keydown',e=>{if(e.key==='Enter')sync()});
+  function bindNorskGuideReaction(interaction){
+    if(!interaction||interaction.dataset.norskGuideReactionBound==='true')return;
+    interaction.dataset.norskGuideReactionBound='true';
+    // The interaction node is replaced on every question, unlike #question-wrap.
+    // Suppress duplicate celebration within one question, but reset for the next.
+    let celebrated=false;
+    interaction.addEventListener('click',event=>{
+      if(celebrated||!event.target.closest?.('button,[role="button"]'))return;
+      // The answer handler updates currentAnswered before the click bubbles.
+      // Read aloud, navigation and taps outside answer controls do not trigger.
+      if(typeof currentAnswered!=='undefined'&&currentAnswered?.correct===true){
+        celebrated=true;
+        reactNorskGuide();
+      }
+    });
   }
 
-  const PREMIUM_VISUAL_KEYS=Object.freeze(['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽']);
+  // A real, child-directed helper for Norsk. First hint prompts observation;
+  // a second hint gives a starting sound for illustrated single-word answers.
+  // Neither advances the lesson, marks an answer, nor changes saved progress.
+  function norskHintCopy(q,step){
+    if(step===1){
+      if(q?.visual)return 'Se nøye på bildet. Hva er det du kjenner igjen?';
+      if(q?.passage)return 'Les teksten en gang til. Hvilke ord hjelper deg å forstå svaret?';
+      if(q?.type==='build-word')return 'Si ordet sakte. Hør etter én lyd om gangen.';
+      if(q?.type==='sentence-order')return 'Les ordene høyt. Hvilket ord kan starte setningen?';
+      return 'Les oppgaven rolig én gang til. Hvilket svar passer best?';
+    }
+    if(q?.visual&&typeof q.answer==='string'){
+      const first=Array.from(q.answer.trim())[0]||'';
+      if(/^[a-zæøå]$/i.test(first))return 'Lytt etter første lyd. Ordet starter med '+first.toUpperCase()+'.';
+    }
+    if(q?.passage)return 'Finn setningen i teksten som forteller mest om svaret.';
+    if(q?.type==='build-word')return 'Prøv én bokstav om gangen. Du kan endre valget ditt.';
+    return 'Se på svarene igjen. Kan du finne et som ikke passer?';
+  }
+  function bindNorskHint(wrap,q){
+    const guide=wrap.querySelector('.task-norsk-guide');
+    const message=wrap.querySelector('#task-norsk-hint');
+    if(!guide||!message)return;
+    let step=0;
+    const closeHint=()=>{
+      step=0;
+      message.hidden=true;
+      message.textContent='';
+      guide.setAttribute('aria-expanded','false');
+      guide.setAttribute('aria-label','Få et hint');
+    };
+    // When the child commits an answer, return the screen to feedback mode.
+    // Do not dismiss hints merely when selecting intermediate letters.
+    wrap.querySelector('.task-interaction')?.addEventListener('click',event=>{
+      if(!event.target.closest?.('button,[role="button"]'))return;
+      if(typeof currentAnswered!=='undefined'&&currentAnswered!==null)closeHint();
+    });
+    guide.addEventListener('click',()=>{
+      // Third activation closes the little storybook hint, so it never
+      // remains pinned across a question or covers choices unnecessarily.
+      step=step===2?0:step+1;
+      message.hidden=step===0;
+      message.textContent=step?norskHintCopy(q,step):'';
+      guide.setAttribute('aria-expanded',String(step>0));
+      guide.setAttribute('aria-label',step===0?'Få et hint':step===1?'Få et hint til':'Skjul hint');
+    });
+  }
+
+  const PREMIUM_VISUAL_KEYS=Object.freeze(['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽','👟','🚆','🧀','🐭','🐄']);
   window.LARIA_TASK_PREMIUM_VISUALS=PREMIUM_VISUAL_KEYS.slice();
 
   function premiumIllustrationSvg(visual){
@@ -108,16 +165,27 @@
       '⚽':'<svg class="task-illustration" viewBox="0 0 260 180" aria-hidden="true">'+common+'<circle cx="130" cy="101" r="57" fill="#F8F6EF" stroke="#475058" stroke-width="6"/><path d="M130 76l20 15-8 24h-24l-8-24zM89 67l14 5-8 27-22-3M171 66l-14 7 8 27 23-4M95 129l22-14 20 0 27 17M104 72l26-19 27 20" fill="#46515B" stroke="#46515B" stroke-width="3" stroke-linejoin="round"/></svg>',
       '☀️':'<svg class="task-illustration" viewBox="0 0 260 180" aria-hidden="true">'+common+'<g stroke="#D49A2A" stroke-width="8" stroke-linecap="round"><path d="M130 24v18M130 137v18M54 91h18M188 91h18M76 38l13 13M171 131l13 13M183 38l-13 13M89 131l-13 13"/></g><circle cx="130" cy="91" r="43" fill="#FFD968" stroke="#D49A2A" stroke-width="6"/><path d="M110 86h1M149 86h1" stroke="#735627" stroke-width="6" stroke-linecap="round"/><path d="M113 105q17 15 34 0" fill="none" stroke="#735627" stroke-width="5" stroke-linecap="round"/></svg>',
       '🌙':'<svg class="task-illustration" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M162 42q-44 14-40 55 4 40 44 48-25 23-59 6-43-21-36-69 7-47 55-58 22-5 36 18z" fill="#F2D071" stroke="#A98237" stroke-width="6" stroke-linejoin="round"/><circle cx="182" cy="58" r="6" fill="#F0B74D"/><circle cx="196" cy="83" r="4" fill="#F0B74D"/><path d="M191 111l5 9 10 2-7 7 2 10-10-5-9 5 2-10-7-7 10-2z" fill="#EFB74D"/></svg>',
+      '👟':'<svg class="task-illustration task-illustration-norsk-object" data-norsk-object="shoe" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M48 115q24-29 45-37l29 29 30-7q29 0 45 19l27 10q14 7 10 24-3 13-20 15H71q-29-3-29-19z" fill="#80B5BF" stroke="#456879" stroke-width="6"/><path d="M42 142q42 17 192 7v11q-3 16-19 17H71q-25-2-29-18z" fill="#FFF8E6" stroke="#817A65" stroke-width="5"/><path d="M93 80q23 25 47 29" fill="none" stroke="#E6EFDF" stroke-width="11"/><path d="M110 103l29 23M120 94l32 26M136 92l29 27" fill="none" stroke="#FFF5D9" stroke-width="5" stroke-linecap="round"/><path d="M58 146q74 11 169-2" stroke="#B6C7BE" stroke-width="3"/></svg>',
+      '🚆':'<svg class="task-illustration task-illustration-norsk-object" data-norsk-object="train" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M42 119V79q0-23 25-23h62q21 0 21 21v62H42z" fill="#89C5C6" stroke="#4B6B74" stroke-width="5"/><path d="M150 97h55q20 0 20 20v22h-75z" fill="#DDB280" stroke="#805B3F" stroke-width="5"/><rect x="58" y="69" width="38" height="32" rx="5" fill="#DBEEEB" stroke="#537D83" stroke-width="4"/><rect x="107" y="69" width="26" height="32" rx="5" fill="#DBEEEB" stroke="#537D83" stroke-width="4"/><rect x="162" y="107" width="36" height="23" rx="4" fill="#F1DFB6" stroke="#805B3F" stroke-width="3"/><path d="M32 145h208" stroke="#80624A" stroke-width="8"/><g fill="#3E4B50" stroke="#F3D7A5" stroke-width="4"><circle cx="70" cy="149" r="15"/><circle cx="123" cy="149" r="15"/><circle cx="184" cy="149" r="15"/></g><path d="M74 51V32h20v20M108 51V38h18v15" fill="#AC7958" stroke="#80573F" stroke-width="4"/><path d="M86 24q-8-14 4-22M116 26q12-15 2-22" stroke="#C8CCC2" stroke-width="5" fill="none" opacity=".7"/></svg>',
+      '🧀':'<svg class="task-illustration task-illustration-norsk-object" data-norsk-object="cheese" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M58 113l102-61 66 42-102 59z" fill="#FFE5A3" stroke="#A77A3B" stroke-width="6"/><path d="M58 113l66 40v27l-66-43z" fill="#DBAA55" stroke="#A77A3B" stroke-width="5"/><path d="M124 153l102-59v29l-102 57z" fill="#F5BC56" stroke="#A77A3B" stroke-width="5"/><ellipse cx="144" cy="104" rx="11" ry="8" fill="#D9A144"/><ellipse cx="182" cy="106" rx="9" ry="6" fill="#D9A144"/><ellipse cx="107" cy="121" rx="8" ry="5" fill="#D9A144"/><path d="M149 148a9 9 0 0 1 16-9M191 126a7 7 0 0 1 10-6" stroke="#D9A144" stroke-width="5" fill="none"/></svg>',
+      '🐭':'<svg class="task-illustration task-illustration-norsk-object" data-norsk-object="mouse" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M89 128Q38 119 43 78q4-28 33-19" fill="none" stroke="#C58D91" stroke-width="9"/><ellipse cx="131" cy="125" rx="66" ry="38" fill="#D8A987" stroke="#825D4A" stroke-width="5"/><ellipse cx="175" cy="100" rx="35" ry="32" fill="#D8A987" stroke="#825D4A" stroke-width="5"/><circle cx="157" cy="61" r="20" fill="#D8A987" stroke="#825D4A" stroke-width="5"/><circle cx="157" cy="61" r="11" fill="#EAAFB2"/><circle cx="200" cy="66" r="18" fill="#D8A987" stroke="#825D4A" stroke-width="5"/><circle cx="200" cy="66" r="11" fill="#EAAFB2"/><ellipse cx="205" cy="105" rx="17" ry="13" fill="#F9E3C8"/><circle cx="184" cy="94" r="4.5" fill="#38423E"/><circle cx="220" cy="105" r="5" fill="#C87C85"/><path d="M220 109l17-4M216 114l18 5M159 112l-23-5M160 118l-25 9" stroke="#74574D" stroke-width="2.5" fill="none"/><path d="M96 145l-6 11M135 153v8" stroke="#825D4A" stroke-width="9"/></svg>',
+      '🐄':'<svg class="task-illustration task-illustration-norsk-object" data-norsk-object="cow" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M64 97q-15-20 4-37 25-24 90-8l28 15 18 58-21 23H88z" fill="#FFF8E8" stroke="#75624B" stroke-width="5"/><path d="M98 66q-7 23 24 35l-20 26-24-18 5-32zM145 84q31-18 49 7l-11 28-35-9z" fill="#76604F"/><path d="M79 137l-4 30M111 139l-3 30M166 139l-4 30M188 127l9 38" stroke="#75624B" stroke-width="11"/><path d="M163 77q17-38 49-23l14 21-9 40-32 18-31-16z" fill="#FFF8E8" stroke="#75624B" stroke-width="5"/><path d="M175 55l-10-21q-12-12-19 2M208 54l13-20q13-9 19 3" stroke="#C7A783" stroke-width="6" fill="none"/><ellipse cx="190" cy="112" rx="30" ry="18" fill="#E9ADB1" stroke="#AB8180" stroke-width="3"/><circle cx="181" cy="111" r="4" fill="#915C58"/><circle cx="197" cy="111" r="4" fill="#915C58"/><circle cx="177" cy="82" r="4" fill="#39403A"/><circle cx="209" cy="81" r="4" fill="#39403A"/></svg>',
       '🌼':'<svg class="task-illustration" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M130 105v48" stroke="#4E8D4B" stroke-width="8" stroke-linecap="round"/><path d="M129 130q-25-15-38 5 24 10 38 2M131 138q20-18 38-3-20 14-38 9" fill="#74A963" stroke="#4E8D4B" stroke-width="4"/><g fill="#F8F1D6" stroke="#C89A3B" stroke-width="4"><ellipse cx="130" cy="70" rx="18" ry="31"/><ellipse cx="130" cy="70" rx="18" ry="31" transform="rotate(60 130 70)"/><ellipse cx="130" cy="70" rx="18" ry="31" transform="rotate(120 130 70)"/></g><circle cx="130" cy="70" r="18" fill="#F5C74D" stroke="#C89A3B" stroke-width="4"/></svg>'
     };
     return art[visual]||'';
   }
+  const NORSK_ONLY_EXISTING_OBJECTS=new Set(['👟','🚆','🧀','🐭','🐄']);
   function taskVisualMarkup(q){
     if(!q?.visual)return '';
     const key=String(q.visual).trim();
-    const premium=premiumIllustrationSvg(key);
+    const norsk=taskSubject(q)==='norwegian';
+    // The first five new visuals were added to a shared library. Scope them
+    // back to Norsk so legacy English, Math and Geography art is untouched.
+    const original=norsk||!NORSK_ONLY_EXISTING_OBJECTS.has(key)?premiumIllustrationSvg(key):'';
+    const extra=norsk?window.LARIA_NORSK_OBJECT_EXTRAS?.svgFor(key)||'':'';
+    const premium=extra||original;
     if(premium){
-      return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="illustrations-rc1" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+premium+'</div></div>';
+      return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="'+(extra?'norsk-objects-extras-v1':'illustrations-rc1')+'" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+premium+'</div></div>';
     }
     return '<div class="task-visual-row" data-task-visual-kind="fallback" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage"><div class="task-emoji-sticker" aria-hidden="true">'+text(q.visual)+'</div></div></div>';
   }
@@ -325,7 +393,11 @@
     const readButton=readAloudButton(q);
     const finalQuestion=position===total;
     const avatar=foxChoice();
-    const fox='<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
+    // In Norsk use a discrete symbol until the approved TrollActor is rigged.
+    // Other subjects continue to use their existing selected avatar.
+    const fox=subject==='norwegian'
+      ?'<div class="task-norsk-helper"><button class="task-norsk-guide" type="button" aria-label="Få et hint" aria-controls="task-norsk-hint" aria-expanded="false"><span aria-hidden="true">✦</span><small aria-hidden="true">Hint</small></button><p class="task-norsk-hint" id="task-norsk-hint" role="status" aria-live="polite" hidden></p></div>'
+      :'<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
     // A number-choice question has no illustration to stand beside.
     // Give the ONE selected full-body fox a real place next to the prompt,
     // not an absolutely positioned thumbnail stuck to the card's corner.
@@ -337,7 +409,8 @@
       '<div class="question">'+text(prompt)+'</div>'+passage+visualWithFox;
 
     wrap.innerHTML=
-      '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+taskTypeClass(q)+'">'+
+      '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+(subject==='norwegian'?'task-norsk-storybook ':'')+taskTypeClass(q)+'">'+
+        (subject==='norwegian'?'<div class="task-norsk-bookmark" aria-hidden="true">✦ <span>LESEKROKEN</span> ✦</div>':'')+
         '<div class="task-world-chip">'+text(sceneName(subject))+'</div>'+
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         questionScene+
@@ -348,7 +421,11 @@
 
     if(subject==='geography')bindGeographyInteraction(q,wrap);
     else bindInteraction(q,wrap);
-    // LARIA_FOX_PRESENCE owns answer reactions; do not trigger a competing animation.
+    // Other subjects are handled by LARIA_FOX_PRESENCE. Norsk has no fox.
+    if(subject==='norwegian'){
+      bindNorskGuideReaction(wrap.querySelector('.task-interaction'));
+      bindNorskHint(wrap,q);
+    }
     const next=wrap.querySelector('#next-question');
     if(next)next.onclick=nextQuestion;
     bindReadAloud(q);

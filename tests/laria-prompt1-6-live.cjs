@@ -152,8 +152,14 @@ async function existing(engine,name){
  await returnFromSubjectOrJourney(p,'#subject-screen','#subject-back','math');
  await openBack(p,'#open-geography','#geography-screen','#geography-back');
  await openHomeSubject(p,'norwegian');await p.locator('#eggenipa-world:visible').waitFor();
- await p.locator('#eggenipa-world [data-eg="next"]:not([disabled])').click();
- await p.locator('#session-screen.active').waitFor();await finish(p);
+ const portals=await p.locator('#eggenipa-world .eg-portal').evaluateAll(nodes=>nodes.map(n=>n.dataset.eg));
+ assert.deepEqual(portals,['words','find','reading'],name+' direct Norsk activity choices missing');
+ assert.equal(await p.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+   name+' retired Norsk map is still visible');
+ await p.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+ await p.locator('#session-screen.active').waitFor();
+ assert.equal(await p.evaluate(()=>sessionScope?.module),'reading',name+' Lesekroken must enter real reading module');
+ await finish(p);
  await p.locator('#complete-home').click();await p.locator('#eggenipa-world:visible').waitFor();
  await returnFromSubjectOrJourney(p,'#subject-screen','#subject-back','norwegian');
  await openHomeSubject(p,'geography');await p.locator('#geography-screen.active').waitFor();await p.locator('#open-world').click();await p.locator('#world-screen.active').waitFor();

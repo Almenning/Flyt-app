@@ -2386,18 +2386,19 @@
   <link rel="stylesheet" href="./fortellingsdalen-preview-v1.css?v=20261017-c2foxhint1" />
   <link rel="stylesheet" href="./norwegian-chapter-picker-v1.css?v=20261016-c2chooser1" />
   <!-- Free play -->
-  <link rel="stylesheet" href="./word-hunt.css?v=20261017-visible-fox-reactions1" />
-  <link rel="stylesheet" href="./find-the-words.css?v=20261023-premium-garden2" />
+  <link rel="stylesheet" href="./word-hunt.css?v=20261026-theme-back44" />
+  <link rel="stylesheet" href="./find-the-words.css?v=20261026-eggenipa-guide1" />
   <!-- Shared inner screens and task scene; young task styling intentionally extends the shared scene -->
   <link rel="stylesheet" href="./laria-unified-v13.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-navigation-v13.css?v=20261019-painted-card2" />
   <link rel="stylesheet" href="./home-subjects-v14.css?v=20261013-phase4c-young-explore-visible" />
   <link rel="stylesheet" href="./home-kjosnes-v15.css?v=20261024-alive1" />
   <link rel="stylesheet" href="./home-grades-v16.css?v=20261011-unified-home2" />
-  <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261007-p15rc1" />
+  <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261026-norsk-readaloud44" />
   <!-- Kloden: one active scene stylesheet; art + renderer are loaded below in runtime order -->
   <link rel="stylesheet" href="./globe-v24.css?v=20261011-iphone-shortportrait1" />
-  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261013-phase3-read44-noflash2" />
+  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261026-norsk-readaloud44" />
+<link rel="stylesheet" href="./norsk-lesekroken-premium-v1.css?v=20261026-centered-two-choices1" />
   <link rel="stylesheet" href="./atlas-perspective-v1.css?v=20261009-atlas-story2" />
   <!-- UX phase 2 owns the responsive geography geometry in one place. -->
   <link rel="stylesheet" href="./globe-ux-phase2.css?v=20261013-ipad-controls" />
@@ -4496,7 +4497,7 @@ function setJourneyViewGrade(subject,grade,rerender=true){
   state.journey.viewGrades[subject]=grade;saveState();
   if(!rerender)return grade;
   if(subject==='geography'){renderGeographyContinue();return grade}
-  if(activeSubject===subject){renderSubjectJourney();renderSubjectContinue();renderSubjectModules()}
+  if(activeSubject===subject){if(subject!=='norwegian')renderSubjectJourney();renderSubjectContinue();renderSubjectModules()}
   return grade;
 }
 function subjectGradeComplete(subject,grade){
@@ -4769,7 +4770,7 @@ function openSubject(subject){
   const bannerIcon=document.getElementById('subject-banner-icon');if(bannerIcon)bannerIcon.textContent=s.icon;
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
-  renderSubjectModules();renderSubjectJourney();renderSubjectContinue();showScreen('subject');
+  renderSubjectModules();if(subject!=='norwegian')renderSubjectJourney();renderSubjectContinue();showScreen('subject');
   // The approved locked Tallenga journey hides #subject-modules. A private
   // preview launcher must therefore live directly in the visible subject
   // screen, not in the hidden free-practice area.
@@ -4874,7 +4875,7 @@ window.addEventListener('norwegian-content-ready',()=>{
   try{
     renderAll();
     if(activeScreenName()==='subject'&&activeSubject==='norwegian'){
-      renderSubjectModules();renderSubjectJourney();renderSubjectContinue();
+      renderSubjectModules();renderSubjectContinue();
     }
   }catch(_){}
 });
@@ -6790,7 +6791,9 @@ function finishSession(){
   }
   document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Gå tilbake til hovedreisen når du er klar.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':chapterDone?'Første eventyr er ferdig. Reisekartet kan spilles igjen, og Utforsk er alltid åpent.':result.gradeCompleted?'Alle verdener på trinnet er fullført. Repetisjon gjør kunnskapen sterkere over tid.':result.journeyReward?'Neste verden er åpnet i hovedreisen.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
-  document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':sessionScope?.subject==='norwegian'?(window.LARIA_EGGENIPA?.isMapOpen?.()?'Tilbake til Bokskogen 🗺️':'Tilbake til Eggenipa 🌿'):'Tilbake til reisekartet 🗺️'):result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
+  // Direct Norwegian practice belongs to Eggenipa, not the retired map
+  // or the generic grade-two progress dashboard.
+  document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':sessionScope?.subject==='norwegian'?'Tilbake til Eggenipa 🌿':'Tilbake til reisekartet 🗺️'):sessionScope?.subject==='norwegian'?'Tilbake til Eggenipa 🌿':result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }
@@ -6817,6 +6820,9 @@ document.getElementById('complete-home').onclick=()=>{
   armJourneyWorldReaction(scope);
   if(scope.type==='journey'&&scope.subject&&scope.subject!=='geography'){openSubject(scope.subject);return}
   if(scope.type==='geo-journey'||scope.subject==='geography'){renderGeographyContinue();showScreen('geography');return}
+  // The child who finishes Lesekroken should be back at their Norwegian
+  // world, able to choose another activity, even in grades 1–2.
+  if(scope.subject==='norwegian'){openSubject('norwegian');return}
   if(currentGrade()<=2){setTab('progress');return}
   returnToLearningHome();
 };
@@ -7059,7 +7065,7 @@ renderAll();updateOnboarding();
 // norwegian-content.js is deferred. Refresh journey-derived UI after deferred local content has executed.
 document.addEventListener('DOMContentLoaded',()=>{
   renderAll();
-  if(activeScreenName()==='subject'&&activeSubject){renderSubjectModules();renderSubjectJourney();renderSubjectContinue()}
+  if(activeScreenName()==='subject'&&activeSubject){renderSubjectModules();if(activeSubject!=='norwegian')renderSubjectJourney();renderSubjectContinue()}
   if(activeScreenName()==='geography')renderGeographyContinue();
 });
 const needsProfileSetup=Number(state.profile.setupVersion||0)<1||!String(state.profile.name||'').trim()||(state.profile.avatar!=='boy'&&state.profile.avatar!=='girl');
@@ -7088,6 +7094,15 @@ window.LARIA_TALLVIKA_BRIDGE={
   journeyRecommendedNode:(subject,grade)=>journeyRecommendedNode(subject,grade),
   startJourneyNode:(subject,id,grade)=>startJourneyNode(subject,id,grade),
   startJourneyChallenge:subject=>startJourneyChallenge(subject),
+  // Norwegian premium landing uses the existing question engine directly.
+  // No new progress schema or journey map is created.
+  startLearningSession:(subject,module,label)=>startLearningSession(subject,module,label),
+  // Resume only an existing Norsk session using the correct learning gate.
+  resumeSession:()=>{
+    if(!window.LARIA_COMMERCE_V18?.requirePremium?.('learning'))return;
+    if(!loadActiveSession()||sessionScope?.subject!=='norwegian')return;
+    showScreen('session');renderQuestion();
+  },
   setTab:tab=>setTab(tab)
 };
 </script>
@@ -7125,16 +7140,17 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
 <script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>
 <!-- Free play + Home -->
-<script src="./word-hunt-themes.js?v=20261016-themes1" defer></script>
-<script src="./word-hunt.js?v=20261017-eggenipa-origin1" defer></script>
-<script src="./find-the-words.js?v=20261025-eggenipa-origin1" defer></script>
+<script src="./word-hunt-themes.js?v=20261026-norsk-themes2" defer></script>
+<script src="./word-hunt.js?v=20261026-norsk-recovery2" defer></script>
+<script src="./find-the-words.js?v=20261026-norsk-find-steps1" defer></script>
 <script src="./laria-magical-collection-v2.js?v=20261017-diorama2" defer></script>
 <script src="./home-basecamp-v12.js?v=20261017-magicalbook1" defer></script>
 <script defer src="./home-kjosnes-v15.js?v=20261024-alive1"></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
-<script src="./laria-navigation-v13.js?v=20261025-tallvika-brand1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261025-tallvika-brand1" defer></script>
+<script src="./laria-navigation-v13.js?v=20261026-norsk-no-map1" defer></script>
+<script src="./norsk-object-extras-v1.js?v=20261026-all-early-norsk1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261026-norsk-art-isolated1" defer></script>
 <script src="./laria-fox-presence.js?v=20261011-livefoxart1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
@@ -7149,8 +7165,8 @@ window.LARIA_TALLVIKA_BRIDGE={
 <link rel="stylesheet" href="./tallvika.css?v=20261026-premium-v3-painted-next1">
 <script src="./tallvika.js?v=20261026-premium-portal-v2g-painted-next-unique1" defer></script>
 <!-- Norsk: locked Eggenipa painting, direct-play subject screen. No new learning state. -->
-<link rel="stylesheet" href="./eggenipa.css?v=20261025-first-integration1">
-<script src="./eggenipa.js?v=20261026-touchback1" defer></script>
+<link rel="stylesheet" href="./eggenipa.css?v=20261026-iphone-landscape-hotspots1">
+<script src="./eggenipa.js?v=20261026-garden-entry1" defer></script>
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>
 <script src="./discovery-globe-phase1.js?v=20261018-antarctica-ne110-1" defer></script>

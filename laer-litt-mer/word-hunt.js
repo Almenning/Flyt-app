@@ -5,11 +5,15 @@ const KEY='laria-wordhunt-v1';
 const ROUND_KEY='laria-wordhunt-unfinished-round-v1';
 let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicSeen:false,magicTimer:null,pickerFocus:null,entryPickerActive:false,hintsUsed:0,companionTimer:null,feedbackTimer:null,foxSequence:0,lastMissAt:0,lastFoundWord:null,missCount:0,helpOffered:false};
 function stats(){try{return THEMES.normalizeProgress(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){return THEMES.normalizeProgress(null)}}
-function saveTheme(){const s=stats();s.theme=ui.theme;localStorage.setItem(KEY,JSON.stringify(s))}
+function saveTheme(){
+  try{const s=stats();s.theme=ui.theme;localStorage.setItem(KEY,JSON.stringify(s))}
+  catch(_){/* Playing remains available when Safari storage is disabled. */}
+}
 function saveRound(){
   const s=stats(),firstSticker=s.themeRounds[ui.theme]===0;
   s.rounds+=1;s.theme=ui.theme;s.themeRounds[ui.theme]+=1;
-  localStorage.setItem(KEY,JSON.stringify(s));
+  try{localStorage.setItem(KEY,JSON.stringify(s))}
+  catch(_){/* Do not interrupt a completed puzzle when storage is unavailable. */}
   return firstSticker;
 }
 
@@ -40,6 +44,19 @@ function restoreRound(){
        !Array.isArray(data.words)||data.words.length!==count||
        new Set(data.words).size!==count||!data.words.every(w=>allowedWords.has(w))||
        !Array.isArray(data.found)||data.found.length>=count)throw Error('Invalid saved word hunt');
+    // A damaged saved puzzle may have valid dimensions and allowed words but
+    // lack one of its answers. Reject it instead of trapping the child.
+    const directions=data.level==='easy'?[[0,1],[1,0]]:
+      [[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+    const containsWord=word=>{
+      for(let r=0;r<size;r++)for(let c=0;c<size;c++)for(const [dr,dc] of directions){
+        const endR=r+dr*(word.length-1),endC=c+dc*(word.length-1);
+        if(endR<0||endC<0||endR>=size||endC>=size)continue;
+        if([...word].every((letter,i)=>data.grid[r+dr*i][c+dc*i]===letter))return true;
+      }
+      return false;
+    };
+    if(!data.words.every(containsWord))throw Error('Saved puzzle has missing answers');
     const found=new Map();
     for(const item of data.found){
       if(!Array.isArray(item)||item.length!==2)throw Error('Invalid found word');
@@ -171,14 +188,9 @@ function makeRound(){
 
 
 function refreshCompanion(){
+  // Guidance is independent of the former static fox picture.
   const host=overlay().querySelector('.word-hunt-companion');
-  if(!host)return;
-  const avatar=window.LARIA_FOX.choice();
-  const fox=host.querySelector('.word-hunt-companion-fox');
-  const source=window.LARIA_FOX.worldSource(avatar);
-  if(fox.getAttribute('src')!==source)fox.src=source;
-  host.dataset.avatar=avatar;
-  fox.alt=window.LARIA_FOX.label(avatar);
+  if(host)host.dataset.norskGuide='magic';
 }
 const FOX_RESPONSES={
   correct:['Ja! Du fant {word}! ✨','Jippi! {word} var riktig!','Så bra! Vi fant {word}!'],
@@ -215,18 +227,16 @@ function companionSay(message,mood='greet',kind='idle'){
   if(intro&&window.matchMedia('(max-width:700px) and (orientation:portrait)').matches){
     if(kind!=='idle'){
       intro.classList.add('has-fox-hint');
-      intro.textContent='🦊 '+message;
+      intro.textContent='✦ '+message;
     }else if(intro.classList.contains('has-fox-hint')){
       intro.classList.remove('has-fox-hint');
       intro.textContent='Finn ordene! Dra over bokstavene, eller trykk på første og siste bokstav.';
     }
   }
-  // Never replace the child's chosen fox or bypass Læria's reaction engine.
-  if(!window.LARIA_FOX_PRESENCE?.react?.(mood,host)){
-    host.dataset.lariaFoxMood='idle';
-    void host.offsetWidth;
-    host.dataset.lariaFoxMood=mood;
-  }
+  // Keep the original semantic feedback events without a pasted avatar.
+  host.dataset.lariaFoxMood='idle';
+  void host.offsetWidth;
+  host.dataset.lariaFoxMood=mood;
 }
 function foxReact(kind,word='',earned=false){
   if(['wrong','near','invalid','repeated'].includes(kind)){
@@ -275,7 +285,7 @@ function scheduleCompanionOffer(){
     const current=document.getElementById('word-hunt-overlay');
     ui.companionTimer=null;
     if(!current||current.hidden||ui.completed||!current.querySelector('.word-hunt-theme-picker').hidden)return;
-    if(!ui.hintsUsed)companionSay('Vil du ha en ledetråd? Trykk på reven for et hint!','curious','offer');
+    if(!ui.hintsUsed)companionSay('Vil du ha en ledetråd? Trykk på Hint for å få hjelp!','curious','offer');
   },45000);
 }
 function hintSay(message,mood){
@@ -309,14 +319,21 @@ function giveHint(){
   ui.helpOffered=true;
 }
 
+// The approved Eggenipa garden already depicts an owl, hedgehog and
+// butterfly. Reuse that premium scene for Dyrevenner rather than showing
+// the retired static fox illustration on the child-facing theme card.
+function themeArtwork(id){
+  return id==='animals'?'./find-the-words-garden-premium.webp?v=20261026-dyrevenner1':
+    './assets/word-hunt/themes/'+id+'.webp?v=20261017-painted1';
+}
 function themePickerMarkup(){
   return '<section class="word-hunt-theme-picker" hidden role="dialog" aria-modal="true" aria-labelledby="wh-theme-heading">'+
     '<div class="wh-theme-panel"><button type="button" class="wh-theme-close" aria-label="Lukk temavalget">×</button>'+
-    '<img class="wh-theme-fox" alt="" aria-hidden="true" src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'">'+
-    '<span class="wh-theme-eyebrow">Læria · Bokskogen</span><h2 id="wh-theme-heading">Velg din ordjakt</h2>'+
-    '<p>Velg et eventyr. Ett trykk, så er jakten i gang!</p><div class="wh-theme-cards" role="group" aria-label="Velg et av fem ordtemaer">'+
+    '<span class="wh-theme-fox" aria-hidden="true">✦</span>'+
+    '<span class="wh-theme-eyebrow">Læria · Eggenipa</span><h2 id="wh-theme-heading">Velg din ordjakt</h2>'+
+    '<p>Velg et tema. Ett trykk, så er ordjakten i gang!</p><div class="wh-theme-cards" role="group" aria-label="Velg et av fem ordtemaer">'+
     THEMES.list().map(pack=>'<button type="button" class="wh-theme-card" data-word-theme="'+pack.id+'" aria-pressed="false">'+
-      '<img alt="" src="./assets/word-hunt/themes/'+pack.id+'.webp?v=20261017-painted1" loading="lazy">'+
+      '<img alt="" src="'+themeArtwork(pack.id)+'" loading="lazy">'+
       '<strong>'+pack.title+'</strong><small>'+pack.description+'</small><span class="wh-theme-card-go" aria-hidden="true">Utforsk ›</span><span class="wh-theme-card-check" aria-hidden="true">Sist valgt</span></button>').join('')+
     '</div><button type="button" class="wh-theme-start">Fortsett med sist valgte tema <span aria-hidden="true">▶</span></button></div></section>';
 }
@@ -337,6 +354,10 @@ function revealSelectedTheme(){
   const center=strip.scrollLeft+(card.left-frame.left)-(strip.clientWidth-card.width)/2;
   strip.scrollLeft=Math.max(0,Math.min(center,strip.scrollWidth-strip.clientWidth));
 }
+function enteredFromEggenipa(){
+  return !!previousFocus?.closest?.('#eggenipa-world')&&
+    !!document.querySelector('#subject-screen.active.eggenipa-active');
+}
 function showThemePicker(entry=false){
   const root=overlay(),picker=root.querySelector('.word-hunt-theme-picker');
   if(!picker.hidden)return;
@@ -344,7 +365,7 @@ function showThemePicker(entry=false){
   root.classList.toggle('is-theme-entry',entry);
   root.querySelector('.word-hunt-shell').hidden=entry;
   ui.pickerFocus=entry?previousFocus:document.activeElement;
-  root.querySelector('.wh-theme-fox').src=window.LARIA_FOX.source(window.LARIA_FOX.choice());
+  // The magic emblem is visual-only; no old avatar dependency.
   ui.themeChoice=ui.theme;
   highlightThemeChoice();
   picker.hidden=false;
@@ -353,7 +374,7 @@ function showThemePicker(entry=false){
   root.querySelector('.word-hunt-shell').inert=true;
   const back=picker.querySelector('.wh-theme-close');
   back.textContent=entry?'←':'×';
-  back.setAttribute('aria-label',entry?'Tilbake til Utforsk':'Lukk temavalget');
+  back.setAttribute('aria-label',entry?(enteredFromEggenipa()?'Tilbake til Norsk':'Tilbake til Utforsk'):'Lukk temavalget');
   const continueButton=picker.querySelector('.wh-theme-start');
   const canResume=ui.grid.length>0&&!ui.completed;
   continueButton.hidden=Boolean(entry&&!canResume);
@@ -403,9 +424,9 @@ function showMagic(word,sceneOverride=null){
 }
 
 function overlay(){
-  let root=document.getElementById('word-hunt-overlay');if(root){const fox=root.querySelector('.word-hunt-fox');if(fox)fox.src=window.LARIA_FOX.source(window.LARIA_FOX.choice());return root;}
-  root=document.createElement('section');root.id='word-hunt-overlay';root.className='word-hunt-overlay';root.dataset.exploreRelease='explore-rc1';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label','Ordjakt i Bokskogen');
-  root.innerHTML='<div class="word-hunt-shell"><div class="word-hunt-top"><button type="button" class="word-hunt-back" aria-label="Tilbake til Læria">←</button><div class="word-hunt-title"><small>Lek & utforsk</small><h1>Ordjakt i Bokskogen</h1></div><button type="button" class="word-hunt-fox-shortcut" aria-label="Få hint fra reven" title="Få hint fra reven"><img class="word-hunt-fox" src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="" aria-hidden="true"><span class="word-hunt-fox-shortcut-label" aria-hidden="true">Hint</span></button></div><div class="word-hunt-intro">Finn ordene! Dra over bokstavene, eller trykk på første og siste bokstav.</div><div class="word-hunt-levels" role="group" aria-label="Vanskelighetsgrad og ordtema"><button type="button" class="word-hunt-level" data-word-level="easy">🌱 Rolig</button><button type="button" class="word-hunt-level" data-word-level="hard">✨ Litt lurere</button><button type="button" class="word-hunt-theme-mobile" aria-label="Velg ordtema"><span class="word-hunt-mobile-icon" aria-hidden="true">✨</span><span class="word-hunt-mobile-label">Blandet</span></button></div><div class="word-hunt-board-wrap"><div class="word-hunt-board-card"><div class="word-hunt-board" role="grid" aria-label="Bokstavrutenett"></div><div class="word-hunt-magic" hidden aria-hidden="true"><span class="word-hunt-magic-symbol"></span><strong class="word-hunt-magic-message"></strong></div></div><aside class="word-hunt-side"><button type="button" class="word-hunt-theme-open" aria-label="Velg ordtema"><img class="word-hunt-theme-icon" alt="" src="./assets/word-hunt/themes/mixed.webp?v=20261017-painted1"><span><small>ORDTEMA</small><strong class="word-hunt-current-theme">Blandede ord</strong></span><span class="word-hunt-theme-change" aria-hidden="true">Bytt ›</span></button><div class="word-hunt-targets"><div class="word-hunt-targets-heading"><h2>Finn disse</h2><span class="word-hunt-targets-count" aria-hidden="true"></span></div><div class="word-hunt-words"></div></div><div class="word-hunt-companion" data-laria-fox-mood="idle"><div class="word-hunt-companion-stage"><img class="word-hunt-companion-fox" src="'+window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())+'" alt="'+window.LARIA_FOX.label(window.LARIA_FOX.choice())+'"><span class="word-hunt-companion-sparkles" aria-hidden="true">✦ ✧</span></div><div class="word-hunt-companion-panel"><p class="word-hunt-companion-speech" aria-live="polite">Jeg blir med på ordjakten!</p><div class="word-hunt-companion-controls"><button type="button" class="word-hunt-companion-hint">💡 Gi meg et hint</button><button type="button" class="word-hunt-companion-cheer">🎉 Heia!</button></div></div></div><div class="word-hunt-status" aria-hidden="true"></div><div class="word-hunt-actions"><button type="button" class="word-hunt-new">Ny runde</button><div class="word-hunt-rounds"></div></div></aside></div></div>';
+  let root=document.getElementById('word-hunt-overlay');if(root)return root;
+  root=document.createElement('section');root.id='word-hunt-overlay';root.className='word-hunt-overlay';root.dataset.exploreRelease='explore-rc1';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label','Ordjakt ved Eggenipa');
+  root.innerHTML='<div class="word-hunt-shell"><div class="word-hunt-top"><button type="button" class="word-hunt-back" aria-label="Tilbake til Læria">←</button><div class="word-hunt-title"><small>Lek & utforsk</small><h1>Ordjakt</h1></div><button type="button" class="word-hunt-fox-shortcut" aria-label="Få hint" title="Få hint"><span class="word-hunt-fox" aria-hidden="true">✦</span><span class="word-hunt-fox-shortcut-label" aria-hidden="true">Hint</span></button></div><div class="word-hunt-intro">Finn ordene! Dra over bokstavene, eller trykk på første og siste bokstav.</div><div class="word-hunt-levels" role="group" aria-label="Vanskelighetsgrad og ordtema"><button type="button" class="word-hunt-level" data-word-level="easy">🌱 Rolig</button><button type="button" class="word-hunt-level" data-word-level="hard">✨ Litt lurere</button><button type="button" class="word-hunt-theme-mobile" aria-label="Velg ordtema"><span class="word-hunt-mobile-icon" aria-hidden="true">✨</span><span class="word-hunt-mobile-label">Blandet</span></button></div><div class="word-hunt-board-wrap"><div class="word-hunt-board-card"><div class="word-hunt-board" role="grid" aria-label="Bokstavrutenett"></div><div class="word-hunt-magic" hidden aria-hidden="true"><span class="word-hunt-magic-symbol"></span><strong class="word-hunt-magic-message"></strong></div></div><aside class="word-hunt-side"><button type="button" class="word-hunt-theme-open" aria-label="Velg ordtema"><img class="word-hunt-theme-icon" alt="" src="./assets/word-hunt/themes/mixed.webp?v=20261017-painted1"><span><small>ORDTEMA</small><strong class="word-hunt-current-theme">Blandede ord</strong></span><span class="word-hunt-theme-change" aria-hidden="true">Bytt ›</span></button><div class="word-hunt-targets"><div class="word-hunt-targets-heading"><h2>Finn disse</h2><span class="word-hunt-targets-count" aria-hidden="true"></span></div><div class="word-hunt-words"></div></div><div class="word-hunt-companion" data-laria-fox-mood="idle"><div class="word-hunt-companion-stage"><span class="word-hunt-companion-fox" aria-hidden="true">✦</span><span class="word-hunt-companion-sparkles" aria-hidden="true">✦ ✧</span></div><div class="word-hunt-companion-panel"><p class="word-hunt-companion-speech" aria-live="polite">Jeg blir med på ordjakten!</p><div class="word-hunt-companion-controls"><button type="button" class="word-hunt-companion-hint">💡 Gi meg et hint</button><button type="button" class="word-hunt-companion-cheer">🎉 Heia!</button></div></div></div><div class="word-hunt-status" aria-hidden="true"></div><div class="word-hunt-actions"><button type="button" class="word-hunt-new">Ny runde</button><div class="word-hunt-rounds"></div></div></aside></div></div>';
   root.insertAdjacentHTML('beforeend',themePickerMarkup());
   document.body.append(root);
   root.querySelectorAll('.word-hunt-theme-open,.word-hunt-theme-mobile').forEach(b=>b.onclick=()=>showThemePicker(false));
@@ -529,7 +550,7 @@ function checkLine(path){
     ui.missCount++;
     if(ui.missCount>=4&&!ui.helpOffered){
       ui.helpOffered=true;
-      companionSay('Skal vi prøve et hint sammen? Trykk på reven når du vil!','curious','offer');
+      companionSay('Skal vi prøve et hint sammen? Trykk på Hint når du vil!','curious','offer');
     }else foxReact(repeated?'repeated':near?'near':'wrong');
     status('Ikke et av ordene denne gangen. Prøv en annen retning.');
     return;
@@ -589,7 +610,7 @@ function render(resetStatus=true){
   mobile.querySelector('.word-hunt-mobile-label').textContent=pack.short;
   mobile.dataset.theme=pack.id;
   mobile.setAttribute('aria-label','Velg ordtema. Nå: '+pack.title);
-  root.querySelector('.word-hunt-theme-icon').setAttribute('src','./assets/word-hunt/themes/'+pack.id+'.webp?v=20261017-painted1');
+  root.querySelector('.word-hunt-theme-icon').setAttribute('src',themeArtwork(pack.id));
   root.querySelector('.word-hunt-theme-open').setAttribute('aria-label','Velg ordtema. Nå: '+pack.title);
   const rounds=Number(stats().rounds||0);
   root.querySelector('.word-hunt-rounds').textContent=rounds===1?'Du har fullført 1 ordjakt':'Du har fullført '+rounds+' ordjakter';
@@ -605,6 +626,9 @@ function openWordHunt(){
   const root=overlay();if(!root.hidden)return;
   previousOverflow=document.documentElement.style.overflow;
   previousFocus=document.activeElement;
+  const origin=enteredFromEggenipa()?'Norsk':'Utforsk';
+  root.querySelector('.word-hunt-back').setAttribute('aria-label','Tilbake til '+origin);
+  root.querySelector('.word-hunt-title small').textContent=origin==='Norsk'?'NORSK · EGGENIPA':'LEK & UTFORSK';
   // Theme selection is the first thing the child sees, every time.
   // Returning players may resume the last unfinished board, also after reload.
   if(!ui.grid.length)restoreRound();
@@ -623,8 +647,7 @@ function closeWordHunt(){
   ui.drag=null;ui.tapStart=null;
   // When opened from Norsk's Eggenipa subject, return to that subject;
   // only direct Basecamp entry should jump back to the Home/Utforsk panel.
-  const fromEggenipa=!!previousFocus?.closest?.('#eggenipa-world')&&
-    !!document.querySelector('#subject-screen.active.eggenipa-active');
+  const fromEggenipa=enteredFromEggenipa();
   if(!fromEggenipa&&typeof window.LARIA_RETURN_TO_BASECAMP==='function')window.LARIA_RETURN_TO_BASECAMP();
   const origin=previousFocus;
   previousFocus=null;previousOverflow='';

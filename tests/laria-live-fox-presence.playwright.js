@@ -63,10 +63,41 @@ async function run(engine,name,viewport,avatar){
     }
     await page.screenshot({path:path.join(dir,name+'-home.png'),animations:'disabled'});
 
+    // Norsk now uses Eggenipa's direct reading activity, never the retired Bokskogen map.
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
-     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    const map=page.locator('#subject-screen.active .locked-journey-map');
+    const eg=page.locator('#eggenipa-world:visible');
+    await eg.waitFor({timeout:16000});
+    assert.deepEqual(await eg.locator('.eg-portal').evaluateAll(els=>els.map(el=>el.dataset.eg)),
+      ['words','find','reading'],name+' Norsk direct activities changed');
+    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+      name+' retired Bokskogen map is visible');
+    const journeyProgress=()=>page.evaluate(()=>{
+      const j=JSON.parse(localStorage.getItem('laerlittmer-v2')).journey||{};
+      return JSON.stringify({
+        nodes:j.nodes||{},gradeWins:j.gradeWins||{},
+        viewGrades:j.viewGrades||{},chapterProgress:j.chapterProgress||{}
+      });
+    });
+    const beforeReading=await journeyProgress();
+    await eg.locator('.eg-portal[data-eg="reading"]').click();
+    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+    assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian');
+    assert.equal(await page.evaluate(()=>sessionScope?.module),'reading');
+    assert.ok(await page.evaluate(()=>sessionQuestions[qIndex]?.prompt),name+' Lesekroken missing question');
+    assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+      name+' retired fox leaked into Norwegian reading');
+    assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
+      name+' Norwegian hint guide missing');
+    assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.activeAvatar()),avatar,
+      name+' Norsk redesign changed saved profile identity');
+    await page.screenshot({path:path.join(dir,name+'-eggenipa-reading.png'),animations:'disabled'});
+    await page.locator('#close-session').click();
+    await eg.waitFor({timeout:16000});
+    const afterReading=await journeyProgress();
+    assert.equal(afterReading,beforeReading,name+' browsing Lesekroken altered historical journey');
+    await eg.locator('[data-eg="home"]').click();
+    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-english"]').click();
+    const map=page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="english"]');
     await map.waitFor({timeout:16000});
     const fox=map.locator('.locked-journey-traveler');
     // The approved PNG is deliberately decoded before the map's real fox
@@ -94,20 +125,13 @@ async function run(engine,name,viewport,avatar){
     assert.equal(after,before,name+' fox movement must not fake mastery');
     assert.equal(await fox.evaluate(el=>getComputedStyle(el).pointerEvents),'none',name+' fox steals map taps');
     await page.screenshot({path:path.join(dir,name+'-journey.png'),animations:'disabled'});
-    // Visit the fifteen remaining painted landmarks without changing the learning state.
-    // There must be only one grounded, unadorned traveler on each map.
-    // Math now uses the approved original forest trolls rather than the legacy fox map.
-    const subjects=['norwegian','english','geography'];
+    // Tour the two still-active legacy map worlds; Norsk and Matte have direct activity worlds.
+    // Ensure one grounded traveler, safe taps and no accidental learning-state changes.
+    const subjects=['english','geography'];
     for(let subjectIndex=0;subjectIndex<subjects.length;subjectIndex++){
       const subject=subjects[subjectIndex];
       if(subjectIndex>0){
         await page.locator('.screen.active .locked-journey-back').click();
-        if(subjects[subjectIndex-1]==='norwegian'){
-          // Bokskogen now returns to Eggenipa, then Home.
-          await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
-          assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian');
-          await page.locator('#eggenipa-world [data-eg="home"]').click();
-        }
         await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:12000});
         await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').click();
       }
@@ -188,14 +212,13 @@ async function run(engine,name,viewport,avatar){
       assert.equal(afterMap,beforeMap,name+' '+subject+' fox movement changed learning progression');
       await page.screenshot({path:path.join(dir,name+'-'+subject+'-final-stop.png'),animations:'disabled'});
     }
-    // Return through ordinary navigation and launch a real task after touring
-    // all four worlds, not via a test-only bypass.
+    // After testing Norsk's real reading route and both remaining legacy maps,
+    // launch an English map task through the child's actual navigation.
     await page.locator('.screen.active .locked-journey-back').click();
-    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-norwegian"]').click();
-     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    await map.waitFor({timeout:15000});
-    const current=map.locator('.locked-journey-hotspot.state-current').first();
+    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-english"]').click();
+    const activeEnglishMap=page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="english"]');
+    await activeEnglishMap.waitFor({timeout:15000});
+    const current=activeEnglishMap.locator('.locked-journey-hotspot.state-current').first();
     await current.click();
     const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
     await mission.waitFor({timeout:10000});

@@ -1,6 +1,7 @@
 'use strict';
-/* Phase A visual contract: Bokskogen is full-bleed on small phones while the
- * approved portrait artwork and its map coordinates remain untouched. */
+/* Responsive visual contract for the approved direct Eggenipa Norsk world.
+ * Bokskogen was deliberately retired from the child flow; this keeps the
+ * small-device regression coverage on the three real activity entrances. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -11,7 +12,7 @@ const root=path.resolve(__dirname,'..');
 const out=process.env.LARIA_RESPONSIVE_PHASEA_IMAGES||'/tmp/laria-responsive-phasea';
 const seed={
  version:7,progressSchemaVersion:3,
- profile:{grade:2,onboarded:true,name:'BokQA',avatar:'girl',setupVersion:2},
+ profile:{grade:2,onboarded:true,name:'EggenipaQA',avatar:'girl',setupVersion:2},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},
  masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},
  lastMilestone:null,recentCountryWin:null,lastActivity:null,
@@ -51,76 +52,49 @@ async function proof(engine,label,viewport,url){
   await page.goto(url+'&responsive-phase-a='+label,{waitUntil:'domcontentloaded'});
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]:visible').click();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-  await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-  const screen=page.locator('#subject-screen.active');
-  const map=screen.locator('.locked-journey-map[data-journey-subject="norwegian"]');
-  await map.waitFor({state:'visible',timeout:30000});
-  await page.waitForFunction(()=>{
-   const image=document.querySelector('#subject-screen.active .locked-journey-image');
-   return image?.complete&&image.naturalWidth===941&&image.naturalHeight===1672&&
-     !document.querySelector('#subject-screen.active .locked-journey-art-guard');
-  },{timeout:30000});
-  // The legacy journey intentionally scrolls to the current stop on short
-  // landscape screens. Wait for that behavior instead of asserting that a
-  // correctly focused illustrated map must be at scrollY=0.
-  await page.waitForFunction(()=>{
-   const stop=document.querySelector('#subject-screen.active .locked-journey-hotspot.state-current');
-   if(!stop)return false;
-   const r=stop.getBoundingClientRect();
-   return r.top>=-1&&r.bottom<=innerHeight+1;
-  },null,{timeout:12000});
-  const geometry=await page.evaluate(()=>{
-   const screen=document.querySelector('#subject-screen.active');
-   const app=document.querySelector('.app');
-   const journeySection=document.querySelector('#subject-screen.active>#subject-journey-section');
-   const map=document.querySelector('#subject-screen.active .locked-journey-map');
-   const board=document.querySelector('#subject-screen.active .locked-journey-board');
-   const image=document.querySelector('#subject-screen.active .locked-journey-image');
-   const sb=screen.getBoundingClientRect(),bb=board.getBoundingClientRect(),ib=image.getBoundingClientRect();
-   const style=getComputedStyle(screen),journeyStyle=getComputedStyle(journeySection),mapStyle=getComputedStyle(map),appStyle=getComputedStyle(app),boardStyle=getComputedStyle(board);
-   const stop=screen.querySelector('.locked-journey-hotspot.state-current')?.getBoundingClientRect();
-   return {scrollY:window.scrollY,
-    currentStop:stop?{top:stop.top,bottom:stop.bottom}:null,viewport:innerHeight,
-    screen:{top:sb.top,height:sb.height},board:{top:bb.top,width:bb.width,height:bb.height},
-    imageRatio:ib.width/ib.height,boardRatio:bb.width/bb.height,appPaddingBottom:appStyle.paddingBottom,
-    screenBackground:style.backgroundImage,journeyBackground:journeyStyle.backgroundImage,appBackground:appStyle.backgroundImage,borderRadius:boardStyle.borderTopLeftRadius,
-    journey:{display:journeyStyle.display,marginTop:journeyStyle.marginTop,paddingTop:journeyStyle.paddingTop,gap:journeyStyle.gap},
-    map:{display:mapStyle.display,marginTop:mapStyle.marginTop,paddingTop:mapStyle.paddingTop},
-    visibleChildren:[...screen.children].filter(node=>getComputedStyle(node).display!=='none').map(node=>({id:node.id,className:node.className,top:node.getBoundingClientRect().top,height:node.getBoundingClientRect().height})),
-    overflow:document.documentElement.scrollWidth-innerWidth,
-    hotspots:[...document.querySelectorAll('#subject-screen.active .locked-journey-hotspot')].map(node=>{
-     const r=node.getBoundingClientRect();return {w:r.width,h:r.height};
-    })};
+  const master=await page.locator('#eggenipa-world .eg-master').evaluate(async image=>{
+   await image.decode();return {width:image.naturalWidth,height:image.naturalHeight};
   });
-  assert.ok(Math.abs(geometry.screen.top+geometry.scrollY)<=2,
-   label+' journey is offset in document layout (not a current-stop focus): '+JSON.stringify(geometry));
-  assert.ok(geometry.currentStop&&geometry.currentStop.top>=-1&&geometry.currentStop.bottom<=geometry.viewport+1,
-   label+' current illustrated stop is outside the screen: '+JSON.stringify(geometry));
-  if(viewport.height>=viewport.width)
-   assert.ok(Math.abs(geometry.screen.top)<=1,
-    label+' portrait journey unexpectedly begins below the viewport: '+JSON.stringify(geometry));
-  // WebKit can resolve 100dvh a fraction below the integer viewport after
-  // device-scale rounding (for example 843.984375px for an 844px viewport).
-  // One CSS pixel is below visual precision and avoids treating that rounding
-  // as the white-stage regression this contract guards against.
-  assert.ok(geometry.screen.height>=viewport.height-1,label+' stage must cover the entire viewport '+JSON.stringify(geometry));
-  assert.equal(geometry.appPaddingBottom,'0px',label+' obsolete app nav spacing leaked below the map');
-  assert.ok(await screen.evaluate(node=>node.classList.contains('locked-journey-subject-norwegian')),
-    label+' Bokskogen stage context is missing');
-  assert.match(geometry.journeyBackground,/bokskogen-reference-bg/,label+' empty stage lost Bokskogen atmosphere');
-  assert.equal(geometry.borderRadius,'0px',label+' map edge introduced a pale rounded seam');
-  assert.ok(Math.abs(geometry.boardRatio-941/1672)<.003&&Math.abs(geometry.imageRatio-941/1672)<.003,
-    label+' approved map was stretched or cropped '+JSON.stringify(geometry));
-  assert.ok(Math.abs(geometry.board.top-geometry.screen.top)<=1,
-   label+' map has blank header space before the painted board '+JSON.stringify(geometry));
+  assert.deepEqual(master,{width:1672,height:941},label+' lost the approved Eggenipa master');
+  const portals=page.locator('#eggenipa-world .eg-portal');
+  assert.deepEqual(await portals.evaluateAll(items=>items.map(item=>item.dataset.eg)),['words','find','reading'],
+    label+' must offer exactly Ordjakt, Finn ordene and Lesekroken');
+  assert.equal(await page.locator('#eggenipa-world [data-eg="map"],#subject-screen.active .locked-journey-map:visible').count(),0,
+    label+' retired Bokskogen map returned to the child flow');
+  const geometry=await page.evaluate(()=>{
+   const world=document.querySelector('#eggenipa-world');
+   const master=world.querySelector('.eg-master').getBoundingClientRect();
+   const targets=[...world.querySelectorAll('.eg-portal')].map(node=>{
+    const r=node.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,target=document.elementFromPoint(x,y);
+    return {name:node.dataset.eg,top:r.top,bottom:r.bottom,width:r.width,height:r.height,hit:target===node||node.contains(target)};
+   });
+   return {world:world.getBoundingClientRect(),master,targets,viewport:innerHeight,
+    overflow:document.documentElement.scrollWidth-innerWidth};
+  });
   assert.ok(geometry.overflow<=1,label+' horizontal overflow '+JSON.stringify(geometry));
-  assert.equal(geometry.hotspots.length,5,label+' mission locations changed');
-  assert.ok(geometry.hotspots.every(hit=>hit.w>=44&&hit.h>=44),label+' a map touch target fell below 44px');
-  assert.equal(await screen.locator('.locked-journey-traveler[data-avatar="girl"]').count(),1,label+' selected fox is missing');
+  assert.ok(geometry.targets.every(hit=>hit.width>=44&&hit.height>=44),
+    label+' an Eggenipa activity entrance is undersized '+JSON.stringify(geometry));
+  for(const activity of ['words','find','reading']){
+    const portal=page.locator('#eggenipa-world .eg-portal[data-eg="'+activity+'"]');
+    await portal.scrollIntoViewIfNeeded();
+    const touch=await portal.evaluate(node=>{
+      const r=node.getBoundingClientRect(),target=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+      return {top:r.top,bottom:r.bottom,width:r.width,height:r.height,viewport:innerHeight,hit:target===node||node.contains(target)};
+    });
+    assert.ok(touch.top>=0&&touch.bottom<=touch.viewport&&touch.hit,
+      label+' Eggenipa '+activity+' entrance is not reachable after normal scroll '+JSON.stringify(touch));
+  }
+  await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+  await page.locator('#session-screen.active').waitFor({timeout:16000});
+  const choices=await page.locator('#session-screen.active .answer').evaluateAll(items=>items.slice(0,3).map(item=>{
+   const r=item.getBoundingClientRect();return {width:r.width,height:r.height,top:r.top,bottom:r.bottom};
+  }));
+  assert.equal(choices.length,3,label+' Lesekroken lost its three answer choices');
+  assert.ok(choices.every(choice=>choice.width>=44&&choice.height>=44),label+' Lesekroken touch target is undersized');
   await fs.promises.mkdir(out,{recursive:true});
-  await page.screenshot({path:path.join(out,label+'-bokskogen-after.png'),animations:'disabled'});
+  await page.screenshot({path:path.join(out,label+'-eggenipa-lesekroken.png'),animations:'disabled'});
   assert.deepEqual(errors,[],label+' page errors '+JSON.stringify(errors));
-  console.log('PASS '+label+' Bokskogen full-bleed stage, original art, fox, hotspots and no horizontal overflow');
+  console.log('PASS '+label+' Eggenipa direct activity entrances and Lesekroken responsive flow');
  }finally{if(context)await context.close();await browser.close();}
 }
 

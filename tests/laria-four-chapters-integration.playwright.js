@@ -76,14 +76,24 @@ async function run(type,label,viewport){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   if(label==='chromium-desktop'||label==='webkit-iphone')await verifyDefaultChildNavigation(page,label);
   await go(page,'norwegian');
-  await page.locator('[data-laria-chapter2-preview="1"]').click();
+  // The Norsk chapter-2 pilot remains an internal regression fixture.
+  // The child's Eggenipa world intentionally hides the old adventure menu.
+  const devPilot=page.locator('[data-laria-chapter2-preview="1"]');
+  assert.equal(await devPilot.isVisible(),false,label+' old Norsk adventure leaked into Eggenipa');
+  await devPilot.evaluate(el=>el.click());
   await page.locator('[data-fd-pick="fortellingsdalen-2"]').click();
   await page.locator('[data-fd-action="stage"][data-fd-stage="brevhytta"]').click();
   await page.locator('.fd-option').first().click();
   assert.ok(await page.locator('.fd-feedback').count());
   await shot(page,label+'-norwegian');
   await go(page,'math');
-  await page.locator('[data-laria-math-chapter2-preview="1"]').click();
+  // Tallvika deliberately hides the chapter-two development launcher from
+  // children. Retain coverage of that *internal* pilot without promoting
+  // a hidden testing affordance to public navigation.
+  const mathPilot=page.locator('[data-laria-math-chapter2-preview="1"]');
+  assert.equal(await mathPilot.isVisible(),false,
+    label+' internal Math chapter-two preview is visible to children');
+  await mathPilot.evaluate(el=>el.click());
   await page.locator('[data-mh-act="stage"][data-mh-stage="speildammen"]').click();
   const mhHint=page.locator('[data-mh-act="hint"]');
   assert.equal(await mhHint.getAttribute('aria-expanded'),'false');

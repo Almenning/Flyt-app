@@ -60,6 +60,10 @@ async function open(page,url,label){
  assert.ok(dims&&dims.width>=44&&dims.height>=44,'New picture hunt entry must be touch accessible');
  await entry.click();
  await page.locator('#find-the-words-overlay:not([hidden])').waitFor();
+ assert.equal(await page.locator('.fw-active-target').innerText(),'1. Velg et ord',
+   'The first picture-hunt step must be numbered 1 before selection');
+ assert.equal(await page.locator('#find-the-words-overlay .fw-back').getAttribute('aria-label'),'Tilbake til Utforsk',
+   'Finn ordene entered from Utforsk must name its actual back destination');
 }
 async function geometry(page,label,view){
  const box=await page.evaluate(()=>{
@@ -67,7 +71,7 @@ async function geometry(page,label,view){
   const el=document.querySelector('.fw-art');
   const img=document.querySelector('.fw-scene-image');
   return {screen:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,
-   art:bounds('.fw-art'),picture:bounds('.fw-picture'),paint:bounds('.fw-scene-image'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),next:bounds('.fw-next'),
+   art:bounds('.fw-art'),picture:bounds('.fw-picture'),paint:bounds('.fw-scene-image'),list:bounds('.fw-list'),back:bounds('.fw-back'),hint:bounds('.fw-fox-button'),next:bounds('.fw-next'),
    scene:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
    words:[...document.querySelectorAll('.fw-word')].map(x=>x.getBoundingClientRect().height),
     wordFonts:[...document.querySelectorAll('.fw-word strong')].map(x=>parseFloat(getComputedStyle(x).fontSize)),
@@ -95,7 +99,7 @@ async function geometry(page,label,view){
     })(),
    active:el?.getAttribute('role')};
  });
- assert.ok(box.art&&box.picture&&box.paint&&box.list&&box.fox&&box.back,'picture game missing the aligned painted scene or personal fox '+label);
+ assert.ok(box.art&&box.picture&&box.paint&&box.list&&box.hint&&box.back,'picture game missing the aligned painted scene or accessible hint '+label);
  assert.ok(Math.abs(box.picture.w/box.picture.h-5/3)<.01,
    'The interactive plane does not match the SVG native 1200:720 geometry '+label+': '+JSON.stringify(box.picture));
  assert.ok(Math.abs(box.picture.w-box.paint.w)<2&&Math.abs(box.picture.h-box.paint.h)<2,
@@ -109,8 +113,8 @@ async function geometry(page,label,view){
    'The complete written word overlaps the tick control '+label+': '+JSON.stringify(box.longWord));
  }
  if(view.width>=1001&&view.height>=700&&view.height<=900){
-  assert.ok(box.next&&box.next.b<=box.height+2&&box.fox.b<=box.height+2,
-   'Fox companion or next adventure is clipped below iPad landscape first fold '+label+': '+JSON.stringify(box));
+  assert.ok(box.next&&box.next.b<=box.height+2&&box.hint.b<=box.height+2,
+   'Hint or next adventure is clipped below iPad landscape first fold '+label+': '+JSON.stringify(box));
  }
  const gardenScene=label.includes('secret-garden');
  assert.ok(box.scene.complete&&
@@ -132,8 +136,8 @@ async function geometry(page,label,view){
  if(view.width>=361&&view.width<=700&&view.height>=750){
   assert.ok(box.picture.h>=205,'Tall phone illustration too small to see and touch: '+JSON.stringify(box));
    assert.ok(box.wordFonts.every(n=>n>=18),'Tall phone words must be readable at 18px or larger: '+JSON.stringify(box.wordFonts));
-  assert.ok(box.fox.h>=100,'Child-selected fox is too small on tall phone: '+JSON.stringify(box));
-  assert.ok(box.fox.y+box.fox.h<=box.height+2,'Fox companion is pushed below the phone viewport: '+JSON.stringify(box));
+  assert.ok(box.hint.w>=44&&box.hint.h>=44,'The hint button is too small: '+JSON.stringify(box));
+  assert.ok(box.hint.b<=box.height+2,'Hint is below the phone viewport: '+JSON.stringify(box));
  }
  if(view.height>=750&&view.width<700){
   assert.ok(box.list.y>=0&&box.list.b<=box.height,'word list hidden below first screen '+label);
@@ -164,9 +168,10 @@ async function run(engine,label,viewport,url,avatar){
    await open(page,url,label);
    await page.locator('.fw-scene-image').evaluate(img=>img.decode());
    await geometry(page,label,viewport);
-   const foxSource=await page.locator('.fw-fox').getAttribute('src');
-   assert.match(foxSource,avatar==='girl'?/girl-braids-blue-dress/:/boy-adventurer-green-vest/,
-     'Picture mode does not use the personal selected fox');
+   assert.equal(await page.locator('.fw-fox').evaluate(el=>el.tagName),'SPAN',
+     'Retired static fox artwork is still in Finn ordene');
+   assert.equal(await page.locator('.fw-fox-button').getAttribute('aria-label'),'Få et hint',
+     'The new hint control lost its accessible label');
    assert.equal(await page.locator('.fw-word').count(),6);
    assert.deepEqual((await page.locator('.fw-word strong').allTextContents()).sort(),[...targetWords].sort());
    // Correct objects do not score until a written word has been selected.
@@ -174,7 +179,12 @@ async function run(engine,label,viewport,url,avatar){
    assert.equal(await page.locator('.fw-word.is-found').count(),0,
      'Random scene taps must not award a word');
    assert.match(await page.locator('.fw-speech').innerText(),/Velg et ord/);
-   const hint=page.locator('.fw-hint');
+   assert.equal(await page.locator('.fw-hint').count(),0,
+     'Finn ordene must have one, not two, child-facing hint controls');
+   const hint=page.locator('.fw-fox-button');
+   assert.equal(await hint.count(),1,'One usable magical hint control must remain');
+   assert.match(await page.locator('.fw-next').innerText(),/Nye ord/,
+     'Next round must not be confused with the separate Ordjakt activity');
    await hint.click();
    assert.match(await page.locator('.fw-speech').innerText(),/Velg først ordet/,
      'Hints must target the selected word, not an automatic answer');
@@ -184,12 +194,13 @@ async function run(engine,label,viewport,url,avatar){
    assert.equal(await page.locator('.fw-word.is-selected').count(),1,'Selected word is not visibly marked');
    assert.equal(await page.locator('.fw-word[data-fw-read="sol"]').getAttribute('aria-pressed'),'true',
      'Selected word is missing an accessible selected state');
-   assert.match(await page.locator('.fw-active-target').innerText(),/sol/,
-     'Chosen word is not displayed as an obvious goal');
+   assert.equal(await page.locator('.fw-active-target').innerText(),'2. Finn «sol» i bildet',
+     'Selecting a word must advance the picture-hunt prompt to step 2');
    await page.locator('.fw-audio').click();
    await hint.click();
-   assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not give the selected-word clue');
-   await page.locator('.fw-fox-button').click();
+   assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,
+     'First hint did not give the selected-word clue');
+   await hint.click();
    assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight the selected object');
    assert.equal(await page.locator('.fw-fx .fw-target-flower[data-fx-object="sol"]').count(),1,
     'Fox second hint must point inside the illustrated scene');
