@@ -1119,6 +1119,13 @@ async function checkSavedTroll(browser,url){
    const image=await page.request.get(new URL(source,url).href);
    assert.equal(image.status(),200,'the locked Lillesøster asset must really load');
    assert.match(image.headers()['content-type'],/image\/webp/);
+   const visible=await troll.locator('img').evaluate(async img=>{
+     await img.decode();
+     const r=img.getBoundingClientRect();
+     return {complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,width:r.width,height:r.height,opacity:getComputedStyle(img).opacity,display:getComputedStyle(img).display};
+   });
+   assert.ok(visible.complete&&visible.naturalWidth>0&&visible.naturalHeight>0&&visible.width>=80&&visible.height>=100&&visible.opacity!=='0'&&visible.display!=='none',
+     'Lillesøster must be decoded and visibly occupy the companion slot '+JSON.stringify(visible));
    const animation=await page.locator('.gm-fox-art').evaluate(el=>getComputedStyle(el).animationName);
    assert.ok(animation==='none'||animation==='', 'flat fallback must not fake rigging with whole-image animation: '+animation);
    await shot(page,'webkit-ipad-landscape-lillesoster');
