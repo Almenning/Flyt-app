@@ -1,6 +1,7 @@
 'use strict';
-/* Phase C3: real WebKit/Chromium evidence, all FOUR original phone journeys.
- * No art replacement or coordinate changes. Keep Geografi's Kloden access. */
+/* Phase C3: real WebKit/Chromium evidence for the remaining active original phone journey.
+ * Eggenipa, Tallvika and Kinnaklova own their own mobile tests.
+ * No Nordlysleiren art replacement or coordinate changes. Keep Kloden access. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -8,7 +9,7 @@ const http=require('node:http');
 const {chromium,webkit}=require('playwright');
 const base=path.resolve(__dirname,'..');
 const out=process.env.LARIA_RESPONSIVE_C3_IMAGES||'/tmp/laria-responsive-c3';
-const subjects=['norwegian','math','english','geography'];
+const subjects=['geography'];
 const seed={
  version:7,progressSchemaVersion:3,
  profile:{grade:2,onboarded:true,name:'Elev',avatar:'girl',setupVersion:2},
@@ -86,7 +87,8 @@ function measure(page){
    imageFit:getComputedStyle(img).objectFit,
    imageOriginal:[img.naturalWidth,img.naturalHeight],
    subject:map.dataset.journeySubject,
-   fox:map.querySelectorAll('.locked-journey-traveler[data-avatar="girl"]').length,
+   companion:map.querySelectorAll('.locked-journey-traveler[data-troll="storesoster"]').length,
+   retiredFox:map.querySelectorAll('.locked-journey-traveler[data-avatar]').length,
    hits:points.map(rect),labels:points.map(node=>node.getAttribute('aria-label')),
    nonMapChildren:children,
    globePresent:!!oldGlobe,
@@ -146,7 +148,8 @@ async function validate(page,subject,label,view,screen){
  assert(g.horizontalOverflow<=2,label+' horizontal overflow '+g.horizontalOverflow);
  assert(g.hits.length===5&&g.hits.every(x=>x.width>=44&&x.height>=44),
   label+' five usable mission touch targets not retained '+JSON.stringify(g.hits));
- assert(g.fox===1,label+' selected personal fox missing or duplicated');
+ assert(g.companion===1,label+' selected forest troll missing or duplicated');
+ assert(g.retiredFox===0,label+' retired fox traveler returned');
  assert(g.labels.every(t=>t?.includes('Sted ')),label+' mission labels inaccessible');
  if(subject!=='geography'){
   assert.equal(g.nonMapChildren.length,0,
@@ -182,7 +185,7 @@ async function validate(page,subject,label,view,screen){
  }));
  assert(home.active==='home-screen'&&!home.activeJourney,
   label+' journey retained as active after going home '+JSON.stringify(home));
- console.log('PASS '+label+' '+subject+' phone storybook edge, hotspots, fox, back');
+ console.log('PASS '+label+' '+subject+' phone storybook edge, hotspots, troll, back');
 }
 async function run(engine,label,view,url){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
@@ -198,7 +201,7 @@ async function run(engine,label,view,url){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(url+'&responsive-phasec3='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]:visible').waitFor({timeout:16000});
+  await page.locator('.bc14-subject[data-camp="subject-geography"]:visible').waitFor({timeout:16000});
   for(const subject of subjects){
    const screen=await visit(page,subject);
    await validate(page,subject,label,view,screen);
