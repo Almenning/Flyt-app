@@ -7,15 +7,15 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'laer-litt-mer/index.html'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'laer-litt-mer/sw.js'), 'utf8');
-// The Gangemagi stylesheets retain their approved visual release, while the
-// JavaScript has a newer Tallvika branding release. Test each real asset URL
-// instead of incorrectly requiring all assets to share the same cache key.
-const version = '20261023-gangemagi-release37';
+// Gangemagi now loads the TrollActor core and a matching CSS/JS integration
+// release. Test each real asset URL instead of assuming one inherited version.
+const version = '20261027-trollactor-core1';
 const suffix = '-gangemagi-premium-20261023-release37';
 const releases = Object.freeze({
   'multiplication-gangemagi-v1.css': version,
-  'gangemagi-dagens-oppdrag-v1.css': version,
-  'multiplication-gangemagi-v1.js': '20261025-tallvika-one-tap-return1'
+  'gangemagi-dagens-oppdrag-v1.css': '20261023-gangemagi-release37',
+  'laria-troll-actor.js': '20261027-core1',
+  'multiplication-gangemagi-v1.js': version
 });
 const assets = Object.keys(releases);
 function workerHarness(caches, fetch) {
