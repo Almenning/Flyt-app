@@ -35,7 +35,7 @@
     const state=normalizeState(options.state);
     const m=meta(id);
     return '<span class="laria-troll-actor" data-troll-id="'+id+'" data-troll-state="'+state+'" data-troll-rig="flat-fallback" aria-label="'+esc(m.name)+'">'+
-      '<img class="laria-troll-actor__flat" src="'+esc(m.source)+'" alt="" aria-hidden="true">'+
+      '<img class="laria-troll-actor__flat" src="'+esc(m.source)+'" alt="" aria-hidden="true" loading="eager" decoding="sync">'+
       '</span>';
   }
   function setState(target,state){
