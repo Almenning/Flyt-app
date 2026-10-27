@@ -117,6 +117,10 @@ async function verify(engine,label,viewport){
      // master reaches ready. Prefer the real visible hit area, avoiding a
      // loading-to-ready race where the utility button vanishes mid-click.
      const paintedHome=ki.locator('.ki-painted-home');
+     await page.waitForFunction(()=>{
+       const world=document.querySelector('#kinnaklova-world');
+       return world?.dataset.kiArt==='ready'||world?.dataset.kiArt==='missing'||world?.dataset.kiArt==='unapproved';
+     },null,{timeout:20000});
      if(await paintedHome.isVisible())await paintedHome.click();
      else await ki.locator('.ki-utility [data-ki="home"]').click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});
