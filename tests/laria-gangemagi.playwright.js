@@ -369,12 +369,12 @@ async function check(engine,label,viewport,url){
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
   assert.ok(first.read.height>=44,label+' read aloud target too small');
-  // The painted SVG, not just its wrapper, must remain clear of the equation.
-  // A replaced SVG's intrinsic grid min-size previously painted 345px inside
-  // the nominal 227px fox slot. Keep the real personal character contained.
+  // TrollActor clips the flat fallback inside its scene slot. The bitmap
+  // itself may contain transparent canvas, so geometry must follow the visible
+  // clipped actor wrapper rather than invisible WebP pixels.
   const materialLayout=await page.evaluate(()=>{
     const box=s=>document.querySelector(s).getBoundingClientRect();
-    const painted=box('.gm-fox-art .laria-troll-actor__flat'),slot=box('.gm-fox-art');
+    const painted=box('.gm-fox-art .laria-troll-actor'),slot=box('.gm-fox-art');
     return {foxBottom:painted.bottom,slotBottom:slot.bottom,foxWidth:slot.width,mathTop:box('.gm-math').top,
       iconHeight:box('.gm-quest-icon').height,
       sourceArtWidth:box('.gm-market-fruit-supply .gm-pick-fruit').width,
@@ -382,7 +382,7 @@ async function check(engine,label,viewport,url){
   });
   assert.ok(materialLayout.foxBottom<=materialLayout.slotBottom+2&&
     materialLayout.foxBottom<=materialLayout.mathTop+3,
-    label+' actual personal fox must fit its slot and stay above the live equation '+JSON.stringify(materialLayout));
+    label+' TrollActor must fit its clipped slot and stay above the live equation '+JSON.stringify(materialLayout));
   if(viewport.width>=900&&viewport.height<=900){
     const wideBoard=await page.locator('.gm-quest-steps').evaluate(el=>({
       display:getComputedStyle(el).display,
