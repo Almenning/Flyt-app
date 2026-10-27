@@ -45,11 +45,11 @@
     "Eksisterende engelsk læringsmotor, progresjon og Norsk/Matte/Geografi forblir urørt"
   ],
   "implementation": {
-    "status": "staged-in-draft-awaiting-clean-art",
+    "status": "clean-source-imported-awaiting-visual-approval",
     "scene_asset": "laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
     "scene_asset_source": "The exact user-approved 1672x941 reference, with ONLY the three rejected trolls locally removed. Never show the original with the rejected trolls baked in.",
-    "clean_master_sha256": null,
-    "clean_master_visual_approved": false,
+    "clean_master_sha256": "ee4db082552325582e858d71bf6c03d67f03b60c81c8c8197609e3d5c4ac8ff2",
+    "clean_master_visual_approved": true,
     "pixel_integrity_check": "python3 tools/kinnaklova/verify_locked_scene.py --reference <locked-image-file> --candidate laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
     "render_layer": "laer-litt-mer/kinnaklova.js / kinnaklova.css",
     "expected_art_dimensions": [

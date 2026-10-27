@@ -22,30 +22,36 @@ LOCK = PROJECT / "docs" / "LARIA-KINNAKLOVA-VISUAL-LOCK-2026-10-26.json"
 # approved signs, landscape or buildings. Adjust narrower after an art handoff.
 MASKS = {
     "rejected_words_troll": [
-        (133, 567), (232, 558), (322, 587), (380, 653),
-        (380, 751), (330, 806), (151, 803), (110, 729)
+        # Includes the complete seated figure down to its feet. The earlier
+        # outline left visible character pixels below the Words plaque.
+        (110, 548), (242, 542), (340, 570), (427, 630),
+        (429, 689), (380, 842), (132, 836), (86, 726)
     ],
     "rejected_words_hand": [
         # The original left polygon missed the pointing hand near x=410.
         # Keep this narrow so the approved church wall remains untouched.
         (324, 628), (337, 623), (352, 632), (370, 637),
         (383, 637), (398, 635), (417, 637), (425, 645),
-        (422, 653), (413, 658), (397, 664), (382, 668),
-        (365, 671), (348, 672), (332, 665), (321, 658)
+        (440, 653), (430, 669), (411, 679), (391, 682),
+        (370, 681), (348, 675), (332, 665), (321, 658)
     ],
     "rejected_sentences_troll": [
-        (941, 411), (1015, 409), (1074, 448), (1071, 507),
-        (1040, 541), (928, 535), (911, 479)
+        # Includes the whole sitting figure and walking stick, while the
+        # protected Sentences plaque is subtracted below.
+        (910, 394), (1024, 393), (1090, 440), (1091, 532),
+        (1050, 563), (906, 554), (887, 470)
     ],
     "rejected_reading_troll": [
-        (1438, 533), (1516, 532), (1595, 592), (1585, 656),
-        (1535, 673), (1404, 667), (1381, 597)
+        # Includes the complete prone figure and book; the locked Reading
+        # plaque remains protected below.
+        (1400, 515), (1524, 513), (1623, 583), (1619, 663),
+        (1540, 690), (1385, 680), (1357, 588)
     ],
     "rejected_reading_foot": [
         # Original right mask left a leg/foot visible above Reading.
         (1552, 609), (1573, 609), (1585, 614), (1604, 624),
         (1610, 638), (1610, 651), (1594, 661),
-        (1575, 663), (1557, 654)
+        (1575, 682), (1545, 670)
     ]
 }
 
@@ -62,6 +68,14 @@ PROTECTED_SIGNS = {
     "reading": (1352, 665, 1633, 743),
 }
 
+# The rejected Sentences troll is painted over this very small left edge of
+# the plaque. Keeping those source pixels would retain its hand/staff. This is
+# therefore the sole sign overlap an artist may reconstruct; all other sign
+# pixels stay byte-exact.
+SENTENCES_SIGN_TROLL_OVERLAP = [
+    (1049, 469), (1078, 469), (1080, 541), (1049, 541)
+]
+
 
 def allowed_change_mask(size):
     """Return a byte-exact edit whitelist, excluding the approved sign pixels."""
@@ -71,6 +85,7 @@ def allowed_change_mask(size):
         painter.polygon(polygon, fill=255)
     for box in PROTECTED_SIGNS.values():
         painter.rectangle(box, fill=0)
+    painter.polygon(SENTENCES_SIGN_TROLL_OVERLAP, fill=255)
     return allowed
 
 
