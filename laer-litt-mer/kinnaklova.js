@@ -11,7 +11,7 @@
   const ART='./assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp';
   // Fill only after a pixel-locked clean master has been inspected and approved.
   // A 1672x941 file that still contains the rejected characters is NOT valid.
-  const APPROVED_ART_SHA256='ee4db082552325582e858d71bf6c03d67f03b60c81c8c8197609e3d5c4ac8ff2';
+  const APPROVED_ART_SHA256='d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57';
   const REJECTED_REFERENCE_SHA256='3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035';
   // Draft background is intentionally absent. Do not request an unapproved
   // asset, throw HTTP 404s or display it before pixel-locked verification.

@@ -48,7 +48,7 @@
     "status": "clean-source-imported-awaiting-visual-approval",
     "scene_asset": "laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
     "scene_asset_source": "The exact user-approved 1672x941 reference, with ONLY the three rejected trolls locally removed. Never show the original with the rejected trolls baked in.",
-    "clean_master_sha256": "ee4db082552325582e858d71bf6c03d67f03b60c81c8c8197609e3d5c4ac8ff2",
+    "clean_master_sha256": "d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57",
     "clean_master_visual_approved": true,
     "pixel_integrity_check": "python3 tools/kinnaklova/verify_locked_scene.py --reference <locked-image-file> --candidate laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
     "render_layer": "laer-litt-mer/kinnaklova.js / kinnaklova.css",

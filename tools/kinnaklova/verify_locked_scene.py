@@ -44,14 +44,14 @@ MASKS = {
     "rejected_reading_troll": [
         # Includes the complete prone figure and book; the locked Reading
         # plaque remains protected below.
-        (1400, 515), (1524, 513), (1623, 583), (1619, 663),
-        (1540, 690), (1385, 680), (1357, 588)
+        (1438, 533), (1516, 532), (1595, 592), (1585, 656),
+        (1535, 673), (1404, 667), (1381, 597)
     ],
     "rejected_reading_foot": [
         # Original right mask left a leg/foot visible above Reading.
         (1552, 609), (1573, 609), (1585, 614), (1604, 624),
         (1610, 638), (1610, 651), (1594, 661),
-        (1575, 682), (1545, 670)
+        (1575, 663), (1557, 654)
     ]
 }
 
