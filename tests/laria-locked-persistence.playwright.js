@@ -104,8 +104,11 @@ async function verify(engine,label,viewport){
      }));
      assert.equal(session.subject,'english',label+' wrong subject after Kinnaklova Words');
      assert.equal(session.module,'words',label+' Words opened the wrong English module');
-     assert.ok(session.count>=5&&session.skills.every(skill=>skill==='words'),
-       label+' Words mixed in unrelated questions');
+     // Words includes approved vocabulary, number and spelling exercises.
+     // Keep the same strict module-to-skill contract as Kinnaklova's own QA.
+     const allowedWords=['words','numbers','spelling','vocabulary'];
+     assert.ok(session.count>=5&&session.skills.every(skill=>allowedWords.includes(skill)),
+       label+' Words mixed in unrelated questions: '+session.skills.join(','));
      await page.locator('#close-session').click();
      await ki.waitFor({state:'visible',timeout:16000});
      assert.equal(await page.evaluate(()=>JSON.stringify(state.journey.nodes)),beforeActivity,
