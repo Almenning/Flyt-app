@@ -13,7 +13,9 @@ const http=require('node:http');
 const {chromium,webkit}=require('playwright');
 const root=path.resolve(__dirname,'..');
 const out=process.env.LARIA_JOURNEY_FIRSTPAINT_IMAGES||'/tmp/laria-journey-firstpaint';
-// Eggenipa, Tallvika and Kinnaklova now own first paint for Norsk, Matte and Engelsk.\n// Nordlysleiren is the only active grade-2 world still using the locked journey renderer.\nconst subjects=['geography'];
+// Eggenipa, Tallvika and Kinnaklova now own first paint for Norsk, Matte and Engelsk.
+// Nordlysleiren is the only active grade-2 world still using the locked journey renderer.
+const subjects=['geography'];
 const seed={
  version:7,progressSchemaVersion:3,
  profile:{grade:2,onboarded:true,name:'KartQA',avatar:'girl',setupVersion:2},
@@ -140,8 +142,10 @@ async function proof(engine,label,viewport,url){
    const gradeStrip=subject==='geography'?'#geo-journey-grade-strip':'#journey-grade-strip';
    assert.equal(await screen.locator(gradeStrip+' [data-journey-grade]').count(),10,
      label+' '+subject+' chapter grade selector was not initialized');
-   assert.equal(await screen.locator('.locked-journey-traveler[data-avatar="girl"]').count(),1,
-     label+' '+subject+' chosen companion lost during transition');
+   assert.equal(await screen.locator('.locked-journey-traveler[data-troll="storesoster"]').count(),1,
+     label+' '+subject+' chosen forest troll lost during transition');
+   assert.equal(await screen.locator('.locked-journey-traveler[data-avatar]').count(),0,
+     label+' '+subject+' retired fox traveler returned during transition');
    if(subject==='geography')await assertGeographyPriority(screen,label+' decoded artwork');
    await shot(page,label+'-'+subject+'-02-approved-map');
    await screen.locator('.locked-journey-back').click();
@@ -158,11 +162,11 @@ async function missingArtRecovery(url){
  try{
   ctx=await contextFor(browser,{width:390,height:844});
   const page=await ctx.newPage();
-  const pattern='**/locked-journeys/tallenga-locked-20261010.png';
+  const pattern='**/locked-journeys/nordlysleiren-locked-20261010.png';
   await page.route(pattern,route=>route.abort());
   await page.goto(url+'&missing-art=webkit',{waitUntil:'domcontentloaded'});
-  await page.locator('#home-screen.active .bc14-subject[data-camp="subject-math"]').waitFor();
-  const screen=await navigateTo(page,'math');
+  await page.locator('#home-screen.active .bc14-subject[data-camp="subject-geography"]').waitFor();
+  const screen=await navigateTo(page,'geography');
   await screen.locator('.locked-journey-art-retry').waitFor({timeout:16000});
   assert.equal(await screen.locator('.premium-journey-map,.bok-v10-map').count(),0,
    'Failed artwork silently exposed the retired map');
@@ -172,9 +176,9 @@ async function missingArtRecovery(url){
   await page.unroute(pattern);
   await screen.locator('.locked-journey-art-retry').click();
   await page.waitForFunction(()=>{
-   const image=document.querySelector('#subject-screen.active .locked-journey-image');
+   const image=document.querySelector('#geography-screen.active .locked-journey-image');
    return image?.naturalWidth===941&&image.complete&&
-      !document.querySelector('#subject-screen.active .locked-journey-art-guard');
+      !document.querySelector('#geography-screen.active .locked-journey-art-guard');
   },{},{timeout:30000});
   await screen.locator('.locked-journey-back').click();
   await page.locator('#home-screen.active').waitFor();
