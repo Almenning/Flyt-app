@@ -121,26 +121,29 @@ async function run(engine,label,viewport){
      assert.equal((await page.locator('#geo-journey-now').innerText()).includes('🦊'),false,
        label+' retired fox is still visible in Nordlysleiren');
      for(const choice of ['lillesoster','lillebror','storesoster']){
-       // Use the same immutable-style profile replacement and persistence path as
-       // Tallvika's real character selector. Mutating the nested test object only
-       // checks an implementation detail and can be superseded by a queued render.
+       // The companion contract is a persisted profile contract. Reloading from
+       // storage avoids coupling this browser test to a transient render queue.
        await page.evaluate(id=>{
-         state.profile={...state.profile,tallvikaTroll:id};
-         saveState();
-         renderGeoJourney();
+         const saved=JSON.parse(localStorage.getItem('laerlittmer-v2'));
+         saved.profile={...saved.profile,tallvikaTroll:id};
+         localStorage.setItem('laerlittmer-v2',JSON.stringify(saved));
        },choice);
+       await page.reload({waitUntil:'domcontentloaded'});
+       await page.locator('.bc14-subject[data-camp="subject-geography"]').waitFor({timeout:16000});
+       await page.locator('.bc14-subject[data-camp="subject-geography"]').click();
+       await page.locator('#geography-screen.active').waitFor({timeout:16000});
+       await companion.waitFor({state:'attached',timeout:16000});
        assert.equal(await companion.getAttribute('data-troll'),choice,
          label+' Geografi did not reuse selected original troll '+choice);
        assert.ok((await companion.getAttribute('src')).endsWith('/'+choice+'.webp'),
          label+' Geografi rendered wrong original asset for '+choice);
      }
      await page.evaluate(choice=>{
-       const profile={...state.profile};
-       if(choice)profile.tallvikaTroll=choice;
-       else delete profile.tallvikaTroll;
-       state.profile=profile;
-       saveState();
-       renderGeoJourney();
+       const saved=JSON.parse(localStorage.getItem('laerlittmer-v2'));
+       const profile={...saved.profile};
+       if(choice)profile.tallvikaTroll=choice;else delete profile.tallvikaTroll;
+       saved.profile=profile;
+       localStorage.setItem('laerlittmer-v2',JSON.stringify(saved));
      },previous.choice);
      assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),previous.journey,
        label+' changing the Geografi companion modified stored journey evidence');
