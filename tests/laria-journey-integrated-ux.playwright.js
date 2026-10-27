@@ -84,6 +84,13 @@ async function run(engine,label,viewport){
      assert.ok(state.question,label+' English question missing');
      await page.locator('#close-session').click();
      await ki.waitFor({state:'visible',timeout:16000});
+     // The clean painted background switches navigation controls when image integrity
+     // settles. Wait before deciding, otherwise the temporary utility link can vanish
+     // during a Playwright click on iPad.
+     await page.waitForFunction(()=>{
+       const host=document.querySelector('#subject-screen.active #kinnaklova-world');
+       return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
+     },null,{timeout:20000});
      const back=ki.locator('.ki-utility [data-ki="home"]');
      if(await back.isVisible())await back.click();
      else await ki.locator('.ki-painted-home').click();
