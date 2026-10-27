@@ -113,9 +113,12 @@ async function verify(engine,label,viewport){
      await ki.waitFor({state:'visible',timeout:16000});
      assert.equal(await page.evaluate(()=>JSON.stringify(state.journey.nodes)),beforeActivity,
        label+' opening direct English play changed historical journey progress');
-     const utilityBack=ki.locator('.ki-utility [data-ki="home"]');
-     if(await utilityBack.isVisible())await utilityBack.click();
-     else await ki.locator('.ki-painted-home').click();
+     // The painted scene replaces the temporary utility bar once the clean
+     // master reaches ready. Prefer the real visible hit area, avoiding a
+     // loading-to-ready race where the utility button vanishes mid-click.
+     const paintedHome=ki.locator('.ki-painted-home');
+     if(await paintedHome.isVisible())await paintedHome.click();
+     else await ki.locator('.ki-utility [data-ki="home"]').click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
