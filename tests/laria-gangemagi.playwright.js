@@ -614,6 +614,8 @@ async function check(engine,label,viewport,url){
     label+' on the second pick the previous berry must remain stable');
   assert.match(await page.locator('.gm-fox-message').innerText(),/2 av 3 i kurv 1/);
   assert.equal(await page.locator('.gm-fox').getAttribute('data-mood'),'cheer');
+  assert.equal(await page.locator('.gm-fox-art .laria-troll-actor').getAttribute('data-troll-state'),'wave',
+    label+' successful berry placement must map to TrollActor wave');
   await page.locator('[data-gm-action="undo"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0,
@@ -625,6 +627,8 @@ async function check(engine,label,viewport,url){
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[2,0,0]);
   await page.locator('[data-gm-action="hint"]').click();
   assert.match(await page.locator('.gm-fox-message').innerText(),/kurv/i);
+  assert.equal(await page.locator('.gm-fox-art .laria-troll-actor').getAttribute('data-troll-state'),'hint',
+    label+' hint action must map to TrollActor hint');
   assert.equal(await page.locator('.gm-fruit-pop').count(),0,
     label+' opening a fox hint must NOT replay the last fruit animation');
   await page.locator('[data-gm-action="remove"][data-group="0"]').click();
@@ -688,6 +692,8 @@ async function check(engine,label,viewport,url){
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[3,3,3],
     label+' undo restores the completed baskets without duplicating a flower');
   assert.equal(await page.locator('.gm-actions-complete .gm-next').count(),1,'one clear next action');
+  assert.equal(await page.locator('.gm-fox-art .laria-troll-actor').getAttribute('data-troll-state'),'celebrate',
+    label+' completed mission must map to TrollActor celebrate');
   const celebrationOverlap=await page.evaluate(()=>{
     const r=s=>document.querySelector(s).getBoundingClientRect();
     const a=r('.gm-celebration'),b=r('.gm-fox-bubble'),fox=r('.gm-fox-art'),math=r('.gm-math');
