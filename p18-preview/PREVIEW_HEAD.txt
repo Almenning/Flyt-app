@@ -1,5 +1,0 @@
-Prompt 18 preview
-Source branch: prompt18-commercial-readiness
-Source commit: c7005504700406509228d4f73499b755f343e786
-Visual globe candidate: rc6
-Do not use as production release.

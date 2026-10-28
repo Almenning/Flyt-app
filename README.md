@@ -1,3 +1,16 @@
-# Flyt-app
+# HverdagsOss
 
-Kontinuerlige, nettverksfrie smoke-kontroller kjøres på hver push og pull request. Se [QA-runbook](docs/QA-RUNBOOK.md) for lokal kjøring, feilprioritet og manuell kontroll før publisering.
+HverdagsOss er appen for par og husholdninger. Denne kodebasen inneholder HverdagsOss uten Læria, Stoa eller andre separate produktprototyper.
+
+## Kvalitet
+
+Kjør:
+
+```bash
+npm ci
+npm test
+```
+
+Native iOS-verifikasjon ligger i `.github/workflows/ios-native-build.yml`.
+
+Se også `docs/QA-RUNBOOK.md`, `docs/NATIVE-QA-AND-RELEASE.md` og `docs/PRIVACY-ARCHITECTURE.md`.

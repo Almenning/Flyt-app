@@ -31,60 +31,12 @@ jobs:
           while IFS= read -r -d '' file; do
             node --check "$file"
           done < <(find . -maxdepth 2 -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -print0)
-      - name: Install browser engines for Læria runtime verification
+      - name: Install browser engines
         run: npx playwright install --with-deps chromium webkit
-      - name: Run complete Node test suite
+      - name: Run HverdagsOss Node test suite
         run: npm run test:node
-      - name: Run Læria local browser verification
-        run: node tests/laer-litt-mer.playwright.js
-      - name: Run Basecamp interaction verification in Chromium and WebKit
-        if: always()
-        env:
-          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
-          QA_WEBKIT_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
-        shell: bash
-        run: |
-          python3 -m http.server 8765 --directory . >/tmp/laria-basecamp-server.log 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
-          for i in {1..20}; do
-            if curl -fsS 'http://127.0.0.1:8765/laer-litt-mer/?app=laria' >/dev/null; then break; fi
-            sleep 0.5
-          done
-          node tests/laria-basecamp-v12.cjs
-      - name: Run general repository browser suite
-        continue-on-error: true
-        shell: bash
-        run: |
-          set +e
-          npm run test:browser 2>&1 | tee browser-test.log
-          status=${PIPESTATUS[0]}
-          exit "$status"
-      - name: Verify exact-head Læria runtime before publishing
-        if: ${{ !cancelled() }}
-        env:
-          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
-        shell: bash
-        run: |
-          # A PR must test its own candidate files, not the prior Pages release.
-          python3 -m http.server 8765 --directory . >/tmp/laria-exact-head-live.log 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
-          for i in {1..30}; do
-            if curl -fsS 'http://127.0.0.1:8765/laer-litt-mer/?app=laria' >/dev/null; then break; fi
-            sleep 0.5
-          done
-          npm run test:laria-live
-      - name: Upload browser test log and actual Basecamp captures
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: browser-test-log-${{ github.run_id }}
-          path: |
-            browser-test.log
-            /tmp/laria-v12-qa/
-          if-no-files-found: ignore
-          retention-days: 7
+      - name: Run HverdagsOss browser suite
+        run: npm run test:browser
 
   pages-config:
     needs: smoke
@@ -119,7 +71,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Package public app files only
+      - name: Package HverdagsOss public app files
         run: node scripts/copy-capacitor-web-assets.mjs && touch www/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
