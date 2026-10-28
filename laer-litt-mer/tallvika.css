@@ -48,9 +48,9 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 @media(orientation:portrait) and (max-width:1100px){
   .tv-main{padding:0}
   .tv-stage{width:100%;max-width:none}
-  .tv-scene{height:calc(100dvh - 70px);min-height:630px;aspect-ratio:auto;border-radius:0;background:#b5b58a url("./assets/tallvika/tallvika-figure-free-20261028.webp") center bottom/auto 92% no-repeat;box-shadow:none}
-  .tv-portrait-sky{display:block;position:absolute;inset:0 0 auto;height:40%;background:url("./assets/tallvika/tallvika-figure-free-20261028.webp") center top/100% auto no-repeat;z-index:1}
-  .tv-portrait-village{display:grid;position:absolute;inset:28% 0 auto;height:47%;grid-template-columns:repeat(3,1fr);z-index:2;-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 14%,black 93%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,black 14%,black 93%,transparent 100%)}
+  .tv-scene{height:calc(100dvh - 70px);min-height:630px;aspect-ratio:auto;border-radius:0;background:linear-gradient(to bottom,#c2e6f3 0%,transparent 43%),url("./assets/tallvika/tallvika-figure-free-20261028.webp") center bottom/auto 95% no-repeat;box-shadow:none}
+  .tv-portrait-sky{display:block;position:absolute;inset:0 0 auto;height:44%;background:url("./assets/tallvika/tallvika-figure-free-20261028.webp") center top/100% auto no-repeat;z-index:1;-webkit-mask-image:linear-gradient(to bottom,black 0%,black 51%,transparent 91%);mask-image:linear-gradient(to bottom,black 0%,black 51%,transparent 91%)}
+  .tv-portrait-village{display:none;pointer-events:none}
   .tv-portrait-village i{display:block;background-image:url("./assets/tallvika/tallvika-figure-free-20261028.webp");background-repeat:no-repeat;background-size:450% auto}
   .tv-portrait-village i:nth-child(1){background-position:4% 49%}
   .tv-portrait-village i:nth-child(2){background-position:44% 49%}
@@ -68,7 +68,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 }
 @media(orientation:portrait) and (max-width:700px){
   .tv-scene{height:calc(100dvh - 58px);min-height:560px}
-  .tv-portrait-sky{height:40%}
+  .tv-portrait-sky{height:42%}
   .tv-portrait-village{top:26%;height:53%}
   .tv-hotspot{top:42%;height:28%}
   .tv-hotspot>span{font-size:clamp(10px,3.1vw,14px);padding:7px 2px!important}
