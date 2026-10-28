@@ -15,8 +15,15 @@ assert.match(js,/class="tv-hotspot tv-hotspot-multiply"/);assert.match(js,/class
 assert.doesNotMatch(js,/tv-mobile-actions|tv-portal-card|tv-dock|tv-navigation-note/,'Tallvika must not render a second activity menu');
 assert.doesNotMatch(css,/tv-mobile-actions|tv-portal-card|tv-dock|tv-portal-art/,'Tallvika must not style a second activity menu');
 assert.match(css,/\.tv-hotspot-multiply\{left:/);assert.match(css,/\.tv-hotspot-fraction\{left:/);assert.match(css,/\.tv-hotspot-table\{right:/);
-assert.match(css,/laria-tallvika-premium-locked-20261027\.png/);
+assert.match(css,/tallvika-figure-free-20261028\.webp/);
 assert.match(css,/min-width:44px;min-height:44px/);assert.match(css,/:focus-visible/);
-for(const name of ['assets/tallvika/laria-tallvika-premium-locked-20261027.png','assets/gangemagi-troll/storesoster.webp','assets/gangemagi-troll/lillesoster.webp','assets/gangemagi-troll/lillebror.webp'])assert.ok(fs.statSync(path.join(root,name)).size>50_000,name+' must remain an original-quality local asset');
+for(const name of ['assets/tallvika/laria-tallvika-premium-locked-20261027.png','assets/tallvika/tallvika-figure-free-20261028.webp','assets/gangemagi-troll/storesoster.webp','assets/gangemagi-troll/lillesoster.webp','assets/gangemagi-troll/lillebror.webp'])assert.ok(fs.statSync(path.join(root,name)).size>50_000,name+' must remain an original-quality local asset');
 assert.match(js,/sceneSrc:'\.\/assets\/tallvika\/storesoster-inworld-approved-20261026\.webp'/);
 console.log('Tallvika integrated-world contract passed');
+
+assert.match(js,/class="tv-next-sign" data-tv="next"/,'Next adventure must be inside the world');
+assert.match(js,/class="tv-actor" data-troll-id=/,'Selected actor must be a separate figure');
+assert.match(js,/tv-actor-speech/,'Actor must speak to the child');
+assert.match(js,/item\.src/,'Picker and stage must use original locked character');
+assert.doesNotMatch(js,/class="tv-next"/,'No outside-world next card');
+assert.match(css,/\.tv-portrait-village/,'Portrait must preserve full mountain and painted destinations');
