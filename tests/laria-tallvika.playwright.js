@@ -22,7 +22,16 @@ async function assertScene(page,label){
   const audit=await scene.evaluate(el=>{const r=el.getBoundingClientRect();return {w:r.width,h:r.height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth,bg:getComputedStyle(el).backgroundImage};});
   assert.ok(audit.w>250&&audit.h>140,label+' has no substantial illustration');
   assert.ok(audit.scroll<=audit.client+2,label+' horizontal overflow');
-  assert.match(audit.bg,/laria-tallvika-premium-locked-20261027\.png/,label+' wrong locked scene master');
+  assert.match(audit.bg,/tallvika-figure-free-20261028\.webp/,label+' wrong derived scene background');
+  assert.equal(await page.locator('#tallvika-world .tv-next').count(),0,label+' outside illustration mission card returned');
+  assert.equal(await scene.locator('.tv-next-sign[data-tv="next"]').count(),1,label+' missing illustrated mission button');
+  const actor=scene.locator('.tv-actor[data-troll-id="storesoster"]');
+  assert.equal(await actor.count(),1,label+' missing selected original troll');
+  assert.equal(await actor.locator('img').getAttribute('src'),'./assets/gangemagi-troll/storesoster.webp',label+' wrong selected artwork');
+  assert.equal(await actor.locator('.tv-actor-speech').count(),1,label+' troll has no speech');
+  const sky=scene.locator('.tv-portrait-sky');
+  const isPortrait=await page.evaluate(()=>matchMedia('(orientation: portrait) and (max-width: 1100px)').matches);
+  assert.equal(await sky.isVisible(),isPortrait,label+' portrait mountain layer mismatch');
 }
 async function run(browserType,label,viewport){
   const browser=await browserType.launch({headless:true,args:browserType===chromium?['--no-sandbox']:[]});
@@ -38,6 +47,8 @@ async function run(browserType,label,viewport){
     // Troll choice remains persisted for existing activity runtime without changing learning data.
     await page.locator('#tallvika-world [data-tv="choose"]').click();await page.locator('.tv-dialog[open]').waitFor();await page.locator('[data-tv-troll="lillebror"]').click();
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),'lillebror',label+' troll selection did not persist');
+    assert.equal(await page.locator('#tallvika-world .tv-actor').getAttribute('data-troll-id'),'lillebror',label+' scene failed to display selected troll');
+    assert.equal(await page.locator('#tallvika-world .tv-actor img').getAttribute('src'),'./assets/gangemagi-troll/lillebror.webp',label+' scene changed original character identity');
     // Each painted destination opens its existing activity and returns in one tap.
     await page.locator('.tv-hotspot[data-tv="multiply"]').click();await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});
     assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Gangemagi lost Tallvika return');
