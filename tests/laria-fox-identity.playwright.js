@@ -89,14 +89,13 @@ async function run(engine,name,viewport,which){
    const target=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    if(subject==='math'){
-     // The locked world already contains the trolls; the picker preserves the
-     // selected identity for activity runtimes without overlaying another one.
+     // The derived figure-free world displays only the selected original troll.
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
      const progressBefore=await page.evaluate(()=>JSON.stringify({journey:state.journey,mastery:state.mastery,skillMastery:state.skillMastery,answerLog:state.answerLog,sessionLog:state.sessionLog}));
-     assert.equal(await tv.locator('.tv-companion').count(),0,name+' duplicated the painted world characters');
+     assert.equal(await tv.locator('.tv-actor[data-troll-id="storesoster"]').count(),1,name+' missing the selected original troll');
      assert.match(await tv.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage),
-       /laria-tallvika-premium-locked-20261027\.png/,name+' wrong locked Tallvika scene');
+       /tallvika-figure-free-20261028\.webp/,name+' wrong locked Tallvika scene');
      assert.equal(await page.evaluate(()=>state.profile?.tallvikaTroll||'storesoster'),'storesoster',
        name+' Tallvika changed the stored troll identity');
      await tv.locator('[data-tv="choose"]').click();
@@ -105,7 +104,7 @@ async function run(engine,name,viewport,which){
      assert.deepEqual(await picker.locator('[data-tv-troll]').evaluateAll(buttons=>buttons.map(button=>({
        id:button.dataset.tvTroll,src:button.querySelector('img').getAttribute('src')
      }))),[
-       {id:'storesoster',src:'./assets/tallvika/storesoster-inworld-approved-20261026.webp'},
+       {id:'storesoster',src:'./assets/gangemagi-troll/storesoster.webp'},
        {id:'lillesoster',src:'./assets/gangemagi-troll/lillesoster.webp'},
        {id:'lillebror',src:'./assets/gangemagi-troll/lillebror.webp'}
      ],name+' wrong approved troll identities');
@@ -113,10 +112,12 @@ async function run(engine,name,viewport,which){
      assert.equal(await picker.locator('[data-tv-troll="storesoster"]').getAttribute('aria-pressed'),'true');
      await picker.locator('[data-tv-troll="lillebror"]').click();
      assert.equal(await page.evaluate(()=>state.profile.tallvikaTroll),'lillebror',name+' troll choice was not saved');
+     assert.equal(await tv.locator('.tv-actor').getAttribute('data-troll-id'),'lillebror',name+' selected actor not switched');
      await page.reload({waitUntil:'domcontentloaded'});
      await page.locator('.bc14-subject[data-camp="subject-math"]').click();
      await tv.waitFor({state:'visible',timeout:16000});
      assert.equal(await page.evaluate(()=>state.profile.tallvikaTroll),'lillebror',name+' troll choice did not survive reload');
+     assert.equal(await tv.locator('.tv-actor').getAttribute('data-troll-id'),'lillebror',name+' visible actor did not survive reload');
      await tv.locator('[data-tv="choose"]').click();
      await picker.waitFor({state:'visible'});
      assert.equal(await picker.locator('[data-tv-troll="lillebror"]').getAttribute('aria-pressed'),'true',name+' restored the wrong troll identity');
