@@ -132,6 +132,11 @@
             <button type="button" class="tv-hotspot tv-hotspot-fraction" data-tv="fraction" aria-label="Åpne Brøklab"><span>Brøklab</span></button>
             <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><span>Gangetabellen</span></button>
           </div>
+          <section class="tv-next" aria-label="Neste matematikkoppdrag">
+            <span class="tv-next-crest" aria-hidden="true">✦</span>
+            <div class="tv-next-content"><small>NESTE EVENTYR · HELT FRIVILLIG</small><b>${p?.complete ? 'Bonusoppdraget venter' : esc(n?.title || 'Et nytt oppdrag venter')}</b><span>Fortsett når du har lyst.</span></div>
+            <button type="button" data-tv="next" ${n||p?.complete?'':'disabled'}>Utforsk ↗</button>
+          </section>
         </div>
       </main>
       <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.sceneSrc}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
@@ -152,6 +157,7 @@
     if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
     if (action === 'multiply'||action === 'fraction'||action === 'table')
       beginActivity(action,button);
+    if (action === 'next') { const {p,n,grade}=progress(); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
   });
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv-troll]');

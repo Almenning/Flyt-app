@@ -804,12 +804,11 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map').isVisible(),false,'the retired Math journey artwork must stay hidden');
     const mathNextId=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
     assert.ok(mathNextId,'Tallvika must preserve the existing recommended Math mission');
-    // The integrated world has no duplicate mission button. Exercise the
-    // existing progression API directly to verify that its data still works.
-    assert.equal(await tallvika.locator('[data-tv="next"]').count(),0,'Tallvika must not restore a duplicate mission button');
-    await page.evaluate(id=>startJourneyNode('math',id),mathNextId);
+    const tallvikaNext=tallvika.locator('[data-tv="next"]');
+    assert.equal(await tallvikaNext.isEnabled(),true,'optional Tallvika missions must remain playable');
+    await tallvikaNext.click();
     await page.locator('#session-screen.active').waitFor();
-    assert.equal(await page.evaluate(()=>sessionScope?.journeyNode),mathNextId,'the original progression node must remain playable');
+    assert.equal(await page.evaluate(()=>sessionScope?.journeyNode),mathNextId,'Tallvika must open the original progression node');
     assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
     await page.locator('#close-session').click();
     await tallvika.waitFor({state:'visible',timeout:16000});
