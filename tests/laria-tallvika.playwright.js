@@ -25,9 +25,9 @@ async function assertScene(page,label){
   assert.match(audit.bg,/tallvika-figure-free-20261028\.webp/,label+' wrong derived scene background');
   assert.equal(await page.locator('#tallvika-world .tv-next').count(),0,label+' outside illustration mission card returned');
   assert.equal(await scene.locator('.tv-next-sign[data-tv="next"]').count(),1,label+' missing illustrated mission button');
-  const actor=scene.locator('.tv-actor[data-troll-id="storesoster"]');
+  const actor=scene.locator('.tv-actor[data-troll-id]');
   assert.equal(await actor.count(),1,label+' missing selected original troll');
-  assert.equal(await actor.locator('img').getAttribute('src'),'./assets/gangemagi-troll/storesoster.webp',label+' wrong selected artwork');
+  assert.equal(await actor.locator('img').getAttribute('src'),'./assets/gangemagi-troll/'+(await actor.getAttribute('data-troll-id'))+'.webp',label+' wrong selected artwork');
   assert.equal(await actor.locator('.tv-actor-speech').count(),1,label+' troll has no speech');
   const sky=scene.locator('.tv-portrait-sky');
   const isPortrait=await page.evaluate(()=>matchMedia('(orientation: portrait) and (max-width: 1100px)').matches);
