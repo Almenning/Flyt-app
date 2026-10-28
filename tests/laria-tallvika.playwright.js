@@ -70,6 +70,6 @@ async function run(browserType,label,viewport){
   } finally {await browser.close();}
 }
 (async()=>{
-  const devices=[['ipad-landscape',{width:1194,height:834}],['ipad-portrait',{width:834,height:1112}],['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}]];
+  const devices=[['mac-landscape',{width:1512,height:982}],['ipad-landscape',{width:1194,height:834}],['ipad-portrait',{width:834,height:1112}],['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}]];
   for(const [name,viewport] of devices){await run(chromium,'chromium-'+name,viewport);await run(webkit,'webkit-'+name,viewport);}
 })().catch(error=>{console.error(error);process.exitCode=1;});
