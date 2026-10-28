@@ -95,3 +95,15 @@ Det nye `Almenning/HverdagsOss` skal ikke bli aktiv kilde før alle disse er opp
 - Ikke merge exportgrenen til `main`.
 
 Først når det nye repoet er opprettet, kopieres denne isolerte tree-tilstanden dit og verifiseres parallelt.
+
+
+## Identifisert cutover-avhengighet
+
+`sync.js` er bevisst beholdt byte-identisk med sikkerhetsgrenen, men inneholder dagens produksjonsadresser:
+
+- `https://almenning.github.io/Flyt-app/`
+- `https://almenning.github.io/Flyt-app/reset.html`
+- `https://almenning.github.io/Flyt-app/invite.html`
+- innkommende web-invitasjoner valideres mot host `almenning.github.io` og path `/Flyt-app/`
+
+Disse skal **ikke** endres før nytt HverdagsOss-repo og ny Pages-adresse er opprettet og testet. Ved cutover må partnerinvitasjon, reset, OAuth/redirect og Supabase-redirect allowlist verifiseres samlet før gammel adresse fases ut.
