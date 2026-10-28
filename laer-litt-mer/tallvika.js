@@ -17,10 +17,22 @@
     'Se på husene! Hvor skal vi leke først?'
   ];
   let speechIndex = 0;
-  const speak = message => {
+  const speak = (message, readAloud = false) => {
     currentSpeech = message;
     const bubble = document.querySelector('#tallvika-world .tv-actor-speech');
     if (bubble) bubble.textContent = message;
+    // A spoken reply only follows an explicit child tap and respects sound off.
+    if (readAloud && app()?.state()?.preferences?.sound !== false &&
+        'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'nb-NO';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.08;
+        window.speechSynthesis.speak(utterance);
+      } catch (_) { /* Speech is optional; the accessible bubble still works. */ }
+    }
   };
   const screen = document.getElementById('subject-screen');
   if (!screen) return;
@@ -174,7 +186,7 @@
     if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
     if (action === 'troll') {
       speechIndex=(speechIndex+1)%greetings.length;
-      speak(greetings[speechIndex]);
+      speak(greetings[speechIndex], true);
     }
     if (action === 'multiply'||action === 'fraction'||action === 'table') {
       const title=activityNames[action];
