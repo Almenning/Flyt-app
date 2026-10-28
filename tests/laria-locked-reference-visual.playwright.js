@@ -73,7 +73,7 @@ async function check(engine,label,viewport){
      await tv.waitFor({state:'visible',timeout:16000});
      assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' missing Math houses');
      assert.match(await tv.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage),
-       /tallvika-master-laast-20261025\.png/,label+' wrong original Math art');
+       /laria-tallvika-premium-locked-20261027\.png/,label+' wrong original Math art');
      await tv.locator('[data-tv="back"]').click();
      await page.locator('#home-screen.active').waitFor();
      continue;
