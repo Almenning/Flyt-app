@@ -26,7 +26,7 @@
   };
   // View-only routing: never store navigation in the learning profile.
   const activityNames={multiply:'Gangemagi',fraction:'Brøklab',table:'Gangetabellen'};
-  let entryContext=null,lastVisited=null;
+  let entryContext=null;
   const activityScreen=action=>document.getElementById(action==='fraction'
     ?'fraction-lab-screen':'multiplication-lab-screen');
   // An activity can be exited through Home/edge navigation rather than its
@@ -45,10 +45,10 @@
     const lab=activityScreen(action);
     if(!activityNames[action]||lab?.dataset.tvOrigin!==action||
       entryContext?.action!==action)return false;
-    const previous=entryContext,previousVisited=lastVisited;
+    const previous=entryContext;
     delete lab.dataset.tvOrigin;
     if(action==='table')delete lab.dataset.mpDirectTallvika;
-    entryContext=null;lastVisited=action;
+    entryContext=null;
     try{
       if(typeof window.openSubject!=='function')throw new Error('No maths route');
       window.openSubject('math');
@@ -60,10 +60,7 @@
     // App navigation scrolls to the top. Restore the child's prior place
     // afterwards, and restore focus for keyboard / assistive navigation.
     requestAnimationFrame(()=>{
-      const selector=previous.source==='scene'
-        ?'.tv-scene .tv-hotspot[data-tv="'+action+'"]'
-        :'.tv-mobile-actions .tv-portal-card[data-tv="'+action+'"]';
-      const button=document.querySelector('#tallvika-world '+selector);
+      const button=document.querySelector('#tallvika-world .tv-scene .tv-hotspot[data-tv="'+action+'"]');
       if(button)try{button.focus({preventScroll:true})}catch(_){}
       window.scrollTo(0,previous.scrollY||0);
     });
@@ -72,7 +69,7 @@
   function beginActivity(action,button){
     const lab=activityScreen(action);
     if(!activityNames[action]||!lab)return false;
-    entryContext={action,source:button.classList.contains('tv-hotspot')?'scene':'card',
+    entryContext={action,
       scrollY:Math.max(0,window.scrollY||document.documentElement.scrollTop||0)};
     lab.dataset.tvOrigin=action;
     let started=false;
@@ -89,8 +86,7 @@
     delete lab.dataset.tvOrigin;
     if(action==='table')delete lab.dataset.mpDirectTallvika;
     entryContext=null;
-    const note=document.getElementById('tv-navigation-note');
-    if(note)note.textContent='Vi fikk ikke åpnet '+activityNames[action]+'. Prøv igjen.';
+    screen.setAttribute('aria-label',activityNames[action]+' kunne ikke åpnes. Prøv igjen.');
     return false;
   }
   function build() {
@@ -114,7 +110,7 @@
     // Only re-render when the visible, persisted world state really changed.
     const renderKey = JSON.stringify({
       selected,grade,ownGrade,name,next:n?.id||null,nextTitle:n?.title||null,
-      done:p?.done||0,total:p?.total||0,complete:!!p?.complete,lastVisited
+      done:p?.done||0,total:p?.total||0,complete:!!p?.complete
     });
     if (root.dataset.tvRenderKey === renderKey && screen.classList.contains('tallvika-active')) return;
     root.dataset.tvRenderKey = renderKey;
@@ -132,43 +128,15 @@
         <div class="tv-stage">
           <div class="tv-scene">
             <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus og lek med tall.</span></div>
-            <div class="tv-companion" data-troll-id="${selected}" aria-label="Valgt følgesvenn: ${troll.name}">${selected==='storesoster'?'<span class="tv-companion__ground" aria-hidden="true"></span>':''}<img src="${troll.sceneSrc}" alt="${troll.name}"></div>
-            <button type="button" class="tv-hotspot tv-hotspot-multiply" data-tv="multiply" aria-label="Åpne Gangemagi"><span class="tv-hotspot-cue" aria-hidden="true">↗</span><b>Gangemagi</b></button>
-            <button type="button" class="tv-hotspot tv-hotspot-fraction" data-tv="fraction" aria-label="Åpne Brøklab"><span class="tv-hotspot-cue" aria-hidden="true">↗</span><b>Brøklab</b></button>
-            <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><span class="tv-hotspot-cue" aria-hidden="true">↗</span><b>Gangetabellen</b></button>
-            <!-- The painted 'Neste eventyr' sign already looks like a link.
-                 Reuse the existing voluntary journey action, without a new step. -->
-            <button type="button" class="tv-scene-next" data-tv="next-sign"
-              aria-label="${p?.complete ? 'Åpne frivillig bonusoppdrag i matte' : n ? 'Åpne neste matteoppdrag: '+esc(n.title || 'Neste eventyr') : 'Ingen nye matteoppdrag tilgjengelig'}"
-              ${n||p?.complete?'':'disabled'}></button>
+            <button type="button" class="tv-hotspot tv-hotspot-multiply" data-tv="multiply" aria-label="Åpne Gangemagi"><span>Gangemagi</span></button>
+            <button type="button" class="tv-hotspot tv-hotspot-fraction" data-tv="fraction" aria-label="Åpne Brøklab"><span>Brøklab</span></button>
+            <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><span>Gangetabellen</span></button>
           </div>
-          <div class="tv-scene-footer" aria-hidden="true"><span class="tv-scene-dot"></span>Et lite eventyrland for store oppdagelser<span class="tv-scene-line"></span><span class="tv-scene-mark">✦</span></div>
-        </div>
-        <div class="tv-dock">
-          <div class="tv-dock-intro"><span class="tv-kicker">VELG ET STED</span><h1>Hvor vil du leke?</h1><p>${lastVisited?'Tilbake fra '+activityNames[lastVisited]+'. Velg det du har lyst til!':'Trykk på et hus i bildet, eller velg et av kortene.'}</p></div>
-          <div class="tv-mobile-actions" aria-label="Tallvikas aktiviteter">
-            <button type="button" class="tv-portal-card${lastVisited==='multiply'?' tv-visited':''}" data-tv="multiply" aria-label="Åpne Gangemagi, plukk og pakk med gange">
-              <span class="tv-portal-art tv-portal-art-multiply" aria-hidden="true"><span class="tv-portal-badge">×</span></span>
-              <span class="tv-portal-copy"><span class="tv-portal-kicker">MAGISK MATTE</span><b>Gangemagi</b><small>Plukk og pakk med gange</small></span>
-              <span class="tv-portal-arrow" aria-hidden="true">↗</span>
-            </button>
-            <button type="button" class="tv-portal-card${lastVisited==='fraction'?' tv-visited':''}" data-tv="fraction" aria-label="Åpne Brøklab, del opp og prøv selv">
-              <span class="tv-portal-art tv-portal-art-fraction" aria-hidden="true"><span class="tv-portal-badge">¼</span></span>
-              <span class="tv-portal-copy"><span class="tv-portal-kicker">LEK OG OPPDAG</span><b>Brøklab</b><small>Del opp, bygg og prøv selv</small></span>
-              <span class="tv-portal-arrow" aria-hidden="true">↗</span>
-            </button>
-            <button type="button" class="tv-portal-card${lastVisited==='table'?' tv-visited':''}" data-tv="table" aria-label="Åpne Gangetabellen, utforsk mønstre">
-              <span class="tv-portal-art tv-portal-art-table" aria-hidden="true"><span class="tv-portal-badge">10×</span></span>
-              <span class="tv-portal-copy"><span class="tv-portal-kicker">FINN MØNSTRE</span><b>Gangetabellen</b><small>Utforsk tallene på din måte</small></span>
-              <span class="tv-portal-arrow" aria-hidden="true">↗</span>
-            </button>
-          </div>
-          <section class="tv-next">
+          <section class="tv-next" aria-label="Neste matematikkoppdrag">
             <span class="tv-next-crest" aria-hidden="true">✦</span>
-            <div class="tv-next-content"><small>NESTE EVENTYR · HELT FRIVILLIG</small><b>${p?.complete ? 'Bonusoppdraget venter' : n?.title || 'Et nytt oppdrag venter'}</b><span>Fortsett når du har lyst.</span></div>
+            <div class="tv-next-content"><small>NESTE EVENTYR · HELT FRIVILLIG</small><b>${p?.complete ? 'Bonusoppdraget venter' : esc(n?.title || 'Et nytt oppdrag venter')}</b><span>Fortsett når du har lyst.</span></div>
             <button type="button" data-tv="next" ${n||p?.complete?'':'disabled'}>Utforsk ↗</button>
           </section>
-          <p class="tv-navigation-note" id="tv-navigation-note" role="alert" aria-live="assertive"></p>
         </div>
       </main>
       <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.sceneSrc}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
@@ -189,7 +157,7 @@
     if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
     if (action === 'multiply'||action === 'fraction'||action === 'table')
       beginActivity(action,button);
-    if (action === 'next' || action === 'next-sign') { const {p,n,grade}=progress(); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
+    if (action === 'next') { const {p,n,grade}=progress(); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
   });
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv-troll]');

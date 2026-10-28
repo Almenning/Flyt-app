@@ -1,10 +1,10 @@
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),crypto=require('node:crypto'),zlib=require('node:zlib');
-const file='laer-litt-mer/assets/tallvika/tallvika-master-laast-20261025.png';
+const file='laer-litt-mer/assets/tallvika/laria-tallvika-premium-locked-20261027.png';
 const data=fs.readFileSync(file);
 const sha=crypto.createHash('sha256').update(data).digest('hex');
-assert.equal(sha,'eff445ccbc59b143fc587081e50b0f0fadc58e3668e2a15c52b7e41a036865dd','The approved Tallvika scene must be pixel-identical to verified source');
+assert.equal(sha,'632c9a2a1476e220e493b6e802e044bdfb025e9afc02e7f62fcc39c81cc4a3a5','The approved Tallvika scene must be pixel-identical to verified source');
 assert.equal(data.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
 let i=8,idat=[],width=0,height=0,depth=0,color=0,ended=false;
 while(i<data.length){
@@ -18,7 +18,7 @@ while(i<data.length){
 }
 assert.equal(ended,true,'PNG is missing IEND');
 assert.equal(i,data.length,'Trailing PNG bytes found');
-assert.deepEqual([width,height,depth,color],[1672,941,8,2]);
+assert.deepEqual([width,height,depth,color],[1602,981,8,2]);
 const raw=zlib.inflateSync(Buffer.concat(idat));
-assert.equal(raw.length,941*(1672*3+1),'Image has incomplete decoded scanlines');
-console.log('PASS: Tallvika locked illustration fully decodes to 941 rows, exact approved SHA256');
+assert.equal(raw.length,981*(1602*3+1),'Image has incomplete decoded scanlines');
+console.log('PASS: Tallvika locked 2026-10-27 illustration fully decodes, exact approved SHA256');

@@ -89,17 +89,42 @@ async function run(engine,name,viewport,which){
    const target=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    if(subject==='math'){
-     // Tallvika is troll-led. Storesøster keeps the same locked identity but
-     // uses the separately user-approved painterly scene asset inside Tallvika.
-     // The saved profile/progress contract must remain untouched.
+     // The locked world already contains the trolls; the picker preserves the
+     // selected identity for activity runtimes without overlaying another one.
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     const original=tv.locator('.tv-companion[data-troll-id="storesoster"] img');
-     assert.match(await original.getAttribute('src'),/assets\/tallvika\/storesoster-inworld-approved-20261026\.webp$/,
-       name+' incorrect approved Tallvika Storesoster');
+     const progressBefore=await page.evaluate(()=>JSON.stringify({journey:state.journey,mastery:state.mastery,skillMastery:state.skillMastery,answerLog:state.answerLog,sessionLog:state.sessionLog}));
+     assert.equal(await tv.locator('.tv-companion').count(),0,name+' duplicated the painted world characters');
+     assert.match(await tv.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage),
+       /laria-tallvika-premium-locked-20261027\.png/,name+' wrong locked Tallvika scene');
      assert.equal(await page.evaluate(()=>state.profile?.tallvikaTroll||'storesoster'),'storesoster',
        name+' Tallvika changed the stored troll identity');
-     await original.evaluate(img=>img.decode());
+     await tv.locator('[data-tv="choose"]').click();
+     const picker=tv.locator('.tv-dialog[open]');
+     await picker.waitFor({state:'visible'});
+     assert.deepEqual(await picker.locator('[data-tv-troll]').evaluateAll(buttons=>buttons.map(button=>({
+       id:button.dataset.tvTroll,src:button.querySelector('img').getAttribute('src')
+     }))),[
+       {id:'storesoster',src:'./assets/tallvika/storesoster-inworld-approved-20261026.webp'},
+       {id:'lillesoster',src:'./assets/gangemagi-troll/lillesoster.webp'},
+       {id:'lillebror',src:'./assets/gangemagi-troll/lillebror.webp'}
+     ],name+' wrong approved troll identities');
+     await picker.locator('img').evaluateAll(images=>Promise.all(images.map(img=>img.decode())));
+     assert.equal(await picker.locator('[data-tv-troll="storesoster"]').getAttribute('aria-pressed'),'true');
+     await picker.locator('[data-tv-troll="lillebror"]').click();
+     assert.equal(await page.evaluate(()=>state.profile.tallvikaTroll),'lillebror',name+' troll choice was not saved');
+     await page.reload({waitUntil:'domcontentloaded'});
+     await page.locator('.bc14-subject[data-camp="subject-math"]').click();
+     await tv.waitFor({state:'visible',timeout:16000});
+     assert.equal(await page.evaluate(()=>state.profile.tallvikaTroll),'lillebror',name+' troll choice did not survive reload');
+     await tv.locator('[data-tv="choose"]').click();
+     await picker.waitFor({state:'visible'});
+     assert.equal(await picker.locator('[data-tv-troll="lillebror"]').getAttribute('aria-pressed'),'true',name+' restored the wrong troll identity');
+     await picker.locator('[data-tv-troll="storesoster"]').click();
+     assert.equal(await page.evaluate(()=>state.profile.tallvikaTroll),'storesoster',name+' restoring the original troll failed');
+     assert.equal(await page.evaluate(()=>state.profile.avatar),which,name+' troll choice changed the fox profile');
+     assert.equal(await page.evaluate(()=>JSON.stringify({journey:state.journey,mastery:state.mastery,skillMastery:state.skillMastery,answerLog:state.answerLog,sessionLog:state.sessionLog})),progressBefore,
+       name+' choosing a troll changed learning progress');
      await page.screenshot({path:folder+'/'+name+'-math-tallvika.png',fullPage:true});
      await tv.locator('[data-tv="next"]').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});

@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: laria-tallvika-original-art-${{ github.sha }}
-          path: laer-litt-mer/assets/tallvika/tallvika-master-laast-20261025.png
+          path: laer-litt-mer/assets/tallvika/laria-tallvika-premium-locked-20261027.png
           if-no-files-found: error
           retention-days: 7
       - name: Upload visual evidence
