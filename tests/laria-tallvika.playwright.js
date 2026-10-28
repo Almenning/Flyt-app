@@ -41,6 +41,10 @@ async function run(browserType,label,viewport){
     const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
     await page.route('https://raw.githubusercontent.com/**',route=>route.abort());await page.route('https://api.worldbank.org/**',route=>route.abort());
     await enter(page);await assertScene(page,label);await screenshot(page,label);
+    const bubble=page.locator('#tallvika-world .tv-actor-speech');
+    const beforeSpeech=await bubble.innerText();
+    await page.locator('#tallvika-world .tv-actor-touch').click();
+    assert.notEqual(await bubble.innerText(),beforeSpeech,label+' troll did not answer a tap');
     // Class selection remains a view preference, not a mutation of the child profile.
     await page.locator('#tallvika-world [data-tv="grade"]').click();await page.locator('.tv-grade-dialog[open]').waitFor();await page.locator('[data-tv-grade="3"]').click();
     assert.deepEqual(await page.evaluate(()=>[window.LARIA_TALLVIKA_BRIDGE.currentGrade(),window.LARIA_TALLVIKA_BRIDGE.journeyViewGrade('math')]),[2,3],label+' grade picker changed profile grade');
