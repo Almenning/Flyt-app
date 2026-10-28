@@ -49,12 +49,12 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-main{padding:0}
   .tv-stage{width:100%;max-width:none}
   .tv-scene{height:calc(100dvh - 70px);min-height:630px;aspect-ratio:auto;border-radius:0;background:linear-gradient(to bottom,#b5d8e9 0%,#b5d8e9 23%,transparent 49%),url("./assets/tallvika/tallvika-figure-free-20261028.webp") center bottom/auto 126% no-repeat;box-shadow:none}
-  .tv-portrait-sky{display:block;position:absolute;inset:0 0 auto;height:34%;background:url("./assets/tallvika/tallvika-figure-free-20261028.webp") center top/100% auto no-repeat;z-index:1;-webkit-mask-image:linear-gradient(to bottom,black 0%,black 54%,transparent 94%);mask-image:linear-gradient(to bottom,black 0%,black 54%,transparent 94%)}
-  .tv-portrait-village{display:none;pointer-events:none}
-  .tv-portrait-village i{display:block;background-image:url("./assets/tallvika/tallvika-figure-free-20261028.webp");background-repeat:no-repeat;background-size:450% auto}
-  .tv-portrait-village i:nth-child(1){background-position:4% 49%}
-  .tv-portrait-village i:nth-child(2){background-position:44% 49%}
-  .tv-portrait-village i:nth-child(3){background-position:100% 49%}
+  .tv-portrait-sky{display:block;position:absolute;inset:0 0 auto;height:34%;background:url("./assets/tallvika/tallvika-figure-free-20261028.webp") center top/100% auto no-repeat;z-index:3;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,black 0%,black 38%,transparent 84%);mask-image:linear-gradient(to bottom,black 0%,black 38%,transparent 84%)}
+  .tv-portrait-village{display:grid;position:absolute;inset:27% 0 auto;height:52%;grid-template-columns:repeat(3,minmax(0,1fr));z-index:2;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 82%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 82%,transparent 100%)}
+  .tv-portrait-village i{display:block;background-image:url("./assets/tallvika/tallvika-figure-free-20261028.webp");background-repeat:no-repeat;background-size:auto 155%}
+  .tv-portrait-village i:nth-child(1){background-position:0% 100%}
+  .tv-portrait-village i:nth-child(2){background-position:50% 100%}
+  .tv-portrait-village i:nth-child(3){background-position:100% 100%}
   .tv-hotspot{top:36%;height:25%;border-radius:22px;z-index:4;min-width:44px}
   .tv-hotspot-multiply{left:1%;width:32%}
   .tv-hotspot-fraction{left:34%;width:32%}
@@ -69,7 +69,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 @media(orientation:portrait) and (max-width:700px){
   .tv-scene{height:calc(100dvh - 58px);min-height:560px}
   .tv-portrait-sky{height:34%}
-  .tv-portrait-village{top:26%;height:53%}
+  .tv-portrait-village{top:27%;height:51%}
   .tv-hotspot{top:36%;height:25%}
   .tv-hotspot>span{font-size:clamp(10px,3.1vw,14px);padding:7px 2px!important}
   .tv-actor{left:1.5%;bottom:7%;width:clamp(85px,25%,125px);height:22%}
