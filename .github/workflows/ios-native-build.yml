@@ -3,7 +3,7 @@ name: iOS native build
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, migration/hverdagsoss-extract-20261028]
     paths:
       - 'ios/**'
       - 'capacitor.config.json'
