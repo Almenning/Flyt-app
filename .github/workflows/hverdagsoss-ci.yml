@@ -1,0 +1,59 @@
+name: HverdagsOss CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'chore/hverdagsoss-split-prep-20261028'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hverdagsoss-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find . -maxdepth 2 -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -print0)
+
+      - name: Install browser engines
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run HverdagsOss Node tests
+        run: npm run test:node
+
+      - name: Run HverdagsOss browser tests
+        run: npm run test:browser
+
+      - name: Verify Capacitor web asset package
+        run: |
+          npm run cap:copy
+          test -f www/index.html
+          test -f www/manifest.webmanifest
+          test -f www/sync.js
+          test -f www/home-ui.js
+          test -f www/tasks-ui.js
+          test -f www/seen-ui.js
+          test -f www/rewards-ui.js
