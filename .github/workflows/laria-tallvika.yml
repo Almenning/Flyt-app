@@ -10,6 +10,7 @@ on:
       - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-tallvika*'
+      - '.github/workflows/laria-tallvika.yml'
   push:
     branches: [main]
     paths:
@@ -19,6 +20,7 @@ on:
       - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-tallvika*'
+      - '.github/workflows/laria-tallvika.yml'
 
 permissions:
   contents: read
@@ -58,3 +60,47 @@ jobs:
           path: /tmp/laria-tallvika
           if-no-files-found: warn
           retention-days: 14
+
+  pages-live:
+    name: Verify published Tallvika source (not only local browser tests)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: tallvika
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check GitHub Pages serves the exact merged HTML, JS, CSS and locked image
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://almenning.github.io/Flyt-app/laer-litt-mer"
+          download() {
+            curl --fail --silent --show-error --location --max-time 25 \
+              --header 'Cache-Control: no-cache' \
+              --header 'Pragma: no-cache' \
+              "$1" --output "$2"
+          }
+          for attempt in $(seq 1 48); do
+            if download "$base/?app=laria&revision=$GITHUB_SHA" /tmp/laria-live.html &&
+               download "$base/tallvika.js?revision=$GITHUB_SHA" /tmp/laria-live-tallvika.js &&
+               download "$base/tallvika.css?revision=$GITHUB_SHA" /tmp/laria-live-tallvika.css &&
+               download "$base/sw.js?revision=$GITHUB_SHA" /tmp/laria-live-sw.js &&
+               download "$base/assets/tallvika/laria-tallvika-premium-locked-20261027.png?revision=$GITHUB_SHA" /tmp/laria-live-art.png &&
+               cmp -s /tmp/laria-live.html laer-litt-mer/index.html &&
+               cmp -s /tmp/laria-live-tallvika.js laer-litt-mer/tallvika.js &&
+               cmp -s /tmp/laria-live-tallvika.css laer-litt-mer/tallvika.css &&
+               cmp -s /tmp/laria-live-sw.js laer-litt-mer/sw.js &&
+               cmp -s /tmp/laria-live-art.png laer-litt-mer/assets/tallvika/laria-tallvika-premium-locked-20261027.png; then
+              if grep -Eq 'tv-dock|tv-mobile-actions|tv-portal-card' /tmp/laria-live-tallvika.js; then
+                echo 'FAIL: obsolete parallel Tallvika navigation is still in published JS.' >&2
+                exit 1
+              fi
+              echo "PASS: Pages serves exact merged HTML, JS, CSS, service worker and approved Tallvika art for $GITHUB_SHA."
+              sha256sum /tmp/laria-live-art.png
+              exit 0
+            fi
+            echo "Pages content not yet equal to main; attempt $attempt/48"
+            sleep 10
+          done
+          echo 'FAIL: GitHub Pages remains out of sync with merged Tallvika.' >&2
+          exit 1
