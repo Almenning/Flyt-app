@@ -84,7 +84,8 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-top{height:44px}
   .tv-actor{width:clamp(72px,9%,128px);height:29%;left:1%;bottom:1%}
   .tv-actor-speech{width:170px;font-size:12px;top:-10%}
-  .tv-next-sign{min-height:48px;width:185px;padding:5px 8px}
+  /* Rotation pushed the sign outside the short iPhone landscape viewport. */
+  .tv-next-sign{right:3%;bottom:7%;min-height:48px;width:185px;padding:5px 8px;transform:none}
   .tv-next-sign strong{font-size:14px}
   .tv-next-sign .tv-next-title{font-size:10px}
 }

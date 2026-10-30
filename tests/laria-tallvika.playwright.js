@@ -29,9 +29,9 @@ async function assertScene(page,label){
   assert.equal(await actor.count(),1,label+' missing selected original troll');
   assert.equal(await actor.locator('img').getAttribute('src'),'./assets/gangemagi-troll/'+(await actor.getAttribute('data-troll-id'))+'.webp',label+' wrong selected artwork');
   assert.equal(await actor.locator('.tv-actor-speech').count(),1,label+' troll has no speech');
-  const sky=scene.locator('.tv-portrait-sky');
-  const isPortrait=await page.evaluate(()=>matchMedia('(orientation: portrait) and (max-width: 1100px)').matches);
-  assert.equal(await sky.isVisible(),isPortrait,label+' portrait mountain layer mismatch');
+  // Portrait deliberately uses one continuous figure-free asset.  The prior
+  // panorama overlay caused visible seams, so it must not return.
+  assert.equal(await scene.locator('.tv-portrait-sky:visible').count(),0,label+' rejected portrait collage returned');
 }
 async function run(browserType,label,viewport){
   const browser=await browserType.launch({headless:true,args:browserType===chromium?['--no-sandbox']:[]});
