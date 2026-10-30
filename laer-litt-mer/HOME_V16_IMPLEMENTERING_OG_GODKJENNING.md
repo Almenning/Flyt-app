@@ -26,3 +26,17 @@
 
 ## Ikke villedende forhåndsvisning
 Det nåværende bildet i pilot inneholder fremdeles de **malte** fagkortene nederst, selv om deres trykkflater er deaktivert. Skjermbilder fra piloten er ikke bevis for at kortene er fjernet, og skal merkes som **ikke kunstgodkjent**.
+
+
+## Nytt i andre implementeringsetappe (30. oktober)
+- En **ren bakgrunnskandidat** ble laget lokalt fra v15-masteren, uten de fire malte kortene. Bare høyre nedre del av originalen er rekonstruert fra eksisterende designreferanse; fjellene, himmelen, øvre deler av trollene og venstreskiltene forblir originale piksler. Den gamle, innmalte linjen under «Fortsett reisen» er renset slik at levende progresjonstekst kan gjengis direkte på treverket.
+- Kandidatens fil: `laer-litt-mer/assets/home-v16/kjosnes-home-desktop-clean-DRAFT.webp` (1127 × 681, tapsfri WebP, **1 201 462 byte**).
+- SHA-256 for **kandidat**, ikke original: `4efcf7783cd83e46a22cc1c51269039a309b8ba1400ee6eab6e478657e129ee0`.
+- Den ligger foreløpig som en lokal leveranse / Library-fil og må overføres til denne PR-en før den vises i appens faktiske prøvevisning. **Ikke lat som den allerede finnes i GitHub.**
+- `home-v16-preview.js` verifiserer både SHA og dimensjoner ved valgfri visning før utkastet kan brukes. Hvis filen ikke finnes eller ikke stemmer, brukes den eksakte v15-masteren. Ingen fullskjermregenerering, og ingen endring av originalfilene.
+- Når kandidaten faktisk ligger i PR-en, testes også det pikselidentiske fjellområdet (hele bredden, rad 0–425) via Chromium/WebKit og `tests/laria-home-v16-preview.playwright.js`, i tillegg til fungerende fagmenyer og progresjon.
+- Den nye dynamiske underteksten gjengis **uten rektangulær bakgrunn** i den rensede kandidaten. Uten kandidat får v15 beholde sitt eksisterende uttrykk.
+- Denne kandidaten er **ikke kunstgodkjent**. Merk alle skjermbilder med kilde/commit og om bildefilen var inkludert.
+
+### Oppgave ved neste Work-økt
+Hent den leverte ZIP-pakken `Laeria_Hjem_v16_renset_bakgrunn_PR241_DRAFT.zip`, legg WebP-filen på nøyaktig sti angitt ovenfor, verifiser SHA-256 uten å endre forventet verdi, og kjør GitHub Actions på PR #241. Vis **faktiske appskjermbilder** av PC og liggende iPad etter overføringen. For stående iPhone/iPad må separat godkjent illustrasjon fortsatt utformes, ikke maskeres med oppfunne fjell. Ingen merge eller publisering.
