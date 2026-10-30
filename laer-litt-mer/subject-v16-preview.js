@@ -10,11 +10,21 @@
  const enabled=new URLSearchParams(location.search).has('laria-subject-v16-preview');
  if(!enabled)return;
  let previous='';
+ function showSelectedEnglishTroll(root,key){
+  if(key!=='english')return;
+  const state=window.LARIA_TALLVIKA_BRIDGE?.state?.();
+  const selected=state?.profile?.tallvikaTroll||'storesoster';
+  root.querySelectorAll('.ki-troll').forEach(troll=>{
+   troll.hidden=troll.dataset.kiCharacter!==selected;
+   troll.style.display=troll.hidden?'none':'';
+  });
+ }
+
  function update(){
   const key=screen.classList.contains('active')?screen.dataset.subject:'';
   const config=subjectRoutes[key];const root=config&&document.getElementById(config.root);
   if(!root){screen.classList.remove('laria-v16-norsk','laria-v16-matte','laria-v16-engelsk');previous='';return;}
-  if(previous===key&&root.querySelector('.laria-v16-signnav'))return;
+  if(previous===key&&root.querySelector('.laria-v16-signnav')){showSelectedEnglishTroll(root,key);return;}
   previous=key;
   screen.classList.remove('laria-v16-norsk','laria-v16-matte','laria-v16-engelsk');
   // Do not enable the prototype until the clean art file is signed off.
@@ -36,6 +46,7 @@
   // Place on top of the existing stage; navigation is present even when images cannot be edited.
   const stage=root.querySelector(config.css==='norsk'?'.eg-hero':config.css==='matte'?'.tv-scene':'.ki-stage');
   stage?.append(nav);
+  showSelectedEnglishTroll(root,key);
  }
  new MutationObserver(update).observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
  update();
