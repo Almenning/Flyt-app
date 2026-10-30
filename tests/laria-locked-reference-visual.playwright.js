@@ -71,7 +71,7 @@ async function check(engine,label,viewport){
      // and eight-viewport WebKit/Chromium raster checks.
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' missing Math houses');
+     assert.equal(await tv.locator('.tv-sign').count(),3,label+' missing Math activity signs');
      assert.match(await tv.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage),
        /tallvika-figure-free-20261028\.webp/,label+' wrong original Math art');
      await tv.locator('[data-tv="back"]').click();
