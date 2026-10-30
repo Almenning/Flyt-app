@@ -85,7 +85,7 @@
     // App navigation scrolls to the top. Restore the child's prior place
     // afterwards, and restore focus for keyboard / assistive navigation.
     requestAnimationFrame(()=>{
-      const button=document.querySelector('#tallvika-world .tv-scene .tv-hotspot[data-tv="'+action+'"]');
+      const button=document.querySelector('#tallvika-world .tv-scene .tv-sign[data-tv="'+action+'"]');
       if(button)try{button.focus({preventScroll:true})}catch(_){}
       window.scrollTo(0,previous.scrollY||0);
     });
@@ -153,9 +153,11 @@
         <div class="tv-stage">
           <div class="tv-scene">
             <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus og lek med tall.</span></div>
-            <button type="button" class="tv-hotspot tv-hotspot-multiply" data-tv="multiply" aria-label="Åpne Gangemagi"><span>Gangemagi</span></button>
-            <button type="button" class="tv-hotspot tv-hotspot-fraction" data-tv="fraction" aria-label="Åpne Brøklab"><span>Brøklab</span></button>
-            <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><span>Gangetabellen</span></button>
+            <nav class="tv-sign-nav" aria-label="Velg matematikkaktivitet">
+              <button type="button" class="tv-sign" data-tv="multiply" aria-label="Åpne Gangemagi"><span class="tv-sign-icon" aria-hidden="true">×</span><span class="tv-sign-label">Gangemagi</span></button>
+              <button type="button" class="tv-sign" data-tv="fraction" aria-label="Åpne Brøklab"><span class="tv-sign-icon" aria-hidden="true">½</span><span class="tv-sign-label">Brøklab</span></button>
+              <button type="button" class="tv-sign" data-tv="table" aria-label="Åpne Gangetabellen"><span class="tv-sign-icon" aria-hidden="true">▦</span><span class="tv-sign-label">Gangetabellen</span></button>
+            </nav>
             <div class="tv-portrait-sky" aria-hidden="true"></div>
             <div class="tv-portrait-village" aria-hidden="true"><i></i><i></i><i></i></div>
             <div class="tv-actor" data-troll-id="${selected}">

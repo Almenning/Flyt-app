@@ -14,11 +14,11 @@ async function assertScene(page,label){
   const scene=page.locator('#tallvika-world .tv-scene');
   assert.equal(await scene.count(),1,label+' renders one world scene');
   assert.equal(await page.locator('#tallvika-world .tv-dock, #tallvika-world .tv-mobile-actions, #tallvika-world .tv-portal-card').count(),0,label+' retains parallel navigation');
-  const hotspots=await page.locator('#tallvika-world .tv-hotspot').evaluateAll(nodes=>nodes.map(node=>{
+  const hotspots=await page.locator('#tallvika-world .tv-sign').evaluateAll(nodes=>nodes.map(node=>{
     const r=node.getBoundingClientRect();return {id:node.dataset.tv,w:r.width,h:r.height,aria:node.getAttribute('aria-label')};
   }));
-  assert.deepEqual(hotspots.map(x=>x.id).sort(),['fraction','multiply','table'],label+' needs exactly the three painted destinations');
-  assert.ok(hotspots.every(x=>x.w>=44&&x.h>=44&&x.aria?.startsWith('Åpne ')),label+' has inaccessible scene destination '+JSON.stringify(hotspots));
+  assert.deepEqual(hotspots.map(x=>x.id).sort(),['fraction','multiply','table'],label+' needs exactly the three sign destinations');
+  assert.ok(hotspots.every(x=>x.w>=44&&x.h>=44&&x.aria?.startsWith('Åpne ')),label+' has an inaccessible sign destination '+JSON.stringify(hotspots));
   const audit=await scene.evaluate(el=>{const r=el.getBoundingClientRect();return {w:r.width,h:r.height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth,bg:getComputedStyle(el).backgroundImage};});
   assert.ok(audit.w>250&&audit.h>140,label+' has no substantial illustration');
   assert.ok(audit.scroll<=audit.client+2,label+' horizontal overflow');
@@ -54,13 +54,13 @@ async function run(browserType,label,viewport){
     assert.equal(await page.locator('#tallvika-world .tv-actor').getAttribute('data-troll-id'),'lillebror',label+' scene failed to display selected troll');
     assert.equal(await page.locator('#tallvika-world .tv-actor img').getAttribute('src'),'./assets/gangemagi-troll/lillebror.webp',label+' scene changed original character identity');
     // Each painted destination opens its existing activity and returns in one tap.
-    await page.locator('.tv-hotspot[data-tv="multiply"]').click();await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});
+    await page.locator('.tv-sign[data-tv="multiply"]').click();await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});
     assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Gangemagi lost Tallvika return');
     await page.locator('#multiplication-lab-back').click();await page.locator('#tallvika-world').waitFor({state:'visible',timeout:14000});
-    await page.locator('.tv-hotspot[data-tv="fraction"]').click();await page.locator('#fraction-lab-screen.active .fr6-workshop').waitFor({timeout:14000});
+    await page.locator('.tv-sign[data-tv="fraction"]').click();await page.locator('#fraction-lab-screen.active .fr6-workshop').waitFor({timeout:14000});
     assert.equal(await page.locator('#fraction-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Brøklab lost Tallvika return');
     await page.locator('#fraction-lab-back').click();await page.locator('#tallvika-world').waitFor({state:'visible',timeout:14000});
-    await page.locator('.tv-hotspot[data-tv="table"]').click();await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor({timeout:14000});
+    await page.locator('.tv-sign[data-tv="table"]').click();await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor({timeout:14000});
     assert.equal(await page.locator('.mp-times-grid button.mp-grid-cell').count(),100,label+' Gangetabellen lost its 10x10 explorer');
     assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Gangetabellen lost Tallvika return');
     await page.locator('#multiplication-lab-back').click();await page.locator('#tallvika-world').waitFor({state:'visible',timeout:14000});
@@ -70,6 +70,6 @@ async function run(browserType,label,viewport){
   } finally {await browser.close();}
 }
 (async()=>{
-  const devices=[['mac-landscape',{width:1512,height:982}],['ipad-landscape',{width:1194,height:834}],['ipad-portrait',{width:834,height:1112}],['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}]];
+  const devices=[['pc-1920x1080',{width:1920,height:1080}],['mac-1440x900',{width:1440,height:900}],['ipad-landscape',{width:1366,height:1024}],['ipad-portrait',{width:1024,height:1366}],['iphone-393x852',{width:393,height:852}],['iphone-landscape',{width:852,height:393}],['iphone-375x667',{width:375,height:667}]];
   for(const [name,viewport] of devices){await run(chromium,'chromium-'+name,viewport);await run(webkit,'webkit-'+name,viewport);}
 })().catch(error=>{console.error(error);process.exitCode=1;});

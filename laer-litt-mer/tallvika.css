@@ -31,9 +31,15 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 /* The desktop and landscape tablet retain the exact approved panoramic framing. */
 /* The painting already carries every child-visible label. Keep semantic copy
    available without painting another headline or button over the illustration. */
-.tv-scene-copy,.tv-hotspot>span{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
-/* Percentage geometry binds each real button to its painted destination. */
-.tv-hotspot{position:absolute;z-index:3;display:block;min-width:44px;min-height:44px;border:0;border-radius:22px;background:transparent;padding:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.tv-hotspot-multiply{left:5%;top:25%;width:27%;height:39%}.tv-hotspot-fraction{left:34%;top:38%;width:28%;height:31%}.tv-hotspot-table{right:2%;top:25%;width:17%;height:47%}.tv-hotspot:focus-visible{outline:4px solid #fff6c1;outline-offset:-5px;box-shadow:inset 0 0 0 3px #376f54b8}@media(hover:hover){.tv-hotspot:hover{box-shadow:inset 0 0 0 2px #fff9dc77}}
+.tv-scene-copy{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
+/* The subject navigation is one reusable three-sign system.  Each sign has
+   two separate posts and a deliberately irregular board silhouette; it is
+   UI over the scene, never a second card/menu below the painting. */
+.tv-sign-nav{position:absolute;z-index:6;left:2.2%;top:25%;width:clamp(148px,19%,284px);display:grid;gap:clamp(10px,1.45vw,18px);filter:drop-shadow(0 9px 7px #1d120b66)}
+.tv-sign{position:relative;display:grid;grid-template-columns:clamp(30px,21%,52px) 1fr;align-items:center;gap:clamp(7px,1vw,13px);min-height:clamp(52px,6.7vw,88px);padding:clamp(7px,.85vw,13px) clamp(11px,1.4vw,20px);border:0;border-radius:12px 19px 10px 16px;background:repeating-linear-gradient(174deg,transparent 0 13px,#5f321d28 14px 16px),linear-gradient(104deg,#eac07f 0%,#c78342 50%,#e2ad66 100%);color:#482714;text-align:left;text-shadow:0 1px #fff1c9;box-shadow:inset 0 0 0 3px #8a5028,inset 0 0 0 6px #e9ba75,0 5px 0 #6b3b21;transform:rotate(-1.4deg);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tv-sign:nth-child(2){transform:rotate(1.2deg);margin-left:5%}.tv-sign:nth-child(3){transform:rotate(-.7deg);margin-left:1%}
+.tv-sign:before,.tv-sign:after{content:"";position:absolute;z-index:-1;top:62%;width:13%;height:76%;border-radius:8px;background:repeating-linear-gradient(90deg,#6f3f22 0 16%,#a46b38 18% 44%,#65391f 46% 64%,#bd7b40 66% 100%);box-shadow:inset 2px 0 #d69b59,inset -2px 0 #51301c,0 3px 0 #4d2b1c}.tv-sign:before{left:15%;transform:rotate(1deg)}.tv-sign:after{right:15%;transform:rotate(-1deg)}
+.tv-sign-icon{display:grid;place-items:center;aspect-ratio:1;border:2px solid #8a5028;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff1b9 0 12%,#e7ac55 14% 60%,#9e5b2b 62%);box-shadow:inset 0 0 0 3px #f7d18c;color:#593012;font-size:clamp(20px,2.8vw,35px);line-height:1;font-weight:950}.tv-sign-label{font-size:clamp(13px,1.7vw,24px);font-weight:950;line-height:1.02;letter-spacing:-.03em}.tv-sign:focus-visible{outline:4px solid #fff6c1;outline-offset:5px}.tv-sign:hover{filter:brightness(1.06)}
 .tv-dialog{width:min(900px,94vw);border:0;border-radius:30px;padding:0;background:#fff7e6;color:#3e2b1c;box-shadow:0 22px 80px #1f322acc}.tv-dialog::backdrop{background:rgba(25,44,35,.64);backdrop-filter:blur(3px)}.tv-dialog form{position:relative;padding:28px;text-align:center}.tv-dialog p{margin:0;color:#956738;font-size:12px;font-weight:950;letter-spacing:.14em}.tv-dialog h2{margin:6px 0 2px;font-size:clamp(25px,4vw,40px);letter-spacing:-.04em}.tv-dialog form>span{color:#735e48;font-weight:700}.tv-dialog-close{position:absolute;right:18px;top:14px;width:48px;height:48px;border:0;border-radius:50%;background:#f2e3c5;color:#62462e;font-size:27px}
 .tv-troll-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:23px}.tv-troll-grid button{position:relative;display:grid;grid-template-rows:1fr auto;align-items:end;min-height:290px;padding:10px 10px 14px;border:3px solid #e4c990;border-radius:23px;background:linear-gradient(#fffdf3,#f5e5be);color:#52391f;font-size:18px;font-weight:950}.tv-troll-grid button.selected{border-color:#477c58;box-shadow:0 0 0 4px #c5e2bb}.tv-troll-grid img{height:230px;max-width:100%;justify-self:center;object-fit:contain;filter:drop-shadow(0 5px 4px rgba(64,43,28,.22))}.tv-troll-grid em{position:absolute;top:11px;right:11px;border-radius:99px;background:#477c58;color:#fff;padding:5px 8px;font-size:11px;font-style:normal}
 .tv-grade-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:20px}.tv-grade-option{display:grid;place-items:center;gap:1px;min-height:67px;padding:7px;border:2px solid #e4c990;border-radius:14px;background:#fffaf0;color:#51391f;font-weight:900}.tv-grade-option.selected{border-color:#477c58;background:#e5f2dd;box-shadow:inset 0 0 0 2px #afd19a}.tv-grade-option b{font-size:20px}.tv-grade-option small{font-size:10px;color:#795e42}.tv-grade-dialog{max-height:88dvh;overflow-y:auto}
@@ -48,18 +54,16 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 @media(orientation:portrait) and (max-width:1100px){
   .tv-main{padding:0}
   .tv-stage{width:100%;max-width:none}
-  .tv-scene{height:calc(100dvh - 70px);min-height:630px;aspect-ratio:auto;border-radius:0;background:linear-gradient(to bottom,#b5d8e9 0%,#b5d8e9 23%,transparent 49%),url("./assets/tallvika/tallvika-figure-free-20261028.webp") center bottom/auto 126% no-repeat;box-shadow:none}
-  .tv-portrait-sky{display:block;position:absolute;inset:0 0 auto;height:34%;background:url("./assets/tallvika/tallvika-figure-free-20261028.webp") center top/100% auto no-repeat;z-index:1;-webkit-mask-image:linear-gradient(to bottom,black 0%,black 54%,transparent 94%);mask-image:linear-gradient(to bottom,black 0%,black 54%,transparent 94%)}
+  .tv-scene{height:calc(100dvh - 70px);min-height:630px;aspect-ratio:auto;border-radius:0;background:url("./assets/tallvika/tallvika-figure-free-20261028.webp") center/auto 100% no-repeat #b5d8e9;box-shadow:none}
+  /* One continuous asset is used in portrait.  This deliberately avoids the
+     previous panorama/village collage and its rejected vertical seams. */
+  .tv-portrait-sky{display:none}
   .tv-portrait-village{display:none;pointer-events:none}
   .tv-portrait-village i{display:block;background-image:url("./assets/tallvika/tallvika-figure-free-20261028.webp");background-repeat:no-repeat;background-size:450% auto}
   .tv-portrait-village i:nth-child(1){background-position:4% 49%}
   .tv-portrait-village i:nth-child(2){background-position:44% 49%}
   .tv-portrait-village i:nth-child(3){background-position:100% 49%}
-  .tv-hotspot{top:36%;height:25%;border-radius:22px;z-index:4;min-width:44px}
-  .tv-hotspot-multiply{left:1%;width:32%}
-  .tv-hotspot-fraction{left:34%;width:32%}
-  .tv-hotspot-table{right:1%;width:32%}
-  .tv-hotspot>span{position:absolute!important;clip:auto!important;overflow:visible!important;white-space:normal!important;left:3%!important;right:3%!important;top:0!important;width:auto!important;height:auto!important;margin:0!important;padding:8px 3px!important;border:2px solid #9b5922!important;background:linear-gradient(#f4ca8c,#bd813b)!important;border-radius:12px!important;color:#593013!important;text-align:center;font-size:clamp(11px,2vw,20px);line-height:1.05;font-weight:950;text-shadow:0 1px #ffecc8;box-shadow:0 4px 9px #21180f80}
+  .tv-sign-nav{left:2%;top:29%;width:clamp(148px,28vw,260px);gap:clamp(12px,2vw,20px)}
   .tv-actor{left:4%;bottom:7%;width:clamp(100px,19%,175px);height:25%;z-index:7}
   .tv-actor-speech{top:2%;left:90%;width:clamp(142px,28vw,215px);font-size:clamp(12px,1.8vw,16px)}
   .tv-next-sign{bottom:4%;right:4%;width:clamp(184px,38%,330px);min-height:62px;transform:rotate(-3deg)}
@@ -68,10 +72,9 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 }
 @media(orientation:portrait) and (max-width:700px){
   .tv-scene{height:calc(100dvh - 58px);min-height:560px}
-  .tv-portrait-sky{height:34%}
   .tv-portrait-village{top:26%;height:53%}
-  .tv-hotspot{top:36%;height:25%}
-  .tv-hotspot>span{font-size:clamp(10px,3.1vw,14px);padding:7px 2px!important}
+  .tv-sign-nav{left:1.7%;top:31%;width:clamp(132px,46vw,205px);gap:10px}
+  .tv-sign{min-height:47px;padding:6px 9px;grid-template-columns:31px 1fr;gap:7px}.tv-sign-label{font-size:clamp(12px,3.25vw,15px)}.tv-sign-icon{font-size:20px}
   .tv-actor{left:1.5%;bottom:7%;width:clamp(85px,25%,125px);height:22%}
   .tv-actor-speech{top:5%;left:88%;width:clamp(132px,44vw,181px);font-size:12px}
   .tv-next-sign{right:4%;bottom:4.5%;width:58%;padding:8px 10px;column-gap:5px}
