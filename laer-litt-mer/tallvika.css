@@ -82,9 +82,14 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 }
 @media(orientation:landscape) and (max-height:500px){
   .tv-top{height:44px}
-  .tv-scene{height:calc(100dvh - 44px);aspect-ratio:auto;background-size:auto 100%}
-  .tv-actor{width:clamp(72px,9%,128px);height:29%;left:1%;bottom:1%}
-  .tv-actor-speech{width:170px;font-size:12px;top:-10%}
+  /* A short landscape viewport must be completely illustrated: no side voids,
+     no stretched artwork, and the locked mountain summit stays in the crop. */
+  .tv-main{padding:0}
+  .tv-stage{width:100%;max-width:none}
+  .tv-scene{width:100%;height:calc(100dvh - 44px);aspect-ratio:auto;border-radius:0;box-shadow:none;background-size:cover;background-position:center 8%}
+  /* Keep the living companion and speech clear of the three wooden sign taps. */
+  .tv-actor{width:clamp(70px,8%,105px);height:27%;left:30%;bottom:1%}
+  .tv-actor-speech{left:90%;top:-7%;width:clamp(135px,21vw,178px);font-size:11px}
   /* Rotation pushed the sign outside the short iPhone landscape viewport. */
   .tv-next-sign{right:3%;bottom:7%;min-height:48px;width:185px;padding:5px 8px;transform:none}
   .tv-next-sign strong{font-size:14px}
