@@ -1,0 +1,56 @@
+/* Læria Home v16 – phase 1. The locked Kjøsnesfjorden pixels are unchanged.
+   These are transparent semantic hit areas over the FOUR PAINTED LEFT SIGNS.
+   No separate bottom cards are interactive; removal of their baked-in art
+   requires a separately approved CLEAN derivative before release. */
+.grade-band-young .bc12.bc15-locked-home.bc16-left-signs-ready .bc14-subjects{
+  visibility:hidden!important;pointer-events:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-left-signs-ready .bc14-subject{
+  visibility:hidden!important;pointer-events:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc16-sign-nav{
+  position:absolute!important;z-index:24!important;display:grid!important;
+  grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(4,minmax(0,1fr));
+  align-items:stretch;justify-content:stretch;gap:0!important;
+  margin:0;padding:0;border:0;box-shadow:none;background:none;pointer-events:none;
+}
+.grade-band-young .bc12.bc15-locked-home .bc16-sign{
+  appearance:none;position:relative;display:block!important;
+  width:100%;height:100%;min-width:44px;min-height:44px;margin:0;padding:0;
+  border:0;border-radius:12px;background:transparent;color:transparent;
+  box-shadow:none;opacity:1;cursor:pointer;pointer-events:auto;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.grade-band-young .bc12.bc15-locked-home .bc16-sign:focus-visible{
+  outline:4px solid #fff6b5;outline-offset:-3px;
+  background:rgba(255,242,171,.18);
+  box-shadow:inset 0 0 0 2px #78502b;
+}
+@media(hover:hover){
+  .grade-band-young .bc12.bc15-locked-home .bc16-sign:hover{
+    background:rgba(255,233,162,.07);
+    box-shadow:inset 0 0 0 2px rgba(255,240,178,.38);
+  }
+}
+.bc16-sign-sr-only{
+  position:absolute!important;width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+}
+
+/* Clean, hash-verified DRAFT only: no fake label strip over "Fortsett reisen".
+   Original v15 remains entirely unchanged until candidate is available. */
+.grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready .bc15-live-next{
+  z-index:19!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  padding:0!important;margin:0!important;
+  border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;
+  font-family:var(--laria-font-rounded,ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif)!important;
+  font-size:clamp(10px,.99vw,14px)!important;font-weight:900!important;
+  line-height:1.15!important;letter-spacing:-.02em!important;
+  text-shadow:0 1px 0 rgba(255,238,206,.7)!important;
+  color:#57351c!important;
+  white-space:nowrap!important;overflow:hidden!important;
+  text-overflow:ellipsis!important;pointer-events:none!important;
+}
