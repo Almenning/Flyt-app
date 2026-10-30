@@ -55,6 +55,16 @@ jobs:
           LARIA_GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           LARIA_HOME_V16_SCREENSHOTS: /tmp/laria-home-v16
         run: node tests/laria-home-v16-preview.playwright.js
+      - name: Upload immutable Home v15 masters for pixel-diff art QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-v16-original-masters-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp
+            laer-litt-mer/assets/home-v15/kjosnes-home-phone.webp
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload real screenshots and explicitly unapproved visual evidence
         if: always()
         uses: actions/upload-artifact@v4
