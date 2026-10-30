@@ -120,8 +120,24 @@ async function run(browserType,engine,device,viewport,sha){
     const scene=page.locator('#subject-screen.active #tallvika-world .tv-scene');
     await scene.waitFor({state:'visible',timeout:18000});
     await page.evaluate(()=>document.fonts?.ready);
+    // WebKit desktop can finish painting the landscape before the selected
+    // original troll image decodes. Never capture a false "empty actor" frame.
+    const actorArt=page.locator('#tallvika-world .tv-actor-touch img');
+    await actorArt.waitFor({state:'visible',timeout:18000});
+    const actorImage=await actorArt.evaluate(async img=>{
+      await img.decode();
+      const rect=img.getBoundingClientRect(),style=getComputedStyle(img);
+      return {complete:img.complete,naturalWidth:img.naturalWidth,
+        naturalHeight:img.naturalHeight,x:rect.x,y:rect.y,
+        width:rect.width,height:rect.height,opacity:style.opacity,
+        visibility:style.visibility};
+    });
+    assert.ok(actorImage.complete&&actorImage.naturalWidth>=50&&actorImage.naturalHeight>=50,
+      name+' selected original troll image failed to decode');
+    assert.ok(actorImage.width>=44&&actorImage.height>=44&&actorImage.visibility==='visible'&&Number(actorImage.opacity)>.9,
+      name+' selected troll has no visible image geometry');
     const a=await collect(page);
-    const meta={name,revision,artSha256:sha,automatedGatePassed:false,requiresHumanArtApproval:true,...a};
+    const meta={name,revision,artSha256:sha,actorImage,automatedGatePassed:false,requiresHumanArtApproval:true,...a};
     fs.writeFileSync(path.join(folder,name+'-audit.json'),JSON.stringify(meta,null,2));
     try{assertPremium(a,name);}
     catch(e){
