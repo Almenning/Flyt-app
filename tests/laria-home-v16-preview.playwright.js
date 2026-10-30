@@ -8,6 +8,8 @@ const crypto=require('node:crypto');
 const {chromium,webkit}=require('playwright');
 
 const out=process.env.LARIA_HOME_V16_SCREENSHOTS||'/tmp/laria-home-v16';
+const cleanArt=path.join(__dirname,'..','laer-litt-mer','assets','home-v16','kjosnes-home-desktop-clean-DRAFT.webp');
+const cleanArtCommitted=fs.existsSync(cleanArt);
 const address=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const src=[
  ['kjosnes-home-tablet.webp',459450,'246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5'],
@@ -54,6 +56,29 @@ async function run(engine,browserType,name,viewport,expectSigns){
   const actual=await home.getAttribute('data-bc16-stage');
   const signs=home.locator('.bc16-sign');
   if(expectSigns){
+   if(cleanArtCommitted){
+    await page.waitForFunction(()=>document.querySelector('#home-screen .bc12')?.classList.contains('bc16-clean-art-ready'),null,{timeout:20000});
+    const pixels=await page.evaluate(async()=>{
+      const paths=['./assets/home-v15/kjosnes-home-tablet.webp','./assets/home-v16/kjosnes-home-desktop-clean-DRAFT.webp'];
+      const decoded=await Promise.all(paths.map(async src=>{const img=new Image();img.src=src;await img.decode();const cn=document.createElement('canvas');cn.width=img.width;cn.height=img.height;const c=cn.getContext('2d',{willReadFrequently:true});c.drawImage(img,0,0);return{data:c.getImageData(0,0,cn.width,cn.height).data,width:cn.width,height:cn.height};}));
+      const [original,clean]=decoded;
+      let mountainDifferences=0,alteredBottomPixels=0;
+      for(let y=0;y<original.height;y++){
+       for(let x=0;x<original.width;x++){
+        const offset=(y*original.width+x)*4;
+        const different=original.data[offset]!==clean.data[offset]||original.data[offset+1]!==clean.data[offset+1]||original.data[offset+2]!==clean.data[offset+2];
+        if(y<426&&different)mountainDifferences++;
+        if(y>470&&x>401&&different)alteredBottomPixels++;
+       }
+      }
+      return {size:[original.width,original.height],mountainDifferences,alteredBottomPixels};
+    });
+    assert.deepEqual(pixels.size,[1127,681],engine+' '+name+' preview dimensions changed');
+    assert.equal(pixels.mountainDifferences,0,engine+' '+name+' mountain or child pixels changed');
+    assert.ok(pixels.alteredBottomPixels>15000,engine+' '+name+' four baked-in bottom cards were not removed');
+    const realText=await home.locator('.bc15-live-next').innerText();
+    assert.match(realText,/· (Norsk|Matte|Engelsk|Geografi) · /,'Clean wooden plank does not show live subject information');
+   }
    assert.equal(actual,'navigation-pilot',engine+' '+name+' new left sign navigation did not mount: '+actual);
    assert.equal(await signs.count(),4,engine+' '+name+' four wooden sign routes missing');
    const audit=await home.evaluate(el=>{
@@ -103,7 +128,8 @@ async function run(engine,browserType,name,viewport,expectSigns){
  fs.writeFileSync(path.join(out,'README.json'),JSON.stringify({
   description:'Home v16 draft navigation pilot, not an approved clean illustration',
   head:process.env.LARIA_GIT_SHA||'unrecorded',originalArtworkUnchanged:true,
-  bottomPaintedCardsStillPresent:true,awaitingApprovedCleanDerivative:true,
+  bottomPaintedCardsStillPresent:!cleanArtCommitted,awaitingApprovedCleanDerivative:!cleanArtCommitted,
+  cleanArtCommitted,artworkApproved:false,
   allScreensAreRealBrowserRenders:true,
  },null,2));
  let failed=0;
