@@ -28,4 +28,19 @@ for(const [name,bytes,sha] of [
  assert.equal(file.length,bytes,'Locked Home art size changed');
  assert.equal(crypto.createHash('sha256').update(file).digest('hex'),sha,'Locked Home art SHA changed');
 }
+
+const candidate=path.join(base,'assets/home-v16/kjosnes-home-desktop-clean-DRAFT.webp');
+const candidateSha='4efcf7783cd83e46a22cc1c51269039a309b8ba1400ee6eab6e478657e129ee0';
+assert.match(js,/kjosnes-home-desktop-clean-DRAFT\.webp/,'Clean preview asset path must remain explicit');
+assert(js.includes(candidateSha),'Only the SHA-verified clean preview may be used');
+assert.match(js,/cleanStatus='not-available'/,'Missing preview art must preserve the v15 painting');
+assert.match(css,/bc16-clean-art-ready \.bc15-live-next/,'Dynamic copy must be painted directly on cleaned wooden board');
+if(fs.existsSync(candidate)){
+ const bytes=fs.readFileSync(candidate);
+ assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),candidateSha,'V16 cleaned candidate differs from reviewed draft');
+ console.log('Verified separately sourced, NOT YET ART-APPROVED clean Home v16 draft:',bytes.length,'bytes');
+}else{
+ console.log('PENDING ART TRANSFER: candidate is not committed. CI is navigation-only, not an approved cleaned Home.');
+}
+
 console.log('Home v16 gated left-sign navigation contract and immutable masters passed');
