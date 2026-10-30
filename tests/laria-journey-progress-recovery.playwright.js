@@ -427,7 +427,7 @@ async function run(engine,label,viewport){
    if(isTallvika){
      const nextTitle=await page.evaluate(()=>journeyRecommendedNode('math',2)?.title||'');
      assert.ok(nextTitle,label+' next math mission missing after completion');
-     assert.match((await root.locator('.tv-next').innerText()),new RegExp(nextTitle),
+     assert.match((await root.locator('.tv-next-sign[data-tv="next"]').innerText()),new RegExp(nextTitle),
        label+' Tallvika did not show the newly unlocked next mission');
      await root.locator('[data-tv="back"]').click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});
