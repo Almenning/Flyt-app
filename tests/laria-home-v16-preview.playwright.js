@@ -50,7 +50,7 @@ async function run(engine,browserType,name,viewport,expectSigns){
   await page.goto(url.toString(),{waitUntil:'domcontentloaded',timeout:75000});
   const home=page.locator('#home-screen.active .bc12.bc15-locked-home');
   await home.waitFor({state:'visible',timeout:22000});
-  await page.waitForFunction(()=>document.querySelector('#home-screen .bc12')?.dataset.bc16Stage!=='not-ready',null,{timeout:18000});
+  await page.waitForFunction(()=>Boolean(document.querySelector('#home-screen .bc12')?.dataset.bc16Stage) && document.querySelector('#home-screen .bc12')?.dataset.bc16Stage!=='not-ready',null,{timeout:18000});
   const actual=await home.getAttribute('data-bc16-stage');
   const signs=home.locator('.bc16-sign');
   if(expectSigns){
