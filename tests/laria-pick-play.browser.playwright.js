@@ -12,7 +12,7 @@ async function openClassicPick(page){
   // Validate the actual illustrated entry after first load and after reload.
   await page.locator('.bc14-subject[data-camp="subject-math"]').click();
   await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible'});
-  await page.locator('#tallvika-world .tv-hotspot[data-tv="table"]').click();
+  await page.locator('#tallvika-world .tv-sign[data-tv="table"]').click();
   await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor();
   assert.equal(await page.locator('.mp-explore-tab[data-mode="table"][aria-pressed="true"]').count(),1,
     'Tallvika must enter the interactive 10x10 table without a second launcher');

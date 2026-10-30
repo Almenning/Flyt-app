@@ -31,7 +31,10 @@ jobs:
     timeout-minutes: 24
     container: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
+      # Test the precise PR head, never GitHub's synthetic merge ref.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with: {node-version: 22, cache: npm}
       - run: npm ci
@@ -44,6 +47,24 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_TALLVIKA_SCREENSHOTS: /tmp/laria-tallvika
         run: node tests/laria-tallvika.playwright.js
+      - name: Capture NEW two-post sign navigation on desktop, iPad and iPhone
+        # Even if old regressions fail, inspect new sign evidence independently.
+        if: always()
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          LARIA_TALLVIKA_PREMIUM_SCREENSHOTS: /tmp/laria-tallvika-premium
+        run: |
+          node --check tests/laria-tallvika-premium-signs.playwright.js
+          node tests/laria-tallvika-premium-signs.playwright.js
+      - name: Upload PR-head premium sign screenshots and gate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-tallvika-premium-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-tallvika-premium
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload exact repo source image for visual integrity
         if: always()
         uses: actions/upload-artifact@v4

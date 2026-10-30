@@ -82,7 +82,7 @@ async function run(engine,label,viewport){
    if(subject==='math'){
      const tallvika=page.locator('#subject-screen.active #tallvika-world');
      await tallvika.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tallvika.locator('.tv-hotspot').count(),3,label+' Tallvika must have three house destinations');
+     assert.equal(await tallvika.locator('.tv-sign[data-tv]').count(),3,label+' Tallvika must have three clickable activity sign destinations');
      const back=tallvika.locator('[data-tv="back"]');
      // The world container can become visible before WebKit has finished the
      // subject-mode transition and exposed its header. Wait for the *real*

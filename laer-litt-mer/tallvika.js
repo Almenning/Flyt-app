@@ -9,6 +9,31 @@
     lillesoster:{name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp',sceneSrc:'./assets/gangemagi-troll/lillesoster.webp',sceneTreatment:'locked-original'},
     lillebror:{name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp',sceneSrc:'./assets/gangemagi-troll/lillebror.webp',sceneTreatment:'locked-original'}
   };
+  // Dialogue is independent of painted art and retains the selected character.
+  let currentSpeech = null;
+  const greetings = [
+    'Hei! Hva vil du utforske i dag?',
+    'Vil du prøve Gangemagi, Brøklab eller Gangetabellen?',
+    'Se på husene! Hvor skal vi leke først?'
+  ];
+  let speechIndex = 0;
+  const speak = (message, readAloud = false) => {
+    currentSpeech = message;
+    const bubble = document.querySelector('#tallvika-world .tv-actor-speech');
+    if (bubble) bubble.textContent = message;
+    // A spoken reply only follows an explicit child tap and respects sound off.
+    if (readAloud && app()?.state()?.preferences?.sound !== false &&
+        'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'nb-NO';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.08;
+        window.speechSynthesis.speak(utterance);
+      } catch (_) { /* Speech is optional; the accessible bubble still works. */ }
+    }
+  };
   const screen = document.getElementById('subject-screen');
   if (!screen) return;
   const esc = value => String(value || '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -60,7 +85,7 @@
     // App navigation scrolls to the top. Restore the child's prior place
     // afterwards, and restore focus for keyboard / assistive navigation.
     requestAnimationFrame(()=>{
-      const button=document.querySelector('#tallvika-world .tv-scene .tv-hotspot[data-tv="'+action+'"]');
+      const button=document.querySelector('#tallvika-world .tv-scene .tv-sign[data-tv="'+action+'"]');
       if(button)try{button.focus({preventScroll:true})}catch(_){}
       window.scrollTo(0,previous.scrollY||0);
     });
@@ -128,18 +153,24 @@
         <div class="tv-stage">
           <div class="tv-scene">
             <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus og lek med tall.</span></div>
-            <button type="button" class="tv-hotspot tv-hotspot-multiply" data-tv="multiply" aria-label="Åpne Gangemagi"><span>Gangemagi</span></button>
-            <button type="button" class="tv-hotspot tv-hotspot-fraction" data-tv="fraction" aria-label="Åpne Brøklab"><span>Brøklab</span></button>
-            <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><span>Gangetabellen</span></button>
+            <nav class="tv-sign-nav" aria-label="Velg matematikkaktivitet">
+              <button type="button" class="tv-sign" data-tv="multiply" aria-label="Åpne Gangemagi"><span class="tv-sign-icon" aria-hidden="true">×</span><span class="tv-sign-label">Gangemagi</span></button>
+              <button type="button" class="tv-sign" data-tv="fraction" aria-label="Åpne Brøklab"><span class="tv-sign-icon" aria-hidden="true">½</span><span class="tv-sign-label">Brøklab</span></button>
+              <button type="button" class="tv-sign" data-tv="table" aria-label="Åpne Gangetabellen"><span class="tv-sign-icon" aria-hidden="true">▦</span><span class="tv-sign-label">Gangetabellen</span></button>
+            </nav>
+            <div class="tv-portrait-sky" aria-hidden="true"></div>
+            <div class="tv-portrait-village" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="tv-actor" data-troll-id="${selected}">
+              <button type="button" class="tv-actor-touch" data-tv="troll" aria-label="Snakk med ${esc(troll.name)}"><img src="${esc(troll.src)}" alt="${esc(troll.name)}" draggable="false"></button>
+              <div class="tv-actor-speech" role="status" aria-live="polite">${esc(currentSpeech || (name ? 'Hei, '+name+'! Hva vil du utforske i dag?' : greetings[0]))}</div>
+            </div>
+            <button type="button" class="tv-next-sign" data-tv="next" ${n||p?.complete?'':'disabled'} aria-label="Neste eventyr: ${esc(p?.complete ? 'Bonusoppdrag' : n?.title || 'Et nytt oppdrag')}">
+              <strong>Neste eventyr</strong><span class="tv-next-title">${p?.complete?'Bonusoppdrag':esc(n?.title||'Et nytt oppdrag')}</span><span class="tv-next-arrow" aria-hidden="true">➜</span>
+            </button>
           </div>
-          <section class="tv-next" aria-label="Neste matematikkoppdrag">
-            <span class="tv-next-crest" aria-hidden="true">✦</span>
-            <div class="tv-next-content"><small>NESTE EVENTYR · HELT FRIVILLIG</small><b>${p?.complete ? 'Bonusoppdraget venter' : esc(n?.title || 'Et nytt oppdrag venter')}</b><span>Fortsett når du har lyst.</span></div>
-            <button type="button" data-tv="next" ${n||p?.complete?'':'disabled'}>Utforsk ↗</button>
-          </section>
         </div>
       </main>
-      <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.sceneSrc}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
+      <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.src}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
       <dialog class="tv-dialog tv-grade-dialog" aria-label="Velg klassetrinn"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>UTFORSK I DITT TEMPO</p><h2>Velg klassetrinn</h2><span class="tv-grade-note">${grade===ownGrade?'Dette er ditt klassetrinn. Du kan også utforske andre trinn.':'Du utforsker '+grade+'. klasse. Ditt klassetrinn er fortsatt '+ownGrade+'. klasse.'}</span><div class="tv-grade-grid">${Array.from({length:10},(_,i)=>{const g=i+1;return '<button type="button" class="tv-grade-option'+(g===grade?' selected':'')+'" data-tv-grade="'+g+'" aria-pressed="'+(g===grade)+'" aria-label="'+g+'. klasse"><b>'+g+'.</b><small>'+(g===ownGrade?'Mitt trinn':g===grade?'Valgt':'Utforsk')+'</small></button>';}).join('')}</div></form></dialog>`;
     // Never mutate an observed attribute when its value is already correct.
     // Repeating classList.add() can itself fire another MutationObserver record
@@ -155,14 +186,21 @@
     if (action === 'back') { if (!window.LARIA_RETURN_TO_BASECAMP?.()) app()?.setTab?.('home'); }
     if (action === 'choose') document.querySelector('#tallvika-world .tv-dialog:not(.tv-grade-dialog)')?.showModal();
     if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
-    if (action === 'multiply'||action === 'fraction'||action === 'table')
+    if (action === 'troll') {
+      speechIndex=(speechIndex+1)%greetings.length;
+      speak(greetings[speechIndex], true);
+    }
+    if (action === 'multiply'||action === 'fraction'||action === 'table') {
+      const title=activityNames[action];
+      speak('Da besøker vi '+title+'!');
       beginActivity(action,button);
-    if (action === 'next') { const {p,n,grade}=progress(); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
+    }
+    if (action === 'next') { const {p,n,grade}=progress(); speak('Nå starter neste eventyr!'); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
   });
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv-troll]');
     if (!button) return;
-    saveTroll(button.dataset.tvTroll); document.querySelector('#tallvika-world .tv-dialog')?.close(); build();
+    saveTroll(button.dataset.tvTroll); currentSpeech='Hei! Nå skal vi utforske Tallvika sammen.'; document.querySelector('#tallvika-world .tv-dialog')?.close(); build();
   });
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv-grade]');
