@@ -37,3 +37,20 @@
   padding:0!important;margin:-1px!important;overflow:hidden!important;
   clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
 }
+
+/* Clean, hash-verified DRAFT only: no fake label strip over "Fortsett reisen".
+   Original v15 remains entirely unchanged until candidate is available. */
+.grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready .bc15-live-next{
+  z-index:19!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  padding:0!important;margin:0!important;
+  border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;
+  font-family:var(--laria-font-rounded,ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif)!important;
+  font-size:clamp(10px,.99vw,14px)!important;font-weight:900!important;
+  line-height:1.15!important;letter-spacing:-.02em!important;
+  text-shadow:0 1px 0 rgba(255,238,206,.7)!important;
+  color:#57351c!important;
+  white-space:nowrap!important;overflow:hidden!important;
+  text-overflow:ellipsis!important;pointer-events:none!important;
+}
