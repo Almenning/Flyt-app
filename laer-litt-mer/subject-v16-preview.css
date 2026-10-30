@@ -1,0 +1,26 @@
+/* Læria subject v16 experimental presentation. No locked source art is rewritten.
+   The uniform wood menu is separate UI. Art clean-up is a release blocker. */
+#subject-screen.laria-v16-norsk #eggenipa-world,
+#subject-screen.laria-v16-matte #tallvika-world,
+#subject-screen.laria-v16-engelsk #kinnaklova-world{position:relative}
+.laria-v16-signnav{position:absolute;z-index:25;left:1.7%;top:21%;width:min(29%,360px);display:grid;gap:clamp(5px,1vw,14px);font-family:ui-rounded,system-ui,sans-serif}
+.laria-v16-sign{appearance:none;display:flex;align-items:center;gap:10px;width:100%;min-height:clamp(48px,6vw,76px);padding:8px clamp(10px,1.4vw,22px);border:3px solid #895228;border-radius:13px 19px 12px 17px;background:repeating-linear-gradient(177deg,transparent 0 13px,#a9733b24 14px 15px),linear-gradient(#f5d59d,#dba262 75%,#b77b42);color:#472810;text-shadow:0 1px #fff1c9;box-shadow:0 4px 0 #684225,0 8px 14px #1b120f55,inset 0 2px 2px #ffebbf;font-weight:900;font-size:clamp(12px,2vw,24px);line-height:1.1;text-align:left;cursor:pointer;touch-action:manipulation}
+.laria-v16-sign b{display:grid;place-items:center;flex:0 0 23%;min-height:30px;border:1px solid #9c6b40;border-radius:7px;background:#f2d8a5;font-size:clamp(13px,1.7vw,21px)}
+.laria-v16-sign:focus-visible{outline:4px solid #fff2b4;outline-offset:4px}
+.laria-v16-sign:hover{filter:brightness(1.05)}
+#subject-screen.laria-v16-norsk .eg-portals,
+#subject-screen.laria-v16-norsk .eg-intro,
+#subject-screen.laria-v16-engelsk .ki-actions,
+#subject-screen.laria-v16-engelsk .ki-intro{display:none!important}
+/* Three static trolls must not appear in the same English landscape. */
+#subject-screen.laria-v16-engelsk .ki-troll-lillesoster,
+#subject-screen.laria-v16-engelsk .ki-troll-lillebror{display:none!important}
+/* Avoid double click targets. The original buttons keep their real routing in JS. */
+#subject-screen.laria-v16-engelsk .ki-painted-hit:not(.ki-painted-home),
+#subject-screen.laria-v16-norsk .eg-scene-hit,
+#subject-screen.laria-v16-matte .tv-hotspot{pointer-events:none!important}
+@media(max-width:700px) and (orientation:portrait){
+ .laria-v16-signnav{left:2%;top:19%;width:49%;gap:6px}
+ .laria-v16-sign{min-height:44px;font-size:clamp(10px,3vw,17px);padding:5px 7px;gap:6px;border-width:2px}
+ .laria-v16-sign b{min-height:30px}
+}
