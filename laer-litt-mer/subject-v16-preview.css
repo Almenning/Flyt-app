@@ -12,9 +12,7 @@
 #subject-screen.laria-v16-norsk .eg-intro,
 #subject-screen.laria-v16-engelsk .ki-actions,
 #subject-screen.laria-v16-engelsk .ki-intro{display:none!important}
-/* Three static trolls must not appear in the same English landscape. */
-#subject-screen.laria-v16-engelsk .ki-troll-lillesoster,
-#subject-screen.laria-v16-engelsk .ki-troll-lillebror{display:none!important}
+/* JS selects precisely one of the three approved troll images on English. */
 /* Avoid double click targets. The original buttons keep their real routing in JS. */
 #subject-screen.laria-v16-engelsk .ki-painted-hit:not(.ki-painted-home),
 #subject-screen.laria-v16-norsk .eg-scene-hit,
