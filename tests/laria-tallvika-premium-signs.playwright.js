@@ -113,7 +113,7 @@ async function run(browserType,engine,device,viewport,sha){
     await scene.waitFor({state:'visible',timeout:18000});
     await page.evaluate(()=>document.fonts?.ready);
     const a=await collect(page);
-    const meta={name,revision,artSha256:sha,approved:false,...a};
+    const meta={name,revision,artSha256:sha,automatedGatePassed:false,requiresHumanArtApproval:true,...a};
     fs.writeFileSync(path.join(folder,name+'-audit.json'),JSON.stringify(meta,null,2));
     try{assertPremium(a,name);}
     catch(e){
@@ -127,7 +127,7 @@ async function run(browserType,engine,device,viewport,sha){
     await page.screenshot({path:path.join(folder,name+'-viewport.png'),
       fullPage:false,animations:'disabled'});
     await scene.screenshot({path:path.join(folder,name+'-scene.png'),animations:'disabled'});
-    meta.approved=true;meta.screenshotType='real rendered PR-head Playwright Chromium/WebKit';
+    meta.automatedGatePassed=true;meta.screenshotType='real rendered PR-head Playwright Chromium/WebKit';
     fs.writeFileSync(path.join(folder,name+'-audit.json'),JSON.stringify(meta,null,2));
     await context.close();
   }finally{await browser.close();}
@@ -138,7 +138,7 @@ async function run(browserType,engine,device,viewport,sha){
   assert.equal(sha,originalSha,'The locked 27 October Tallvika illustration must not change');
   fs.mkdirSync(folder,{recursive:true});
   fs.writeFileSync(path.join(folder,'README.json'),JSON.stringify({
-    purpose:'Only after left-hand premium sign geometry passes may screenshot files lack REJECTED',
+    purpose:'Automated geometry gate only. Even passing screenshots require separate human art approval before merge.',
     commit:revision,lockedOriginalSha256:sha,source:url,createdAt:new Date().toISOString(),
     engines:['chromium','webkit'],devices
   },null,2));
