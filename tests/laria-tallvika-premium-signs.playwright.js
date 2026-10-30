@@ -59,7 +59,8 @@ async function collect(page){
     return {viewport:{width:innerWidth,height:innerHeight},
       scrollWidth:document.documentElement.scrollWidth,
       clientWidth:document.documentElement.clientWidth,
-      scene:summary(scene),sceneBackground:sceneCss.backgroundImage,
+      scene:summary(scene),sceneBackground:sceneCss.backgroundImage,sceneBackgroundSize:sceneCss.backgroundSize,sceneBackgroundPosition:sceneCss.backgroundPosition,
+      speech:summary(document.querySelector('#tallvika-world .tv-actor-speech')),
       actions,next,selected,woodStructure};
   });
 }
@@ -89,6 +90,13 @@ function assertPremium(a,label){
   assert.ok(a.next.x>=0&&a.next.right<=a.viewport.width+2&&a.next.bottom<=a.viewport.height+4,
     label+' Next adventure is clipped');
   assert.equal(a.selected.length,1,label+' must show only one selected living troll');
+  if(a.viewport.width>a.viewport.height && a.viewport.height<=500){
+    assert.equal(a.sceneBackgroundSize,'cover',label+' short landscape must cover entire screen without stretching');
+    assert.ok(a.scene.x<=2&&a.scene.right>=a.viewport.width-2,label+' short landscape has blank side margins');
+    assert.ok(a.selected[0].x>a.actions[2].right+6,label+' companion overlaps the signpost');
+    assert.ok(a.speech&&a.speech.x>a.actions[2].right+6,label+' companion speech blocks activity signs');
+    assert.ok(a.speech.right<a.next.x+3,label+' companion speech blocks the Next adventure sign');
+  }
   assert.ok(a.scrollWidth<=a.clientWidth+2,label+' horizontal scrolling');
 }
 
