@@ -150,6 +150,58 @@
     host.dataset.bc16Stage='portrait-navigation-pilot';
     return true;
   }
+  function mountSmallLandscapePilot(host){
+    const rect=host.getBoundingClientRect();
+    const subjectNames={norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'};
+    const subjectName=subjectNames[host.dataset.journeySubject]||'';
+    if(!cleanUrl||!subjectName){
+      remove(host);
+      host.dataset.bc16CleanArt=cleanUrl?'journey-state-pending':cleanStatus;
+      host.dataset.bc16Stage='small-landscape-art-pending';
+      return false;
+    }
+    const displayWidth=rect.width;
+    const displayHeight=displayWidth*(681/1127);
+    host.style.setProperty('--bc15-home-art','url("'+cleanUrl+'")');
+    host.style.setProperty('--bc15-art-left','0px');
+    host.style.setProperty('--bc15-art-top','0px');
+    host.style.setProperty('--bc15-art-width',displayWidth.toFixed(2)+'px');
+    host.style.setProperty('--bc15-art-height',displayHeight.toFixed(2)+'px');
+    const nav=ensureSignNav(host,false);
+    const area={
+      left:displayWidth*.037,
+      top:displayHeight*.285,
+      width:Math.max(150,displayWidth*.17),
+      height:Math.max(184,displayHeight*.36)
+    };
+    const set=(prop,value)=>{
+      const result=value.toFixed(2)+'px';
+      if(nav.style.getPropertyValue(prop)!==result)nav.style.setProperty(prop,result);
+    };
+    set('left',area.left);set('top',area.top);set('width',area.width);set('height',area.height);
+    host.classList.remove('bc16-portrait-ready');
+    host.classList.add('bc16-left-signs-ready','bc16-clean-art-ready','bc16-small-landscape-ready');
+    host.dataset.bc16CleanArt='verified-preview-only';
+    host.dataset.bc16Stage='navigation-pilot';
+    const live=host.querySelector('.bc15-live-next');
+    const journey=host.querySelector('.bc12-journey');
+    if(live&&journey){
+      live.id='bc16-live-journey-progress';
+      if(journey.getAttribute('aria-describedby')!==live.id)journey.setAttribute('aria-describedby',live.id);
+      const title=host.querySelector('[data-camp-next]')?.textContent?.trim()||'';
+      const active=/pågående/i.test(host.querySelector('[data-camp-next-type]')?.textContent||'');
+      const text=(active?'Pågående':'Neste')+' · '+subjectName+' · '+title;
+      if(live.textContent!==text)live.textContent=text;
+      const left=Math.max(185,rect.width*.215);
+      const width=Math.min(285,rect.width*.36);
+      const height=Math.max(18,rect.height*.052);
+      const top=Math.max(rect.height-height-18,rect.height*.82);
+      for(const [key,val] of [['left',left],['top',top],['width',width],['height',height]]){
+        live.style.setProperty(key,val.toFixed(2)+'px','important');
+      }
+    }
+    return true;
+  }
   function relayout(){
     const host=getHost();
     if(!host||!inside(host)){remove(host);return;}
@@ -169,6 +221,11 @@
     const portrait=matchMedia('(orientation:portrait)').matches;
     if(portrait){
       mountPortraitPilot(host);
+      return;
+    }
+    const smallLandscape=matchMedia('(orientation:landscape) and (max-height:580px)').matches;
+    if(smallLandscape){
+      mountSmallLandscapePilot(host);
       return;
     }
     // On the approved v15 LANDSCAPE master the four real wooden boards already
