@@ -809,13 +809,18 @@
    one precisely art-anchored live greeting over the baked child-name area. */
 @media (orientation:portrait){
   .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready::before{
-    background-image:var(--bc15-home-art)!important;
-    background-size:cover!important;
-    background-position:center center!important;
+    /* The locked phone master stays untouched. Wider portrait screens get an
+       intentional scenic frame instead of a magnified, visibly blurred duplicate. */
+    background:
+      radial-gradient(ellipse 74% 34% at 50% 8%,rgba(104,183,232,.32) 0%,rgba(104,183,232,0) 74%),
+      radial-gradient(ellipse 50% 42% at 5% 58%,rgba(82,105,66,.28) 0%,rgba(82,105,66,0) 78%),
+      radial-gradient(ellipse 50% 42% at 95% 58%,rgba(82,105,66,.28) 0%,rgba(82,105,66,0) 78%),
+      linear-gradient(180deg,#274f6b 0%,#3f7697 30%,#355f58 58%,#1f3b2d 100%)!important;
     background-repeat:no-repeat!important;
-    filter:blur(18px) saturate(.88) brightness(.62)!important;
-    transform:scale(1.10)!important;
-    opacity:.84!important;
+    filter:none!important;
+    transform:none!important;
+    opacity:1!important;
+    box-shadow:inset 0 0 82px rgba(11,28,25,.28)!important;
   }
   .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-copy{
     display:none!important;
@@ -919,46 +924,82 @@
 }
 
 
-/* Compact greeting erasers. They cover only the baked copy bounds, not the
-   surrounding mountain/sky. This supersedes the earlier broad radial patches. */
+/* Compact sky erasers. Only the baked child-name line is repainted; the
+   generic baked intro remains visible, so the mask can dissolve naturally. */
 @media (orientation:portrait){
   .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy{
+    justify-content:flex-start!important;
     padding:clamp(5px,.75vh,9px) clamp(9px,2.3vw,15px)!important;
   }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-intro{
+    visibility:hidden!important;
+  }
   .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy::before{
-    inset:-3% -4% -4% -3%!important;
-    border-radius:14px 22px 20px 13px!important;
-    background:linear-gradient(103deg,
-      #438dcc 0%,#4995d2 43%,#55a0d9 72%,#61a9df 100%)!important;
-    filter:blur(1.2px)!important;
-    box-shadow:0 0 7px 5px rgba(78,156,216,.42)!important;
+    left:-5%!important;right:-16%!important;top:-5%!important;bottom:auto!important;height:62%!important;
+    border-radius:48% 60% 58% 44%!important;
+    background:radial-gradient(ellipse 96% 120% at 24% 48%,
+      #438dcc 0%,#4995d2 54%,rgba(82,158,217,.96) 66%,
+      rgba(91,169,224,.58) 82%,rgba(97,176,228,.18) 94%,rgba(97,176,228,0) 100%)!important;
+    filter:blur(3px)!important;
+    box-shadow:none!important;
   }
 }
 @media (orientation:landscape) and (max-height:580px){
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-copy{
+    justify-content:flex-start!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-intro{
+    visibility:hidden!important;
+  }
   .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-copy::before{
-    inset:-5% -10% -7% -5%!important;
-    border-radius:12px 20px 18px 11px!important;
-    background:linear-gradient(103deg,
-      #438dcc 0%,#4995d2 45%,#56a1da 74%,#62aae0 100%)!important;
-    filter:blur(1.1px)!important;
-    box-shadow:0 0 6px 4px rgba(78,156,216,.38)!important;
+    left:-7%!important;right:-18%!important;top:-8%!important;bottom:auto!important;height:64%!important;
+    border-radius:48% 60% 58% 44%!important;
+    background:radial-gradient(ellipse 98% 122% at 24% 48%,
+      #438dcc 0%,#4995d2 54%,rgba(82,158,217,.96) 67%,
+      rgba(91,169,224,.56) 82%,rgba(97,176,228,.16) 94%,rgba(97,176,228,0) 100%)!important;
+    filter:blur(2.8px)!important;
+    box-shadow:none!important;
   }
 }
 @media (orientation:landscape) and (min-height:581px) and (min-aspect-ratio:3/2){
   .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy::before{
-    inset:-8% -18% -16% -8%!important;
-    border-radius:13px 24px 20px 12px!important;
-    background:linear-gradient(103deg,
-      #438dcc 0%,#4995d2 44%,#56a1da 73%,#62aae0 100%)!important;
-    filter:blur(1.2px)!important;
-    box-shadow:0 0 8px 5px rgba(78,156,216,.38)!important;
+    inset:-14% -30% -24% -10%!important;
+    border-radius:50% 62% 60% 46%!important;
+    background:radial-gradient(ellipse 96% 118% at 24% 48%,
+      #438dcc 0%,#4995d2 54%,rgba(82,158,217,.96) 68%,
+      rgba(91,169,224,.56) 83%,rgba(97,176,228,.16) 95%,rgba(97,176,228,0) 100%)!important;
+    filter:blur(3.2px)!important;
+    box-shadow:none!important;
   }
 }
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy{
+  justify-content:flex-start!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-intro{
+  visibility:hidden!important;
+}
 .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy::before{
-  inset:-4% -7% -6% -4%!important;
-  border-radius:14px 24px 20px 12px!important;
-  background:linear-gradient(103deg,
-    #438dcc 0%,#4995d2 44%,#56a1da 73%,#62aae0 100%)!important;
-  filter:blur(1.2px)!important;
-  box-shadow:0 0 8px 5px rgba(78,156,216,.38)!important;
+  left:-6%!important;right:-20%!important;top:-6%!important;bottom:auto!important;height:60%!important;
+  border-radius:50% 62% 58% 46%!important;
+  background:radial-gradient(ellipse 96% 118% at 24% 48%,
+    #438dcc 0%,#4995d2 54%,rgba(82,158,217,.96) 68%,
+    rgba(91,169,224,.56) 83%,rgba(97,176,228,.16) 95%,rgba(97,176,228,0) 100%)!important;
+  filter:blur(3px)!important;
+  box-shadow:none!important;
+}
+
+/* The iPad source exposes only the first two baked nav icons after the
+   full-height crop. Keep the verified sky clone, but reveal it only around those
+   two obsolete icons instead of painting a rectangular sky panel. */
+@media (orientation:landscape) and (min-height:581px) and (max-aspect-ratio:3/2){
+  .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+    -webkit-mask-image:
+      radial-gradient(ellipse 58px 72px at 35% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%),
+      radial-gradient(ellipse 58px 72px at 78% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%)!important;
+    -webkit-mask-composite:source-over!important;
+    mask-image:
+      radial-gradient(ellipse 58px 72px at 35% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%),
+      radial-gradient(ellipse 58px 72px at 78% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%)!important;
+    mask-composite:add!important;
+  }
 }
