@@ -71,9 +71,12 @@ async function run(engine,browserType,name,viewport,expectSigns){
     const journey=rect(el.querySelector('.bc12-journey'));
     const bottomNav=rect(el.querySelector('.bc12-nav'));
     const bottomButtons=[...el.querySelectorAll('.bc12-nav button')].filter(x=>getComputedStyle(x).display!=='none').map(rect);
+    const portraitUi=el.querySelector('.bc16-portrait-ui'),portraitCopy=el.querySelector('.bc16-portrait-copy'),legacyCopy=el.querySelector('.bc15-live-copy');
+    const portraitStyle=portraitUi?getComputedStyle(portraitUi):null,copyStyle=portraitCopy?getComputedStyle(portraitCopy):null,legacyStyle=legacyCopy?getComputedStyle(legacyCopy):null;
     return {
       art:getComputedStyle(el).getPropertyValue('--bc15-home-art'),
       nav,deck,buttons,journey,bottomNav,bottomButtons,
+      portraitVisual:portraitUi&&portraitCopy?{ui:rect(portraitUi),copy:rect(portraitCopy),display:portraitStyle.display,visibility:portraitStyle.visibility,opacity:portraitStyle.opacity,copyDisplay:copyStyle.display,copyVisibility:copyStyle.visibility,copyOpacity:copyStyle.opacity,legacyDisplay:legacyStyle?.display||'',greeting:el.querySelector('.bc16-portrait-greeting')?.textContent||'',intro:el.querySelector('.bc16-portrait-intro')?.textContent||''}:null,
       stage:el.dataset.bc16Stage,cleanArt:el.dataset.bc16CleanArt,
       oldVisibility:oldStyle.visibility,oldPointerEvents:oldStyle.pointerEvents,
       screen:{w:innerWidth,h:innerHeight,scrollWidth:document.documentElement.scrollWidth},
@@ -84,6 +87,17 @@ async function run(engine,browserType,name,viewport,expectSigns){
    assert.equal(audit.cleanArt,'portrait-locked-master',engine+' '+name+' portrait art provenance is unclear');
    assert.equal(audit.oldVisibility,'hidden',engine+' '+name+' old baked-card hit areas remain visible');
    assert.equal(audit.oldPointerEvents,'none',engine+' '+name+' old baked-card hit areas intercept taps');
+   assert.ok(audit.portraitVisual,engine+' '+name+' dedicated portrait greeting layer is missing');
+   assert.equal(audit.portraitVisual.display,'block',engine+' '+name+' portrait greeting layer is not displayed');
+   assert.equal(audit.portraitVisual.visibility,'visible',engine+' '+name+' portrait greeting layer is hidden');
+   assert.equal(audit.portraitVisual.opacity,'1',engine+' '+name+' portrait greeting layer is transparent');
+   assert.notEqual(audit.portraitVisual.copyDisplay,'none',engine+' '+name+' portrait greeting copy is hidden');
+   assert.equal(audit.portraitVisual.copyVisibility,'visible',engine+' '+name+' portrait greeting copy visibility is hidden');
+   assert.equal(audit.portraitVisual.copyOpacity,'1',engine+' '+name+' portrait greeting copy is transparent');
+   assert.equal(audit.portraitVisual.legacyDisplay,'none',engine+' '+name+' legacy portrait greeting still paints');
+   assert.match(audit.portraitVisual.greeting,/Hei,/,engine+' '+name+' dynamic portrait greeting is missing');
+   assert.ok(audit.portraitVisual.copy.x>=-2&&audit.portraitVisual.copy.right<=viewport.width+2&&audit.portraitVisual.copy.y>=-2&&audit.portraitVisual.copy.bottom<=viewport.height+2,
+     engine+' '+name+' portrait greeting cover is outside viewport');
    assert.deepEqual(audit.buttons.map(b=>b.subject),expects.map(x=>x[0]),engine+' '+name+' portrait subject order changed');
    assert(audit.buttons.every(b=>b.w>=44&&b.h>=44),engine+' '+name+' portrait sign has inaccessible hit target');
    assert(audit.buttons.every(b=>b.x>=-2&&b.right<=viewport.width+2&&b.y>=-2&&b.bottom<=viewport.height+2),
