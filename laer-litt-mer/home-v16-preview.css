@@ -802,28 +802,3 @@
   filter:blur(4px)!important;
 }
 
-
-/* Portrait greeting cleanup: fully erase the baked child-name copy under the
-   live greeting, while feathering the patch back into the original sky. */
-@media (orientation:portrait){
-  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-copy::before{
-    inset:-28% -50% -35% -18%!important;
-    border-radius:48% 58% 54% 44%!important;
-    background:radial-gradient(ellipse 94% 98% at 31% 50%,
-      #4d9ad8 0%,#4f9bd9 68%,rgba(80,158,219,.98) 76%,
-      rgba(82,160,220,.72) 86%,rgba(83,162,221,.30) 94%,
-      rgba(83,162,221,0) 100%)!important;
-    filter:blur(3px)!important;
-  }
-}
-@media (min-width:700px) and (orientation:portrait){
-  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-copy::before{
-    inset:-70% -120% -75% -18%!important;
-    border-radius:46% 58% 52% 42%!important;
-    background:radial-gradient(ellipse 96% 100% at 30% 50%,
-      #4c98d7 0%,#4f9bd9 66%,rgba(80,158,219,.98) 75%,
-      rgba(82,160,220,.70) 86%,rgba(83,162,221,.28) 94%,
-      rgba(83,162,221,0) 100%)!important;
-    filter:blur(4px)!important;
-  }
-}
