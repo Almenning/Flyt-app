@@ -100,7 +100,7 @@ async function run(engine,browserType,name,viewport,expectSigns){
      assert.equal(await home.locator('.bc15-live-next').evaluate(el=>getComputedStyle(el).backgroundImage),'none',
        engine+' '+name+' a painted-on progress text must never have a fake opaque strip');
    }else{
-     assert.match(audit.art,/kjosnes-home-tablet\\.webp/,engine+' '+name+' must retain unchanged original until the candidate exists');
+     assert.match(audit.art,/kjosnes-home-tablet\.webp/,engine+' '+name+' must retain unchanged original until the candidate exists');
      assert.notEqual(await home.getAttribute('data-bc16-clean-art'),'verified-preview-only',
        engine+' '+name+' must not mislabel the old master as clean artwork');
    }
