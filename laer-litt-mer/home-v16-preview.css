@@ -612,3 +612,41 @@
   color:#56331d!important;text-shadow:0 1px 0 rgba(255,239,205,.75)!important;
   font-size:clamp(10px,.9vw,13px)!important;
 }
+
+
+/* iPad cleanup: opaque only where baked copy/nav must be erased; feather outside. */
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-landscape-art{
+  clip-path:inset(8px 0 0 0)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+  width:31%!important;height:20%!important;
+  background:
+    radial-gradient(ellipse 116% 138% at 100% 0%,
+      #58a1e2 0%,
+      #58a1e2 72%,
+      rgba(88,161,226,.99) 82%,
+      rgba(88,161,226,.82) 89%,
+      rgba(88,161,226,.38) 95%,
+      rgba(88,161,226,0) 100%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-copy{
+  background:none!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-copy::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:-30% -34% -30% -15%;
+  background:
+    radial-gradient(ellipse 88% 92% at 36% 50%,
+      #4b96d5 0%,
+      #4f9bda 58%,
+      rgba(82,160,219,.99) 72%,
+      rgba(82,160,219,.76) 84%,
+      rgba(82,160,219,.32) 93%,
+      rgba(82,160,219,0) 100%)!important;
+  filter:blur(1.5px);
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-copy::after{
+  display:none!important;
+}
