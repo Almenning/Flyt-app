@@ -166,11 +166,20 @@
     requestAnimationFrame(()=>{pending=false;relayout();});
   }
   const observer=new MutationObserver(mutations=>{
+    // v15 still owns the base live-copy component and may refresh it after renderAll.
+    // Reassert the v16 subject copy in the same microtask so users never see a
+    // one-frame fallback without the real subject name.
+    const liveChanged=mutations.some(m=>{
+      if(m.type!=='childList'&&m.type!=='characterData')return false;
+      const el=m.target?.nodeType===1?m.target:m.target?.parentElement;
+      return !!el?.closest?.('.bc15-live-next');
+    });
+    if(liveChanged){relayout();return;}
     if(mutations.some(m=>m.type==='childList'||
        (m.type==='attributes'&&m.target?.classList?.contains('bc12'))))schedule();
   });
   observer.observe(document.documentElement,{
-    subtree:true,childList:true,attributes:true,
+    subtree:true,childList:true,characterData:true,attributes:true,
     attributeFilter:['class','style','data-mode','data-bc13-view','data-journey-subject']
   });
   window.addEventListener('resize',schedule,{passive:true});
