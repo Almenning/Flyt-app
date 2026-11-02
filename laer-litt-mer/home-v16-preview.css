@@ -924,82 +924,111 @@
 }
 
 
-/* Compact sky erasers. Only the baked child-name line is repainted; the
-   generic baked intro remains visible, so the mask can dissolve naturally. */
+/* Final live greeting treatment: a small wooden name plaque deliberately
+   covers the baked child-name line. This matches Læria's sign language and
+   avoids pretending a CSS sky patch is original artwork. The generic baked
+   intro remains visible underneath. */
 @media (orientation:portrait){
   .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy{
-    justify-content:flex-start!important;
-    padding:clamp(5px,.75vh,9px) clamp(9px,2.3vw,15px)!important;
+    justify-content:flex-start!important;padding:0!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy::before{
+    display:none!important;
   }
   .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-intro{
     visibility:hidden!important;
   }
-  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy::before{
-    left:-5%!important;right:-16%!important;top:-5%!important;bottom:auto!important;height:62%!important;
-    border-radius:48% 60% 58% 44%!important;
-    background:radial-gradient(ellipse 96% 120% at 24% 48%,
-      #438dcc 0%,#4995d2 54%,rgba(82,158,217,.96) 66%,
-      rgba(91,169,224,.58) 82%,rgba(97,176,228,.18) 94%,rgba(97,176,228,0) 100%)!important;
-    filter:blur(3px)!important;
-    box-shadow:none!important;
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-greeting{
+    position:relative!important;display:inline-flex!important;align-items:center!important;
+    width:max-content!important;max-width:94%!important;min-height:38px!important;
+    padding:7px 16px 8px!important;
+    border:2px solid #7b4a28!important;border-radius:12px 18px 15px 10px!important;
+    background:
+      repeating-linear-gradient(2deg,rgba(79,43,20,.09) 0 2px,transparent 2px 12px),
+      linear-gradient(180deg,#e8b46b 0%,#cf8945 55%,#b56f37 100%)!important;
+    box-shadow:inset 0 2px 1px rgba(255,232,177,.70),0 4px 0 #68401f,0 7px 13px rgba(22,27,18,.24)!important;
+    color:#4b2c18!important;text-shadow:0 1px 0 rgba(255,226,169,.68)!important;
+  }
+}
+@media (min-width:700px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-greeting{
+    min-height:50px!important;padding:9px 20px 10px!important;
   }
 }
 @media (orientation:landscape) and (max-height:580px){
   .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-copy{
-    justify-content:flex-start!important;
+    justify-content:flex-start!important;padding:0!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-copy::before{
+    display:none!important;
   }
   .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-intro{
     visibility:hidden!important;
   }
-  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-copy::before{
-    left:-7%!important;right:-18%!important;top:-8%!important;bottom:auto!important;height:64%!important;
-    border-radius:48% 60% 58% 44%!important;
-    background:radial-gradient(ellipse 98% 122% at 24% 48%,
-      #438dcc 0%,#4995d2 54%,rgba(82,158,217,.96) 67%,
-      rgba(91,169,224,.56) 82%,rgba(97,176,228,.16) 94%,rgba(97,176,228,0) 100%)!important;
-    filter:blur(2.8px)!important;
-    box-shadow:none!important;
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-greeting{
+    position:relative!important;display:inline-flex!important;align-items:center!important;
+    width:max-content!important;max-width:95%!important;min-height:32px!important;
+    padding:4px 11px 5px!important;
+    border:1.5px solid #7b4a28!important;border-radius:10px 15px 13px 8px!important;
+    background:
+      repeating-linear-gradient(2deg,rgba(79,43,20,.08) 0 2px,transparent 2px 10px),
+      linear-gradient(180deg,#e8b46b 0%,#cf8945 55%,#b56f37 100%)!important;
+    box-shadow:inset 0 1px 0 rgba(255,232,177,.70),0 3px 0 #68401f,0 5px 9px rgba(22,27,18,.22)!important;
+    color:#4b2c18!important;text-shadow:0 1px 0 rgba(255,226,169,.68)!important;
   }
 }
 @media (orientation:landscape) and (min-height:581px) and (min-aspect-ratio:3/2){
-  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy::before{
-    inset:-14% -30% -24% -10%!important;
-    border-radius:50% 62% 60% 46%!important;
-    background:radial-gradient(ellipse 96% 118% at 24% 48%,
-      #438dcc 0%,#4995d2 54%,rgba(82,158,217,.96) 68%,
-      rgba(91,169,224,.56) 83%,rgba(97,176,228,.16) 95%,rgba(97,176,228,0) 100%)!important;
-    filter:blur(3.2px)!important;
-    box-shadow:none!important;
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy{
+    display:flex!important;align-items:center!important;
+    width:max-content!important;max-width:34%!important;height:auto!important;
+    padding:8px 18px 9px!important;
+    border:2px solid #7b4a28!important;border-radius:12px 18px 15px 10px!important;
+    background:
+      repeating-linear-gradient(2deg,rgba(79,43,20,.09) 0 2px,transparent 2px 12px),
+      linear-gradient(180deg,#e8b46b 0%,#cf8945 55%,#b56f37 100%)!important;
+    box-shadow:inset 0 2px 1px rgba(255,232,177,.70),0 4px 0 #68401f,0 7px 13px rgba(22,27,18,.24)!important;
+    color:#4b2c18!important;text-shadow:0 1px 0 rgba(255,226,169,.68)!important;
+    overflow:visible!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy::before,
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy::after{
+    display:none!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-greeting{
+    color:#4b2c18!important;text-shadow:0 1px 0 rgba(255,226,169,.68)!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-intro{
+    display:none!important;
   }
 }
 .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy{
-  justify-content:flex-start!important;
+  justify-content:flex-start!important;padding:0!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy::before{
+  display:none!important;
 }
 .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-intro{
   visibility:hidden!important;
 }
-.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy::before{
-  left:-6%!important;right:-20%!important;top:-6%!important;bottom:auto!important;height:60%!important;
-  border-radius:50% 62% 58% 46%!important;
-  background:radial-gradient(ellipse 96% 118% at 24% 48%,
-    #438dcc 0%,#4995d2 54%,rgba(82,158,217,.96) 68%,
-    rgba(91,169,224,.56) 83%,rgba(97,176,228,.16) 95%,rgba(97,176,228,0) 100%)!important;
-  filter:blur(3px)!important;
-  box-shadow:none!important;
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-greeting{
+  position:relative!important;display:inline-flex!important;align-items:center!important;
+  width:max-content!important;max-width:95%!important;min-height:48px!important;
+  padding:8px 20px 9px!important;
+  border:2px solid #7b4a28!important;border-radius:12px 18px 15px 10px!important;
+  background:
+    repeating-linear-gradient(2deg,rgba(79,43,20,.09) 0 2px,transparent 2px 12px),
+    linear-gradient(180deg,#e8b46b 0%,#cf8945 55%,#b56f37 100%)!important;
+  box-shadow:inset 0 2px 1px rgba(255,232,177,.70),0 4px 0 #68401f,0 7px 13px rgba(22,27,18,.24)!important;
+  color:#4b2c18!important;text-shadow:0 1px 0 rgba(255,226,169,.68)!important;
 }
 
-/* The iPad source exposes only the first two baked nav icons after the
-   full-height crop. Keep the verified sky clone, but reveal it only around those
-   two obsolete icons instead of painting a rectangular sky panel. */
+/* iPad 4:3: keep the verified same-image sky clone, but cover the complete
+   exposed baked icon+label pair with one feathered oval, not a rectangular panel. */
 @media (orientation:landscape) and (min-height:581px) and (max-aspect-ratio:3/2){
   .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
-    -webkit-mask-image:
-      radial-gradient(ellipse 58px 72px at 35% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%),
-      radial-gradient(ellipse 58px 72px at 78% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%)!important;
-    -webkit-mask-composite:source-over!important;
-    mask-image:
-      radial-gradient(ellipse 58px 72px at 35% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%),
-      radial-gradient(ellipse 58px 72px at 78% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%)!important;
-    mask-composite:add!important;
+    right:-1.5%!important;top:-1%!important;width:22%!important;height:19%!important;
+    border-radius:0!important;filter:none!important;
+    -webkit-mask-image:radial-gradient(ellipse 76% 112% at 56% 43%,#000 0 70%,rgba(0,0,0,.84) 82%,rgba(0,0,0,.38) 93%,transparent 100%)!important;
+    mask-image:radial-gradient(ellipse 76% 112% at 56% 43%,#000 0 70%,rgba(0,0,0,.84) 82%,rgba(0,0,0,.38) 93%,transparent 100%)!important;
   }
 }
