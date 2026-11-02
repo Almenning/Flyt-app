@@ -98,6 +98,10 @@ async function run(engine,browserType,name,viewport,expectSigns){
    assert.match(audit.portraitVisual.greeting,/Hei,/,engine+' '+name+' dynamic portrait greeting is missing');
    assert.ok(audit.portraitVisual.copy.x>=-2&&audit.portraitVisual.copy.right<=viewport.width+2&&audit.portraitVisual.copy.y>=-2&&audit.portraitVisual.copy.bottom<=viewport.height+2,
      engine+' '+name+' portrait greeting cover is outside viewport');
+   assert.ok(audit.portraitVisual.copy.w<=viewport.width*.62,
+     engine+' '+name+' portrait greeting cover is too wide');
+   assert.ok(audit.portraitVisual.copy.h<=viewport.height*.13,
+     engine+' '+name+' portrait greeting cover is too tall');
    assert.deepEqual(audit.buttons.map(b=>b.subject),expects.map(x=>x[0]),engine+' '+name+' portrait subject order changed');
    assert(audit.buttons.every(b=>b.w>=44&&b.h>=44),engine+' '+name+' portrait sign has inaccessible hit target');
    assert(audit.buttons.every(b=>b.x>=-2&&b.right<=viewport.width+2&&b.y>=-2&&b.bottom<=viewport.height+2),
