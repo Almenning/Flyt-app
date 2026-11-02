@@ -917,3 +917,48 @@
       rgba(88,161,226,0) 100%)!important;
   }
 }
+
+
+/* Compact greeting erasers. They cover only the baked copy bounds, not the
+   surrounding mountain/sky. This supersedes the earlier broad radial patches. */
+@media (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy{
+    padding:clamp(5px,.75vh,9px) clamp(9px,2.3vw,15px)!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy::before{
+    inset:-3% -4% -4% -3%!important;
+    border-radius:14px 22px 20px 13px!important;
+    background:linear-gradient(103deg,
+      #438dcc 0%,#4995d2 43%,#55a0d9 72%,#61a9df 100%)!important;
+    filter:blur(1.2px)!important;
+    box-shadow:0 0 7px 5px rgba(78,156,216,.42)!important;
+  }
+}
+@media (orientation:landscape) and (max-height:580px){
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-copy::before{
+    inset:-5% -10% -7% -5%!important;
+    border-radius:12px 20px 18px 11px!important;
+    background:linear-gradient(103deg,
+      #438dcc 0%,#4995d2 45%,#56a1da 74%,#62aae0 100%)!important;
+    filter:blur(1.1px)!important;
+    box-shadow:0 0 6px 4px rgba(78,156,216,.38)!important;
+  }
+}
+@media (orientation:landscape) and (min-height:581px) and (min-aspect-ratio:3/2){
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy::before{
+    inset:-8% -18% -16% -8%!important;
+    border-radius:13px 24px 20px 12px!important;
+    background:linear-gradient(103deg,
+      #438dcc 0%,#4995d2 44%,#56a1da 73%,#62aae0 100%)!important;
+    filter:blur(1.2px)!important;
+    box-shadow:0 0 8px 5px rgba(78,156,216,.38)!important;
+  }
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy::before{
+  inset:-4% -7% -6% -4%!important;
+  border-radius:14px 24px 20px 12px!important;
+  background:linear-gradient(103deg,
+    #438dcc 0%,#4995d2 44%,#56a1da 73%,#62aae0 100%)!important;
+  filter:blur(1.2px)!important;
+  box-shadow:0 0 8px 5px rgba(78,156,216,.38)!important;
+}
