@@ -54,3 +54,14 @@
   white-space:nowrap!important;overflow:hidden!important;
   text-overflow:ellipsis!important;pointer-events:none!important;
 }
+
+
+/* Short landscape devices must use the real visible viewport height.
+   This is preview-scoped so the locked v15 production layout remains untouched. */
+@media (orientation:landscape) and (max-height:580px){
+  .grade-band-young .bc12.bc15-locked-home.bc16-preview-enabled{
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+  }
+}
