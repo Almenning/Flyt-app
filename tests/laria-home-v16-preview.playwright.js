@@ -66,9 +66,11 @@ async function run(engine,browserType,name,viewport,expectSigns){
     const buttons=[...el.querySelectorAll('.bc16-sign')].map(x=>({...rect(x),subject:x.dataset.bc16Subject,label:x.innerText.trim()}));
     const old=el.querySelector('.bc14-subjects'),oldStyle=getComputedStyle(old);
     const journey=rect(el.querySelector('.bc12-journey'));
+    const bottomNav=rect(el.querySelector('.bc12-nav'));
+    const bottomButtons=[...el.querySelectorAll('.bc12-nav button')].filter(x=>getComputedStyle(x).display!=='none').map(rect);
     return {
       art:getComputedStyle(el).getPropertyValue('--bc15-home-art'),
-      nav,deck,buttons,journey,
+      nav,deck,buttons,journey,bottomNav,bottomButtons,
       stage:el.dataset.bc16Stage,cleanArt:el.dataset.bc16CleanArt,
       oldVisibility:oldStyle.visibility,oldPointerEvents:oldStyle.pointerEvents,
       screen:{w:innerWidth,h:innerHeight,scrollWidth:document.documentElement.scrollWidth},
@@ -83,8 +85,12 @@ async function run(engine,browserType,name,viewport,expectSigns){
    assert(audit.buttons.every(b=>b.w>=44&&b.h>=44),engine+' '+name+' portrait sign has inaccessible hit target');
    assert(audit.buttons.every(b=>b.x>=-2&&b.right<=viewport.width+2&&b.y>=-2&&b.bottom<=viewport.height+2),
      engine+' '+name+' portrait sign is outside viewport');
-   assert(audit.deck.y<=audit.nav.y+2&&audit.deck.bottom>=audit.nav.bottom-2,
-     engine+' '+name+' portrait deck does not cover the obsolete card zone');
+   assert(audit.deck.y<=audit.nav.y+2&&audit.deck.bottom>=viewport.height-2,
+     engine+' '+name+' portrait deck does not cover the obsolete baked bottom chrome');
+   assert.equal(audit.bottomButtons.length,5,engine+' '+name+' real five-item bottom navigation is not visible');
+   assert(audit.bottomButtons.every(b=>b.w>=44&&b.h>=44),engine+' '+name+' bottom navigation has inaccessible targets');
+   assert(audit.bottomNav.x>=-2&&audit.bottomNav.right<=viewport.width+2&&audit.bottomNav.y>=-2&&audit.bottomNav.bottom<=viewport.height+2,
+     engine+' '+name+' bottom navigation is outside viewport');
    assert(audit.journey.x>=-2&&audit.journey.right<=viewport.width+2&&audit.journey.y>=-2&&audit.journey.bottom<=viewport.height+2,
      engine+' '+name+' portrait journey plank is outside viewport');
    assert.match(audit.journeyText,/Fortsett reisen/,'Portrait live journey action disappeared');
