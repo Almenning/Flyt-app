@@ -108,7 +108,7 @@ async function run(engine,browserType,name,viewport,expectSigns){
       screen:{w:innerWidth,h:innerHeight,scrollWidth:document.documentElement.scrollWidth}};
    });
    if(cleanArtCommitted){
-     assert.match(audit.art,/blob:/,engine+' '+name+' hash-verified clean image is not active');
+     assert.match(audit.art,/assets\/home-v16\/kjosnes-home-desktop-clean-DRAFT\.webp/,engine+' '+name+' SHA-verified same-origin clean image is not active');
      assert.equal(await home.getAttribute('data-bc16-clean-art'),'verified-preview-only',engine+' '+name+' clean candidate not verified');
      assert.equal(await home.locator('.bc15-live-next').evaluate(el=>getComputedStyle(el).backgroundImage),'none',
        engine+' '+name+' a painted-on progress text must never have a fake opaque strip');
