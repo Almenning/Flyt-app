@@ -49,12 +49,14 @@
     !!document.querySelector('.grade-band-young');
   function remove(host){
     if(!host)return;
-    host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready','bc16-portrait-ready','bc16-small-landscape-ready','bc16-tablet-landscape-cap-ready');
+    host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready','bc16-portrait-ready','bc16-small-landscape-ready','bc16-tablet-landscape-cap-ready','bc16-tablet-cover-ready');
     host.querySelector('.bc16-sign-nav')?.remove();
     host.querySelector('.bc16-portrait-deck')?.remove();
     host.querySelector('.bc16-small-landscape-art')?.remove();
     host.querySelector('.bc16-small-landscape-ui')?.remove();
     host.querySelector('.bc16-tablet-landscape-cap')?.remove();
+    host.querySelector('.bc16-tablet-landscape-art')?.remove();
+    host.querySelector('.bc16-tablet-nav-cover')?.remove();
     if(host.dataset.bc16Stage!=='not-ready')host.dataset.bc16Stage='not-ready';
   }
   function coordinate(host,prop){
@@ -151,6 +153,99 @@
     host.classList.add('bc16-portrait-ready');
     host.dataset.bc16CleanArt='portrait-locked-master';
     host.dataset.bc16Stage='portrait-navigation-pilot';
+    return true;
+  }
+  function mountTabletLandscapePilot(host){
+    const rect=host.getBoundingClientRect();
+    const subjectNames={norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'};
+    const subjectName=subjectNames[host.dataset.journeySubject]||'';
+    if(!cleanUrl||!subjectName){
+      remove(host);
+      host.dataset.bc16CleanArt=cleanUrl?'journey-state-pending':cleanStatus;
+      host.dataset.bc16Stage='tablet-landscape-art-pending';
+      return false;
+    }
+    const scale=rect.height/681;
+    const displayWidth=1127*scale;
+    const displayHeight=rect.height;
+    const artLeft=-(30*scale);
+    let scene=host.querySelector('.bc16-tablet-landscape-art');
+    if(!scene){
+      scene=document.createElement('img');
+      scene.className='bc16-tablet-landscape-art';
+      scene.alt='';
+      scene.setAttribute('aria-hidden','true');
+      scene.decoding='async';
+      scene.draggable=false;
+      host.prepend(scene);
+    }
+    if(scene.getAttribute('src')!==cleanUrl)scene.src=cleanUrl;
+    for(const [key,val] of [['left',artLeft],['top',0],['width',displayWidth],['height',displayHeight]]){
+      scene.style.setProperty(key,val.toFixed(2)+'px');
+    }
+    host.style.setProperty('--bc15-home-art','url("'+cleanUrl+'")');
+    host.style.setProperty('--bc15-art-left',artLeft.toFixed(2)+'px');
+    host.style.setProperty('--bc15-art-top','0px');
+    host.style.setProperty('--bc15-art-width',displayWidth.toFixed(2)+'px');
+    host.style.setProperty('--bc15-art-height',displayHeight.toFixed(2)+'px');
+    const nav=ensureSignNav(host,false);
+    const area={
+      left:artLeft+displayWidth*.037,
+      top:displayHeight*.292,
+      width:displayWidth*.164,
+      height:displayHeight*.329
+    };
+    for(const [key,val] of [['left',area.left],['top',area.top],['width',area.width],['height',area.height]]){
+      nav.style.setProperty(key,val.toFixed(2)+'px');
+    }
+    let cover=host.querySelector('.bc16-tablet-nav-cover');
+    if(!cover){
+      cover=document.createElement('div');
+      cover.className='bc16-tablet-nav-cover';
+      cover.setAttribute('aria-hidden','true');
+      host.append(cover);
+    }
+    const mainNav=host.querySelector('.bc12-nav');
+    if(mainNav){
+      for(const [key,val] of [['left',rect.width*.70],['top',rect.height*.018],['width',rect.width*.285],['height',rect.height*.13]]){
+        mainNav.style.setProperty(key,val.toFixed(2)+'px','important');
+      }
+      mainNav.style.setProperty('right','auto','important');
+      mainNav.style.setProperty('bottom','auto','important');
+    }
+    const liveCopy=host.querySelector('.bc15-live-copy');
+    if(liveCopy){
+      for(const [key,val] of [['left',Math.max(105,artLeft+displayWidth*.115)],['top',displayHeight*.172],['width',Math.min(360,displayWidth*.225)],['height',Math.max(58,displayHeight*.072)]]){
+        liveCopy.style.setProperty(key,val.toFixed(2)+'px','important');
+      }
+      liveCopy.style.setProperty('right','auto','important');
+      liveCopy.style.setProperty('bottom','auto','important');
+    }
+    const journey=host.querySelector('.bc12-journey');
+    if(journey){
+      for(const [key,val] of [['left',Math.max(0,artLeft+displayWidth*.028)],['top',displayHeight*.747],['width',displayWidth*.304],['height',displayHeight*.161]]){
+        journey.style.setProperty(key,val.toFixed(2)+'px','important');
+      }
+      journey.style.setProperty('right','auto','important');
+      journey.style.setProperty('bottom','auto','important');
+    }
+    const live=host.querySelector('.bc15-live-next');
+    if(live&&journey){
+      live.id='bc16-live-journey-progress';
+      if(journey.getAttribute('aria-describedby')!==live.id)journey.setAttribute('aria-describedby',live.id);
+      const title=host.querySelector('[data-camp-next]')?.textContent?.trim()||'';
+      const active=/pågående/i.test(host.querySelector('[data-camp-next-type]')?.textContent||'');
+      const text=(active?'Pågående':'Neste')+' · '+subjectName+' · '+title;
+      if(live.textContent!==text)live.textContent=text;
+      for(const [key,val] of [['left',Math.max(70,artLeft+displayWidth*.073)],['top',displayHeight*.836],['width',displayWidth*.235],['height',displayHeight*.040]]){
+        live.style.setProperty(key,val.toFixed(2)+'px','important');
+      }
+    }
+    host.querySelector('.bc16-tablet-landscape-cap')?.remove();
+    host.classList.remove('bc16-portrait-ready','bc16-small-landscape-ready','bc16-tablet-landscape-cap-ready');
+    host.classList.add('bc16-left-signs-ready','bc16-clean-art-ready','bc16-tablet-cover-ready');
+    host.dataset.bc16CleanArt='verified-preview-only';
+    host.dataset.bc16Stage='navigation-pilot';
     return true;
   }
   function updateWideLandscapeCap(host,top){
@@ -298,6 +393,12 @@
     const smallLandscape=matchMedia('(orientation:landscape) and (max-height:580px)').matches;
     if(smallLandscape){
       mountSmallLandscapePilot(host);
+      return;
+    }
+    const tabletLandscape=host.getBoundingClientRect().height>580&&
+      host.getBoundingClientRect().width/Math.max(1,host.getBoundingClientRect().height)<=1.50;
+    if(tabletLandscape){
+      mountTabletLandscapePilot(host);
       return;
     }
     // On the approved v15 LANDSCAPE master the four real wooden boards already
