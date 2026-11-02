@@ -121,16 +121,16 @@
     }
     const nav=ensureSignNav(host,true);
     const navLeft=rect.width*(tablet?.075:.06);
-    const navTop=rect.height*(tablet?.635:.645);
+    const navTop=rect.height*(tablet?.635:.605);
     const navWidth=Math.min(rect.width*(tablet?.79:.88),760);
-    const navHeight=Math.min(rect.height*(tablet?.225:.215),300);
+    const navHeight=Math.min(rect.height*(tablet?.225:.22),300);
     for(const [key,val] of [['left',navLeft],['top',navTop],['width',navWidth],['height',navHeight]]){
       nav.style.setProperty(key,val.toFixed(2)+'px');
     }
     const journey=host.querySelector('.bc12-journey');
     if(journey){
       const jLeft=rect.width*(tablet?.075:.06);
-      const jTop=rect.height*(tablet?.535:.555);
+      const jTop=rect.height*(tablet?.535:.515);
       const jWidth=Math.min(rect.width*(tablet?.63:.88),680);
       const jHeight=Math.min(rect.height*(tablet?.075:.075),96);
       for(const [key,val] of [['left',jLeft],['top',jTop],['width',jWidth],['height',jHeight]]){
