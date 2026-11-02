@@ -650,3 +650,31 @@
 .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-copy::after{
   display:none!important;
 }
+
+
+/* Tight iPad masking: cover only the baked pixels that must disappear. */
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+  width:18%!important;height:16%!important;right:-1%!important;top:-1%!important;
+  background:#58a1e2!important;
+  border-bottom-left-radius:92% 78%!important;
+  filter:blur(1.5px)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-copy{
+  display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;
+  padding:4px 16px!important;background:none!important;overflow:visible!important;isolation:isolate!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-copy::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:3% 1% 3% 0%;
+  border-radius:50%!important;
+  background:#4f9bd9!important;
+  filter:blur(8px)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-greeting{
+  font-size:clamp(22px,2vw,30px)!important;font-weight:950!important;line-height:1.02!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-intro{
+  display:block!important;margin-top:5px!important;
+  color:#fff7df!important;font-size:clamp(14px,1.35vw,18px)!important;font-weight:800!important;line-height:1.05!important;
+  text-shadow:0 2px 4px rgba(18,50,72,.70)!important;
+}
