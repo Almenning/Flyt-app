@@ -161,7 +161,9 @@ async function run(engine,browserType,name,viewport,expectSigns){
       journeyRect:rect(journey),
       liveId:live.id,liveText:live.textContent,realNext:el.querySelector('[data-camp-next]').textContent,
       artLeft:parseFloat(style.getPropertyValue('--bc15-art-left'))||0,
+      artTop:parseFloat(style.getPropertyValue('--bc15-art-top'))||0,
       artWidth:parseFloat(style.getPropertyValue('--bc15-art-width'))||0,
+      tabletCap:(()=>{const cap=el.querySelector('.bc16-tablet-landscape-cap');return cap?{...rect(cap),background:getComputedStyle(cap).backgroundImage}:null})(),
       smallLandscape:el.classList.contains('bc16-small-landscape-ready'),
       smallScene:(()=>{const img=el.querySelector('.bc16-small-landscape-art');return img?{complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,...rect(img)}:null})(),
       smallVisual:(()=>{const ui=el.querySelector('.bc16-small-landscape-ui');const copy=el.querySelector('.bc16-small-copy');const card=el.querySelector('.bc16-small-journey-visual');return ui&&copy&&card?{pointerEvents:getComputedStyle(ui).pointerEvents,copy:rect(copy),card:rect(card),greeting:el.querySelector('.bc16-small-greeting')?.textContent||'',meta:el.querySelector('.bc16-small-journey-meta')?.textContent||''}:null})(),
@@ -187,6 +189,12 @@ async function run(engine,browserType,name,viewport,expectSigns){
    assert(audit.nav.x<viewport.width*.28,'wooden signs are not on the left');
    assert(audit.buttons.every(b=>b.x>=audit.nav.x-2&&b.right<=audit.nav.right+2),'sign outside its artwork map');
    assert(audit.buttons.every((b,i)=>i===0||b.y>=audit.buttons[i-1].bottom-1),'wooden signs overlap');
+   if(viewport.width/viewport.height<=1.50&&viewport.height>580){
+     assert.ok(audit.tabletCap,engine+' '+name+' missing scenic iPad landscape cap');
+     assert.ok(audit.tabletCap.y<=1&&audit.tabletCap.bottom>=audit.artTop+20,
+       engine+' '+name+' scenic cap does not cover the hard artwork seam');
+     assert.notEqual(audit.tabletCap.background,'none',engine+' '+name+' scenic cap has no painted fill');
+   }
    if(viewport.height<=580&&viewport.width>viewport.height){
      assert.equal(audit.smallLandscape,true,engine+' '+name+' did not mount the short-landscape v16 scene');
      assert.ok(Math.abs(audit.artLeft)<=1,engine+' '+name+' short-landscape art is not left-aligned');
