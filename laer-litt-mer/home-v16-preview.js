@@ -60,6 +60,15 @@
   function relayout(){
     const host=getHost();
     if(!host||!inside(host)){remove(host);return;}
+    const firstPreviewMount=!host.classList.contains('bc16-preview-enabled');
+    host.classList.add('bc16-preview-enabled');
+    // Basecamp v12 has a historical 720px minimum height on >700px widths.
+    // A modern phone in landscape can therefore render a scene almost twice
+    // the visible viewport height. V16 fixes only the opt-in preview and asks
+    // v15 to remap its existing hit areas once after the height contract changes.
+    if(firstPreviewMount&&matchMedia('(orientation:landscape) and (max-height:580px)').matches){
+      requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+    }
     const left=coordinate(host,'--bc15-art-left');
     const top=coordinate(host,'--bc15-art-top');
     const width=coordinate(host,'--bc15-art-width');
