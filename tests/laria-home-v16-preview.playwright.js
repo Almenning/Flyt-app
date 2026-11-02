@@ -164,6 +164,7 @@ async function run(engine,browserType,name,viewport,expectSigns){
       artWidth:parseFloat(style.getPropertyValue('--bc15-art-width'))||0,
       smallLandscape:el.classList.contains('bc16-small-landscape-ready'),
       smallScene:(()=>{const img=el.querySelector('.bc16-small-landscape-art');return img?{complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,...rect(img)}:null})(),
+      smallVisual:(()=>{const ui=el.querySelector('.bc16-small-landscape-ui');const copy=el.querySelector('.bc16-small-copy');const card=el.querySelector('.bc16-small-journey-visual');return ui&&copy&&card?{pointerEvents:getComputedStyle(ui).pointerEvents,copy:rect(copy),card:rect(card),greeting:el.querySelector('.bc16-small-greeting')?.textContent||'',meta:el.querySelector('.bc16-small-journey-meta')?.textContent||''}:null})(),
       screen:{w:innerWidth,h:innerHeight,scrollWidth:document.documentElement.scrollWidth}};
    });
    if(cleanArtCommitted){
@@ -194,6 +195,14 @@ async function run(engine,browserType,name,viewport,expectSigns){
        engine+' '+name+' verified landscape image element did not decode');
      assert.ok(audit.smallScene.w>=viewport.width-1&&audit.smallScene.x<=1,
        engine+' '+name+' landscape image element does not cover the full viewport width');
+     assert.ok(audit.smallVisual&&audit.smallVisual.pointerEvents==='none',
+       engine+' '+name+' deterministic landscape visual layer is missing or captures input');
+     assert.match(audit.smallVisual.greeting,/Hei,/,
+       engine+' '+name+' landscape greeting is missing');
+     assert.ok(audit.smallVisual.meta.includes(audit.realNext),
+       engine+' '+name+' journey visual is not bound to real next state');
+     assert.ok(audit.smallVisual.card.x>=-2&&audit.smallVisual.card.right<=viewport.width+2&&audit.smallVisual.card.bottom<=viewport.height+2,
+       engine+' '+name+' journey visual is outside short-landscape viewport');
      assert.ok(audit.journeyRect.x>=-2&&audit.journeyRect.right<=viewport.width+2&&audit.journeyRect.bottom<=viewport.height+2,
        engine+' '+name+' journey control is outside short-landscape viewport');
    }
