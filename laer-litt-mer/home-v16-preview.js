@@ -49,11 +49,12 @@
     !!document.querySelector('.grade-band-young');
   function remove(host){
     if(!host)return;
-    host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready','bc16-portrait-ready','bc16-small-landscape-ready');
+    host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready','bc16-portrait-ready','bc16-small-landscape-ready','bc16-tablet-landscape-cap-ready');
     host.querySelector('.bc16-sign-nav')?.remove();
     host.querySelector('.bc16-portrait-deck')?.remove();
     host.querySelector('.bc16-small-landscape-art')?.remove();
     host.querySelector('.bc16-small-landscape-ui')?.remove();
+    host.querySelector('.bc16-tablet-landscape-cap')?.remove();
     if(host.dataset.bc16Stage!=='not-ready')host.dataset.bc16Stage='not-ready';
   }
   function coordinate(host,prop){
@@ -151,6 +152,24 @@
     host.dataset.bc16CleanArt='portrait-locked-master';
     host.dataset.bc16Stage='portrait-navigation-pilot';
     return true;
+  }
+  function updateWideLandscapeCap(host,top){
+    const rect=host.getBoundingClientRect();
+    const tabletLandscape=rect.width/Math.max(1,rect.height)<=1.50&&top>24;
+    let cap=host.querySelector('.bc16-tablet-landscape-cap');
+    if(!tabletLandscape){
+      cap?.remove();
+      host.classList.remove('bc16-tablet-landscape-cap-ready');
+      return;
+    }
+    if(!cap){
+      cap=document.createElement('div');
+      cap.className='bc16-tablet-landscape-cap';
+      cap.setAttribute('aria-hidden','true');
+      host.append(cap);
+    }
+    cap.style.setProperty('height',(top+34).toFixed(2)+'px');
+    host.classList.add('bc16-tablet-landscape-cap-ready');
   }
   function mountSmallLandscapePilot(host){
     const rect=host.getBoundingClientRect();
@@ -284,6 +303,7 @@
     // On the approved v15 LANDSCAPE master the four real wooden boards already
     // exist on the left. The portrait original contains no such boards.
     // Never pretend invisible buttons over the trolls are an approved phone UI.
+    updateWideLandscapeCap(host,top);
     const enough=(!portrait)&&width>=950&&height>=600;
     if(!enough){
       remove(host);
