@@ -342,6 +342,7 @@
       ui=document.createElement('div');
       ui.className='bc16-small-landscape-ui';
       ui.setAttribute('aria-hidden','true');
+      ui.inert=true;
       const copy=document.createElement('div');
       copy.className='bc16-small-copy';
       const greeting=document.createElement('strong');
@@ -360,6 +361,14 @@
       ui.append(copy,journeyVisual);
       host.append(ui);
     }
+    for(const [key,val] of [
+      ['position','absolute'],['inset','0'],['display','block'],['visibility','visible'],
+      ['opacity','1'],['z-index','2147483000'],['pointer-events','none'],
+      ['transform','translateZ(0)'],['-webkit-transform','translateZ(0)']
+    ])ui.style.setProperty(key,val,'important');
+    const legacyCopy=host.querySelector('.bc15-live-copy');
+    if(legacyCopy)legacyCopy.style.setProperty('display','none','important');
+    if(live)live.style.setProperty('display','none','important');
     const greetingText=host.querySelector('.bc15-live-greeting')?.textContent?.trim()||'Hei!';
     const introText=host.querySelector('.bc15-live-intro')?.textContent?.trim()||'Klar for et nytt eventyr?';
     ui.querySelector('.bc16-small-greeting').textContent=greetingText;
@@ -378,11 +387,26 @@
     }
     const journeyVisual=ui.querySelector('.bc16-small-journey-visual');
     for(const [key,val] of [['left',jLeft],['top',jTop],['width',jWidth],['height',jHeight]]){
-      journeyVisual.style.setProperty(key,val.toFixed(2)+'px');
+      journeyVisual.style.setProperty(key,val.toFixed(2)+'px','important');
     }
+    for(const [key,val] of [
+      ['position','absolute'],['display','flex'],['visibility','visible'],['opacity','1'],
+      ['z-index','2'],['pointer-events','none'],['transform','translateZ(0)']
+    ])journeyVisual.style.setProperty(key,val,'important');
     const copy=ui.querySelector('.bc16-small-copy');
     for(const [key,val] of [['left',rect.width*.12],['top',rect.height*.19],['width',rect.width*.30],['height',rect.height*.17]]){
-      copy.style.setProperty(key,val.toFixed(2)+'px');
+      copy.style.setProperty(key,val.toFixed(2)+'px','important');
+    }
+    for(const [key,val] of [
+      ['position','absolute'],['display','flex'],['visibility','visible'],['opacity','1'],
+      ['z-index','2'],['pointer-events','none'],['transform','translateZ(0)']
+    ])copy.style.setProperty(key,val,'important');
+    if(journey){
+      journey.style.setProperty('opacity','.001','important');
+      journey.style.setProperty('background','transparent','important');
+      journey.style.setProperty('border','0','important');
+      journey.style.setProperty('box-shadow','none','important');
+      for(const child of journey.children)child.style.setProperty('visibility','hidden','important');
     }
     return true;
   }
