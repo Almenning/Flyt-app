@@ -777,3 +777,27 @@
 .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-intro{
   margin-top:6px!important;font-size:clamp(16px,1.35vw,20px)!important;
 }
+
+
+/* iPad landscape polish: feather the masks into the actual painted sky.
+   The opaque cores still cover baked text/icons; only the outer edges dissolve. */
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+  right:-2%!important;top:-2%!important;width:36%!important;height:21%!important;
+  border-bottom-left-radius:0!important;
+  background:
+    radial-gradient(ellipse 34% 28% at 82% 30%,rgba(255,255,255,.08) 0%,rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 108% 122% at 100% 0%,
+      #59a2e3 0%,#59a2e3 43%,
+      rgba(89,162,227,.99) 56%,rgba(88,161,226,.91) 68%,
+      rgba(86,159,224,.62) 78%,rgba(84,157,222,.28) 88%,
+      rgba(82,155,220,0) 100%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy::before{
+  inset:-10% -18% -12% -9%!important;
+  border-radius:48% 56% 52% 45%!important;
+  background:radial-gradient(ellipse 94% 98% at 34% 50%,
+    #4d9ad8 0%,#4f9bd9 58%,rgba(80,158,219,.97) 70%,
+    rgba(82,160,220,.72) 82%,rgba(83,162,221,.32) 91%,
+    rgba(83,162,221,0) 100%)!important;
+  filter:blur(4px)!important;
+}
