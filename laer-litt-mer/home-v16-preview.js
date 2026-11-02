@@ -156,7 +156,7 @@
     // phone master. Keep the live replacement on that exact region so the
     // mountain and sun stay visible instead of being covered by a giant sky patch.
     const pLeft=Math.max(0,artLeft+artWidth*.072);
-    const pTop=Math.max(0,artTop+artHeight*.155);
+    const pTop=Math.max(0,artTop+artHeight*.148);
     const pWidth=Math.min(rect.width-pLeft,artWidth*.565);
     const pHeight=Math.min(rect.height-pTop,artHeight*.105);
     const portraitCopy=portraitUi.querySelector('.bc16-portrait-copy');
@@ -450,7 +450,7 @@
       ['z-index','2'],['pointer-events','none'],['transform','translateZ(0)']
     ])journeyVisual.style.setProperty(key,val,'important');
     const copy=ui.querySelector('.bc16-small-copy');
-    for(const [key,val] of [['left',rect.width*.12],['top',rect.height*.22],['width',rect.width*.30],['height',rect.height*.17]]){
+    for(const [key,val] of [['left',rect.width*.12],['top',rect.height*.205],['width',rect.width*.30],['height',rect.height*.17]]){
       copy.style.setProperty(key,val.toFixed(2)+'px','important');
     }
     for(const [key,val] of [
