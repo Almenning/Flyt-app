@@ -246,7 +246,7 @@
     // Clone a clean patch of sky from the SAME locked illustration over the
     // baked top-nav tail. This removes the obsolete painted labels without
     // introducing a flat blue panel or regenerating any artwork.
-    const skySourceX=610,skySourceY=10;
+    const skySourceX=650,skySourceY=0;
     cover.style.setProperty('background-image','url("'+cleanUrl+'")','important');
     cover.style.setProperty('background-size',displayWidth.toFixed(2)+'px '+displayHeight.toFixed(2)+'px','important');
     cover.style.setProperty('background-position',
