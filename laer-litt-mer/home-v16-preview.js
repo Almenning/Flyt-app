@@ -152,10 +152,13 @@
     portraitUi.querySelector('.bc16-portrait-greeting').textContent=greetingText;
     portraitUi.querySelector('.bc16-portrait-intro').textContent=introText;
     if(legacyCopy)legacyCopy.style.setProperty('display','none','important');
-    const pLeft=Math.max(0,artLeft+artWidth*.045);
-    const pTop=Math.max(0,artTop+artHeight*.112);
-    const pWidth=Math.min(rect.width-pLeft,artWidth*.61);
-    const pHeight=Math.min(rect.height-pTop,artHeight*(tablet?.125:.132));
+    // The baked greeting occupies only the compact text block in the locked
+    // phone master. Keep the live replacement on that exact region so the
+    // mountain and sun stay visible instead of being covered by a giant sky patch.
+    const pLeft=Math.max(0,artLeft+artWidth*.072);
+    const pTop=Math.max(0,artTop+artHeight*.138);
+    const pWidth=Math.min(rect.width-pLeft,artWidth*.565);
+    const pHeight=Math.min(rect.height-pTop,artHeight*.105);
     const portraitCopy=portraitUi.querySelector('.bc16-portrait-copy');
     for(const [key,val] of [['left',pLeft],['top',pTop],['width',pWidth],['height',pHeight]]){
       portraitCopy.style.setProperty(key,val.toFixed(2)+'px','important');
