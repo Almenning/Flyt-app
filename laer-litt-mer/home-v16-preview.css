@@ -988,18 +988,82 @@
   box-shadow:none!important;
 }
 
-/* The iPad source exposes only the first two baked nav icons after the
-   full-height crop. Keep the verified sky clone, but reveal it only around those
-   two obsolete icons instead of painting a rectangular sky panel. */
+/* Final sky cleanup: blur only the baked greeting pixels in place.
+   This preserves the local mountain/sky colour instead of drawing a blue UI patch. */
+@media (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy{
+    justify-content:center!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-intro{
+    visibility:visible!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy::before{
+    inset:-8% -12% -10% -8%!important;height:auto!important;
+    border-radius:42% 58% 55% 40%!important;
+    background:rgba(75,151,210,.08)!important;
+    -webkit-backdrop-filter:blur(11px) saturate(.92)!important;
+    backdrop-filter:blur(11px) saturate(.92)!important;
+    -webkit-mask-image:radial-gradient(ellipse 96% 92% at 34% 50%,#000 0 68%,rgba(0,0,0,.82) 80%,rgba(0,0,0,.35) 91%,transparent 100%)!important;
+    mask-image:radial-gradient(ellipse 96% 92% at 34% 50%,#000 0 68%,rgba(0,0,0,.82) 80%,rgba(0,0,0,.35) 91%,transparent 100%)!important;
+    filter:none!important;box-shadow:none!important;
+  }
+}
+@media (orientation:landscape) and (max-height:580px){
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-copy{
+    justify-content:center!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-intro{
+    visibility:visible!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-small-copy::before{
+    inset:-14% -22% -18% -10%!important;height:auto!important;
+    border-radius:42% 58% 55% 40%!important;
+    background:rgba(75,151,210,.08)!important;
+    -webkit-backdrop-filter:blur(10px) saturate(.92)!important;
+    backdrop-filter:blur(10px) saturate(.92)!important;
+    -webkit-mask-image:radial-gradient(ellipse 96% 92% at 34% 50%,#000 0 68%,rgba(0,0,0,.82) 80%,rgba(0,0,0,.35) 91%,transparent 100%)!important;
+    mask-image:radial-gradient(ellipse 96% 92% at 34% 50%,#000 0 68%,rgba(0,0,0,.82) 80%,rgba(0,0,0,.35) 91%,transparent 100%)!important;
+    filter:none!important;box-shadow:none!important;
+  }
+}
+@media (orientation:landscape) and (min-height:581px) and (min-aspect-ratio:3/2){
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy{
+    background:none!important;box-shadow:none!important;isolation:isolate!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy::before{
+    inset:-18% -32% -24% -10%!important;
+    border-radius:42% 58% 55% 40%!important;
+    background:rgba(75,151,210,.08)!important;
+    -webkit-backdrop-filter:blur(11px) saturate(.92)!important;
+    backdrop-filter:blur(11px) saturate(.92)!important;
+    -webkit-mask-image:radial-gradient(ellipse 96% 92% at 34% 50%,#000 0 68%,rgba(0,0,0,.82) 80%,rgba(0,0,0,.35) 91%,transparent 100%)!important;
+    mask-image:radial-gradient(ellipse 96% 92% at 34% 50%,#000 0 68%,rgba(0,0,0,.82) 80%,rgba(0,0,0,.35) 91%,transparent 100%)!important;
+    filter:none!important;box-shadow:none!important;
+  }
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy{
+  justify-content:center!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-intro{
+  visibility:visible!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy::before{
+  inset:-12% -24% -16% -10%!important;height:auto!important;
+  border-radius:42% 58% 55% 40%!important;
+  background:rgba(75,151,210,.08)!important;
+  -webkit-backdrop-filter:blur(11px) saturate(.92)!important;
+  backdrop-filter:blur(11px) saturate(.92)!important;
+  -webkit-mask-image:radial-gradient(ellipse 96% 92% at 34% 50%,#000 0 68%,rgba(0,0,0,.82) 80%,rgba(0,0,0,.35) 91%,transparent 100%)!important;
+  mask-image:radial-gradient(ellipse 96% 92% at 34% 50%,#000 0 68%,rgba(0,0,0,.82) 80%,rgba(0,0,0,.35) 91%,transparent 100%)!important;
+  filter:none!important;box-shadow:none!important;
+}
+
+/* The verified cloned sky remains the source for iPad baked-nav cleanup, but
+   only an oval around the obsolete icon/label pair is revealed. */
 @media (orientation:landscape) and (min-height:581px) and (max-aspect-ratio:3/2){
   .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
-    -webkit-mask-image:
-      radial-gradient(ellipse 58px 72px at 35% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%),
-      radial-gradient(ellipse 58px 72px at 78% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%)!important;
-    -webkit-mask-composite:source-over!important;
-    mask-image:
-      radial-gradient(ellipse 58px 72px at 35% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%),
-      radial-gradient(ellipse 58px 72px at 78% 40%,#000 0 70%,rgba(0,0,0,.78) 82%,transparent 100%)!important;
-    mask-composite:add!important;
+    width:20.5%!important;height:18%!important;
+    -webkit-mask-image:radial-gradient(ellipse 58% 88% at 55% 50%,#000 0 70%,rgba(0,0,0,.82) 82%,rgba(0,0,0,.34) 93%,transparent 100%)!important;
+    mask-image:radial-gradient(ellipse 58% 88% at 55% 50%,#000 0 70%,rgba(0,0,0,.82) 82%,rgba(0,0,0,.34) 93%,transparent 100%)!important;
   }
 }
