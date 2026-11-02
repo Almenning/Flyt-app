@@ -53,9 +53,12 @@ async function run(engine,browserType,name,viewport,expectSigns){
   const home=page.locator('#home-screen.active .bc12.bc15-locked-home');
   await home.waitFor({state:'visible',timeout:22000});
   await page.waitForFunction(()=>Boolean(document.querySelector('#home-screen .bc12')?.dataset.bc16Stage) && document.querySelector('#home-screen .bc12')?.dataset.bc16Stage!=='not-ready',null,{timeout:18000});
+  const portraitCase=viewport.height>viewport.width;
+  if(expectSigns&&!portraitCase){
+    await page.waitForFunction(()=>document.querySelector('#home-screen .bc12')?.dataset.bc16Stage==='navigation-pilot',null,{timeout:18000});
+  }
   const actual=await home.getAttribute('data-bc16-stage');
   const signs=home.locator('.bc16-sign');
-  const portraitCase=viewport.height>viewport.width;
   if(portraitCase){
    assert.equal(actual,'portrait-navigation-pilot',engine+' '+name+' portrait v16 pilot did not mount: '+actual);
    assert.equal(await signs.count(),4,engine+' '+name+' portrait four subject signs missing');
