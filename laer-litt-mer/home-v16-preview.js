@@ -49,9 +49,10 @@
     !!document.querySelector('.grade-band-young');
   function remove(host){
     if(!host)return;
-    host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready','bc16-portrait-ready');
+    host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready','bc16-portrait-ready','bc16-small-landscape-ready');
     host.querySelector('.bc16-sign-nav')?.remove();
     host.querySelector('.bc16-portrait-deck')?.remove();
+    host.querySelector('.bc16-small-landscape-art')?.remove();
     if(host.dataset.bc16Stage!=='not-ready')host.dataset.bc16Stage='not-ready';
   }
   function coordinate(host,prop){
@@ -163,6 +164,17 @@
     const displayWidth=rect.width;
     const displayHeight=displayWidth*(681/1127);
     host.style.setProperty('--bc15-home-art','url("'+cleanUrl+'")');
+    let scene=host.querySelector('.bc16-small-landscape-art');
+    if(!scene){
+      scene=document.createElement('img');
+      scene.className='bc16-small-landscape-art';
+      scene.alt='';
+      scene.setAttribute('aria-hidden','true');
+      scene.decoding='async';
+      scene.draggable=false;
+      host.prepend(scene);
+    }
+    if(scene.getAttribute('src')!==cleanUrl)scene.src=cleanUrl;
     host.style.setProperty('--bc15-art-left','0px');
     host.style.setProperty('--bc15-art-top','0px');
     host.style.setProperty('--bc15-art-width',displayWidth.toFixed(2)+'px');
@@ -192,13 +204,24 @@
       const active=/pågående/i.test(host.querySelector('[data-camp-next-type]')?.textContent||'');
       const text=(active?'Pågående':'Neste')+' · '+subjectName+' · '+title;
       if(live.textContent!==text)live.textContent=text;
-      const left=Math.max(185,rect.width*.215);
-      const width=Math.min(285,rect.width*.36);
-      const height=Math.max(18,rect.height*.052);
-      const top=Math.max(rect.height-height-18,rect.height*.82);
-      for(const [key,val] of [['left',left],['top',top],['width',width],['height',height]]){
-        live.style.setProperty(key,val.toFixed(2)+'px','important');
+      const jLeft=Math.max(area.left+area.width+16,rect.width*.215);
+      const jWidth=Math.min(270,Math.max(235,rect.width*.31));
+      const jHeight=Math.min(58,Math.max(50,rect.height*.14));
+      const jTop=rect.height-jHeight-Math.max(10,rect.height*.025);
+      for(const [key,val] of [['left',jLeft],['top',jTop],['width',jWidth],['height',jHeight]]){
+        journey.style.setProperty(key,val.toFixed(2)+'px','important');
       }
+      journey.style.setProperty('right','auto','important');
+      journey.style.setProperty('bottom','auto','important');
+    }
+    const liveCopy=host.querySelector('.bc15-live-copy');
+    if(liveCopy){
+      liveCopy.style.setProperty('left',(rect.width*.12).toFixed(2)+'px','important');
+      liveCopy.style.setProperty('top',(rect.height*.19).toFixed(2)+'px','important');
+      liveCopy.style.setProperty('width',(rect.width*.30).toFixed(2)+'px','important');
+      liveCopy.style.setProperty('height',(rect.height*.17).toFixed(2)+'px','important');
+      liveCopy.style.setProperty('right','auto','important');
+      liveCopy.style.setProperty('bottom','auto','important');
     }
     return true;
   }
