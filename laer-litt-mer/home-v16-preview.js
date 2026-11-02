@@ -230,14 +230,23 @@
       tabletUi.append(copy);
       host.append(tabletUi);
     }
+    for(const [key,val] of [
+      ['position','absolute'],['inset','0'],['display','block'],['visibility','visible'],
+      ['opacity','1'],['z-index','28'],['pointer-events','none']
+    ])tabletUi.style.setProperty(key,val,'important');
+    if(liveCopy)liveCopy.style.setProperty('display','none','important');
     const greetingText=liveCopy?.querySelector('.bc15-live-greeting')?.textContent?.trim()||'Hei!';
     const introText=liveCopy?.querySelector('.bc15-live-intro')?.textContent?.trim()||'Klar for et nytt eventyr?';
     tabletUi.querySelector('.bc16-tablet-greeting').textContent=greetingText;
     tabletUi.querySelector('.bc16-tablet-intro').textContent=introText;
     const tabletCopy=tabletUi.querySelector('.bc16-tablet-copy');
-    for(const [key,val] of [['left',Math.max(130,artLeft+displayWidth*.105)],['top',displayHeight*.158],['width',Math.min(390,displayWidth*.235)],['height',Math.max(96,displayHeight*.100)]]){
-      tabletCopy.style.setProperty(key,val.toFixed(2)+'px');
+    for(const [key,val] of [['left',Math.max(125,artLeft+displayWidth*.105)],['top',displayHeight*.150],['width',Math.min(460,displayWidth*.270)],['height',Math.max(130,displayHeight*.130)]]){
+      tabletCopy.style.setProperty(key,val.toFixed(2)+'px','important');
     }
+    for(const [key,val] of [
+      ['position','absolute'],['display','flex'],['visibility','visible'],['opacity','1'],
+      ['z-index','2'],['pointer-events','none']
+    ])tabletCopy.style.setProperty(key,val,'important');
     const journey=host.querySelector('.bc12-journey');
     if(journey){
       for(const [key,val] of [['left',Math.max(0,artLeft+displayWidth*.028)],['top',displayHeight*.747],['width',displayWidth*.304],['height',displayHeight*.161]]){
