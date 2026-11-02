@@ -2,10 +2,10 @@
    These are transparent semantic hit areas over the FOUR PAINTED LEFT SIGNS.
    No separate bottom cards are interactive; removal of their baked-in art
    requires a separately approved CLEAN derivative before release. */
-.grade-band-young .bc12.bc15-locked-home.bc16-left-signs-ready .bc14-subjects{
+.grade-band-young .bc12.bc15-locked-home:is(.bc16-left-signs-ready,.bc16-portrait-ready) .bc14-subjects{
   visibility:hidden!important;pointer-events:none!important;
 }
-.grade-band-young .bc12.bc15-locked-home.bc16-left-signs-ready .bc14-subject{
+.grade-band-young .bc12.bc15-locked-home:is(.bc16-left-signs-ready,.bc16-portrait-ready) .bc14-subject{
   visibility:hidden!important;pointer-events:none!important;
 }
 .grade-band-young .bc12.bc15-locked-home .bc16-sign-nav{
@@ -64,4 +64,100 @@
     min-height:100dvh!important;
     max-height:100dvh!important;
   }
+}
+
+
+/* Portrait v16 pilot: keep the locked phone mountains/trolls, cover only the
+   obsolete baked subject-card zone, and render real semantic subject signs. */
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-deck{
+  position:absolute!important;z-index:15!important;pointer-events:none!important;
+  background:
+    radial-gradient(ellipse at 10% 100%,rgba(206,155,73,.28),transparent 42%),
+    radial-gradient(ellipse at 86% 76%,rgba(91,123,68,.34),transparent 48%),
+    linear-gradient(180deg,rgba(28,51,39,0) 0%,rgba(28,51,39,.80) 16%,rgba(25,45,36,.96) 42%,rgba(20,39,32,.985) 100%);
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-nav-portrait{
+  position:absolute!important;z-index:24!important;display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(4,minmax(44px,1fr))!important;
+  gap:clamp(5px,.8vh,9px)!important;margin:0!important;padding:0!important;border:0!important;
+  background:none!important;box-shadow:none!important;pointer-events:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-nav-portrait::before{
+  content:"";position:absolute;z-index:-1;inset:-8% 8% -10%;
+  background:
+    linear-gradient(90deg,
+      transparent 0 10%,#5b351e 10% 14%,#9a6536 15%,#5d361e 18%,transparent 19% 78%,
+      #5b351e 79% 83%,#9a6536 84%,#5d361e 87%,transparent 88%);
+  filter:drop-shadow(0 4px 3px rgba(24,19,12,.28));
+  border-radius:8px;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign{
+  display:grid!important;grid-template-columns:clamp(34px,10vw,52px) minmax(0,1fr)!important;
+  align-items:center!important;gap:clamp(7px,2vw,13px)!important;
+  width:100%!important;height:100%!important;min-width:44px!important;min-height:44px!important;
+  padding:clamp(5px,.8vh,9px) clamp(13px,4vw,24px)!important;
+  color:#4c2c18!important;text-align:left!important;
+  border:2px solid #7b4a28!important;border-radius:16px 8px 14px 7px!important;
+  background:
+    radial-gradient(circle at 11px 50%,#392419 0 3px,#d39a55 4px 5px,transparent 6px),
+    radial-gradient(circle at calc(100% - 11px) 50%,#392419 0 3px,#d39a55 4px 5px,transparent 6px),
+    repeating-linear-gradient(2deg,rgba(79,43,20,.10) 0 2px,transparent 2px 12px),
+    linear-gradient(180deg,#efbd70 0%,#d08a45 52%,#b56e35 100%)!important;
+  box-shadow:inset 0 2px 1px rgba(255,231,172,.72),0 4px 0 #694020,0 7px 12px rgba(19,25,18,.24)!important;
+  text-shadow:0 1px 0 rgba(255,222,159,.58)!important;pointer-events:auto!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign:nth-child(1){transform:rotate(-1.1deg)}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign:nth-child(2){transform:rotate(.65deg)}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign:nth-child(3){transform:rotate(-.45deg)}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign:nth-child(4){transform:rotate(.9deg)}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-icon{
+  display:grid!important;place-items:center!important;width:100%!important;height:100%!important;min-height:28px;
+  color:#56331e!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-icon svg{
+  width:100%!important;height:100%!important;max-width:42px!important;max-height:42px!important;display:block!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-copy{
+  display:flex!important;min-width:0!important;flex-direction:column!important;line-height:1.02!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-copy strong{
+  font-size:clamp(16px,4.8vw,25px)!important;font-weight:950!important;letter-spacing:-.035em!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-copy small{
+  margin-top:2px!important;font-size:clamp(9px,2.4vw,13px)!important;font-weight:800!important;opacity:.72!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey{
+  z-index:25!important;margin:0!important;padding:clamp(7px,1vh,12px) clamp(16px,4vw,26px)!important;
+  transform:rotate(-.7deg)!important;filter:drop-shadow(0 6px 5px rgba(35,27,17,.32))!important;
+  border:2px solid #784725!important;border-radius:17px 9px 15px 8px!important;
+  background:
+    repeating-linear-gradient(1deg,rgba(72,39,18,.10) 0 2px,transparent 2px 13px),
+    linear-gradient(180deg,#f0bd70,#ca8242 56%,#ad6632)!important;
+  box-shadow:inset 0 2px 1px rgba(255,232,177,.68),0 4px 0 #643a1f!important;
+  text-align:left!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey::before{display:none!important}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey>span{
+  display:block!important;margin:0!important;padding:0!important;border:0!important;background:none!important;
+  box-shadow:none!important;color:#4a2b18!important;font-size:clamp(16px,4.7vw,24px)!important;font-weight:950!important;
+  line-height:1.05!important;text-shadow:0 1px rgba(255,226,169,.65)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey>span b{color:#2d6d50!important}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey small{
+  display:flex!important;gap:5px!important;align-items:baseline!important;min-width:0!important;
+  margin:3px 0 0!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;color:#54321d!important;font-size:clamp(9px,2.4vw,13px)!important;
+  white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey small em{
+  display:inline!important;font-size:1em!important;letter-spacing:0!important;text-transform:none!important;opacity:.72!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey small strong{
+  display:inline!important;min-width:0!important;font-size:1em!important;overflow:hidden!important;text-overflow:ellipsis!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey small span{display:none!important}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-next{display:none!important}
+@media (min-width:700px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-copy strong{font-size:25px!important}
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-copy small{font-size:13px!important}
 }
