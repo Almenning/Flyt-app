@@ -369,7 +369,10 @@
     });
     if(liveChanged){relayout();return;}
     if(mutations.some(m=>m.type==='childList'||
-       (m.type==='attributes'&&m.target?.classList?.contains('bc12'))))schedule();
+       (m.type==='attributes'&&(
+         m.target?.classList?.contains('bc12')||
+         m.target?.id==='home-screen'
+       ))))schedule();
   });
   observer.observe(document.documentElement,{
     subtree:true,childList:true,characterData:true,attributes:true,
