@@ -678,3 +678,55 @@
   color:#fff7df!important;font-size:clamp(14px,1.35vw,18px)!important;font-weight:800!important;line-height:1.05!important;
   text-shadow:0 2px 4px rgba(18,50,72,.70)!important;
 }
+
+
+/* iPad landscape v16: use the artwork's painted top navigation as the visual.
+   DOM buttons remain accessible hit areas, but do not duplicate the painted icons/labels. */
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+  display:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav{
+  z-index:30!important;
+  background:none!important;border:0!important;box-shadow:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav button:not([data-camp="home"]){
+  color:transparent!important;text-shadow:none!important;background:transparent!important;
+  border:0!important;box-shadow:none!important;opacity:1!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav button:not([data-camp="home"])>span,
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav .bc14-nav-fox{
+  opacity:0!important;background:transparent!important;box-shadow:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-copy{
+  display:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-ui{
+  position:absolute!important;inset:0!important;z-index:28!important;
+  display:block!important;visibility:visible!important;opacity:1!important;
+  pointer-events:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy{
+  position:absolute!important;display:flex!important;flex-direction:column!important;
+  align-items:flex-start!important;justify-content:center!important;
+  box-sizing:border-box!important;padding:8px 16px!important;
+  visibility:visible!important;opacity:1!important;color:#fffaf0!important;
+  text-shadow:0 2px 5px rgba(15,48,78,.76),0 1px 0 rgba(24,70,105,.58)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-copy::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:-16% -20% -18% -10%;
+  border-radius:44% 58% 52% 44%;
+  background:radial-gradient(ellipse 90% 96% at 32% 50%,
+    #4a96d6 0%,#4e9bd9 58%,rgba(80,158,219,.98) 72%,
+    rgba(83,162,221,.72) 84%,rgba(83,162,221,.28) 93%,rgba(83,162,221,0) 100%);
+  filter:blur(1.5px);
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-greeting{
+  font-family:var(--laria-font-rounded,ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif)!important;
+  font-size:clamp(30px,3vw,44px)!important;font-weight:950!important;line-height:1!important;
+  letter-spacing:-.035em!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-intro{
+  display:block!important;margin-top:8px!important;color:#fff7df!important;
+  font-size:clamp(17px,1.55vw,23px)!important;font-weight:800!important;line-height:1.06!important;
+}
