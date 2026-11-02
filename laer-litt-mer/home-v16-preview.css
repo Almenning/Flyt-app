@@ -261,3 +261,75 @@
     font-size:14px!important;
   }
 }
+
+
+/* iPhone / short-landscape v16: the clean wide scene fills the viewport.
+   The source image is top-aligned so Læria, the painted left signs and fjord
+   remain visible; the lower source area is cropped and the real journey control
+   is rendered as interactive wood instead of showing the old baked subject cards. */
+@media (orientation:landscape) and (max-height:580px){
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready::before{
+    background:#4f96dc!important;
+    box-shadow:none!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready::after{
+    background-position:0 0!important;
+    background-repeat:no-repeat!important;
+    filter:saturate(1.02) contrast(1.012)!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc14-subjects,
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc14-subject{
+    visibility:hidden!important;pointer-events:none!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-sign-nav{
+    z-index:26!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc16-sign{
+    min-height:44px!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc12-journey{
+    z-index:25!important;
+    display:block!important;
+    left:21.5%!important;right:auto!important;top:auto!important;bottom:3.7%!important;
+    width:min(34%,290px)!important;height:13.5%!important;
+    min-width:230px!important;min-height:48px!important;
+    padding:7px 16px!important;margin:0!important;
+    border:2px solid #784725!important;border-radius:17px 9px 15px 8px!important;
+    background:
+      repeating-linear-gradient(1deg,rgba(72,39,18,.10) 0 2px,transparent 2px 13px),
+      linear-gradient(180deg,#f0bd70,#ca8242 56%,#ad6632)!important;
+    box-shadow:inset 0 2px 1px rgba(255,232,177,.68),0 4px 0 #643a1f,0 7px 13px rgba(25,18,12,.28)!important;
+    filter:none!important;transform:rotate(-.5deg)!important;opacity:1!important;
+    text-align:left!important;color:#4a2b18!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc12-journey::before{display:none!important}
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc12-journey>span{
+    display:block!important;margin:0!important;padding:0!important;border:0!important;background:none!important;
+    color:#4a2b18!important;font-size:clamp(14px,2.2vw,20px)!important;font-weight:950!important;
+    line-height:1.02!important;text-shadow:0 1px rgba(255,226,169,.65)!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc12-journey small{
+    display:none!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc15-live-next{
+    z-index:27!important;
+    display:flex!important;align-items:center!important;justify-content:flex-start!important;
+    margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;
+    color:#57351c!important;font-size:clamp(9px,1.45vw,12px)!important;font-weight:900!important;
+    line-height:1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+    pointer-events:none!important;text-shadow:0 1px 0 rgba(255,238,206,.7)!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc15-live-copy{
+    z-index:23!important;overflow:visible!important;
+    padding:4px 9px!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+    color:#fffaf0!important;text-shadow:0 2px 4px rgba(18,50,72,.72),0 1px 0 rgba(27,67,91,.62)!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc15-live-copy::before{
+    content:"";position:absolute;z-index:-1;pointer-events:none;inset:-14% -20% -16% -8%;
+    border-radius:46% 54% 50% 44%;
+    background:radial-gradient(ellipse 78% 84% at 28% 50%,
+      rgba(61,139,201,.98) 0%,rgba(71,151,213,.96) 48%,rgba(82,162,220,.72) 68%,rgba(82,162,220,.22) 84%,rgba(82,162,220,0) 100%);
+    filter:blur(2px);
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-small-landscape-ready .bc15-live-copy::after{display:none!important}
+}
