@@ -156,7 +156,7 @@
     // phone master. Keep the live replacement on that exact region so the
     // mountain and sun stay visible instead of being covered by a giant sky patch.
     const pLeft=Math.max(0,artLeft+artWidth*.072);
-    const pTop=Math.max(0,artTop+artHeight*.138);
+    const pTop=Math.max(0,artTop+artHeight*.155);
     const pWidth=Math.min(rect.width-pLeft,artWidth*.565);
     const pHeight=Math.min(rect.height-pTop,artHeight*.105);
     const portraitCopy=portraitUi.querySelector('.bc16-portrait-copy');
@@ -287,7 +287,7 @@
     tabletUi.querySelector('.bc16-tablet-greeting').textContent=greetingText;
     tabletUi.querySelector('.bc16-tablet-intro').textContent=introText;
     const tabletCopy=tabletUi.querySelector('.bc16-tablet-copy');
-    for(const [key,val] of [['left',Math.max(140,artLeft+displayWidth*.112)],['top',displayHeight*.168],['width',Math.min(345,displayWidth*.205)],['height',Math.max(108,displayHeight*.108)]]){
+    for(const [key,val] of [['left',Math.max(140,artLeft+displayWidth*.112)],['top',displayHeight*.185],['width',Math.min(345,displayWidth*.205)],['height',Math.max(108,displayHeight*.108)]]){
       tabletCopy.style.setProperty(key,val.toFixed(2)+'px','important');
     }
     for(const [key,val] of [
@@ -450,7 +450,7 @@
       ['z-index','2'],['pointer-events','none'],['transform','translateZ(0)']
     ])journeyVisual.style.setProperty(key,val,'important');
     const copy=ui.querySelector('.bc16-small-copy');
-    for(const [key,val] of [['left',rect.width*.12],['top',rect.height*.19],['width',rect.width*.30],['height',rect.height*.17]]){
+    for(const [key,val] of [['left',rect.width*.12],['top',rect.height*.22],['width',rect.width*.30],['height',rect.height*.17]]){
       copy.style.setProperty(key,val.toFixed(2)+'px','important');
     }
     for(const [key,val] of [
