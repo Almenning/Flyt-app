@@ -57,7 +57,20 @@ async function run(engine,browserType,name,viewport,expectSigns){
   const signs=home.locator('.bc16-sign');
   if(expectSigns){
    if(cleanArtCommitted){
-    await page.waitForFunction(()=>document.querySelector('#home-screen .bc12')?.classList.contains('bc16-clean-art-ready'),null,{timeout:20000});
+    await page.waitForFunction(()=>{
+      const status=window.LARIA_HOME_V16_PREVIEW?.cleanArtStatus;
+      return status==='verified-preview-only'||status==='not-available'||status==='digest-unavailable';
+    },null,{timeout:14000});
+    const cleanStatus=await page.evaluate(()=>({
+      state:window.LARIA_HOME_V16_PREVIEW?.cleanArtStatus,
+      error:window.LARIA_HOME_V16_PREVIEW?.cleanArtError,
+      stage:document.querySelector('#home-screen .bc12')?.dataset.bc16Stage,
+      bg:document.querySelector('#home-screen .bc12')?.style.getPropertyValue('--bc15-home-art'),
+      hasSubtle:typeof crypto!=='undefined'&&!!crypto.subtle
+    }));
+    assert.equal(cleanStatus.state,'verified-preview-only',
+      engine+' '+name+' clean derivative rejected: '+JSON.stringify(cleanStatus));
+    await page.waitForFunction(()=>document.querySelector('#home-screen .bc12')?.classList.contains('bc16-clean-art-ready'),null,{timeout:8000});
     const pixels=await page.evaluate(async()=>{
       const paths=['./assets/home-v15/kjosnes-home-tablet.webp','./assets/home-v16/kjosnes-home-desktop-clean-DRAFT.webp'];
       const decoded=await Promise.all(paths.map(async src=>{const img=new Image();img.src=src;await img.decode();const cn=document.createElement('canvas');cn.width=img.width;cn.height=img.height;const c=cn.getContext('2d',{willReadFrequently:true});c.drawImage(img,0,0);return{data:c.getImageData(0,0,cn.width,cn.height).data,width:cn.width,height:cn.height};}));
