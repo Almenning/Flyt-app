@@ -35,7 +35,7 @@ const screens=[
  ['ipad-landscape-1366x1024',{width:1366,height:1024},true],
  ['ipad-portrait-1024x1366',{width:1024,height:1366},false],
  ['iphone-portrait-393x852',{width:393,height:852},false],
- ['iphone-landscape-852x393',{width:852,height:393},false]
+ ['iphone-landscape-852x393',{width:852,height:393},true]
 ];
 const expects=[['norwegian','subject'],['math','subject'],['english','subject'],['geography','geography']];
 fs.mkdirSync(out,{recursive:true});
@@ -152,9 +152,14 @@ async function run(engine,browserType,name,viewport,expectSigns){
     const old=el.querySelector('.bc14-subjects');
     const ctl=getComputedStyle(old);
     const journey=el.querySelector('.bc12-journey'),live=el.querySelector('.bc15-live-next');
+    const style=getComputedStyle(el);
     return {art,nav,buttons,oldVisibility:ctl.visibility,oldPointerEvents:ctl.pointerEvents,
       stage:el.dataset.bc16Stage,journeyDescription:journey.getAttribute('aria-describedby'),
+      journeyRect:rect(journey),
       liveId:live.id,liveText:live.textContent,realNext:el.querySelector('[data-camp-next]').textContent,
+      artLeft:parseFloat(style.getPropertyValue('--bc15-art-left'))||0,
+      artWidth:parseFloat(style.getPropertyValue('--bc15-art-width'))||0,
+      smallLandscape:el.classList.contains('bc16-small-landscape-ready'),
       screen:{w:innerWidth,h:innerHeight,scrollWidth:document.documentElement.scrollWidth}};
    });
    if(cleanArtCommitted){
@@ -177,6 +182,13 @@ async function run(engine,browserType,name,viewport,expectSigns){
    assert(audit.nav.x<viewport.width*.28,'wooden signs are not on the left');
    assert(audit.buttons.every(b=>b.x>=audit.nav.x-2&&b.right<=audit.nav.right+2),'sign outside its artwork map');
    assert(audit.buttons.every((b,i)=>i===0||b.y>=audit.buttons[i-1].bottom-1),'wooden signs overlap');
+   if(viewport.height<=580&&viewport.width>viewport.height){
+     assert.equal(audit.smallLandscape,true,engine+' '+name+' did not mount the short-landscape v16 scene');
+     assert.ok(Math.abs(audit.artLeft)<=1,engine+' '+name+' short-landscape art is not left-aligned');
+     assert.ok(audit.artWidth>=viewport.width-1,engine+' '+name+' short-landscape art does not fill viewport width');
+     assert.ok(audit.journeyRect.x>=-2&&audit.journeyRect.right<=viewport.width+2&&audit.journeyRect.bottom<=viewport.height+2,
+       engine+' '+name+' journey control is outside short-landscape viewport');
+   }
    assert(audit.screen.scrollWidth<=audit.screen.w+2,'horizontal overflow');
    fs.writeFileSync(path.join(out,engine+'-'+name+'.json'),JSON.stringify({automatedNavigationPassed:true,artworkApproved:false,...audit},null,2));
    // Verify actual existing navigation, not a prototype function or a mock.
