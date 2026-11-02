@@ -52,6 +52,7 @@
     host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready','bc16-portrait-ready','bc16-small-landscape-ready','bc16-tablet-landscape-cap-ready','bc16-tablet-cover-ready');
     host.querySelector('.bc16-sign-nav')?.remove();
     host.querySelector('.bc16-portrait-deck')?.remove();
+    host.querySelector('.bc16-portrait-ui')?.remove();
     host.querySelector('.bc16-small-landscape-art')?.remove();
     host.querySelector('.bc16-small-landscape-ui')?.remove();
     host.querySelector('.bc16-tablet-landscape-cap')?.remove();
@@ -126,6 +127,39 @@
       deck.style.setProperty(key,val.toFixed(2)+'px');
     }
     const nav=ensureSignNav(host,true);
+    const artLeft=coordinate(host,'--bc15-art-left');
+    const artTop=coordinate(host,'--bc15-art-top');
+    const artWidth=coordinate(host,'--bc15-art-width');
+    const artHeight=coordinate(host,'--bc15-art-height');
+    const legacyCopy=host.querySelector('.bc15-live-copy');
+    let portraitUi=host.querySelector('.bc16-portrait-ui');
+    if(!portraitUi){
+      portraitUi=document.createElement('div');
+      portraitUi.className='bc16-portrait-ui';
+      portraitUi.setAttribute('aria-hidden','true');
+      const copy=document.createElement('div');
+      copy.className='bc16-portrait-copy';
+      const greeting=document.createElement('strong');
+      greeting.className='bc16-portrait-greeting';
+      const intro=document.createElement('span');
+      intro.className='bc16-portrait-intro';
+      copy.append(greeting,intro);
+      portraitUi.append(copy);
+      host.append(portraitUi);
+    }
+    const greetingText=legacyCopy?.querySelector('.bc15-live-greeting')?.textContent?.trim()||'Hei!';
+    const introText=legacyCopy?.querySelector('.bc15-live-intro')?.textContent?.trim()||'Klar for et nytt eventyr?';
+    portraitUi.querySelector('.bc16-portrait-greeting').textContent=greetingText;
+    portraitUi.querySelector('.bc16-portrait-intro').textContent=introText;
+    if(legacyCopy)legacyCopy.style.setProperty('display','none','important');
+    const pLeft=Math.max(0,artLeft+artWidth*.045);
+    const pTop=Math.max(0,artTop+artHeight*.112);
+    const pWidth=Math.min(rect.width-pLeft,artWidth*.61);
+    const pHeight=Math.min(rect.height-pTop,artHeight*(tablet?.125:.132));
+    const portraitCopy=portraitUi.querySelector('.bc16-portrait-copy');
+    for(const [key,val] of [['left',pLeft],['top',pTop],['width',pWidth],['height',pHeight]]){
+      portraitCopy.style.setProperty(key,val.toFixed(2)+'px','important');
+    }
     const navLeft=rect.width*(tablet?.075:.06);
     const navWidth=Math.min(rect.width*(tablet?.79:.88),760);
     const bottomNav=host.querySelector('.bc12-nav');
