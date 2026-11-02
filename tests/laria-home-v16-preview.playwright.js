@@ -178,6 +178,7 @@ async function run(engine,browserType,name,viewport,expectSigns){
       artTop:parseFloat(style.getPropertyValue('--bc15-art-top'))||0,
       artWidth:parseFloat(style.getPropertyValue('--bc15-art-width'))||0,
       tabletCover:el.classList.contains('bc16-tablet-cover-ready'),
+      tabletMask:(()=>{const m=el.querySelector('.bc16-tablet-nav-cover');return m?{...rect(m),display:getComputedStyle(m).display}:null})(),
       tabletScene:(()=>{const img=el.querySelector('.bc16-tablet-landscape-art');return img?{complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,...rect(img)}:null})(),
       tabletVisual:(()=>{const ui=el.querySelector('.bc16-tablet-ui'),copy=el.querySelector('.bc16-tablet-copy'),legacy=el.querySelector('.bc15-live-copy');if(!ui||!copy)return null;const us=getComputedStyle(ui),cs=getComputedStyle(copy),ls=legacy?getComputedStyle(legacy):null;return {display:us.display,visibility:us.visibility,opacity:us.opacity,copy:rect(copy),copyDisplay:cs.display,copyVisibility:cs.visibility,copyOpacity:cs.opacity,legacyDisplay:ls?.display||'',greeting:el.querySelector('.bc16-tablet-greeting')?.textContent||'',intro:el.querySelector('.bc16-tablet-intro')?.textContent||''}})(),
       topNav:(()=>{const n=el.querySelector('.bc12-nav');const buttons=[...n.querySelectorAll('button')].filter(b=>getComputedStyle(b).display!=='none').map(b=>({...rect(b),camp:b.dataset.camp,label:b.textContent.trim(),color:getComputedStyle(b).color}));return {...rect(n),buttons};})(),
@@ -212,6 +213,10 @@ async function run(engine,browserType,name,viewport,expectSigns){
        engine+' '+name+' full-height iPad scene did not decode');
      assert.ok(audit.tabletScene.h>=viewport.height-1&&audit.tabletScene.y<=1,
        engine+' '+name+' iPad scene does not fill viewport height');
+     assert.ok(audit.tabletMask&&audit.tabletMask.display!=='none',
+       engine+' '+name+' baked iPad top navigation mask is missing');
+     assert.ok(audit.tabletMask.w>=viewport.width*.38&&audit.tabletMask.h>=viewport.height*.20,
+       engine+' '+name+' baked iPad top navigation mask is too small');
      assert.equal(audit.topNav.buttons.length,4,engine+' '+name+' real four-item top navigation is not visible');
      assert.deepEqual(audit.topNav.buttons.map(b=>b.camp),['travel','explore','collection','wardrobe'],
        engine+' '+name+' top navigation order changed');
