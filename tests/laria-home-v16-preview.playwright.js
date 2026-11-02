@@ -163,7 +163,9 @@ async function run(engine,browserType,name,viewport,expectSigns){
       artLeft:parseFloat(style.getPropertyValue('--bc15-art-left'))||0,
       artTop:parseFloat(style.getPropertyValue('--bc15-art-top'))||0,
       artWidth:parseFloat(style.getPropertyValue('--bc15-art-width'))||0,
-      tabletCap:(()=>{const cap=el.querySelector('.bc16-tablet-landscape-cap');return cap?{...rect(cap),background:getComputedStyle(cap).backgroundImage}:null})(),
+      tabletCover:el.classList.contains('bc16-tablet-cover-ready'),
+      tabletScene:(()=>{const img=el.querySelector('.bc16-tablet-landscape-art');return img?{complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,...rect(img)}:null})(),
+      topNav:(()=>{const n=el.querySelector('.bc12-nav');const buttons=[...n.querySelectorAll('button')].filter(b=>getComputedStyle(b).display!=='none').map(b=>({...rect(b),camp:b.dataset.camp,label:b.textContent.trim()}));return {...rect(n),buttons};})(),
       smallLandscape:el.classList.contains('bc16-small-landscape-ready'),
       smallScene:(()=>{const img=el.querySelector('.bc16-small-landscape-art');return img?{complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,...rect(img)}:null})(),
       smallVisual:(()=>{const ui=el.querySelector('.bc16-small-landscape-ui');const copy=el.querySelector('.bc16-small-copy');const card=el.querySelector('.bc16-small-journey-visual');return ui&&copy&&card?{pointerEvents:getComputedStyle(ui).pointerEvents,copy:rect(copy),card:rect(card),greeting:el.querySelector('.bc16-small-greeting')?.textContent||'',meta:el.querySelector('.bc16-small-journey-meta')?.textContent||''}:null})(),
@@ -190,10 +192,16 @@ async function run(engine,browserType,name,viewport,expectSigns){
    assert(audit.buttons.every(b=>b.x>=audit.nav.x-2&&b.right<=audit.nav.right+2),'sign outside its artwork map');
    assert(audit.buttons.every((b,i)=>i===0||b.y>=audit.buttons[i-1].bottom-1),'wooden signs overlap');
    if(viewport.width/viewport.height<=1.50&&viewport.height>580){
-     assert.ok(audit.tabletCap,engine+' '+name+' missing scenic iPad landscape cap');
-     assert.ok(audit.tabletCap.y<=1&&audit.tabletCap.bottom>=audit.artTop+20,
-       engine+' '+name+' scenic cap does not cover the hard artwork seam');
-     assert.notEqual(audit.tabletCap.background,'none',engine+' '+name+' scenic cap has no painted fill');
+     assert.equal(audit.tabletCover,true,engine+' '+name+' did not mount full-height iPad landscape scene');
+     assert.ok(audit.tabletScene&&audit.tabletScene.complete&&audit.tabletScene.naturalWidth===1127&&audit.tabletScene.naturalHeight===681,
+       engine+' '+name+' full-height iPad scene did not decode');
+     assert.ok(audit.tabletScene.h>=viewport.height-1&&audit.tabletScene.y<=1,
+       engine+' '+name+' iPad scene does not fill viewport height');
+     assert.equal(audit.topNav.buttons.length,4,engine+' '+name+' real four-item top navigation is not visible');
+     assert.deepEqual(audit.topNav.buttons.map(b=>b.camp),['travel','explore','collection','wardrobe'],
+       engine+' '+name+' top navigation order changed');
+     assert(audit.topNav.buttons.every(b=>b.w>=44&&b.h>=44&&b.x>=-2&&b.right<=viewport.width+2&&b.y>=-2&&b.bottom<=viewport.height+2),
+       engine+' '+name+' top navigation has inaccessible or offscreen controls');
    }
    if(viewport.height<=580&&viewport.width>viewport.height){
      assert.equal(audit.smallLandscape,true,engine+' '+name+' did not mount the short-landscape v16 scene');
