@@ -215,8 +215,10 @@ async function run(engine,browserType,name,viewport,expectSigns){
        engine+' '+name+' iPad scene does not fill viewport height');
      assert.ok(audit.tabletMask&&audit.tabletMask.display!=='none',
        engine+' '+name+' baked iPad top navigation mask is missing');
-     assert.ok(audit.tabletMask.w>=viewport.width*.38&&audit.tabletMask.h>=viewport.height*.20,
+     assert.ok(audit.tabletMask.w>=viewport.width*.17&&audit.tabletMask.h>=viewport.height*.15,
        engine+' '+name+' baked iPad top navigation mask is too small');
+     assert.ok(audit.tabletMask.w<=viewport.width*.22&&audit.tabletMask.h<=viewport.height*.19,
+       engine+' '+name+' baked iPad top navigation mask is too large');
      assert.equal(audit.topNav.buttons.length,4,engine+' '+name+' real four-item top navigation is not visible');
      assert.deepEqual(audit.topNav.buttons.map(b=>b.camp),['travel','explore','collection','wardrobe'],
        engine+' '+name+' top navigation order changed');
