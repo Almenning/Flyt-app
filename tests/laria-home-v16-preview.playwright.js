@@ -55,7 +55,47 @@ async function run(engine,browserType,name,viewport,expectSigns){
   await page.waitForFunction(()=>Boolean(document.querySelector('#home-screen .bc12')?.dataset.bc16Stage) && document.querySelector('#home-screen .bc12')?.dataset.bc16Stage!=='not-ready',null,{timeout:18000});
   const actual=await home.getAttribute('data-bc16-stage');
   const signs=home.locator('.bc16-sign');
-  if(expectSigns){
+  const portraitCase=viewport.height>viewport.width;
+  if(portraitCase){
+   assert.equal(actual,'portrait-navigation-pilot',engine+' '+name+' portrait v16 pilot did not mount: '+actual);
+   assert.equal(await signs.count(),4,engine+' '+name+' portrait four subject signs missing');
+   const audit=await home.evaluate(el=>{
+    const rect=node=>{const r=node.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}};
+    const nav=rect(el.querySelector('.bc16-sign-nav-portrait'));
+    const deck=rect(el.querySelector('.bc16-portrait-deck'));
+    const buttons=[...el.querySelectorAll('.bc16-sign')].map(x=>({...rect(x),subject:x.dataset.bc16Subject,label:x.innerText.trim()}));
+    const old=el.querySelector('.bc14-subjects'),oldStyle=getComputedStyle(old);
+    const journey=rect(el.querySelector('.bc12-journey'));
+    return {
+      art:getComputedStyle(el).getPropertyValue('--bc15-home-art'),
+      nav,deck,buttons,journey,
+      stage:el.dataset.bc16Stage,cleanArt:el.dataset.bc16CleanArt,
+      oldVisibility:oldStyle.visibility,oldPointerEvents:oldStyle.pointerEvents,
+      screen:{w:innerWidth,h:innerHeight,scrollWidth:document.documentElement.scrollWidth},
+      journeyText:el.querySelector('.bc12-journey')?.innerText||''
+    };
+   });
+   assert.match(audit.art,/kjosnes-home-phone\.webp/,engine+' '+name+' portrait must preserve locked phone master');
+   assert.equal(audit.cleanArt,'portrait-locked-master',engine+' '+name+' portrait art provenance is unclear');
+   assert.equal(audit.oldVisibility,'hidden',engine+' '+name+' old baked-card hit areas remain visible');
+   assert.equal(audit.oldPointerEvents,'none',engine+' '+name+' old baked-card hit areas intercept taps');
+   assert.deepEqual(audit.buttons.map(b=>b.subject),expects.map(x=>x[0]),engine+' '+name+' portrait subject order changed');
+   assert(audit.buttons.every(b=>b.w>=44&&b.h>=44),engine+' '+name+' portrait sign has inaccessible hit target');
+   assert(audit.buttons.every(b=>b.x>=-2&&b.right<=viewport.width+2&&b.y>=-2&&b.bottom<=viewport.height+2),
+     engine+' '+name+' portrait sign is outside viewport');
+   assert(audit.deck.y<=audit.nav.y+2&&audit.deck.bottom>=audit.nav.bottom-2,
+     engine+' '+name+' portrait deck does not cover the obsolete card zone');
+   assert(audit.journey.x>=-2&&audit.journey.right<=viewport.width+2&&audit.journey.y>=-2&&audit.journey.bottom<=viewport.height+2,
+     engine+' '+name+' portrait journey plank is outside viewport');
+   assert.match(audit.journeyText,/Fortsett reisen/,'Portrait live journey action disappeared');
+   assert(audit.screen.scrollWidth<=audit.screen.w+2,engine+' '+name+' portrait has horizontal overflow');
+   for(const [subject,screen] of expects){
+    await home.locator('.bc16-sign[data-bc16-subject="'+subject+'"]').click();
+    await page.locator('#'+screen+'-screen.active').waitFor({state:'visible',timeout:18000});
+    await page.evaluate(()=>{showScreen('home');});
+    await page.locator('#home-screen.active .bc16-sign-nav-portrait').waitFor({timeout:22000});
+   }
+  }else if(expectSigns){
    if(cleanArtCommitted){
     await page.waitForFunction(()=>{
       const status=window.LARIA_HOME_V16_PREVIEW?.cleanArtStatus;
