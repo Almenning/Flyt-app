@@ -215,6 +215,26 @@ async function run(engine,browserType,name,viewport,expectSigns){
     await page.evaluate(()=>{showScreen('home');});
     await page.locator('#home-screen.active .bc16-sign-nav').waitFor({timeout:22000});
    }
+   if(viewport.height<=580&&viewport.width>viewport.height){
+     await page.waitForFunction(()=>document.querySelector('#home-screen.active .bc12')?.dataset.bc16Stage==='navigation-pilot',null,{timeout:18000});
+     const afterReturn=await home.evaluate(el=>{
+       const ui=el.querySelector('.bc16-small-landscape-ui');
+       const scene=el.querySelector('.bc16-small-landscape-art');
+       const card=el.querySelector('.bc16-small-journey-visual');
+       return {
+         ui:!!ui,
+         scene:!!scene&&scene.complete&&scene.naturalWidth===1127,
+         card:!!card&&getComputedStyle(card).display!=='none',
+         meta:el.querySelector('.bc16-small-journey-meta')?.textContent||'',
+         stage:el.dataset.bc16Stage
+       };
+     });
+     assert.equal(afterReturn.stage,'navigation-pilot',engine+' '+name+' lost v16 stage after returning Home');
+     assert.equal(afterReturn.ui,true,engine+' '+name+' lost short-landscape UI after returning Home');
+     assert.equal(afterReturn.scene,true,engine+' '+name+' lost verified scene after returning Home');
+     assert.equal(afterReturn.card,true,engine+' '+name+' lost journey visual after returning Home');
+     assert(afterReturn.meta.length>0,engine+' '+name+' lost live journey copy after returning Home');
+   }
   }else{
    assert.notEqual(actual,'navigation-pilot',engine+' '+name+' should not fake signs in an unapproved portrait/short-landscape painting');
    assert.equal(await signs.count(),0,engine+' '+name+' drew fake signposts over the original children');
