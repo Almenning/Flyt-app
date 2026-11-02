@@ -802,3 +802,87 @@
   filter:blur(4px)!important;
 }
 
+
+
+/* Final portrait composition: keep the locked phone master untouched, use the
+   same master as a soft scenic backfill on wider portrait screens, and render
+   one precisely art-anchored live greeting over the baked child-name area. */
+@media (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready::before{
+    background-image:var(--bc15-home-art)!important;
+    background-size:cover!important;
+    background-position:center center!important;
+    background-repeat:no-repeat!important;
+    filter:blur(18px) saturate(.88) brightness(.62)!important;
+    transform:scale(1.10)!important;
+    opacity:.84!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-copy{
+    display:none!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-ui{
+    position:absolute!important;inset:0!important;z-index:23!important;
+    display:block!important;visibility:visible!important;opacity:1!important;
+    pointer-events:none!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy{
+    position:absolute!important;box-sizing:border-box!important;
+    display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;
+    padding:clamp(7px,1.1vh,13px) clamp(12px,3vw,22px)!important;
+    color:#fffaf0!important;visibility:visible!important;opacity:1!important;
+    text-shadow:0 2px 4px rgba(18,50,72,.72),0 1px 0 rgba(27,67,91,.62)!important;
+    isolation:isolate!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy::before{
+    content:"";position:absolute;z-index:-1;pointer-events:none;
+    inset:-8% -8% -10% -7%;
+    border-radius:45% 57% 52% 43%;
+    background:
+      radial-gradient(ellipse 94% 94% at 34% 50%,
+        #4d9ad8 0%,#4f9bd9 66%,rgba(80,158,219,.98) 76%,
+        rgba(82,160,220,.72) 86%,rgba(83,162,221,.28) 95%,
+        rgba(83,162,221,0) 100%);
+    filter:blur(2.4px);
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-greeting{
+    display:block!important;font-family:var(--laria-font-rounded,ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif)!important;
+    font-size:clamp(20px,5vw,31px)!important;font-weight:950!important;line-height:1.02!important;
+    letter-spacing:-.03em!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-intro{
+    display:block!important;margin-top:4px!important;color:#fff7df!important;
+    font-size:clamp(11px,2.8vw,16px)!important;font-weight:800!important;line-height:1.08!important;
+  }
+}
+@media (min-width:700px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-copy{
+    padding:12px 22px!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-greeting{
+    font-size:31px!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-intro{
+    font-size:17px!important;
+  }
+}
+
+/* Wide desktop/Mac: enlarge the painted-sky eraser enough to cover the baked
+   greeting completely, while keeping the live copy at the original art anchor. */
+@media (orientation:landscape) and (min-height:581px) and (min-aspect-ratio:3/2){
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy{
+    background:none!important;overflow:visible!important;isolation:isolate!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy::before{
+    content:"";position:absolute;z-index:-1;pointer-events:none;
+    inset:-35% -70% -85% -18%;
+    border-radius:44% 56% 50% 42%;
+    background:radial-gradient(ellipse 94% 100% at 32% 44%,
+      #4b96d5 0%,#4f9bda 62%,rgba(82,160,219,.99) 76%,
+      rgba(82,160,219,.72) 86%,rgba(82,160,219,.30) 95%,
+      rgba(82,160,219,0) 100%)!important;
+    filter:blur(2.5px);
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-tablet-cover-ready) .bc15-live-copy::after{
+    display:none!important;
+  }
+}
