@@ -140,6 +140,11 @@ async function run(engine,browserType,name,viewport,expectSigns){
    assert.notEqual(actual,'navigation-pilot',engine+' '+name+' should not fake signs in an unapproved portrait/short-landscape painting');
    assert.equal(await signs.count(),0,engine+' '+name+' drew fake signposts over the original children');
    assert.equal(await home.locator('.bc14-subject:visible').count(),4,'fallback must preserve the original four subject gateways');
+   if(viewport.height<=580&&viewport.width>viewport.height){
+    const rect=await home.boundingBox();
+    assert.ok(rect&&rect.height<=viewport.height+2,
+      engine+' '+name+' short landscape Home exceeds visible viewport: '+JSON.stringify(rect));
+   }
   }
   await page.screenshot({path:path.join(out,engine+'-'+name+'.png'),fullPage:false,animations:'disabled'});
   assert.deepEqual(errors,[],engine+' '+name+' page errors');
