@@ -121,7 +121,13 @@
     set('left',area.left);set('top',area.top);
     set('width',area.width);set('height',area.height);
     host.classList.add('bc16-left-signs-ready');
-    if(cleanUrl){
+    const subjectNames={norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'};
+    const subjectName=subjectNames[host.dataset.journeySubject]||'';
+    // A cleaned board is not ready until the real journey subject is available.
+    // This prevents a browser-speed race from ever painting a generic fallback
+    // such as "Reisen" where live subject progress belongs.
+    const cleanReady=Boolean(cleanUrl&&subjectName);
+    if(cleanReady){
       // Reactivation of v15 can reset the background; reassert only when needed.
       const requested='url("'+cleanUrl+'")';
       if(host.style.getPropertyValue('--bc15-home-art')!==requested){
@@ -129,7 +135,7 @@
       }
       host.classList.add('bc16-clean-art-ready');
     }else host.classList.remove('bc16-clean-art-ready');
-    host.dataset.bc16CleanArt=cleanUrl?'verified-preview-only':cleanStatus;
+    host.dataset.bc16CleanArt=cleanReady?'verified-preview-only':(cleanUrl?'journey-state-pending':cleanStatus);
     if(host.dataset.bc16Stage!=='navigation-pilot')host.dataset.bc16Stage='navigation-pilot';
     // The next journey remains a LIVE v12/v15 action. Never bake progress text
     // into artwork, or overwrite data-camp-next in the persisted learning model.
@@ -138,13 +144,12 @@
     if(live&&journey){
       live.id='bc16-live-journey-progress';
       if(journey.getAttribute('aria-describedby')!==live.id)journey.setAttribute('aria-describedby',live.id);
-      if(cleanUrl){
+      if(cleanReady){
         // The DRAFT artwork contains a locally repaired natural wooden plank,
         // so this is actual live lettering on wood, never another pasted strip.
-        const name={norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'}[host.dataset.journeySubject]||'Reisen';
         const title=host.querySelector('[data-camp-next]')?.textContent?.trim()||'';
         const active=/pågående/i.test(host.querySelector('[data-camp-next-type]')?.textContent||'');
-        const text=(active?'Pågående':'Neste')+' · '+name+' · '+title;
+        const text=(active?'Pågående':'Neste')+' · '+subjectName+' · '+title;
         if(live.textContent!==text)live.textContent=text;
         const rect=[.122,.831,.195,.042];
         const [x,y,w,h]=rect;
