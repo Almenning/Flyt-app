@@ -165,7 +165,8 @@ async function run(engine,browserType,name,viewport,expectSigns){
       artWidth:parseFloat(style.getPropertyValue('--bc15-art-width'))||0,
       tabletCover:el.classList.contains('bc16-tablet-cover-ready'),
       tabletScene:(()=>{const img=el.querySelector('.bc16-tablet-landscape-art');return img?{complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,...rect(img)}:null})(),
-      topNav:(()=>{const n=el.querySelector('.bc12-nav');const buttons=[...n.querySelectorAll('button')].filter(b=>getComputedStyle(b).display!=='none').map(b=>({...rect(b),camp:b.dataset.camp,label:b.textContent.trim()}));return {...rect(n),buttons};})(),
+      tabletVisual:(()=>{const ui=el.querySelector('.bc16-tablet-ui'),copy=el.querySelector('.bc16-tablet-copy'),legacy=el.querySelector('.bc15-live-copy');if(!ui||!copy)return null;const us=getComputedStyle(ui),cs=getComputedStyle(copy),ls=legacy?getComputedStyle(legacy):null;return {display:us.display,visibility:us.visibility,opacity:us.opacity,copy:rect(copy),copyDisplay:cs.display,copyVisibility:cs.visibility,copyOpacity:cs.opacity,legacyDisplay:ls?.display||'',greeting:el.querySelector('.bc16-tablet-greeting')?.textContent||'',intro:el.querySelector('.bc16-tablet-intro')?.textContent||''}})(),
+      topNav:(()=>{const n=el.querySelector('.bc12-nav');const buttons=[...n.querySelectorAll('button')].filter(b=>getComputedStyle(b).display!=='none').map(b=>({...rect(b),camp:b.dataset.camp,label:b.textContent.trim(),color:getComputedStyle(b).color}));return {...rect(n),buttons};})(),
       smallLandscape:el.classList.contains('bc16-small-landscape-ready'),
       smallScene:(()=>{const img=el.querySelector('.bc16-small-landscape-art');return img?{complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,...rect(img)}:null})(),
       smallVisual:(()=>{const ui=el.querySelector('.bc16-small-landscape-ui');const copy=el.querySelector('.bc16-small-copy');const card=el.querySelector('.bc16-small-journey-visual');const legacy=el.querySelector('.bc15-live-copy');if(!ui||!copy||!card)return null;const us=getComputedStyle(ui),cs=getComputedStyle(copy),ks=getComputedStyle(card),ls=legacy?getComputedStyle(legacy):null;return {pointerEvents:us.pointerEvents,display:us.display,visibility:us.visibility,opacity:us.opacity,zIndex:us.zIndex,copy:rect(copy),copyDisplay:cs.display,copyVisibility:cs.visibility,copyOpacity:cs.opacity,card:rect(card),cardDisplay:ks.display,cardVisibility:ks.visibility,cardOpacity:ks.opacity,legacyDisplay:ls?.display||'',greeting:el.querySelector('.bc16-small-greeting')?.textContent||'',meta:el.querySelector('.bc16-small-journey-meta')?.textContent||''}})(),
@@ -200,6 +201,16 @@ async function run(engine,browserType,name,viewport,expectSigns){
      assert.equal(audit.topNav.buttons.length,4,engine+' '+name+' real four-item top navigation is not visible');
      assert.deepEqual(audit.topNav.buttons.map(b=>b.camp),['travel','explore','collection','wardrobe'],
        engine+' '+name+' top navigation order changed');
+     assert.ok(audit.tabletVisual,engine+' '+name+' dedicated iPad greeting layer is missing');
+     assert.equal(audit.tabletVisual.display,'block',engine+' '+name+' iPad greeting layer is not displayed');
+     assert.equal(audit.tabletVisual.visibility,'visible',engine+' '+name+' iPad greeting layer is hidden');
+     assert.equal(audit.tabletVisual.opacity,'1',engine+' '+name+' iPad greeting layer is transparent');
+     assert.notEqual(audit.tabletVisual.copyDisplay,'none',engine+' '+name+' iPad greeting copy is hidden');
+     assert.equal(audit.tabletVisual.copyVisibility,'visible',engine+' '+name+' iPad greeting copy visibility is hidden');
+     assert.equal(audit.tabletVisual.copyOpacity,'1',engine+' '+name+' iPad greeting copy opacity is not 1');
+     assert.equal(audit.tabletVisual.legacyDisplay,'none',engine+' '+name+' legacy iPad greeting still paints');
+     assert.match(audit.tabletVisual.greeting,/Hei,/,
+       engine+' '+name+' dynamic iPad greeting is missing');
      assert(audit.topNav.buttons.every(b=>b.w>=44&&b.h>=44&&b.x>=-2&&b.right<=viewport.width+2&&b.y>=-2&&b.bottom<=viewport.height+2),
        engine+' '+name+' top navigation has inaccessible or offscreen controls');
    }
