@@ -127,7 +127,7 @@
   margin-top:2px!important;font-size:clamp(9px,2.4vw,13px)!important;font-weight:800!important;opacity:.72!important;
 }
 .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey{
-  z-index:25!important;margin:0!important;padding:clamp(7px,1vh,12px) clamp(16px,4vw,26px)!important;
+  z-index:25!important;opacity:1!important;margin:0!important;padding:clamp(7px,1vh,12px) clamp(16px,4vw,26px)!important;
   transform:rotate(-.7deg)!important;filter:drop-shadow(0 6px 5px rgba(35,27,17,.32))!important;
   border:2px solid #784725!important;border-radius:17px 9px 15px 8px!important;
   background:
@@ -166,7 +166,7 @@
 /* Once the baked portrait cards/nav are covered, the existing real navigation
    is rendered visibly. Same actions, no duplicate routing or state. */
 .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-nav{
-  z-index:27!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  z-index:22!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
   gap:3px!important;padding:5px!important;
   border:1px solid rgba(237,197,126,.72)!important;border-radius:18px!important;
   background:
@@ -192,4 +192,15 @@
   display:block!important;width:clamp(22px,6vw,34px)!important;height:clamp(22px,6vw,34px)!important;
   background-image:url("./assets/home-v15/laria-troll-trio-nav.webp?v=20261024-locked1")!important;
   background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important;
+}
+
+
+@media (max-width:699px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-sign-nav-portrait{
+    z-index:24!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-nav{
+    height:8.4%!important;
+    bottom:max(.45%,env(safe-area-inset-bottom))!important;
+  }
 }
