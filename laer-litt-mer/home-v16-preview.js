@@ -240,7 +240,7 @@
     tabletUi.querySelector('.bc16-tablet-greeting').textContent=greetingText;
     tabletUi.querySelector('.bc16-tablet-intro').textContent=introText;
     const tabletCopy=tabletUi.querySelector('.bc16-tablet-copy');
-    for(const [key,val] of [['left',Math.max(125,artLeft+displayWidth*.105)],['top',displayHeight*.150],['width',Math.min(460,displayWidth*.270)],['height',Math.max(130,displayHeight*.130)]]){
+    for(const [key,val] of [['left',Math.max(140,artLeft+displayWidth*.112)],['top',displayHeight*.168],['width',Math.min(345,displayWidth*.205)],['height',Math.max(108,displayHeight*.108)]]){
       tabletCopy.style.setProperty(key,val.toFixed(2)+'px','important');
     }
     for(const [key,val] of [
