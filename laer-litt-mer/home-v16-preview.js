@@ -57,6 +57,7 @@
     host.querySelector('.bc16-tablet-landscape-cap')?.remove();
     host.querySelector('.bc16-tablet-landscape-art')?.remove();
     host.querySelector('.bc16-tablet-nav-cover')?.remove();
+    host.querySelector('.bc16-tablet-ui')?.remove();
     if(host.dataset.bc16Stage!=='not-ready')host.dataset.bc16Stage='not-ready';
   }
   function coordinate(host,prop){
@@ -214,12 +215,28 @@
       mainNav.style.setProperty('bottom','auto','important');
     }
     const liveCopy=host.querySelector('.bc15-live-copy');
-    if(liveCopy){
-      for(const [key,val] of [['left',Math.max(120,artLeft+displayWidth*.108)],['top',displayHeight*.168],['width',Math.min(410,displayWidth*.255)],['height',Math.max(72,displayHeight*.088)]]){
-        liveCopy.style.setProperty(key,val.toFixed(2)+'px','important');
-      }
-      liveCopy.style.setProperty('right','auto','important');
-      liveCopy.style.setProperty('bottom','auto','important');
+    let tabletUi=host.querySelector('.bc16-tablet-ui');
+    if(!tabletUi){
+      tabletUi=document.createElement('div');
+      tabletUi.className='bc16-tablet-ui';
+      tabletUi.setAttribute('aria-hidden','true');
+      const copy=document.createElement('div');
+      copy.className='bc16-tablet-copy';
+      const greeting=document.createElement('strong');
+      greeting.className='bc16-tablet-greeting';
+      const intro=document.createElement('span');
+      intro.className='bc16-tablet-intro';
+      copy.append(greeting,intro);
+      tabletUi.append(copy);
+      host.append(tabletUi);
+    }
+    const greetingText=liveCopy?.querySelector('.bc15-live-greeting')?.textContent?.trim()||'Hei!';
+    const introText=liveCopy?.querySelector('.bc15-live-intro')?.textContent?.trim()||'Klar for et nytt eventyr?';
+    tabletUi.querySelector('.bc16-tablet-greeting').textContent=greetingText;
+    tabletUi.querySelector('.bc16-tablet-intro').textContent=introText;
+    const tabletCopy=tabletUi.querySelector('.bc16-tablet-copy');
+    for(const [key,val] of [['left',Math.max(130,artLeft+displayWidth*.105)],['top',displayHeight*.158],['width',Math.min(390,displayWidth*.235)],['height',Math.max(96,displayHeight*.100)]]){
+      tabletCopy.style.setProperty(key,val.toFixed(2)+'px');
     }
     const journey=host.querySelector('.bc12-journey');
     if(journey){
