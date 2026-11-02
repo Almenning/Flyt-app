@@ -166,7 +166,7 @@
   });
   observer.observe(document.documentElement,{
     subtree:true,childList:true,attributes:true,
-    attributeFilter:['class','style','data-mode','data-bc13-view']
+    attributeFilter:['class','style','data-mode','data-bc13-view','data-journey-subject']
   });
   window.addEventListener('resize',schedule,{passive:true});
   document.addEventListener('DOMContentLoaded',schedule,{once:true});
