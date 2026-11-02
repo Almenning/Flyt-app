@@ -160,6 +160,7 @@ async function run(engine,browserType,name,viewport,expectSigns){
       artLeft:parseFloat(style.getPropertyValue('--bc15-art-left'))||0,
       artWidth:parseFloat(style.getPropertyValue('--bc15-art-width'))||0,
       smallLandscape:el.classList.contains('bc16-small-landscape-ready'),
+      smallScene:(()=>{const img=el.querySelector('.bc16-small-landscape-art');return img?{complete:img.complete,naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,...rect(img)}:null})(),
       screen:{w:innerWidth,h:innerHeight,scrollWidth:document.documentElement.scrollWidth}};
    });
    if(cleanArtCommitted){
@@ -186,6 +187,10 @@ async function run(engine,browserType,name,viewport,expectSigns){
      assert.equal(audit.smallLandscape,true,engine+' '+name+' did not mount the short-landscape v16 scene');
      assert.ok(Math.abs(audit.artLeft)<=1,engine+' '+name+' short-landscape art is not left-aligned');
      assert.ok(audit.artWidth>=viewport.width-1,engine+' '+name+' short-landscape art does not fill viewport width');
+     assert.ok(audit.smallScene&&audit.smallScene.complete&&audit.smallScene.naturalWidth===1127&&audit.smallScene.naturalHeight===681,
+       engine+' '+name+' verified landscape image element did not decode');
+     assert.ok(audit.smallScene.w>=viewport.width-1&&audit.smallScene.x<=1,
+       engine+' '+name+' landscape image element does not cover the full viewport width');
      assert.ok(audit.journeyRect.x>=-2&&audit.journeyRect.right<=viewport.width+2&&audit.journeyRect.bottom<=viewport.height+2,
        engine+' '+name+' journey control is outside short-landscape viewport');
    }
