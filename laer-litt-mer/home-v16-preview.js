@@ -49,13 +49,101 @@
     !!document.querySelector('.grade-band-young');
   function remove(host){
     if(!host)return;
-    host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready');
+    host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready','bc16-portrait-ready');
     host.querySelector('.bc16-sign-nav')?.remove();
+    host.querySelector('.bc16-portrait-deck')?.remove();
     if(host.dataset.bc16Stage!=='not-ready')host.dataset.bc16Stage='not-ready';
   }
   function coordinate(host,prop){
     const n=Number.parseFloat(getComputedStyle(host).getPropertyValue(prop));
     return Number.isFinite(n)?n:0;
+  }
+  function makeSignButton(host,key,label,world,portrait){
+    const button=document.createElement('button');
+    button.type='button';
+    button.className='bc16-sign';
+    button.dataset.bc16Subject=key;
+    button.setAttribute('aria-label','Åpne '+label+', '+world);
+    if(portrait){
+      const icon=document.createElement('span');
+      icon.className='bc16-sign-icon';
+      icon.setAttribute('aria-hidden','true');
+      const source=host.querySelector('.bc14-subject[data-camp="subject-'+key+'"] .bc14-emblem');
+      if(source)icon.innerHTML=source.innerHTML;
+      const copy=document.createElement('span');
+      copy.className='bc16-sign-copy';
+      const strong=document.createElement('strong');strong.textContent=label;
+      const small=document.createElement('small');small.textContent=world;
+      copy.append(strong,small);
+      button.append(icon,copy);
+    }else{
+      const text=document.createElement('span');
+      text.className='bc16-sign-sr-only';
+      text.textContent=label;
+      button.append(text);
+    }
+    button.addEventListener('click',()=>{
+      if(!host.classList.contains('bc16-left-signs-ready')&&!host.classList.contains('bc16-portrait-ready'))return;
+      host.querySelector('.bc14-subject[data-camp="subject-'+key+'"]')?.click();
+    });
+    return button;
+  }
+  function ensureSignNav(host,portrait){
+    let nav=host.querySelector('.bc16-sign-nav');
+    const wanted=portrait?'bc16-sign-nav-portrait':'bc16-sign-nav-wide';
+    if(nav&&!nav.classList.contains(wanted)){nav.remove();nav=null;}
+    if(!nav){
+      nav=document.createElement('nav');
+      nav.className='bc16-sign-nav '+wanted;
+      nav.setAttribute('aria-label',portrait?'Velg fag fra treskiltene':'Velg fag fra treskiltene til venstre');
+      for(const [key,label,world] of entries)nav.append(makeSignButton(host,key,label,world,portrait));
+      host.append(nav);
+    }
+    return nav;
+  }
+  function mountPortraitPilot(host){
+    const rect=host.getBoundingClientRect();
+    if(rect.width<320||rect.height<620){
+      remove(host);host.dataset.bc16Stage='portrait-space-not-ready';return false;
+    }
+    let deck=host.querySelector('.bc16-portrait-deck');
+    if(!deck){
+      deck=document.createElement('div');
+      deck.className='bc16-portrait-deck';
+      deck.setAttribute('aria-hidden','true');
+      host.append(deck);
+    }
+    const tablet=rect.width>=700;
+    const deckTop=rect.height*(tablet?.50:.535);
+    const deckBottom=rect.height*.895;
+    for(const [key,val] of [['left',0],['top',deckTop],['width',rect.width],['height',Math.max(0,deckBottom-deckTop)]]){
+      deck.style.setProperty(key,val.toFixed(2)+'px');
+    }
+    const nav=ensureSignNav(host,true);
+    const navLeft=rect.width*(tablet?.075:.06);
+    const navTop=rect.height*(tablet?.635:.645);
+    const navWidth=Math.min(rect.width*(tablet?.79:.88),760);
+    const navHeight=Math.min(rect.height*(tablet?.225:.215),300);
+    for(const [key,val] of [['left',navLeft],['top',navTop],['width',navWidth],['height',navHeight]]){
+      nav.style.setProperty(key,val.toFixed(2)+'px');
+    }
+    const journey=host.querySelector('.bc12-journey');
+    if(journey){
+      const jLeft=rect.width*(tablet?.075:.06);
+      const jTop=rect.height*(tablet?.535:.555);
+      const jWidth=Math.min(rect.width*(tablet?.63:.88),680);
+      const jHeight=Math.min(rect.height*(tablet?.075:.075),96);
+      for(const [key,val] of [['left',jLeft],['top',jTop],['width',jWidth],['height',jHeight]]){
+        journey.style.setProperty(key,val.toFixed(2)+'px','important');
+      }
+      journey.style.setProperty('right','auto','important');
+      journey.style.setProperty('bottom','auto','important');
+    }
+    host.classList.remove('bc16-left-signs-ready','bc16-clean-art-ready');
+    host.classList.add('bc16-portrait-ready');
+    host.dataset.bc16CleanArt='portrait-locked-master';
+    host.dataset.bc16Stage='portrait-navigation-pilot';
+    return true;
   }
   function relayout(){
     const host=getHost();
@@ -74,6 +162,10 @@
     const width=coordinate(host,'--bc15-art-width');
     const height=coordinate(host,'--bc15-art-height');
     const portrait=matchMedia('(orientation:portrait)').matches;
+    if(portrait){
+      mountPortraitPilot(host);
+      return;
+    }
     // On the approved v15 LANDSCAPE master the four real wooden boards already
     // exist on the left. The portrait original contains no such boards.
     // Never pretend invisible buttons over the trolls are an approved phone UI.
@@ -99,30 +191,7 @@
       host.dataset.bc16Stage='sign-geometry-not-ready';
       return;
     }
-    let nav=host.querySelector('.bc16-sign-nav');
-    if(!nav){
-      nav=document.createElement('nav');
-      nav.className='bc16-sign-nav';
-      nav.setAttribute('aria-label','Velg fag fra treskiltene til venstre');
-      for(const [key,label,world] of entries){
-        const button=document.createElement('button');
-        button.type='button';
-        button.className='bc16-sign';
-        button.dataset.bc16Subject=key;
-        button.setAttribute('aria-label','Åpne '+label+', '+world);
-        const text=document.createElement('span');
-        text.className='bc16-sign-sr-only';
-        text.textContent=label;
-        button.append(text);
-        button.addEventListener('click',()=>{
-          if(!host.classList.contains('bc16-left-signs-ready'))return;
-          // Reuse the v12-v15 action, no new routing or storage schema.
-          host.querySelector('.bc14-subject[data-camp="subject-'+key+'"]')?.click();
-        });
-        nav.append(button);
-      }
-      host.append(nav);
-    }
+    const nav=ensureSignNav(host,false);
     const set=(prop,value)=>{
       const result=value.toFixed(2)+'px';
       if(nav.style.getPropertyValue(prop)!==result)nav.style.setProperty(prop,result);
