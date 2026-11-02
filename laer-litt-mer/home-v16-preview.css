@@ -480,3 +480,38 @@
     line-height:1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
   }
 }
+
+
+/* Wide v16 copy: cover the baked child name with painted sky, not a UI card. */
+.grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-portrait-ready):not(.bc16-small-landscape-ready) .bc15-live-copy{
+  display:flex!important;align-items:center!important;
+  padding:0 12px!important;border:0!important;border-radius:0!important;
+  background:
+    linear-gradient(90deg,
+      rgba(62,139,202,.99) 0%,
+      rgba(70,150,212,.98) 56%,
+      rgba(80,160,219,.72) 78%,
+      rgba(80,160,219,.25) 92%,
+      rgba(80,160,219,0) 100%)!important;
+  box-shadow:none!important;color:#fffaf0!important;
+  text-shadow:0 2px 4px rgba(18,50,72,.72),0 1px 0 rgba(27,67,91,.62)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-clean-art-ready:not(.bc16-portrait-ready):not(.bc16-small-landscape-ready) .bc15-live-greeting{
+  font-size:clamp(21px,1.9vw,31px)!important;font-weight:950!important;line-height:1.02!important;
+  letter-spacing:-.03em!important;
+}
+
+/* 4:3-ish landscape cannot show the full wide master without either cropping the
+   left signpost or the top navigation. Preserve both and blend the unavoidable
+   scenic extension into the real top edge instead of exposing a hard black seam. */
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-landscape-cap-ready .bc16-tablet-landscape-cap{
+  position:absolute!important;z-index:2!important;left:0!important;top:0!important;width:100%!important;
+  pointer-events:none!important;
+  background:
+    radial-gradient(ellipse 42% 120% at 5% 105%,rgba(42,53,22,.96) 0%,rgba(70,55,16,.78) 43%,rgba(99,82,34,.34) 64%,transparent 78%),
+    radial-gradient(ellipse 34% 88% at 31% 112%,rgba(143,118,53,.62) 0%,rgba(143,118,53,.22) 50%,transparent 74%),
+    radial-gradient(ellipse 28% 52% at 61% 72%,rgba(255,250,225,.18) 0%,rgba(255,250,225,.06) 45%,transparent 70%),
+    linear-gradient(90deg,#3c3518 0%,#564217 17%,#8a7840 36%,#72a9d6 47%,#62a6e4 58%,#58a0e5 74%,#5098dc 100%)!important;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 76%,rgba(0,0,0,.9) 82%,rgba(0,0,0,.55) 91%,transparent 100%)!important;
+  mask-image:linear-gradient(to bottom,#000 0%,#000 76%,rgba(0,0,0,.9) 82%,rgba(0,0,0,.55) 91%,transparent 100%)!important;
+}
