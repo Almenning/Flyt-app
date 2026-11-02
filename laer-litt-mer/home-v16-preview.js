@@ -115,7 +115,7 @@
     }
     const tablet=rect.width>=700;
     const deckTop=rect.height*(tablet?.50:.535);
-    const deckBottom=rect.height*.895;
+    const deckBottom=rect.height;
     for(const [key,val] of [['left',0],['top',deckTop],['width',rect.width],['height',Math.max(0,deckBottom-deckTop)]]){
       deck.style.setProperty(key,val.toFixed(2)+'px');
     }
