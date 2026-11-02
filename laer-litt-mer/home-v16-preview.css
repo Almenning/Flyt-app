@@ -903,3 +903,17 @@
         rgba(84,157,222,0) 100%)!important;
   }
 }
+
+
+/* The baked iPad navigation occupies only the clipped upper-right tail of the
+   clean source at this aspect ratio. Keep the eraser compact so it reads as sky,
+   not as a second panel. */
+@media (orientation:landscape) and (min-height:581px) and (max-aspect-ratio:3/2){
+  .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+    right:-1%!important;top:0!important;width:18.5%!important;height:16.5%!important;
+    border-bottom-left-radius:72% 58%!important;filter:none!important;
+    background:radial-gradient(ellipse 135% 145% at 100% 0%,
+      #58a1e2 0%,#58a1e2 93%,rgba(88,161,226,.70) 97%,
+      rgba(88,161,226,0) 100%)!important;
+  }
+}
