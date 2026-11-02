@@ -215,7 +215,7 @@
     }
     const liveCopy=host.querySelector('.bc15-live-copy');
     if(liveCopy){
-      for(const [key,val] of [['left',Math.max(105,artLeft+displayWidth*.115)],['top',displayHeight*.172],['width',Math.min(360,displayWidth*.225)],['height',Math.max(58,displayHeight*.072)]]){
+      for(const [key,val] of [['left',Math.max(120,artLeft+displayWidth*.108)],['top',displayHeight*.168],['width',Math.min(410,displayWidth*.255)],['height',Math.max(72,displayHeight*.088)]]){
         liveCopy.style.setProperty(key,val.toFixed(2)+'px','important');
       }
       liveCopy.style.setProperty('right','auto','important');
@@ -237,7 +237,7 @@
       const active=/pågående/i.test(host.querySelector('[data-camp-next-type]')?.textContent||'');
       const text=(active?'Pågående':'Neste')+' · '+subjectName+' · '+title;
       if(live.textContent!==text)live.textContent=text;
-      for(const [key,val] of [['left',Math.max(70,artLeft+displayWidth*.073)],['top',displayHeight*.836],['width',displayWidth*.235],['height',displayHeight*.040]]){
+      for(const [key,val] of [['left',Math.max(145,artLeft+displayWidth*.120)],['top',displayHeight*.852],['width',displayWidth*.190],['height',displayHeight*.036]]){
         live.style.setProperty(key,val.toFixed(2)+'px','important');
       }
     }
