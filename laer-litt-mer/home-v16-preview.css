@@ -1078,10 +1078,10 @@
 /* iPad 4:3 nav cleanup is a curved scene cap, not a floating rectangular patch. */
 @media (orientation:landscape) and (min-height:581px) and (max-aspect-ratio:3/2){
   .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
-    right:-1.5%!important;top:-1%!important;width:22%!important;height:19%!important;
+    right:-1.25%!important;top:-.75%!important;width:20.5%!important;height:18%!important;
     -webkit-mask-image:none!important;mask-image:none!important;
-    border-bottom-left-radius:82% 64%!important;
-    filter:brightness(.90) saturate(.94)!important;
-    box-shadow:inset 16px -10px 28px rgba(49,119,173,.16)!important;
+    border-bottom-left-radius:90% 72%!important;
+    filter:brightness(.86) saturate(1.08)!important;
+    box-shadow:inset 18px -12px 30px rgba(41,111,168,.18)!important;
   }
 }
