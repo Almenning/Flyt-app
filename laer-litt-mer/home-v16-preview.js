@@ -28,12 +28,14 @@
       const digest=await crypto.subtle.digest('SHA-256',bytes);
       const actual=[...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
       if(actual!==CLEAN_HASH)throw new Error('candidate integrity mismatch');
-      const url=URL.createObjectURL(new Blob([bytes],{type:'image/webp'}));
-      const image=new Image();image.src=url;await image.decode();
+      // The app CSP intentionally does not allow blob: image URLs. After the
+      // exact same-origin file has passed SHA-256 verification, decode and use
+      // that repository URL directly instead of creating a blocked blob URL.
+      const image=new Image();image.src=CLEAN_ASSET;await image.decode();
       if(image.naturalWidth!==1127||image.naturalHeight!==681){
-        URL.revokeObjectURL(url);throw new Error('unexpected candidate dimensions');
+        throw new Error('unexpected candidate dimensions');
       }
-      cleanUrl=url;cleanStatus='verified-preview-only';cleanFailure='';schedule();
+      cleanUrl=CLEAN_ASSET;cleanStatus='verified-preview-only';cleanFailure='';schedule();
     }catch(error){
       cleanStatus='not-available'; // Original v15 painting and interactions stay safe.
       cleanFailure=(error&&error.name?error.name+': ':'')+(error&&error.message||'unknown clean-art failure');
