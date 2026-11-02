@@ -515,3 +515,67 @@
   -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 76%,rgba(0,0,0,.9) 82%,rgba(0,0,0,.55) 91%,transparent 100%)!important;
   mask-image:linear-gradient(to bottom,#000 0%,#000 76%,rgba(0,0,0,.9) 82%,rgba(0,0,0,.55) 91%,transparent 100%)!important;
 }
+
+
+/* iPad / 4:3-ish landscape: use the same locked clean scene as a full-height
+   image. The right edge is the only crop; left subject signs and mountain core stay intact. */
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready{
+  background:#58a1e2!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready::after{
+  opacity:0!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-landscape-art{
+  position:absolute!important;z-index:0!important;display:block!important;
+  max-width:none!important;object-fit:fill!important;pointer-events:none!important;user-select:none!important;
+  clip-path:inset(5px 0 0 0)!important;
+  filter:saturate(1.02) contrast(1.012)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+  position:absolute!important;z-index:20!important;right:0!important;top:0!important;
+  width:31%!important;height:18%!important;pointer-events:none!important;
+  background:
+    radial-gradient(ellipse 72% 88% at 36% 52%,rgba(255,255,255,.11) 0%,rgba(255,255,255,.035) 48%,transparent 74%),
+    linear-gradient(94deg,rgba(84,158,220,.06) 0%,rgba(82,157,220,.88) 18%,#58a1e2 48%,#55a0e1 100%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav{
+  z-index:29!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:clamp(7px,.9vw,13px)!important;padding:0!important;border:0!important;background:none!important;
+  box-shadow:none!important;overflow:visible!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav button[data-camp="home"]{
+  display:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav button:not([data-camp="home"]){
+  display:flex!important;position:static!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;
+  gap:3px!important;min-width:56px!important;min-height:72px!important;width:auto!important;height:auto!important;
+  padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  color:#fffaf0!important;font-size:clamp(11px,1.05vw,14px)!important;font-weight:850!important;line-height:1!important;
+  opacity:1!important;text-shadow:0 2px 4px rgba(18,49,74,.72)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav button:not([data-camp="home"])>span{
+  display:grid!important;place-items:center!important;
+  width:clamp(54px,5vw,68px)!important;height:clamp(54px,5vw,68px)!important;
+  border-radius:50%!important;background:#fff7e5!important;
+  box-shadow:0 4px 10px rgba(29,54,72,.28),inset 0 0 0 2px rgba(139,93,45,.12)!important;
+  color:#4e3420!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav button:not([data-camp="home"])>span svg{
+  display:block!important;width:70%!important;height:70%!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav .bc14-nav-fox{
+  display:block!important;width:82%!important;height:82%!important;
+  background-image:url("./assets/home-v15/laria-troll-trio-nav.webp?v=20261024-locked1")!important;
+  background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc12-nav button:focus-visible{
+  outline:4px solid #fff4bd!important;outline-offset:3px!important;border-radius:18px!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-copy{
+  z-index:25!important;
+  background:
+    linear-gradient(90deg,#4b96d5 0%,#58a4df 58%,rgba(88,164,223,.76) 76%,rgba(88,164,223,.18) 94%,transparent 100%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-landscape-cap{
+  display:none!important;
+}
