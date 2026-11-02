@@ -243,6 +243,16 @@
       cover.setAttribute('aria-hidden','true');
       host.append(cover);
     }
+    // Clone a clean patch of sky from the SAME locked illustration over the
+    // baked top-nav tail. This removes the obsolete painted labels without
+    // introducing a flat blue panel or regenerating any artwork.
+    const skySourceX=610,skySourceY=10;
+    cover.style.setProperty('background-image','url("'+cleanUrl+'")','important');
+    cover.style.setProperty('background-size',displayWidth.toFixed(2)+'px '+displayHeight.toFixed(2)+'px','important');
+    cover.style.setProperty('background-position',
+      (-skySourceX*scale).toFixed(2)+'px '+(-skySourceY*scale).toFixed(2)+'px','important');
+    cover.style.setProperty('background-repeat','no-repeat','important');
+    cover.style.setProperty('background-color','transparent','important');
     const mainNav=host.querySelector('.bc12-nav');
     if(mainNav){
       for(const [key,val] of [['left',rect.width*.70],['top',rect.height*.018],['width',rect.width*.285],['height',rect.height*.13]]){
