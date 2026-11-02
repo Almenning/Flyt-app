@@ -204,3 +204,60 @@
     bottom:max(.45%,env(safe-area-inset-bottom))!important;
   }
 }
+
+
+/* Portrait visual polish: the real journey control must be visible, while the
+   dynamic greeting should read as lettering in the painted sky, not a SaaS card. */
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc12-journey{
+  opacity:1!important;
+  cursor:pointer!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-copy{
+  z-index:23!important;
+  overflow:visible!important;
+  padding:clamp(5px,.8vh,9px) clamp(10px,2.6vw,18px)!important;
+  border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;
+  color:#fffaf0!important;
+  text-shadow:0 2px 4px rgba(18,50,72,.72),0 1px 0 rgba(27,67,91,.62)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-copy::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:-18% -28% -18% -8%;
+  border-radius:48% 56% 52% 44%;
+  background:
+    radial-gradient(ellipse 76% 82% at 28% 50%,
+      rgba(61,139,201,.98) 0%,
+      rgba(71,151,213,.96) 48%,
+      rgba(82,162,220,.76) 68%,
+      rgba(82,162,220,.28) 84%,
+      rgba(82,162,220,0) 100%);
+  filter:blur(2px);
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-copy::after{
+  display:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-greeting{
+  font-size:clamp(19px,4.9vw,26px)!important;
+  font-weight:950!important;line-height:1.02!important;letter-spacing:-.03em!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-intro{
+  display:block!important;margin-top:4px!important;
+  font-size:clamp(11px,2.8vw,14px)!important;font-weight:800!important;line-height:1.08!important;
+  color:#fff7df!important;
+}
+@media (min-width:700px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-copy{
+    padding:8px 12px!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-copy::before{
+    inset:5% 8% 5% -3%;
+    border-radius:50%;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-greeting{
+    font-size:25px!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc15-live-intro{
+    font-size:14px!important;
+  }
+}
