@@ -53,6 +53,7 @@
     host.querySelector('.bc16-sign-nav')?.remove();
     host.querySelector('.bc16-portrait-deck')?.remove();
     host.querySelector('.bc16-small-landscape-art')?.remove();
+    host.querySelector('.bc16-small-landscape-ui')?.remove();
     if(host.dataset.bc16Stage!=='not-ready')host.dataset.bc16Stage='not-ready';
   }
   function coordinate(host,prop){
@@ -197,31 +198,60 @@
     host.dataset.bc16Stage='navigation-pilot';
     const live=host.querySelector('.bc15-live-next');
     const journey=host.querySelector('.bc12-journey');
+    const title=host.querySelector('[data-camp-next]')?.textContent?.trim()||'';
+    const active=/pågående/i.test(host.querySelector('[data-camp-next-type]')?.textContent||'');
+    const progressText=(active?'Pågående':'Neste')+' · '+subjectName+' · '+title;
     if(live&&journey){
       live.id='bc16-live-journey-progress';
       if(journey.getAttribute('aria-describedby')!==live.id)journey.setAttribute('aria-describedby',live.id);
-      const title=host.querySelector('[data-camp-next]')?.textContent?.trim()||'';
-      const active=/pågående/i.test(host.querySelector('[data-camp-next-type]')?.textContent||'');
-      const text=(active?'Pågående':'Neste')+' · '+subjectName+' · '+title;
-      if(live.textContent!==text)live.textContent=text;
-      const jLeft=Math.max(area.left+area.width+16,rect.width*.215);
-      const jWidth=Math.min(270,Math.max(235,rect.width*.31));
-      const jHeight=Math.min(58,Math.max(50,rect.height*.14));
-      const jTop=rect.height-jHeight-Math.max(10,rect.height*.025);
+      if(live.textContent!==progressText)live.textContent=progressText;
+    }
+    let ui=host.querySelector('.bc16-small-landscape-ui');
+    if(!ui){
+      ui=document.createElement('div');
+      ui.className='bc16-small-landscape-ui';
+      ui.setAttribute('aria-hidden','true');
+      const copy=document.createElement('div');
+      copy.className='bc16-small-copy';
+      const greeting=document.createElement('strong');
+      greeting.className='bc16-small-greeting';
+      const intro=document.createElement('span');
+      intro.className='bc16-small-intro';
+      copy.append(greeting,intro);
+      const journeyVisual=document.createElement('div');
+      journeyVisual.className='bc16-small-journey-visual';
+      const journeyTitle=document.createElement('strong');
+      journeyTitle.className='bc16-small-journey-title';
+      journeyTitle.textContent='Fortsett reisen';
+      const journeyMeta=document.createElement('span');
+      journeyMeta.className='bc16-small-journey-meta';
+      journeyVisual.append(journeyTitle,journeyMeta);
+      ui.append(copy,journeyVisual);
+      host.append(ui);
+    }
+    const greetingText=host.querySelector('.bc15-live-greeting')?.textContent?.trim()||'Hei!';
+    const introText=host.querySelector('.bc15-live-intro')?.textContent?.trim()||'Klar for et nytt eventyr?';
+    ui.querySelector('.bc16-small-greeting').textContent=greetingText;
+    ui.querySelector('.bc16-small-intro').textContent=introText;
+    ui.querySelector('.bc16-small-journey-meta').textContent=progressText;
+    const jLeft=Math.max(area.left+area.width+16,rect.width*.215);
+    const jWidth=Math.min(270,Math.max(235,rect.width*.31));
+    const jHeight=Math.min(58,Math.max(50,rect.height*.14));
+    const jTop=rect.height-jHeight-Math.max(10,rect.height*.025);
+    if(journey){
       for(const [key,val] of [['left',jLeft],['top',jTop],['width',jWidth],['height',jHeight]]){
         journey.style.setProperty(key,val.toFixed(2)+'px','important');
       }
       journey.style.setProperty('right','auto','important');
       journey.style.setProperty('bottom','auto','important');
     }
-    const liveCopy=host.querySelector('.bc15-live-copy');
-    if(liveCopy){
-      liveCopy.style.setProperty('left',(rect.width*.12).toFixed(2)+'px','important');
-      liveCopy.style.setProperty('top',(rect.height*.19).toFixed(2)+'px','important');
-      liveCopy.style.setProperty('width',(rect.width*.30).toFixed(2)+'px','important');
-      liveCopy.style.setProperty('height',(rect.height*.17).toFixed(2)+'px','important');
-      liveCopy.style.setProperty('right','auto','important');
-      liveCopy.style.setProperty('bottom','auto','important');
+    const journeyVisual=ui.querySelector('.bc16-small-journey-visual');
+    for(const [key,val] of [['left',jLeft],['top',jTop],['width',jWidth],['height',jHeight]]){
+      journeyVisual.style.setProperty(key,val.toFixed(2)+'px');
+    }
+    const copy=ui.querySelector('.bc16-small-copy');
+    for(const [key,val] of [['left',rect.width*.12],['top',rect.height*.19],['width',rect.width*.30],['height',rect.height*.17]]){
+      copy.style.setProperty(key,val.toFixed(2)+'px');
     }
     return true;
   }
