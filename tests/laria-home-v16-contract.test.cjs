@@ -15,10 +15,13 @@ assert(html.indexOf('home-kjosnes-v15.js')<html.indexOf('home-v16-preview.js'),'
 assert.match(js,/laria-home-v16-preview/,'No unapproved default rollout');
 assert.match(js,/bc15-locked-home/,'V16 must depend on verified original art');
 assert.match(js,/bc14-subject\[data-camp="subject-/,'Preserve the real v12 route handlers');
-assert.match(js,/portrait-art-required/,'Never fake the missing portrait wooden signs');
+assert.match(js,/portrait-navigation-pilot/,'Portrait v16 must remain an explicit preview stage');
+assert.match(js,/portrait-locked-master/,'Portrait pilot must declare locked phone-master provenance');
 assert.match(js,/requestAnimationFrame/,'Align signs to the actual rendered original');
-assert.match(css,/\.bc16-left-signs-ready \.bc14-subjects/,'Old bottom hit zones must be disabled');
-assert.match(css,/visibility:hidden!important;pointer-events:none!important/);
+assert.match(css,/bc16-left-signs-ready,.bc16-portrait-ready/,'Wide and portrait pilots must both disable old subject gateways');
+assert.match(css,/visibility:hidden!important;pointer-events:none!important/,'Old subject hit zones must be disabled');
+assert.match(css,/bc16-portrait-ready \.bc16-portrait-deck/,'Portrait pilot must cover obsolete baked card chrome');
+assert.match(css,/bc16-portrait-ready \.bc12-nav/,'Portrait pilot must restore real semantic bottom navigation');
 for(const part of ['Norsk','Matte','Engelsk','Geografi'])assert(js.includes(part),'Missing Home subject '+part);
 for(const [name,bytes,sha] of [
   ['kjosnes-home-tablet.webp',459450,'246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5'],
