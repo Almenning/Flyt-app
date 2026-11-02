@@ -18,9 +18,9 @@
   // into the draft PR. Until then, all formats retain the real v15 background.
   const CLEAN_ASSET='./assets/home-v16/kjosnes-home-desktop-clean-DRAFT.webp';
   const CLEAN_HASH='4efcf7783cd83e46a22cc1c51269039a309b8ba1400ee6eab6e478657e129ee0';
-  let cleanUrl='',cleanStatus='not-loaded';
+  let cleanUrl='',cleanStatus='not-loaded',cleanFailure='';
   async function loadCleanPreviewArt(){
-    if(!crypto?.subtle){cleanStatus='digest-unavailable';return;}
+    if(typeof crypto==='undefined'||!crypto.subtle){cleanStatus='digest-unavailable';cleanFailure='WebCrypto subtle digest unavailable in current context';schedule();return;}
     try{
       const response=await fetch(CLEAN_ASSET,{cache:'no-store'});
       if(!response.ok)throw new Error('not uploaded');
@@ -33,10 +33,12 @@
       if(image.naturalWidth!==1127||image.naturalHeight!==681){
         URL.revokeObjectURL(url);throw new Error('unexpected candidate dimensions');
       }
-      cleanUrl=url;cleanStatus='verified-preview-only';schedule();
+      cleanUrl=url;cleanStatus='verified-preview-only';cleanFailure='';schedule();
     }catch(error){
       cleanStatus='not-available'; // Original v15 painting and interactions stay safe.
-      if(/integrity|dimensions/.test(error.message))console.warn('[Læria Home v16] Rejected unexpected derived painting',error);
+      cleanFailure=(error&&error.name?error.name+': ':'')+(error&&error.message||'unknown clean-art failure');
+      console.warn('[Læria Home v16] Clean derivative unavailable; locked original retained.',cleanFailure);
+      schedule();
     }
   }
   const getHost=()=>document.querySelector('#home-screen .bc12');
@@ -169,5 +171,5 @@
   schedule();
   loadCleanPreviewArt();
   window.LARIA_HOME_V16_PREVIEW=Object.freeze({enabled:true,version:'navigation-pilot2',
-    get cleanArtStatus(){return cleanStatus;}});
+    get cleanArtStatus(){return cleanStatus;},get cleanArtError(){return cleanFailure;}});
 })();
