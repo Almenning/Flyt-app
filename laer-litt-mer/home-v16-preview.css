@@ -579,3 +579,36 @@
 .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-landscape-cap{
   display:none!important;
 }
+
+
+/* Final iPad landscape polish: feather the baked-nav cover into the sky and
+   fully erase the baked child name without creating rectangular UI panels. */
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+  width:24%!important;height:18%!important;
+  background:
+    radial-gradient(ellipse 94% 110% at 100% 0%,
+      #58a1e2 0%,
+      #58a1e2 54%,
+      rgba(88,161,226,.96) 68%,
+      rgba(88,161,226,.66) 80%,
+      rgba(88,161,226,.22) 91%,
+      rgba(88,161,226,0) 100%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-copy{
+  padding:0 12px!important;border:0!important;border-radius:0!important;
+  background:
+    radial-gradient(ellipse 94% 108% at 38% 50%,
+      #4b96d5 0%,
+      #4f9bda 62%,
+      rgba(82,160,219,.97) 78%,
+      rgba(82,160,219,.55) 90%,
+      rgba(82,160,219,0) 100%)!important;
+  box-shadow:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc15-live-next{
+  justify-content:flex-start!important;
+  padding:0 3px!important;
+  background:none!important;box-shadow:none!important;border:0!important;
+  color:#56331d!important;text-shadow:0 1px 0 rgba(255,239,205,.75)!important;
+  font-size:clamp(10px,.9vw,13px)!important;
+}
