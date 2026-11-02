@@ -91,6 +91,10 @@ async function run(engine,browserType,name,viewport,expectSigns){
    assert(audit.bottomButtons.every(b=>b.w>=44&&b.h>=44),engine+' '+name+' bottom navigation has inaccessible targets');
    assert(audit.bottomNav.x>=-2&&audit.bottomNav.right<=viewport.width+2&&audit.bottomNav.y>=-2&&audit.bottomNav.bottom<=viewport.height+2,
      engine+' '+name+' bottom navigation is outside viewport');
+   assert(audit.buttons[audit.buttons.length-1].bottom<=audit.bottomNav.y-4,
+     engine+' '+name+' portrait subject signs overlap bottom navigation');
+   assert(audit.journey.bottom<=audit.buttons[0].y-4,
+     engine+' '+name+' portrait journey plank overlaps subject signs');
    assert(audit.journey.x>=-2&&audit.journey.right<=viewport.width+2&&audit.journey.y>=-2&&audit.journey.bottom<=viewport.height+2,
      engine+' '+name+' portrait journey plank is outside viewport');
    assert.match(audit.journeyText,/Fortsett reisen/,'Portrait live journey action disappeared');
