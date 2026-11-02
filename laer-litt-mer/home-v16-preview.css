@@ -886,3 +886,20 @@
     display:none!important;
   }
 }
+
+
+/* Final iPad-landscape cleanup: the original clean-art source still contains
+   its painted top navigation. Cover that entire painted cluster before the real
+   semantic four-item navigation is rendered above it. */
+@media (orientation:landscape) and (min-height:581px) and (max-aspect-ratio:3/2){
+  .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+    display:block!important;right:-1.5%!important;top:-1.5%!important;
+    width:40%!important;height:22%!important;z-index:27!important;
+    border-bottom-left-radius:58% 48%!important;filter:blur(.6px)!important;
+    background:
+      radial-gradient(ellipse 160% 190% at 100% 0%,
+        #59a2e3 0%,#59a2e3 76%,rgba(89,162,227,.99) 83%,
+        rgba(88,161,226,.82) 90%,rgba(86,159,224,.42) 96%,
+        rgba(84,157,222,0) 100%)!important;
+  }
+}
