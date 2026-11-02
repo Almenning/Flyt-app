@@ -40,6 +40,20 @@ jobs:
           node --check laer-litt-mer/home-v16-preview.js
           node --check tests/laria-home-v16-preview.playwright.js
           node tests/laria-home-v16-contract.test.cjs
+      - name: Diagnose clean Home v16 draft bytes
+        run: |
+          target='laer-litt-mer/assets/home-v16/kjosnes-home-desktop-clean-DRAFT.webp'
+          test -f "$target"
+          wc -c "$target"
+          sha256sum "$target"
+          file "$target" || true
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('laer-litt-mer/assets/home-v16/kjosnes-home-desktop-clean-DRAFT.webp')
+          b=p.read_bytes()
+          print('header_hex=', b[:64].hex())
+          print('riff=', b[:4], 'webp=', b[8:12], 'tail=', b[-16:].hex())
+          PY
       - name: Start exact-head Læria app
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 --directory . >/tmp/laria-home-v16-http.log 2>&1 &
