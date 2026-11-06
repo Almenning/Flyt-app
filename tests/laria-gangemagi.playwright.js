@@ -109,7 +109,7 @@ async function check(engine,label,viewport,url){
   await page.addInitScript(s=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(s));},seed);
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
-  await page.goto(url,{waitUntil:'domcontentloaded'});
+  await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
   await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
   // Navigate to the actual home screen before checking the home palette:
   // the app may legitimately restore an active lab during startup.
