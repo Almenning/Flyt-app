@@ -1121,3 +1121,22 @@
     opacity:.98!important;
   }
 }
+
+
+/* Feather only the locked phone-master edges on wide portrait screens.
+   The image content is unchanged; this removes the two hard vertical seams
+   where the exact phone composition meets its atmospheric iPad extension. */
+@media (min-width:700px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready::after{
+    -webkit-mask-image:linear-gradient(90deg,
+      transparent 0%,transparent 13.7%,
+      rgba(0,0,0,.30) 14.3%,rgba(0,0,0,.72) 15.0%,#000 16.1%,
+      #000 83.9%,rgba(0,0,0,.72) 85.0%,rgba(0,0,0,.30) 85.7%,
+      transparent 86.3%,transparent 100%)!important;
+    mask-image:linear-gradient(90deg,
+      transparent 0%,transparent 13.7%,
+      rgba(0,0,0,.30) 14.3%,rgba(0,0,0,.72) 15.0%,#000 16.1%,
+      #000 83.9%,rgba(0,0,0,.72) 85.0%,rgba(0,0,0,.30) 85.7%,
+      transparent 86.3%,transparent 100%)!important;
+  }
+}
