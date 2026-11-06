@@ -1,7 +1,7 @@
 'use strict';
 /*
- * Evidence gate for the NEW two-post Tallvika sign navigation.
- * Do not label legacy painted-house hotspots as approved screenshots.
+ * Evidence gate for the locked Home sign family in Tallvika.
+ * The reference has one continuous, left-hand wooden support behind three planks.
  * The original image is read-only; this test never changes saved progress.
  */
 const assert=require('node:assert/strict');
@@ -54,7 +54,7 @@ async function collect(page){
     const nav=document.querySelector('#tallvika-world .tv-sign-nav');
     const navBefore=nav?getComputedStyle(nav,'::before'):null;
     const navAfter=nav?getComputedStyle(nav,'::after'):null;
-    const sharedPosts=nav?{before:navBefore.content,after:navAfter.content}:null;
+    const sharedPosts=nav?{before:navBefore.content,after:navAfter.content,beforeWidth:navBefore.width,afterWidth:navAfter.width}:null;
     const sceneCss=getComputedStyle(scene);
     return {viewport:{width:innerWidth,height:innerHeight},
       scrollWidth:document.documentElement.scrollWidth,
@@ -76,10 +76,7 @@ function assertPremium(a,label){
     assert.ok(x.y>=a.scene.y-2&&x.bottom<=a.scene.bottom+2,label+' '+x.key+' outside scene');
     assert.ok(x.x>=-2&&x.right<=a.viewport.width+2,label+' '+x.key+' outside device width');
     assert.ok(x.y>=-2&&x.bottom<=a.viewport.height+4,label+' '+x.key+' below the visible device');
-    assert.notEqual(x.postBefore,'none',label+' '+x.key+' is missing its left post');
-    assert.notEqual(x.postAfter,'none',label+' '+x.key+' is missing its right post');
-    assert.ok(parseFloat(x.postBeforeWidth)>=8&&parseFloat(x.postAfterWidth)>=8,
-      label+' '+x.key+' posts are too small to read as two real supports');
+    assert.ok(x.width/x.height>=2.65,label+' '+x.key+' no longer has the reference plank proportion');
   }
   const [multiply,fraction,table]=a.actions;
   assert.ok(multiply.y+multiply.height<=fraction.y+5,label+' Gangemagi/Brøklab overlap');
@@ -89,8 +86,10 @@ function assertPremium(a,label){
   assert.ok(maxX-minX<=a.scene.width*.11,label+' signs are not a single left-side stack');
   assert.ok(a.actions.every(x=>x.background!=='none'||x.backgroundColor!=='rgba(0, 0, 0, 0)'),
     label+' no visible wooden navigation; likely old invisible house hotspots');
-  assert.ok(a.sharedPosts&&a.sharedPosts.before==='none'&&a.sharedPosts.after==='none',
-    label+' rejected shared continuous post pair returned');
+  assert.ok(a.sharedPosts&&a.sharedPosts.before!=='none'&&a.sharedPosts.after!=='none',
+    label+' missing the reference screen’s shared left-hand support');
+  assert.ok(parseFloat(a.sharedPosts.beforeWidth)>=14&&parseFloat(a.sharedPosts.afterWidth)>=18,
+    label+' shared left-hand support lost its readable wood geometry');
   assert.ok(a.next&&a.next.width>=44&&a.next.height>=44,label+' missing Next adventure');
   assert.ok(a.next.x>=0&&a.next.right<=a.viewport.width+2&&a.next.bottom<=a.viewport.height+4,
     label+' Next adventure is clipped');
