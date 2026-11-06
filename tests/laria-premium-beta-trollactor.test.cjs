@@ -12,6 +12,14 @@ const home=file('home-kjosnes-v15.js');
 
 assert.match(index,/laria-troll-runtime-v1\.css/,'Premium beta TrollActor CSS must be loaded');
 assert.match(index,/laria-troll-runtime-v1\.js/,'Premium beta TrollActor runtime must be loaded');
+assert.match(index,/data-troll-picker/,'Onboarding must use the premium troll picker');
+for(const id of ['storesoster','lillesoster','lillebror']){
+  assert.match(index,new RegExp('data-troll="'+id+'"'),'Onboarding missing '+id);
+}
+assert.doesNotMatch(index,/Velg reven din|aria-label="Velg rev"|>Revegutt<|>Revejente<|Reven er klar!/,
+  'Visible fox-era onboarding copy returned');
+assert.match(index,/tallvikaTroll:selectedTroll/,'Onboarding must persist the same troll identity used in-world');
+assert.match(runtime,/\.top \.avatar\.profile-fox-avatar > img/,'Visible header cameo must migrate to the selected troll');
 assert.match(runtime,/const MOODS=new Set\(\['idle','wave','walking','think','hint','celebrate','support','curious'\]\)/,
   'TrollActor reaction vocabulary changed');
 assert.match(runtime,/profile\(\)\?\.tallvikaTroll/,'Selected troll must come from the persisted profile');
