@@ -34,30 +34,27 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
    available without painting another headline or button over the illustration. */
 .tv-scene-copy{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
 /* Pixel-locked Home sign reuse.
-   The three plank silhouettes are cropped directly from the locked 1127x681
-   Kjøsnes Home master. Tallvika only replaces the painted subject copy. */
-.tv-sign-nav{position:absolute;z-index:6;isolation:isolate;left:2.25%;top:25%;width:clamp(164px,19%,292px);aspect-ratio:190/160;overflow:visible;background-image:url("./assets/home-v15/kjosnes-home-tablet.webp");background-repeat:no-repeat;background-size:593.16% auto;background-position:3.735% 39.347%;filter:drop-shadow(0 6px 4px #21130866)}
-/* Continue the exact shared-post construction below the three-board crop. */
-.tv-sign-nav:after{content:"";position:absolute;z-index:0;left:0;right:0;top:98%;height:30%;pointer-events:none;background:
- linear-gradient(90deg,#5b3019 0 12%,#a26836 18% 38%,#c48a4c 42% 54%,#784322 58% 77%,#482617 82% 100%) 29% 0/10.5% 100% no-repeat,
- linear-gradient(90deg,#5b3019 0 12%,#a26836 18% 38%,#c48a4c 42% 54%,#784322 58% 77%,#482617 82% 100%) 81% 0/10.5% 100% no-repeat;
- filter:drop-shadow(1px 3px 1px #382015aa)}
-.tv-sign-nav:before{content:none}
-.tv-sign{position:absolute;z-index:2;left:1.5%;width:97%;height:32%;display:grid;grid-template-columns:29% 1fr;align-items:center;gap:1%;padding:0 8% 0 12%;border:0;border-radius:0;background:transparent;color:#3d2415;text-align:left;text-shadow:none;box-shadow:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.tv-sign:nth-child(1){top:0;transform:rotate(-.25deg)}
-.tv-sign:nth-child(2){top:32.1%;transform:rotate(.15deg)}
-.tv-sign:nth-child(3){top:64.2%;transform:rotate(-.12deg)}
-/* Opaque wood repaint hides only the baked Norsk/Matte/Engelsk copy.
-   The original plank edge, grain, nail detail and shared posts remain visible. */
-.tv-sign:before{content:"";position:absolute;z-index:0;left:9%;right:3.5%;top:10%;bottom:9%;background:
- repeating-linear-gradient(177deg,transparent 0 10px,#99562c24 11px 12px,transparent 13px 20px),
- linear-gradient(180deg,#f4c77e 0%,#edb56b 24%,#dc944c 72%,#c77839 100%);
- border-radius:4px;box-shadow:inset 0 1px #f9dda1,inset 0 -1px #a85d2d;pointer-events:none}
+   Each Tallvika plank samples the corresponding plank directly from the locked
+   1127x681 Kjøsnes Home master. No rectangular Home scenery is carried over. */
+.tv-sign-nav{position:absolute;z-index:6;isolation:isolate;left:2.25%;top:25%;width:clamp(164px,19%,292px);aspect-ratio:190/160;overflow:visible;filter:drop-shadow(0 6px 4px #21130866)}
+/* One shared pair of posts behind the complete stack, as in the locked Home image. */
+.tv-sign-nav:before,.tv-sign-nav:after{content:"";position:absolute;z-index:0;top:3%;bottom:-27%;width:10%;border-radius:3px;background:linear-gradient(90deg,#573019 0 12%,#9d6537 18% 38%,#ca8b4c 43% 55%,#754020 60% 78%,#482617 83% 100%);box-shadow:inset 2px 0 #d5a064,inset -2px 0 #3d2115,1px 3px 1px #382015aa;pointer-events:none}
+.tv-sign-nav:before{left:29%;transform:rotate(.45deg)}.tv-sign-nav:after{right:18%;transform:rotate(-.55deg)}
+.tv-sign{position:absolute;z-index:2;left:0;width:100%;height:32.6%;display:grid;grid-template-columns:29% 1fr;align-items:center;gap:1%;padding:0 8% 0 12%;border:0;border-radius:0;background-image:url("./assets/home-v15/kjosnes-home-tablet.webp");background-repeat:no-repeat;background-size:593.16% auto;color:#3d2415;text-align:left;text-shadow:none;box-shadow:none;clip-path:polygon(4% 1%,94% 0,97% 4%,100% 13%,98% 25%,100% 38%,98% 51%,100% 65%,98% 78%,100% 89%,95% 99%,5% 100%,2% 94%,0 84%,2% 72%,0 59%,2% 45%,0 32%,2% 19%,1% 9%);filter:drop-shadow(0 2px 1px #4c2a1b77);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tv-sign:nth-child(1){top:0;background-position:3.735% 33.1%;transform:rotate(-.25deg)}
+.tv-sign:nth-child(2){top:32.35%;background-position:3.735% 41.45%;transform:rotate(.15deg)}
+.tv-sign:nth-child(3){top:64.7%;background-position:3.735% 49.85%;transform:rotate(-.12deg)}
+/* Repaint only the original icon/copy field. The locked plank perimeter, grain,
+   highlights and shadow remain the master image pixels. */
+.tv-sign:before{content:"";position:absolute;z-index:0;left:8.5%;right:3%;top:12%;bottom:11%;background:
+ repeating-linear-gradient(177deg,transparent 0 10px,#99562c20 11px 12px,transparent 13px 20px),
+ linear-gradient(180deg,#f3c37b 0%,#ecb269 26%,#dc9249 73%,#c67637 100%);
+ border-radius:3px;box-shadow:inset 0 1px #f9dda1,inset 0 -1px #a85d2d;pointer-events:none}
 .tv-sign-icon,.tv-sign-label{position:relative;z-index:1}
 .tv-sign-icon{display:grid;place-items:center;width:100%;border:0;border-radius:0;background:none;box-shadow:none;color:#442516;font-family:"Arial Rounded MT Bold","Trebuchet MS",sans-serif;font-size:clamp(24px,2.45vw,35px);line-height:1;font-weight:950}
 .tv-sign-label{font-family:"Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;font-size:clamp(16px,1.65vw,24px);font-weight:950;line-height:1;letter-spacing:-.035em;white-space:nowrap;color:#3d2415}
 .tv-sign:focus-visible{outline:4px solid #fff6c1;outline-offset:-4px}
-.tv-sign:hover:before{filter:brightness(1.035)}
+.tv-sign:hover{filter:brightness(1.035) drop-shadow(0 2px 1px #4c2a1b77)}
 .tv-dialog{width:min(900px,94vw);border:0;border-radius:30px;padding:0;background:#fff7e6;color:#3e2b1c;box-shadow:0 22px 80px #1f322acc}.tv-dialog::backdrop{background:rgba(25,44,35,.64);backdrop-filter:blur(3px)}.tv-dialog form{position:relative;padding:28px;text-align:center}.tv-dialog p{margin:0;color:#956738;font-size:12px;font-weight:950;letter-spacing:.14em}.tv-dialog h2{margin:6px 0 2px;font-size:clamp(25px,4vw,40px);letter-spacing:-.04em}.tv-dialog form>span{color:#735e48;font-weight:700}.tv-dialog-close{position:absolute;right:18px;top:14px;width:48px;height:48px;border:0;border-radius:50%;background:#f2e3c5;color:#62462e;font-size:27px}
 .tv-troll-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:23px}.tv-troll-grid button{position:relative;display:grid;grid-template-rows:1fr auto;align-items:end;min-height:290px;padding:10px 10px 14px;border:3px solid #e4c990;border-radius:23px;background:linear-gradient(#fffdf3,#f5e5be);color:#52391f;font-size:18px;font-weight:950}.tv-troll-grid button.selected{border-color:#477c58;box-shadow:0 0 0 4px #c5e2bb}.tv-troll-grid img{height:230px;max-width:100%;justify-self:center;object-fit:contain;filter:drop-shadow(0 5px 4px rgba(64,43,28,.22))}.tv-troll-grid em{position:absolute;top:11px;right:11px;border-radius:99px;background:#477c58;color:#fff;padding:5px 8px;font-size:11px;font-style:normal}
 .tv-grade-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:20px}.tv-grade-option{display:grid;place-items:center;gap:1px;min-height:67px;padding:7px;border:2px solid #e4c990;border-radius:14px;background:#fffaf0;color:#51391f;font-weight:900}.tv-grade-option.selected{border-color:#477c58;background:#e5f2dd;box-shadow:inset 0 0 0 2px #afd19a}.tv-grade-option b{font-size:20px}.tv-grade-option small{font-size:10px;color:#795e42}.tv-grade-dialog{max-height:88dvh;overflow-y:auto}
