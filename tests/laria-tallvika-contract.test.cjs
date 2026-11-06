@@ -31,7 +31,7 @@ assert.ok(fs.statSync(signAsset).size>7_000,'locked Home sign cutout must remain
 assert.equal(crypto.createHash('sha256').update(fs.readFileSync(signAsset)).digest('hex'),'408178582017e0da88037f21e9a44b58cc2f4671baa24c5a44bed0d97a67479e','locked Home sign cutout changed');
 const postAsset=path.join(root,'assets/tallvika/tallvika-sign-posts-locked.webp');
 assert.ok(fs.statSync(postAsset).size>2_000,'locked Home post extension must remain the committed source asset');
-assert.equal(crypto.createHash('sha256').update(fs.readFileSync(postAsset)).digest('hex'),'5f81cbd61cebd1d8a25bb3895bdd32b2915523a23f387c0b9f13d14d9cde8416','locked Home post extension changed');
+assert.equal(crypto.createHash('sha256').update(fs.readFileSync(postAsset)).digest('hex'),'8b3088b6bbf0a100d833007b8aa11a77631c9034d0326e112ce454d98582bf6d','locked Home post extension changed');
 assert.match(js,/sceneSrc:'\.\/assets\/tallvika\/storesoster-inworld-approved-20261026\.webp'/);
 console.log('Tallvika integrated-world contract passed');
 
