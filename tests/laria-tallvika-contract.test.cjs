@@ -18,7 +18,8 @@ assert.doesNotMatch(css,/tv-mobile-actions|tv-portal-card|tv-dock|tv-portal-art/
 assert.match(css,/\.tv-sign-nav\{position:absolute/);
 assert.match(css,/Pixel-locked Home sign asset/,'Tallvika must use the locked transparent Home sign asset');
 assert.match(css,/tallvika-sign-home-locked\.webp/,'Tallvika sign must render from the derived locked Home cutout');
-assert.match(css,/aspect-ratio:200\/220/,'Locked Home sign asset ratio changed');
+assert.match(css,/tallvika-sign-posts-locked\.webp/,'Tallvika sign must keep the locked long post extension');
+assert.match(css,/aspect-ratio:200\/255/,'Locked Home sign geometry including long posts changed');
 assert.match(css,/\.tv-sign-nav:before,\.tv-sign-nav:after\{content:none!important\}/,'No CSS-drawn alternate post system may return');
 assert.match(css,/\.tv-sign\{position:absolute;z-index:2/,'Tallvika activity hit areas must align over the locked sign asset');
 assert.match(css,/\.tv-sign:before,\.tv-sign:after\{content:none!important\}/,'No CSS repaint layer may cover the locked wood');
@@ -28,6 +29,9 @@ for(const name of ['assets/tallvika/laria-tallvika-premium-locked-20261027.png',
 const signAsset=path.join(root,'assets/tallvika/tallvika-sign-home-locked.webp');
 assert.ok(fs.statSync(signAsset).size>7_000,'locked Home sign cutout must remain the committed source asset');
 assert.equal(crypto.createHash('sha256').update(fs.readFileSync(signAsset)).digest('hex'),'408178582017e0da88037f21e9a44b58cc2f4671baa24c5a44bed0d97a67479e','locked Home sign cutout changed');
+const postAsset=path.join(root,'assets/tallvika/tallvika-sign-posts-locked.webp');
+assert.ok(fs.statSync(postAsset).size>2_000,'locked Home post extension must remain the committed source asset');
+assert.equal(crypto.createHash('sha256').update(fs.readFileSync(postAsset)).digest('hex'),'5f81cbd61cebd1d8a25bb3895bdd32b2915523a23f387c0b9f13d14d9cde8416','locked Home post extension changed');
 assert.match(js,/sceneSrc:'\.\/assets\/tallvika\/storesoster-inworld-approved-20261026\.webp'/);
 console.log('Tallvika integrated-world contract passed');
 
