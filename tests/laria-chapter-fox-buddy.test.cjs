@@ -39,3 +39,10 @@ test('a mixed Math mirror gets the symmetry hint, not a general pattern prompt',
  assert.equal(buddy.hintFor('math','stjernelunden','mirror'),buddy.hintFor('math','speildammen','mirror'));
  assert.throws(()=>buddy.hintFor('music','intro','choice'),/unknown subject/);
 });
+
+test('premium beta companion copy no longer exposes the retired fox',()=>{
+ for(const subject of Object.keys(chapters)){
+  const msg=buddy.response({subject,stageId:chapters[subject].STAGES[0].id,kind:'choice',feedback:{correct:true}});
+  assert.doesNotMatch(msg.text,/rev(en)?/i);
+ }
+});
