@@ -100,7 +100,10 @@
     const app=bridge(),state=app?.state?.(),grade=Number(app?.currentGrade?.()||2);
     const name=String(state?.profile?.name||'').trim();
     const resume=state?.activeSession?.scope?.subject==='english';
-    const key=JSON.stringify([grade,name,resume]);
+    const selectedId=CHARACTERS.some(c=>c.id===state?.profile?.tallvikaTroll)?state.profile.tallvikaTroll:'storesoster';
+    const selected=CHARACTERS.find(c=>c.id===selectedId)||CHARACTERS[0];
+    const selectedSrc=window.LARIA_TROLL_ACTOR?.source?.(selectedId)||selected.src;
+    const key=JSON.stringify([grade,name,resume,selectedId]);
     const host=ensureRoot();
     if(renderKey===key&&host.firstElementChild){
       if(!screen.classList.contains('kinnaklova-active'))screen.classList.add('kinnaklova-active');
@@ -115,9 +118,9 @@
       '<img class="ki-master"'+(HAS_CLEAN_MASTER?' src="'+ART+'"':'')+' alt="Kinnaklova med Kinn kyrkje, klokketårnet, sjøen og de karakteristiske tvillingtoppene" width="1672" height="941" draggable="false" decoding="async">'+
       '<div class="ki-art-unavailable" hidden role="status"><strong>Den låste Kinnaklova-illustrasjonen mangler i denne utviklingsversjonen.</strong>'+
       '<span>Import av ren bakgrunn er nødvendig før visuell godkjenning og publisering.</span></div>'+
-      '<div class="ki-companions" aria-label="De tre godkjente skogstrollene">'+
-      CHARACTERS.map(c=>'<img class="ki-troll ki-troll-'+c.id+'" data-ki-character="'+c.id+'" src="'+(c.sceneSrc||c.src)+
-       '" alt="'+c.name+'" draggable="false" loading="eager">').join('')+
+      '<div class="ki-companions" aria-label="Ditt valgte troll er med på Kinnaklova">'+
+      '<div class="ki-companion-actor laria-troll-host laria-troll-actor" data-troll="'+selectedId+'" data-laria-troll-mood="idle" aria-label="'+escapeText(selected.name)+' er med">'+
+      '<img class="ki-troll laria-premium-troll-art" data-ki-character="'+selectedId+'" src="'+escapeText(selectedSrc)+'" alt="" aria-hidden="true" draggable="false" loading="eager"></div>'+
       '</div>'+
       '<button type="button" class="ki-painted-hit ki-painted-home" data-ki="home" aria-label="Tilbake til Hjem"></button>'+
       ACTIONS.map(a=>'<button type="button" class="ki-painted-hit ki-painted-'+a.id+
@@ -133,6 +136,10 @@
     image.addEventListener('error',()=>onArtStatus(image),{once:true});
     onArtStatus(image);
     if(!screen.classList.contains('kinnaklova-active'))screen.classList.add('kinnaklova-active');
+    requestAnimationFrame(()=>{
+      const actor=host.querySelector('.ki-companion-actor');
+      if(actor)window.LARIA_TROLL_ACTOR?.mood?.(actor,'wave',{say:false,duration:1050});
+    });
   }
   screen.addEventListener('click',event=>{
     const button=event.target.closest?.('#kinnaklova-world [data-ki]');
