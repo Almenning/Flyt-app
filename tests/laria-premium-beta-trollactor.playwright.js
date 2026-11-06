@@ -104,6 +104,35 @@ const devices=[
             await page.screenshot({path:path.join(out,label+'-task.png'),fullPage:false,animations:'disabled'});
             assert.deepEqual(errors,[],label+' page errors '+errors.join('; '));
             await ctx.close();
+
+            // Legacy Home migration: no visible fox identity may survive outside locked Grovanova.
+            const legacyCtx=await browser.newContext({viewport:{width,height},isMobile:width<=430,hasTouch:true,serviceWorkers:'block',reducedMotion:'reduce'});
+            await legacyCtx.addInitScript(v=>localStorage.setItem('laerlittmer-v2',JSON.stringify(v)),seed(4));
+            const legacy=await legacyCtx.newPage();
+            await legacy.route('https://raw.githubusercontent.com/**',r=>r.abort());
+            await legacy.route('https://api.worldbank.org/**',r=>r.abort());
+            await legacy.goto(url+'?app=laria&legacy-troll='+encodeURIComponent(label),{waitUntil:'domcontentloaded',timeout:90000});
+            await legacy.locator('#home-screen.active .bc12:visible').waitFor({timeout:18000});
+            const legacyLocked=await legacy.locator('#home-screen.active .bc12').evaluate(el=>el.classList.contains('bc15-locked-home'));
+            assert.equal(legacyLocked,false,label+' grade 4 unexpectedly used locked Grovanova');
+            const legacyActor=legacy.locator('#home-screen.active .bc12-fox.laria-troll-host .laria-premium-troll-art');
+            await legacyActor.waitFor({state:'visible',timeout:12000});
+            const lm=await metrics(legacy,'#home-screen.active .bc12-fox.laria-troll-host .laria-premium-troll-art');
+            inside(lm,width,height,label+' legacy Home TrollActor');
+            assert.match(lm.src,/assets\/gangemagi-troll\/lillesoster\.webp/,label+' legacy Home still renders fox art');
+            const navText=(await legacy.locator('#home-screen.active .bc12-nav [data-camp="wardrobe"]').innerText()).trim();
+            assert.match(navText,/Mine troll/,label+' legacy Min rev label survived');
+            await legacy.locator('#home-screen.active .bc12-nav [data-camp="wardrobe"]').click();
+            const chooser=legacy.locator('#laria-premium-troll-dialog[open]');
+            await chooser.waitFor({state:'visible',timeout:6000});
+            assert.equal(await chooser.locator('.laria-troll-choice').count(),3,label+' premium troll chooser missing choices');
+            assert.equal(await chooser.locator('[data-troll-choice="lillesoster"]').getAttribute('aria-pressed'),'true',
+              label+' premium troll chooser lost selected troll');
+            const chooserBox=await chooser.evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height};});
+            assert.ok(chooserBox.x>=0&&chooserBox.right<=width+1&&chooserBox.y>=0&&chooserBox.bottom<=height+1,
+              label+' troll chooser outside viewport '+JSON.stringify(chooserBox));
+            await legacy.screenshot({path:path.join(out,label+'-legacy-home.png'),fullPage:false,animations:'disabled'});
+            await legacyCtx.close();
             console.log('PASS '+label);
           }catch(e){failed++;console.error('FAIL '+label+': '+e.message);}
         }
