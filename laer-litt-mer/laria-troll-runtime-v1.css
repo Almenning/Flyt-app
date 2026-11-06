@@ -3,6 +3,27 @@
    Grovanova Home is excluded because its locked master already owns its characters. */
 :root{--laria-selected-troll:none}
 
+/* Troll-first beta: legacy image nodes are migration anchors only.
+   Keep them invisible until TrollActor replaces their source/class on first paint. */
+html[data-laria-character-system="troll"] :is(
+  .bc12-fox > img,
+  .top .avatar.profile-fox-avatar > img,
+  .locked-journey-profile > img,
+  .locked-journey-traveler > img,
+  .task-fox-companion > img,
+  .fr2-guide > img.fr2-fox,
+  .fr2-mastery-banner img.fr2-fox,
+  .fr4-scene-fox img.fr2-fox,
+  .mp-avatar > img,
+  .mp-mascot > img,
+  .mp-art-practice img,
+  .mp-pick-easy-intro > img,
+  .mp-pick-mentor > img,
+  .word-hunt-top > img.word-hunt-fox,
+  .premium-globe-header > img.premium-globe-fox
+):not(.laria-premium-troll-art){visibility:hidden!important}
+
+
 .laria-troll-host{
   overflow:visible!important;
   background:transparent!important;
