@@ -9,9 +9,13 @@ const index=file('index.html');
 const runtime=file('laria-troll-runtime-v1.js');
 const css=file('laria-troll-runtime-v1.css');
 const home=file('home-kjosnes-v15.js');
+const wardrobe=file('laria-fox-wardrobe.js');
 
 assert.match(index,/laria-troll-runtime-v1\.css/,'Premium beta TrollActor CSS must be loaded');
 assert.match(index,/laria-troll-runtime-v1\.js/,'Premium beta TrollActor runtime must be loaded');
+assert.match(index,/<html lang="nb" data-laria-character-system="troll">/,'Premium beta must boot in troll-first character mode');
+assert.match(wardrobe,/lariaCharacterSystem==='troll'/,'Legacy fox wardrobe must be inert in troll-first mode');
+assert.match(css,/data-laria-character-system="troll"/,'Troll CSS must suppress legacy first-paint fox art');
 assert.match(index,/data-troll-picker/,'Onboarding must use the premium troll picker');
 for(const id of ['storesoster','lillesoster','lillebror']){
   assert.match(index,new RegExp('data-troll="'+id+'"'),'Onboarding missing '+id);
