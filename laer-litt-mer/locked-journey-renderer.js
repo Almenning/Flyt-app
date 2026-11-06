@@ -20,11 +20,8 @@
     try{return state?.profile?.avatar==='girl'?'girl':'boy'}catch(_){return 'boy'}
   }
   function selectedAvatarSource(){
-    const which=selectedAvatar();
-    try{
-      if(typeof avatarSrc==='function')return avatarSrc(which);
-      return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
-    }catch(_){return './lia-fox-explorer-home.webp'}
+    const id=selectedTroll(),troll=TROLL_COMPANIONS[id];
+    return troll?.src||'./assets/gangemagi-troll/storesoster.webp';
   }
   const TROLL_COMPANIONS=Object.freeze({
     storesoster:Object.freeze({name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'}),
