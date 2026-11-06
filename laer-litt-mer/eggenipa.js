@@ -44,8 +44,11 @@
     const profileGrade=Number(bridge()?.currentGrade?.()||2);
     const greeting=String(data?.profile?.name||'').trim();
     const resume=isNorwegianSession(data);
+    const trollId=['storesoster','lillesoster','lillebror'].includes(data?.profile?.tallvikaTroll)
+      ?data.profile.tallvikaTroll:'storesoster';
+    const trollSrc=window.LARIA_TROLL_ACTOR?.source?.(trollId)||'./assets/gangemagi-troll/'+trollId+'.webp';
     // Do not rebuild buttons under a finger during unrelated class changes.
-    const nextIdentity=[profileGrade,greeting,resume].join('|');
+    const nextIdentity=[profileGrade,greeting,resume,trollId].join('|');
     if(identity===nextIdentity&&root.firstElementChild){
       if(!screen.classList.contains('eggenipa-active'))screen.classList.add('eggenipa-active');
       root.hidden=false;
@@ -57,6 +60,8 @@
       '<span class="eg-top-label">LÆRIA · NORSK</span><span class="eg-grade" aria-label="Oppgaver tilpasset '+profileGrade+'. klasse">'+profileGrade+'. klasse</span></header>'+
       '<section class="eg-hero" aria-label="Eggenipa og tre steder å leke">'+
       '<img class="eg-master" src="'+ART+'" width="1672" height="941" alt="Illustrert landskap ved Eggenipa med fjord, trehytte, blomster, bro og bibliotek" draggable="false">'+
+      '<div class="eg-companion-actor laria-troll-host laria-troll-actor" data-troll="'+trollId+'" data-laria-troll-mood="idle" aria-label="Trollet ditt er med ved Eggenipa">'+
+      '<img class="laria-premium-troll-art" src="'+safe(trollSrc)+'" alt="" aria-hidden="true" draggable="false"></div>'+
       '<button type="button" class="eg-scene-hit eg-scene-words" data-eg="words" aria-label="Åpne Ordjakt i trehytta"><span>Ordjakt</span></button>'+
       '<button type="button" class="eg-scene-hit eg-scene-find" data-eg="find" aria-label="Åpne Finn ordene ved hagen"><span>Finn ordene</span></button>'+
       '<button type="button" class="eg-scene-hit eg-scene-reading" data-eg="reading" aria-label="Åpne Lesekroken ved biblioteket"><span>Lesekroken</span></button></section>'+
@@ -67,6 +72,10 @@
         '<button type="button" data-eg="resume">Fortsett økten ›</button></section>':'');
     if(!screen.classList.contains('eggenipa-active'))screen.classList.add('eggenipa-active');
     root.hidden=false;
+    requestAnimationFrame(()=>{
+      const actor=root?.querySelector('.eg-companion-actor');
+      if(actor)window.LARIA_TROLL_ACTOR?.mood?.(actor,'wave',{say:false,duration:1050});
+    });
   }
   screen.addEventListener('click',event=>{
     const button=event.target.closest?.('#eggenipa-world [data-eg]');
