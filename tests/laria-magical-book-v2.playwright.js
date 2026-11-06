@@ -18,7 +18,7 @@ function serve(){return new Promise((resolve,reject)=>{
   });
  });s.once('error',reject);s.listen(0,'127.0.0.1',()=>resolve({server:s,url:'http://127.0.0.1:'+s.address().port+'/laer-litt-mer/?app=laria'}));
 });}
-const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Eventyrbarn',avatar:'girl',setupVersion:2},
+const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Eventyrbarn',avatar:'girl',tallvikaTroll:'lillesoster',setupVersion:2},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
  journey:{nodes:{'math:2:talldalen':{attempts:1}},gradeWins:{},viewGrades:{}},
@@ -49,8 +49,9 @@ async function run(browserType,label,viewport){
   assert.equal(await d.locator('.bc12-memory').count(),4);
   assert.equal(await d.locator('.bc12-memory-symbol svg').count(),4);
   assert.equal(await d.locator('.bc12-memory-intro b').innerText(),'1 av 4 minner funnet');
-  assert.equal(await d.locator('.lmc-fox svg[data-avatar="girl"]').count(),1);
+  assert.equal(await d.locator('.lmc-fox img[data-troll="lillesoster"]').count(),1,'collection cover keeps the selected troll');
   assert.equal(await d.locator('[data-gear],[data-wear],.bc12-wardrobe-grid').count(),0);
+  assert.doesNotMatch(await d.innerText(),/\b(?:reven|rev)\b/i,label+' retired fox copy returned in magical collection');
   const dimensions=await d.evaluate(el=>({width:el.getBoundingClientRect().width,screen:innerWidth,scroll:document.documentElement.scrollWidth,height:el.getBoundingClientRect().height,visible:innerHeight}));
   assert.ok(dimensions.width<=dimensions.screen+3&&dimensions.scroll<=dimensions.screen+4&&dimensions.height<=dimensions.visible+3,
     label+' layout overflow '+JSON.stringify(dimensions));
@@ -67,8 +68,8 @@ async function run(browserType,label,viewport){
   await capture(page,label+'-03-market-blossoms');
   await d.locator('.lmc-tabs [data-book-page="place"]').click();
   assert.equal(await d.locator('.lmc-display-slot').count(),3);
-  assert.equal(await d.locator('.lmc-place-fox svg[data-avatar="girl"]').count(),1,
-    label+' the child’s selected fox must be inside the adventure place');
+  assert.equal(await d.locator('.lmc-place-fox img[data-troll="lillesoster"]').count(),1,
+    label+' the child’s selected troll must be inside the adventure place');
   const placeBackground=await d.locator('.lmc-place-scene').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(placeBackground,/basecamp-v11\.webp/,label+' no flat generic gradient');
   assert.equal((await page.request.get(new URL('./basecamp-v11.webp',url).href)).status(),200,
