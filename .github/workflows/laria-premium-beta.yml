@@ -18,6 +18,10 @@ on:
       - 'tests/laria-premium-beta-trollactor*'
       - '.github/workflows/laria-premium-beta.yml'
 
+concurrency:
+  group: laria-premium-beta-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
