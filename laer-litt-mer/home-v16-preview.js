@@ -246,19 +246,18 @@
     // Clone a clean patch of sky from the SAME locked illustration over the
     // baked top-nav tail. This removes the obsolete painted labels without
     // introducing a flat blue panel or regenerating any artwork.
-    const skySourceX=610,skySourceY=10;
-    // Keep the verified same-image sky clone as the provenance layer, then
-    // tint it into a deliberate dark canopy behind the real semantic nav. This
-    // hides the obsolete baked nav without presenting a pale repair patch.
+    const skySourceX=600,skySourceY=0;
+    // Keep the verified same-image sky clone visible. A very light scenic tint
+    // softens the sampling seam without turning the top-right corner into a
+    // separate dark panel.
     cover.style.setProperty('background-image',
-      'radial-gradient(ellipse 105% 92% at 100% 0%,rgba(38,58,31,.94) 0%,rgba(54,68,36,.90) 43%,rgba(82,61,30,.78) 68%,rgba(82,61,30,0) 100%),'+
-      'radial-gradient(ellipse 54% 82% at 18% 8%,rgba(24,48,28,.72) 0%,rgba(24,48,28,0) 100%),'+
+      'radial-gradient(ellipse 115% 105% at 100% 0%,rgba(39,74,54,.22) 0%,rgba(55,92,66,.12) 52%,rgba(55,92,66,0) 100%),'+
       'url("'+cleanUrl+'")','important');
     cover.style.setProperty('background-size',
-      '100% 100%,100% 100%,'+displayWidth.toFixed(2)+'px '+displayHeight.toFixed(2)+'px','important');
+      '100% 100%,'+displayWidth.toFixed(2)+'px '+displayHeight.toFixed(2)+'px','important');
     cover.style.setProperty('background-position',
-      '0 0,0 0,'+(-skySourceX*scale).toFixed(2)+'px '+(-skySourceY*scale).toFixed(2)+'px','important');
-    cover.style.setProperty('background-repeat','no-repeat,no-repeat,no-repeat','important');
+      '0 0,'+(-skySourceX*scale).toFixed(2)+'px '+(-skySourceY*scale).toFixed(2)+'px','important');
+    cover.style.setProperty('background-repeat','no-repeat,no-repeat','important');
     cover.style.setProperty('background-color','transparent','important');
     const mainNav=host.querySelector('.bc12-nav');
     if(mainNav){
