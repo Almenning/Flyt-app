@@ -366,6 +366,15 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
       fullPage:false,
       animations:'disabled'
     });
+
+    // Leaving an illustrated journey must remove its global presentation
+    // context. A stale geography body class can otherwise intercept taps in
+    // Gangemagi on short WebKit phones even though the controls look visible.
+    await page.evaluate(()=>showScreen('home'));
+    await page.locator('#home-screen.active').waitFor({state:'visible',timeout:8000});
+    const staleJourneyClass=await page.locator('body').getAttribute('class');
+    assert.ok(!/locked-journey-subject-(norwegian|math|english|geography)/.test(staleJourneyClass||''),
+      label+' '+spec.id+' left stale journey context on body: '+staleJourneyClass);
   }
 
   assert.deepEqual(errors,[],label+' world surface errors '+errors.join('; '));
