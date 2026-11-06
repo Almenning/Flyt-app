@@ -122,15 +122,13 @@ async function run(browserType,name,viewport){
   });
   assert.ok(art.width>250,name+' no stage visible');
   assert.ok(Math.abs(art.height-art.width*941/1672)<3,name+' must not crop approved art');
-  const documents=await world.locator('.ki-troll').evaluateAll(els=>els.map(el=>({
-    id:el.dataset.kiCharacter,src:el.getAttribute('src')
-  })));
-  assert.deepEqual(documents.map(el=>el.id),['storesoster','lillebror','lillesoster']);
-  assert.deepEqual(documents.map(el=>el.src),[
-    './assets/kinnaklova/storesoster-inworld-approved-20261026.webp',
-    './assets/gangemagi-troll/lillebror.webp',
-    './assets/gangemagi-troll/lillesoster.webp'
-  ],name+' must use the already painted approved Storesøster and unchanged other originals');
+  const actor=world.locator('.ki-companion-actor[data-troll="lillesoster"]');
+  assert.equal(await actor.count(),1,name+' must render one selected TrollActor');
+  const actorImg=actor.locator('.ki-troll');
+  assert.equal(await actorImg.getAttribute('data-ki-character'),'lillesoster',name+' wrong selected Kinnaklova troll');
+  assert.equal(await actorImg.getAttribute('src'),'./assets/gangemagi-troll/lillesoster.webp',
+    name+' selected Kinnaklova troll must use the persistent identity asset');
+  assert.equal(await world.locator('.ki-troll').count(),1,name+' Kinnaklova must not show all three trolls at once');
   if(art.ready){
     assert.equal(await page.evaluate(()=>window.LARIA_KINNAKLOVA.ready()),true);
     assert.equal(await world.locator('.ki-companions').isVisible(),true);
