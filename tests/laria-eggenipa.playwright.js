@@ -60,6 +60,13 @@ async function run(engine,browserType,view,viewport){
    return {w:img.naturalWidth,h:img.naturalHeight};
   });
   assert.deepEqual(master,{w:1672,h:941},label+' wrong locked art');
+  const landingActor=page.locator('#eggenipa-world .eg-companion-actor[data-troll="lillesoster"]');
+  await landingActor.waitFor({state:'visible',timeout:8000});
+  assert.match(await landingActor.locator('img').getAttribute('src'),/gangemagi-troll\/lillesoster\.webp$/,
+    label+' Eggenipa landing lost selected TrollActor');
+  const actorBox=await landingActor.evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height}});
+  assert.ok(actorBox.w>20&&actorBox.h>40&&actorBox.x>=-1&&actorBox.right<=innerWidth+1,
+    label+' Eggenipa TrollActor has invalid scene geometry: '+JSON.stringify(actorBox));
   const before=await page.evaluate(()=>structuredClone(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes));
   const portals=await page.locator('#eggenipa-world .eg-portal').evaluateAll(list=>list.map(b=>b.dataset.eg));
   assert.deepEqual(portals,['words','find','reading'],label+' wrong three learning places');
