@@ -3,7 +3,7 @@
  */
 (function(){
  'use strict';
- const buddy=window.LARIA_CHAPTER_FOX_BUDDY;
+ const buddy=window.LARIA_CHAPTER_TROLL_BUDDY||window.LARIA_CHAPTER_FOX_BUDDY;
  const core=window.LARIA_MATH_PATTERN_HAVEN;
  if(!core)return;
  let ui=null;
@@ -85,9 +85,9 @@
    const foxState=buddy.response({subject:'math',stageId:session.stage.id,kind:t.kind,
      feedback:session.feedback,expanded:ui.hintShown});
    const foxPanel='<div class="mh-companion mh-fox-'+foxState.mood+'">'+fox()+
-     '<div class="mh-fox-copy"><span class="mh-eyebrow">REVENS VERKSTED</span>'+
+     '<div class="mh-fox-copy"><span class="mh-eyebrow">MØNSTERHJELP</span>'+
      '<p id="mh-fox-message" role="status">'+escape(foxState.text)+'</p></div>'+
-     (foxState.showHint?'<button type="button" class="mh-fox-help" data-mh-act="hint" aria-controls="mh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>';
+     (foxState.showHint?'<button type="button" class="mh-fox-help" data-mh-act="hint" aria-controls="mh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint':'Få hint')+'">Hint</button>':'')+'</div>';
    const choices=t.kind==='choice'?'<div class="mh-options" role="group" aria-label="Svaralternativer">'+
      t.options.map((opt,i)=>'<button class="mh-option'+(session.feedback&&opt===session.feedback.answer?' mh-right':'')+
        '" type="button" data-mh-act="answer" data-mh-index="'+i+'"'+(session.feedback?' disabled':'')+'>'+
@@ -190,7 +190,7 @@
    const safe=/^(?:\.\/|\/)(?!\/)/.test(src)||/^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src);
    ui={root,app,wasInert:app?.inert||false,focus:document.activeElement,
      overflow:document.documentElement.style.overflow,
-     foxSrc:safe?src:'./lia-fox-explorer-home.webp',state:args.state,save:args.save,
+     foxSrc:safe?src:'./assets/gangemagi-troll/storesoster.webp',state:args.state,save:args.save,
      view:'intro',result:null,hintShown:false};
    root.id='laria-math-pattern-haven-preview';root.className='mh-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
