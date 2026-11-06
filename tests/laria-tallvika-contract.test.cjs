@@ -14,9 +14,15 @@ assert.match(js,/openMultiplicationLab/);assert.match(js,/openFractionLab/);asse
 assert.match(js,/class="tv-sign" data-tv="multiply"/);assert.match(js,/class="tv-sign" data-tv="fraction"/);assert.match(js,/class="tv-sign" data-tv="table"/);
 assert.doesNotMatch(js,/tv-mobile-actions|tv-portal-card|tv-dock|tv-navigation-note/,'Tallvika must not render a second activity menu');
 assert.doesNotMatch(css,/tv-mobile-actions|tv-portal-card|tv-dock|tv-portal-art/,'Tallvika must not style a second activity menu');
-assert.match(css,/\.tv-sign-nav\{position:absolute/);assert.match(css,/ONE shared pair of vertical posts/,'Tallvika must follow the locked Home sign construction');assert.match(css,/\.tv-sign-nav:before,\.tv-sign-nav:after\{content:""/,'The locked sign must keep two shared posts behind the stack');assert.doesNotMatch(css,/\.tv-sign:before,\.tv-sign:after/,'Individual sign boards must not grow their own support posts');assert.match(css,/clip-path:polygon/,'Tallvika planks must keep the hand-cut reference silhouette');assert.match(css,/\.tv-sign\{position:relative;z-index:1;display:grid;grid-template-columns:clamp\(31px/,'Tallvika planks must preserve the locked reference proportions');
+assert.match(css,/\.tv-sign-nav\{position:absolute/);
+assert.match(css,/Pixel-locked Home sign reuse/,'Tallvika must use the locked Home sign pixels');
+assert.match(css,/kjosnes-home-tablet\.webp/,'Tallvika sign must source the locked 1127x681 Home master');
+assert.match(css,/background-size:593\.16% auto/,'Locked Home sign crop scale changed');
+assert.match(css,/background-position:3\.735% 39\.347%/,'Locked Home sign crop moved');
+assert.match(css,/\.tv-sign-nav:after\{content:""/,'Shared post continuation must remain behind the cropped sign');
+assert.match(css,/\.tv-sign\{position:absolute;z-index:2/,'Tallvika activity hit areas must align over the painted boards');
 assert.match(css,/tallvika-figure-free-20261028\.webp/);
-assert.match(css,/min-height:clamp\(49px/);assert.match(css,/:focus-visible/);
+assert.match(css,/aspect-ratio:190\/160/);assert.match(css,/:focus-visible/);
 for(const name of ['assets/tallvika/laria-tallvika-premium-locked-20261027.png','assets/tallvika/tallvika-figure-free-20261028.webp','assets/gangemagi-troll/storesoster.webp','assets/gangemagi-troll/lillesoster.webp','assets/gangemagi-troll/lillebror.webp'])assert.ok(fs.statSync(path.join(root,name)).size>50_000,name+' must remain an original-quality local asset');
 assert.match(js,/sceneSrc:'\.\/assets\/tallvika\/storesoster-inworld-approved-20261026\.webp'/);
 console.log('Tallvika integrated-world contract passed');
