@@ -71,7 +71,8 @@
       words:uniqueIds(words)?words:words.filter((item,i)=>words.findIndex(y=>y.id===item.id)===i),
       missions:missions.slice(0,8),
       avatar:x.avatar==='girl'?'girl':'boy',
-      foxMarkup:typeof x.foxMarkup==='string'?x.foxMarkup:'',
+      trollId:['storesoster','lillesoster','lillebror'].includes(x.trollId)?x.trollId:'storesoster',
+      companionMarkup:typeof x.companionMarkup==='string'?x.companionMarkup:(typeof x.foxMarkup==='string'?x.foxMarkup:''),
       wordRounds:Math.max(0,Math.floor(Number(x.wordRounds)||0)),
       placesVisited:Math.max(0,Math.floor(Number(x.placesVisited)||0)),
       trophies:Math.max(0,Math.floor(Number(x.trophies)||0))
@@ -127,7 +128,7 @@
           '<button type="button" class="lmc-feature lmc-feature-berries" data-book-page="berries"><span class="lmc-feature-art" aria-hidden="true"></span><span><small>TALLENGA</small><strong>Magiske markedsblomster</strong><em>'+blossoms+' av '+data.missions.length+' samlet</em></span><span class="lmc-feature-arrow" aria-hidden="true">›</span></button>'+ 
           '<button type="button" class="lmc-feature lmc-feature-place" data-book-page="place"><span class="lmc-feature-art" aria-hidden="true">✦</span><span><small>DITT EGET STED</small><strong>Mitt eventyrsted</strong><em>Plasser de skattene du har funnet</em></span><span class="lmc-feature-arrow" aria-hidden="true">›</span></button>'+ 
         '</div>'+ 
-        '<div class="lmc-note"><span aria-hidden="true">✧</span><span>Reven din er med på hvert eventyr. Flere magiske venner og funn får sine egne sider senere.</span></div>'+ 
+        '<div class="lmc-note"><span aria-hidden="true">✧</span><span>Trollet ditt er med på hvert eventyr. Flere magiske funn får sine egne sider senere.</span></div>'+ 
       '</section></div>';
   }
   function wordsSpread(data){
@@ -137,7 +138,7 @@
       '<p class="lmc-page-lead">Hvert tema har sitt eget minne. Finn alle ordene i én runde for å samle et klistremerke.</p>'+ 
       '<div class="bc12-wordhunt-collection"><div class="bc12-wordhunt-stickers-heading"><strong>Mine ordtemaer</strong><span>'+n+' av '+data.words.length+' funnet</span></div>'+ 
       '<div class="bc12-wordhunt-stickers lmc-words-grid">'+data.words.map(wordCard).join('')+'</div></div></section>'+ 
-      '<section class="lmc-page lmc-page-right lmc-book-forest"><div class="lmc-reading-window"><span>✦ ET BREV FRA REVEN ✦</span><h3>Ordene gjemmer historier</h3>'+ 
+      '<section class="lmc-page lmc-page-right lmc-book-forest"><div class="lmc-reading-window"><span>✦ ET BREV FRA TROLLET ✦</span><h3>Ordene gjemmer historier</h3>'+ 
       '<p>Jeg har hørt at nye ord gjemmer seg mellom trærne. Skal vi utforske dem sammen?</p>'+ 
       '<div class="lmc-feature-forest-art" aria-hidden="true"><img src="./assets/word-hunt/themes/magic.webp" alt=""></div>'+ 
       '<button type="button" class="lmc-primary" data-lmc-action="wordhunt">Lek i Ordjakt <span aria-hidden="true">›</span></button></div></section></div>';
@@ -164,7 +165,7 @@
        '<div class="lmc-place-sky" aria-hidden="true"></div><div class="lmc-place-hill" aria-hidden="true"></div>'+ 
        '<div class="lmc-place-arch" aria-hidden="true">✧</div>'+
        '<span class="lmc-place-sign" aria-hidden="true">✦ DITT LILLE EVENTYRSTED ✦</span>'+
-       '<div class="lmc-place-fox" aria-hidden="true">'+data.foxMarkup+'</div>'+ 
+       '<div class="lmc-place-fox" aria-hidden="true">'+data.companionMarkup+'</div>'+ 
        '<div class="lmc-display-shelf">'+scene.spots.map((id,i)=>{
          const item=items.find(x=>x.id===id);
          return '<button type="button" class="lmc-display-slot" data-lmc-slot="'+i+'" aria-pressed="'+(i===selectedSlot)+'" aria-label="Plass '+(i+1)+': '+escapeHtml(item?item.title:'Tom plass')+'">'+
@@ -187,13 +188,13 @@
     return '<div class="lmc-shell" data-lmc-version="2">'+
       '<div class="lmc-trim" aria-hidden="true"></div><div class="lmc-paper" aria-hidden="true"></div>'+ 
       '<button type="button" class="bc12-close lmc-close" aria-label="Tilbake til Læria"><span aria-hidden="true">‹</span> Tilbake til Læria</button>'+ 
-      '<header class="lmc-cover"><div class="lmc-fox" aria-hidden="true">'+data.foxMarkup+'</div>'+ 
+      '<header class="lmc-cover"><div class="lmc-fox" aria-hidden="true">'+data.companionMarkup+'</div>'+ 
         '<div class="lmc-cover-copy"><span class="lmc-kicker">✦ EVENTYRBOK FRA LÆRIA ✦</span><h2 id="bc12-dialog-title">Lærias magiske samlebok</h2>'+ 
         '<p>Dette er historien om alt du har oppdaget. Jeg blir med deg!</p></div>'+ 
         '<div class="lmc-cover-counter"><span aria-hidden="true">✦</span><strong>'+found+' / '+data.treasures.length+'</strong><small>fagminner</small></div></header>'+ 
       '<nav class="lmc-tabs" aria-label="Bla i samleboken">'+PAGES.map((p,i)=>'<button type="button" data-book-page="'+p.id+'" '+(i===0?'aria-current="page"':'')+'><span aria-hidden="true">'+p.icon+'</span>'+p.label+'</button>').join('')+'</nav>'+ 
       '<div class="lmc-content" aria-live="off"></div><p class="lmc-live-status" role="status" aria-live="polite" aria-atomic="true"></p>'+ 
-      '<footer class="lmc-footer"><span class="lmc-footer-copy">✦ Oppdagelser du gjør, blir med videre</span><div class="lmc-page-arrows"><button type="button" data-lmc-action="previous">‹ Forrige</button><span class="lmc-page-number">1 av '+PAGES.length+'</span><button type="button" data-lmc-action="next">Neste ›</button></div><button type="button" data-wardrobe-open>Min rev ›</button></footer>'+ 
+      '<footer class="lmc-footer"><span class="lmc-footer-copy">✦ Oppdagelser du gjør, blir med videre</span><div class="lmc-page-arrows"><button type="button" data-lmc-action="previous">‹ Forrige</button><span class="lmc-page-number">1 av '+PAGES.length+'</span><button type="button" data-lmc-action="next">Neste ›</button></div><button type="button" data-wardrobe-open>Mine troll ›</button></footer>'+ 
       '</div>';
   }
   function open(host,raw,actions={}){
