@@ -800,7 +800,7 @@ async function finishSession(page){
     await page.evaluate(()=>document.getElementById('open-math').click());
     const tallvika=page.locator('#subject-screen.active #tallvika-world');
     await tallvika.waitFor({state:'visible',timeout:16000});
-    assert.equal(await tallvika.locator('.tv-hotspot').count(),3,'Tallvika must show all three direct-play houses');
+    assert.equal(await tallvika.locator('.tv-sign').count(),3,'Tallvika must show all three direct-play wooden signs');
     assert.equal(await page.locator('#journey-map').isVisible(),false,'the retired Math journey artwork must stay hidden');
     const mathNextId=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
     assert.ok(mathNextId,'Tallvika must preserve the existing recommended Math mission');

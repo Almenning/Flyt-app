@@ -105,7 +105,7 @@ async function run(engine,label,viewport){
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' Tallvika houses missing');
+     assert.equal(await tv.locator('.tv-sign').count(),3,label+' Tallvika activity signs missing');
      assert.ok(await page.evaluate(()=>journeyModel('math',2).nodes.length)>=7,label+' original Math node IDs removed');
      await tv.locator('[data-tv="back"]').click();
      await page.locator('#home-screen.active').waitFor({timeout:12000});

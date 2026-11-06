@@ -79,7 +79,7 @@ async function run(engine,label){
     assert.equal(chapter.complete,true,label+' Math chapter incomplete');
     assert.equal(chapter.grade,2,label+' profile grade changed');
     assert.equal(chapter.title,'Tallvika');
-    assert.match(await tv.locator('.tv-next').innerText(),/Bonusoppdraget venter/,label+' no voluntary replay');
+    assert.match(await tv.locator('.tv-next-sign[data-tv="next"]').innerText(),/Bonusoppdrag/,label+' the illustrated Next adventure sign must offer voluntary replay');
 
     await page.evaluate(()=>{renderGeographyContinue();showScreen('geography')});
     await page.locator('#geography-screen.active').waitFor({timeout:10000});
