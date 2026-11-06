@@ -1,6 +1,6 @@
-/* Læria premium beta: selected forest troll is the visible companion everywhere.
- * Legacy fox modules may still exist behind this layer during migration, but they
- * no longer own visible character art. Learning state and Grovanova Home are untouched.
+/* Læria Premium Beta — TrollActor v1
+ * One selected forest troll is the living companion across journeys, tasks and free play.
+ * Legacy fox classes remain only as migration anchors. Grovanova Home is never modified.
  */
 (function(root){
   'use strict';
@@ -13,6 +13,16 @@
     lillebror:Object.freeze({id:'lillebror',label:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'})
   });
   const DEFAULT='storesoster';
+  const MOODS=new Set(['idle','wave','walking','think','hint','celebrate','support','curious']);
+  const MOOD_MS=Object.freeze({wave:1050,walking:1000,think:1250,hint:1800,celebrate:1250,support:1500,curious:1100});
+  const LINES=Object.freeze({
+    wave:['Hei! Jeg blir med.','Klar for neste?'],
+    think:['Hmm … la oss se.','Jeg tenker sammen med deg.'],
+    hint:['Se etter et lite spor.','Prøv én ting om gangen.'],
+    celebrate:['Der satt den!','Yes! Du fant det!','Det klarte du!'],
+    support:['Godt forsøk. Vi prøver igjen.','Nesten. Jeg er med deg.'],
+    curious:['Hva tror du skjer her?','Skal vi undersøke?']
+  });
   const IMAGE_SELECTORS=[
     '.locked-journey-profile > img',
     '.locked-journey-traveler > img',
@@ -29,7 +39,10 @@
     '.premium-globe-header > img.premium-globe-fox'
   ].join(',');
 
+  const timers=new WeakMap();
+  const greeted=new WeakSet();
   let queued=false;
+
   function profile(){
     try{
       if(typeof state!=='undefined'&&state?.profile)return state.profile;
@@ -41,6 +54,47 @@
     return TROLLS[id]?id:DEFAULT;
   }
   function selected(){return TROLLS[choice()];}
+  function line(kind){
+    const lines=LINES[kind]||[];
+    return lines.length?lines[Math.floor(Math.random()*lines.length)]:'';
+  }
+  function hostFor(el){
+    return el?.closest?.('.laria-troll-host,.locked-journey-traveler,.task-fox-companion,.fr2-guide,.fr2-mastery-banner,.fr4-scene-fox,.mp-avatar,.mp-mascot,.mp-art-practice,.mp-pick-easy-intro,.mp-pick-mentor,.word-hunt-top,.premium-globe-header')||null;
+  }
+  function speech(host,text){
+    if(!host||!text||host.closest('#home-screen .bc15-locked-home'))return;
+    let bubble=host.querySelector(':scope > .laria-troll-speech');
+    if(!bubble){
+      bubble=doc.createElement('div');
+      bubble.className='laria-troll-speech';
+      bubble.setAttribute('role','status');
+      bubble.setAttribute('aria-live','polite');
+      host.appendChild(bubble);
+    }
+    bubble.textContent=text;
+    bubble.dataset.show='true';
+  }
+  function clearSpeech(host){
+    const bubble=host?.querySelector?.(':scope > .laria-troll-speech');
+    if(bubble)delete bubble.dataset.show;
+  }
+  function mood(host,kind='idle',opts={}){
+    if(!host||!MOODS.has(kind))return false;
+    root.clearTimeout(timers.get(host));
+    host.dataset.lariaTrollMood=kind;
+    if(opts.say!==false){
+      const text=typeof opts.say==='string'?opts.say:line(kind);
+      if(text)speech(host,text);
+    }
+    if(kind!=='idle'){
+      timers.set(host,root.setTimeout(()=>{
+        if(!host.isConnected)return;
+        host.dataset.lariaTrollMood='idle';
+        clearSpeech(host);
+      },Number(opts.duration)||MOOD_MS[kind]||1200));
+    }else clearSpeech(host);
+    return true;
+  }
 
   function cleanLegacy(parent,img){
     parent?.querySelectorAll?.(':scope > .laria-fox-wardrobe-placed,:scope > .laria-fox-wardrobe-art').forEach(el=>el.remove());
@@ -49,7 +103,8 @@
       delete parent.dataset.lariaFoxMood;
       delete parent.dataset.lariaFoxSelected;
       parent.dataset.troll=choice();
-      parent.classList.add('laria-troll-host');
+      parent.classList.add('laria-troll-host','laria-troll-actor');
+      if(!parent.dataset.lariaTrollMood)parent.dataset.lariaTrollMood='idle';
     }
     if(img?.dataset){
       delete img.dataset.lariaWardrobeSignature;
@@ -59,11 +114,8 @@
 
   function syncImage(img){
     if(!img||!img.isConnected)return;
-    // Locked Grovanova Home already contains the approved troll trio in its master art.
-    // Never inject another character there.
     if(img.closest('#home-screen .bc15-locked-home'))return;
-    const troll=selected();
-    const parent=img.parentElement;
+    const troll=selected(),parent=img.parentElement;
     cleanLegacy(parent,img);
     img.src=troll.src;
     img.removeAttribute('srcset');
@@ -71,6 +123,10 @@
     img.setAttribute('aria-hidden','true');
     img.classList.add('laria-premium-troll-art');
     img.style.removeProperty('visibility');
+    if(parent&&!greeted.has(parent)&&parent.closest('.screen.active')){
+      greeted.add(parent);
+      root.setTimeout(()=>mood(parent,'wave',{duration:1200}),120);
+    }
   }
 
   function syncLabels(){
@@ -98,8 +154,48 @@
     (root.requestAnimationFrame||root.setTimeout)(sync);
   }
 
+  function afterAnswer(){
+    const screen=doc.querySelector('#session-screen.active');
+    const feedback=screen?.querySelector('#feedback');
+    if(!feedback||root.getComputedStyle(feedback).display==='none')return;
+    const host=screen.querySelector('.task-fox-companion.laria-troll-host');
+    if(!host)return;
+    mood(host,feedback.classList.contains('bad')?'support':'celebrate');
+  }
+
+  function bindInteractions(){
+    doc.addEventListener('click',event=>{
+      const hotspot=event.target.closest?.('.locked-journey-hotspot,[data-locked-place]');
+      if(hotspot){
+        const host=hotspot.closest('.locked-journey-map,.locked-journey-board')?.querySelector('.locked-journey-traveler.laria-troll-host');
+        if(host)mood(host,'walking',{say:false});
+        return;
+      }
+      const hint=event.target.closest?.('[data-hint],[data-action="hint"],.hint-button,.task-hint,.show-hint');
+      if(hint){
+        const host=doc.querySelector('#session-screen.active .task-fox-companion.laria-troll-host');
+        if(host)mood(host,'hint');
+        return;
+      }
+      const answer=event.target.closest?.('#session-screen.active .task-interaction button,#session-screen.active .answers button,#session-screen.active .answer,#session-screen.active [role="button"]');
+      if(answer)root.setTimeout(afterAnswer,90);
+    },true);
+
+    const session=doc.getElementById('session-screen');
+    if(session){
+      let last='';
+      new MutationObserver(()=>{
+        const feedback=session.querySelector('#feedback');
+        if(!session.classList.contains('active')||!feedback||root.getComputedStyle(feedback).display==='none'){last='';return;}
+        const sig=(feedback.className||'')+'|'+(feedback.textContent||'').trim();
+        if(sig&&sig!==last){last=sig;afterAnswer();}
+      }).observe(session,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
+    }
+  }
+
   function init(){
     refresh();
+    bindInteractions();
     new MutationObserver(changes=>{
       if(changes.some(change=>{
         if(change.type==='attributes')return change.target?.matches?.(IMAGE_SELECTORS);
@@ -112,14 +208,14 @@
     doc.addEventListener('laria:troll-changed',refresh);
   }
 
-  root.LARIA_TROLL=Object.freeze({
+  root.LARIA_TROLL_ACTOR=Object.freeze({
     ids:Object.freeze(Object.keys(TROLLS)),
-    choice,
-    selected,
+    choice,selected,
     source:id=>(TROLLS[id]||TROLLS[DEFAULT]).src,
     label:id=>(TROLLS[id]||TROLLS[DEFAULT]).label,
-    refresh
+    refresh,mood
   });
+  root.LARIA_TROLL=root.LARIA_TROLL_ACTOR;
 
   if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
