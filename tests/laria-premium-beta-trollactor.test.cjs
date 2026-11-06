@@ -19,6 +19,8 @@ assert.match(runtime,/\.bc12-fox > img/,'Legacy Home fox must migrate outside lo
 assert.match(runtime,/if\(img\.closest\('#home-screen \.bc15-locked-home'\)\)return;/,
   'Locked Grovanova must be explicitly protected from injected companions');
 assert.match(runtime,/laria-troll-speech/,'Living companion must own contextual speech');
+assert.match(runtime,/Mine troll/,'Legacy Min rev entry must migrate to Mine troll');
+assert.match(runtime,/laria-premium-troll-dialog/,'Premium troll chooser must replace the old fox wardrobe');
 assert.match(runtime,/feedback\.classList\.contains\('bad'\)\?'support':'celebrate'/,
   'Task feedback must drive TrollActor reactions');
 assert.match(css,/@media\(orientation:landscape\) and \(max-height:500px\)/,
