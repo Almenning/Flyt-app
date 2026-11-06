@@ -1,0 +1,84 @@
+/* Læria premium beta cleanup: one selected forest troll, no visible fox art.
+   Grovanova Home is intentionally excluded because its locked master already owns
+   the approved trio and navigation composition. */
+:root{--laria-selected-troll:none}
+
+.laria-troll-host{
+  overflow:visible!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.laria-troll-host>.laria-fox-wardrobe-art,
+.laria-troll-host>.laria-fox-wardrobe-placed{display:none!important}
+
+.laria-premium-troll-art{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 5px 5px rgba(25,43,35,.25));
+}
+
+/* Journey companion: feet remain grounded on the existing route anchor. */
+.locked-journey-board .locked-journey-traveler.laria-troll-host{
+  width:clamp(42px,11.5%,78px)!important;
+  height:auto!important;
+  aspect-ratio:1/2!important;
+  transform:translate(-50%,-100%)!important;
+  pointer-events:none!important;
+}
+.locked-journey-board .locked-journey-traveler.laria-troll-host>.laria-premium-troll-art{
+  position:absolute!important;inset:0!important;
+}
+.locked-journey-board .locked-journey-traveler.laria-troll-host[data-laria-troll-stop="1"]{width:clamp(39px,10.5%,70px)!important}
+.locked-journey-board .locked-journey-traveler.laria-troll-host[data-laria-troll-stop="2"]{width:clamp(35px,9.5%,63px)!important}
+.locked-journey-board .locked-journey-traveler.laria-troll-host[data-laria-troll-stop="3"]{width:clamp(32px,8.5%,57px)!important}
+.locked-journey-board .locked-journey-traveler.laria-troll-host[data-laria-troll-stop="4"]{width:clamp(29px,7.5%,51px)!important}
+
+/* Small profile cameos remain readable without reviving the old portrait-card styling. */
+.locked-journey-profile.laria-troll-host{
+  background:rgba(255,247,224,.82)!important;
+  border:2px solid rgba(255,244,214,.9)!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
+}
+.locked-journey-profile.laria-troll-host::after{display:none!important}
+.locked-journey-profile.laria-troll-host>.laria-premium-troll-art{
+  padding:3px 5px 0!important;
+}
+
+/* Task companion is a full figure, never a framed avatar. */
+#session-screen.task-scene .task-fox-companion.laria-troll-host{
+  width:clamp(62px,16vw,104px)!important;
+  height:clamp(116px,30vw,198px)!important;
+  aspect-ratio:1/2!important;
+  pointer-events:none!important;
+}
+#session-screen.task-scene .task-fox-companion.laria-troll-host>.laria-premium-troll-art{
+  visibility:visible!important;
+}
+
+/* Free-play surfaces: replace legacy mascot portraits without adding cards. */
+:is(.fr2-guide,.fr2-mastery-banner,.fr4-scene-fox,.mp-avatar,.mp-mascot,.mp-art-practice,
+    .mp-pick-easy-intro,.mp-pick-mentor,.word-hunt-top,.premium-globe-header)
+    .laria-premium-troll-art{
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+/* Locked Grovanova remains the master. Never add a second mascot on Home. */
+#home-screen .bc15-locked-home .laria-troll-host{display:none!important}
+
+@media(prefers-reduced-motion:reduce){
+  .locked-journey-board .locked-journey-traveler.laria-troll-host{transition:none!important}
+}
