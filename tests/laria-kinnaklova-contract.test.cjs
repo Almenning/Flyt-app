@@ -52,7 +52,7 @@ test('Approved scene is one painted 1672x941 image with mapped transparent targe
  assert.doesNotMatch(js,/ki-peak|ki-sky|ki-lighthouse|ki-house|ki-island/);
  assert.doesNotMatch(css,/\.ki-peak|\.ki-sky|\.ki-lighthouse|\.ki-island/);
 });
-test('Only three original forest trolls, with byte-identical repository assets',()=>{
+test('Registry preserves three approved identities while Kinnaklova renders one selected TrollActor',()=>{
  const sources={
    storesoster:'a8fba47e272e2856bd78b92fb262146506e828ed',
    lillesoster:'37fd94b3d0fd5319db05e4d1aea609e96d69351f',
@@ -74,34 +74,30 @@ test('Only three original forest trolls, with byte-identical repository assets',
    'cff7b5710401f33fa4798d40e8935cb77eb40b44',
    'Kinnaklova storesøster must match approved #224 art byte-for-byte');
  assert.match(js,/storesoster-inworld-approved-20261026\.webp/);
- assert.match(js,/c\.sceneSrc\|\|c\.src/);
+ assert.match(js,/const selectedId=CHARACTERS\.some/);
+ assert.match(js,/window\.LARIA_TROLL_ACTOR\?\.source/);
+ assert.match(js,/ki-companion-actor laria-troll-host laria-troll-actor/);
  assert.doesNotMatch(js,/assets\/fox\/|lia-fox|chapter-fox|avatarSrc|Math\.random/i);
- assert.doesNotMatch(css,/@keyframes.*ki-troll|\.ki-troll.*animation:/s);
+ assert.match(css,/\.ki-companion-actor/);
  assert.match(css,/#kinnaklova-world:not\(\[data-ki-art="ready"\]\) \.ki-companions/);
 });
-test('Forest troll placements do not obscure approved words on painted signs',()=>{
+test('Selected TrollActor is grounded away from the painted activity signs',()=>{
+ const match=css.match(/\.ki-companion-actor\{\s*position:absolute;left:([\d.]+)%;bottom:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%/);
+ assert.ok(match,'Selected Kinnaklova actor placement missing');
+ const [left,bottom,width,height]=match.slice(1).map(Number);
+ const top=100-bottom-height;
+ const box=[left,top,left+width,top+height];
  const zones={
    words:[23.1,74.2,40.5,82.0],
    sentences:[63.2,50.0,79.1,57.5],
    reading:[82.1,67.7,99.1,79.0]
  };
- const captures={
-   storesoster:/\.ki-troll-storesoster\{left:([\d.]+)%;top:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%\}/,
-   lillebror:/\.ki-troll-lillebror\{left:([\d.]+)%;top:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%\}/,
-   lillesoster:/\.ki-troll-lillesoster\{right:([\d.]+)%;top:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%\}/
- };
- for(const [id,regex] of Object.entries(captures)){
-   const match=css.match(regex);
-   assert.ok(match,id+' position missing from CSS');
-   const [p,t,w,h]=match.slice(1).map(Number);
-   const left=id==='lillesoster'?100-p-w:p;
-   const box=[left,t,left+w,t+h];
-   for(const [name,sign] of Object.entries(zones)){
-     const overlap=box[0]<sign[2]&&box[2]>sign[0]&&box[1]<sign[3]&&box[3]>sign[1];
-     assert.equal(overlap,false,id+' would cover the locked '+name+' sign: '+box.join(','));
-   }
+ for(const [name,sign] of Object.entries(zones)){
+   const overlap=box[0]<sign[2]&&box[2]>sign[0]&&box[1]<sign[3]&&box[3]>sign[1];
+   assert.equal(overlap,false,'Selected TrollActor would cover the locked '+name+' sign: '+box.join(','));
  }
 });
+
 test('Words, Sentences and Reading use existing real English learning modules',()=>{
  for(const [id,module] of [['words','words'],['sentences','sentences'],['reading','reading']]){
    assert.match(js,new RegExp("id:'"+id+"'"));
@@ -137,7 +133,7 @@ test('Artwork release gate blocks missing, mismatched, or uncertified clean mast
  assert.equal(locked.implementation?.clean_master_visual_approved,true,'Art must be reviewed');
  if(process.env.LARIA_KINNAKLOVA_RELEASE_GATE==='1'){
    assert.equal(locked.implementation?.release_approval,true,
-     'Final Kinnaklova scene with all three original trolls and device screenshots needs explicit owner sign-off');
+     'Final Kinnaklova scene with the selected TrollActor and device screenshots needs explicit owner sign-off');
  }
 
 });
