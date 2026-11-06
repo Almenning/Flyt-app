@@ -168,6 +168,17 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-free-adjust strong{display:grid;place-items:center;min-width:18px;font-size:23px;font-weight:1000}
 .gm-free-adjust button{min-width:44px;height:44px;border:0;border-radius:13px;background:#7ea78d;color:#fff;font-size:28px;font-weight:900;box-shadow:0 3px 0 #4f755c}
 .gm-free-adjust button:disabled{opacity:.34}
+/* Safari/WebKit on short phones can report the visible factor controls but
+   hit-test through them after the horizontal basket strip has scrolled.
+   Keep the free-play controls in their own explicit interactive layer. */
+.gm-free-controls{position:relative;z-index:20;isolation:isolate;pointer-events:auto}
+.gm-free-adjust{position:relative;z-index:21;pointer-events:auto}
+.gm-free-adjust>div,.gm-free-adjust button{
+ position:relative;z-index:22;pointer-events:auto!important;touch-action:manipulation;
+}
+@media(max-width:400px){
+ .gm-free-controls{scroll-margin-block:16px;padding-bottom:2px}
+}
 .gm-footer{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:14px 3px 0;color:#82634b;font-size:12px;font-weight:850}
 .gm-footer button{min-height:44px;border:0;background:transparent;padding:9px;color:#7c573d;font-size:12px;font-weight:950;text-decoration:underline}
 .gm-classic-return{display:block;margin:12px auto;padding:10px 17px;min-height:44px;border:2px solid white;border-radius:18px;
