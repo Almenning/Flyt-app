@@ -36,17 +36,17 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 /* Pixel-locked Home sign asset.
    The visible wood is a transparent cutout derived directly from the locked
    Home master. No CSS-drawn plank, no repaint layer, no alternate post system. */
-.tv-sign-nav{position:absolute;z-index:6;isolation:isolate;left:3.7%;top:25%;width:clamp(164px,19%,292px);aspect-ratio:200/220;overflow:visible;background:url("./assets/tallvika/tallvika-sign-home-locked.webp") center/contain no-repeat;filter:drop-shadow(0 6px 4px #21130866)}
+.tv-sign-nav{position:absolute;z-index:6;isolation:isolate;left:2.1%;top:24.5%;width:clamp(176px,20.5%,310px);aspect-ratio:200/255;overflow:visible;background-image:url("./assets/tallvika/tallvika-sign-home-locked.webp"),url("./assets/tallvika/tallvika-sign-posts-locked.webp");background-position:center top,center bottom;background-size:100% auto,100% auto;background-repeat:no-repeat;filter:drop-shadow(0 6px 4px #21130866)}
 .tv-sign-nav:before,.tv-sign-nav:after{content:none!important}
-.tv-sign{position:absolute;z-index:2;left:2.5%;width:95%;height:24.5%;display:grid;grid-template-columns:28% 1fr;align-items:center;gap:1.5%;padding:0 7% 0 11%;border:0;border-radius:0;background:transparent;color:#3d2415;text-align:left;text-shadow:none;box-shadow:none;filter:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.tv-sign:nth-child(1){top:7.7%;transform:rotate(-.15deg)}
-.tv-sign:nth-child(2){top:33.3%;transform:rotate(.08deg)}
-.tv-sign:nth-child(3){top:58.1%;transform:rotate(-.08deg)}
+.tv-sign{position:absolute;z-index:2;left:2.5%;width:95%;height:21.14%;display:grid;grid-template-columns:29% 1fr;align-items:center;gap:1.5%;padding:0 6% 0 10.5%;border:0;border-radius:0;background:transparent;color:#321c10;text-align:left;text-shadow:none;box-shadow:none;filter:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tv-sign:nth-child(1){top:6.64%;transform:rotate(-.15deg)}
+.tv-sign:nth-child(2){top:28.73%;transform:rotate(.08deg)}
+.tv-sign:nth-child(3){top:50.13%;transform:rotate(-.08deg)}
 .tv-sign:before,.tv-sign:after{content:none!important}
 .tv-sign-icon,.tv-sign-label{position:relative;z-index:1}
-.tv-sign-icon{display:grid;place-items:center;width:100%;border:0;border-radius:0;background:none;box-shadow:none;color:#442516;font-family:"Arial Rounded MT Bold","Trebuchet MS",sans-serif;font-size:clamp(20px,2vw,29px);line-height:1;font-weight:950}
-.tv-sign-label{font-family:"Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;font-size:clamp(14px,1.4vw,20px);font-weight:950;line-height:1;letter-spacing:-.025em;white-space:nowrap;color:#3d2415}
-.tv-sign:nth-child(3) .tv-sign-label{font-size:clamp(13px,1.25vw,18px)}
+.tv-sign-icon{display:grid;place-items:center;width:100%;border:0;border-radius:0;background:none;box-shadow:none;color:#442516;font-family:"Arial Rounded MT Bold","Trebuchet MS",sans-serif;font-size:clamp(25px,2.65vw,38px);line-height:1;font-weight:950}
+.tv-sign-label{font-family:"Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;font-size:clamp(17px,1.82vw,26px);font-weight:950;line-height:1;letter-spacing:-.025em;white-space:nowrap;color:#3d2415}
+.tv-sign:nth-child(3) .tv-sign-label{font-size:clamp(15px,1.55vw,22px)}
 .tv-sign:focus-visible{outline:4px solid #fff6c1;outline-offset:-4px}
 .tv-sign:hover{filter:brightness(1.035)}
 .tv-dialog{width:min(900px,94vw);border:0;border-radius:30px;padding:0;background:#fff7e6;color:#3e2b1c;box-shadow:0 22px 80px #1f322acc}.tv-dialog::backdrop{background:rgba(25,44,35,.64);backdrop-filter:blur(3px)}.tv-dialog form{position:relative;padding:28px;text-align:center}.tv-dialog p{margin:0;color:#956738;font-size:12px;font-weight:950;letter-spacing:.14em}.tv-dialog h2{margin:6px 0 2px;font-size:clamp(25px,4vw,40px);letter-spacing:-.04em}.tv-dialog form>span{color:#735e48;font-weight:700}.tv-dialog-close{position:absolute;right:18px;top:14px;width:48px;height:48px;border:0;border-radius:50%;background:#f2e3c5;color:#62462e;font-size:27px}
@@ -72,7 +72,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-portrait-village i:nth-child(1){background-position:4% 49%}
   .tv-portrait-village i:nth-child(2){background-position:44% 49%}
   .tv-portrait-village i:nth-child(3){background-position:100% 49%}
-  .tv-sign-nav{left:3.2%;top:29%;width:clamp(154px,28vw,260px)}
+  .tv-sign-nav{left:1.5%;top:28.5%;width:clamp(180px,31vw,278px)}
   .tv-actor{left:4%;bottom:7%;width:clamp(100px,19%,175px);height:25%;z-index:7}
   .tv-actor-speech{top:2%;left:90%;width:clamp(142px,28vw,215px);font-size:clamp(12px,1.8vw,16px)}
   .tv-next-sign{bottom:4%;right:4%;width:clamp(184px,38%,330px);min-height:62px;transform:rotate(-3deg)}
@@ -82,8 +82,8 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 @media(orientation:portrait) and (max-width:700px){
   .tv-scene{height:calc(100dvh - 58px);min-height:560px}
   .tv-portrait-village{top:26%;height:53%}
-  .tv-sign-nav{left:2.5%;top:31%;width:clamp(140px,46vw,205px)}
-  .tv-sign{padding:0 7% 0 11%;grid-template-columns:29% 1fr;gap:1%}.tv-sign-label{font-size:clamp(12px,3.35vw,15px)}.tv-sign:nth-child(3) .tv-sign-label{font-size:clamp(11px,3vw,14px)}.tv-sign-icon{font-size:clamp(18px,4.9vw,23px)}
+  .tv-sign-nav{left:.6%;top:30%;width:clamp(188px,52vw,224px)}
+  .tv-sign{padding:0 6% 0 10%;grid-template-columns:30% 1fr;gap:1%}.tv-sign-label{font-size:clamp(15px,4.05vw,18px)}.tv-sign:nth-child(3) .tv-sign-label{font-size:clamp(13px,3.45vw,15px)}.tv-sign-icon{font-size:clamp(23px,6vw,28px)}
   .tv-actor{left:1.5%;bottom:7%;width:clamp(85px,25%,125px);height:22%}
   .tv-actor-speech{top:5%;left:88%;width:clamp(132px,44vw,181px);font-size:12px}
   .tv-next-sign{right:4%;bottom:4.5%;width:58%;padding:8px 10px;column-gap:5px}
