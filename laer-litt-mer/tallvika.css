@@ -1,3 +1,4 @@
+/* Locked Tallvika navigation
 /* Tallvika is a world first. The source painting is the navigation surface;
    controls below it must never become a parallel menu. */
 html:has(#subject-screen.tallvika-active),
@@ -96,3 +97,11 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-next-sign .tv-next-title{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.tv-next-sign,.tv-actor{transition:none;animation:none}}
+
+/* Reference-matched Home sign family override. */
+.tv-sign-nav{width:clamp(156px,19%,292px);gap:clamp(7px,.8vw,12px);padding:clamp(5px,.5vw,8px) 0 clamp(16px,2.2vw,34px)}
+.tv-sign-nav:before{content:""!important;z-index:0;left:8%;top:0;bottom:0;width:clamp(15px,9%,25px);border-radius:48% 52% 44% 55%/3% 4% 2% 3%;background:repeating-linear-gradient(88deg,#482716 0 11%,#754120 13% 34%,#b2763d 36% 52%,#5b301a 54% 74%,#8d5429 76% 100%);box-shadow:inset 3px 0 #c78b4b,inset -3px 0 #3c2014,2px 3px 0 #362016}
+.tv-sign-nav:after{content:""!important;z-index:0;left:7.4%;right:auto;top:auto;bottom:-1.3%;width:clamp(19px,11%,29px);height:clamp(13px,1.4vw,21px);border-radius:50%;background:#4b2918;box-shadow:inset 3px 1px #a56d39}
+.tv-sign{z-index:1;grid-template-columns:clamp(29px,19%,49px) 1fr;gap:clamp(7px,.85vw,12px);min-height:clamp(46px,4.55vw,70px);padding:clamp(5px,.6vw,9px) clamp(12px,1.2vw,18px) clamp(5px,.6vw,9px) clamp(16px,1.5vw,23px);border-radius:47% 44% 48% 45%/24% 27% 23% 28%;background:linear-gradient(180deg,#ffe2a2 0%,#f5bf75 18%,#d99248 78%,#bf7034 100%);color:#3d2416;box-shadow:inset 0 2px #ffefbd,inset 0 -3px #a85d2e,inset 3px 0 #bd6d35,inset -3px 0 #80421f,0 3px 0 #5b2e1a,0 6px 7px #26140857;transform:rotate(-1deg)}
+.tv-sign:nth-child(2){transform:rotate(.5deg);margin-left:1.7%}.tv-sign:nth-child(3){transform:rotate(-.45deg);margin-left:.6%}
+.tv-sign:before{z-index:0;inset:3px 5px;width:auto;height:auto;border-radius:inherit;pointer-events:none;opacity:.42;background:repeating-linear-gradient(176deg,transparent 0 11px,#87421f43 12px 13px,transparent 14px 21px);box-shadow:none;transform:none}.tv-sign:after{z-index:0;left:auto;top:auto;right:8%;bottom:19%;width:4px;height:4px;border-radius:50%;background:#74401f;box-shadow:18px 10px #8d4a22,-38px 15px #9a5629;opacity:.72;transform:none}.tv-sign-icon,.tv-sign-label{position:relative;z-index:1}.tv-sign-icon{border:0;border-radius:0;background:none;box-shadow:none;color:#442516;font-size:clamp(20px,2.6vw,34px)}.tv-sign-label{font-family:"Arial Rounded MT Bold","Trebuchet MS",sans-serif;font-size:clamp(13px,1.55vw,22px);line-height:1;white-space:nowrap}
