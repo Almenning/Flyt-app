@@ -124,6 +124,23 @@
 .locked-journey-board .locked-journey-traveler.laria-troll-host[data-laria-troll-stop="3"]{width:clamp(32px,8.5%,57px)!important}
 .locked-journey-board .locked-journey-traveler.laria-troll-host[data-laria-troll-stop="4"]{width:clamp(29px,7.5%,51px)!important}
 
+/* Header cameo: a small full-body cutout, not the retired portrait badge. */
+.top .avatar.profile-fox-avatar.laria-troll-host{
+  width:48px!important;height:56px!important;overflow:visible!important;
+  background:transparent!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;padding:0!important;
+}
+.top .avatar.profile-fox-avatar.laria-troll-host::after{
+  content:""!important;display:block!important;position:absolute!important;
+  left:50%!important;bottom:1px!important;width:58%!important;height:7%!important;
+  transform:translateX(-50%)!important;border-radius:50%!important;
+  background:rgba(35,44,33,.17)!important;filter:blur(2px)!important;
+}
+.top .avatar.profile-fox-avatar.laria-troll-host>.laria-premium-troll-art{
+  padding:0!important;object-position:center bottom!important;
+  filter:drop-shadow(0 3px 3px rgba(25,43,35,.20));
+}
+
 /* Small profile cameo: same troll, simplified framing only where a circular UI slot is semantically required. */
 .locked-journey-profile.laria-troll-host{
   background:rgba(255,247,224,.82)!important;border:2px solid rgba(255,244,214,.9)!important;
