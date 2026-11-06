@@ -1,7 +1,7 @@
 'use strict';
 /*
  * Evidence gate for the pixel-locked Home sign family in Tallvika.
- * Each visible plank is cropped from the locked Home master; two shared posts sit behind it.
+ * The visible wood is one transparent cutout derived from the locked Home master.
  * The original image is read-only; this test never changes saved progress.
  */
 const assert=require('node:assert/strict');
@@ -53,12 +53,14 @@ async function collect(page){
     const next=summary(document.querySelector('#tallvika-world [data-tv="next"]'));
     const selected=[...document.querySelectorAll('#tallvika-world .tv-actor[data-troll-id]')].map(summary);
     const nav=document.querySelector('#tallvika-world .tv-sign-nav');
+    const navStyle=nav?getComputedStyle(nav):null;
     const navBefore=nav?getComputedStyle(nav,'::before'):null;
     const navAfter=nav?getComputedStyle(nav,'::after'):null;
-    const sharedPosts=nav?{
-      before:navBefore.content,after:navAfter.content,
-      beforeWidth:navBefore.width,afterWidth:navAfter.width,
-      beforeBackground:navBefore.backgroundImage,afterBackground:navAfter.backgroundImage
+    const lockedSign=nav?{
+      background:navStyle.backgroundImage,
+      backgroundSize:navStyle.backgroundSize,
+      before:navBefore.content,
+      after:navAfter.content
     }:null;
     const sceneCss=getComputedStyle(scene);
     return {viewport:{width:innerWidth,height:innerHeight},
@@ -66,7 +68,7 @@ async function collect(page){
       clientWidth:document.documentElement.clientWidth,
       scene:summary(scene),sceneBackground:sceneCss.backgroundImage,sceneBackgroundSize:sceneCss.backgroundSize,sceneBackgroundPosition:sceneCss.backgroundPosition,
       speech:summary(document.querySelector('#tallvika-world .tv-actor-speech')),
-      actions,next,selected,sharedPosts};
+      actions,next,selected,lockedSign};
   });
 }
 
@@ -89,14 +91,12 @@ function assertPremium(a,label){
   const minX=Math.min(...a.actions.map(x=>x.x));
   const maxX=Math.max(...a.actions.map(x=>x.x));
   assert.ok(maxX-minX<=a.scene.width*.11,label+' signs are not a single left-side stack');
-  assert.ok(a.actions.every(x=>/kjosnes-home-tablet\.webp/.test(x.background)),
-    label+' one or more activity planks no longer use the locked Home master pixels');
-  assert.ok(a.actions.every(x=>x.clipPath&&x.clipPath!=='none'),
-    label+' one or more master plank crops lost their silhouette mask');
-  assert.ok(a.sharedPosts&&a.sharedPosts.before!=='none'&&a.sharedPosts.after!=='none',
-    label+' missing one or both shared posts behind the plank stack');
-  assert.ok(parseFloat(a.sharedPosts.beforeWidth)>=10&&parseFloat(a.sharedPosts.afterWidth)>=10,
-    label+' shared posts lost readable geometry');
+  assert.ok(a.lockedSign&&/tallvika-sign-home-locked\.webp/.test(a.lockedSign.background),
+    label+' locked transparent Home sign asset is not rendered');
+  assert.equal(a.lockedSign.before,'none',label+' CSS-drawn left post returned over the locked asset');
+  assert.equal(a.lockedSign.after,'none',label+' CSS-drawn right post returned over the locked asset');
+  assert.ok(a.actions.every(x=>x.background==='none' || x.background==='none' || /none/.test(x.background)),
+    label+' activity buttons must stay transparent over the locked sign asset');
   assert.ok(a.next&&a.next.width>=44&&a.next.height>=44,label+' missing Next adventure');
   assert.ok(a.next.x>=0&&a.next.right<=a.viewport.width+2&&a.next.bottom<=a.viewport.height+4,
     label+' Next adventure is clipped');
