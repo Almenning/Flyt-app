@@ -886,6 +886,24 @@ async function check(engine,label,viewport,url){
   // Maximal load: every real item remains visible even with five small baskets.
   await page.locator('[data-gm-action="factor"][data-key="groups"][data-step="1"]').click();
   await page.locator('[data-gm-action="factor"][data-key="groups"][data-step="1"]').click();
+  if(label==='webkit-iphone-small'){
+    const factorDiag=await page.locator('[data-gm-action="factor"][data-key="each"][data-step="1"]').evaluate(el=>{
+      const rect=el.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+rect.height/2;
+      const chain=[];let node=el;
+      while(node&&chain.length<10){
+        const cs=getComputedStyle(node),r=node.getBoundingClientRect();
+        chain.push({tag:node.tagName,id:node.id||'',className:String(node.className||''),
+          pointerEvents:cs.pointerEvents,position:cs.position,overflow:cs.overflow,
+          display:cs.display,visibility:cs.visibility,opacity:cs.opacity,
+          rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}});
+        node=node.parentElement;
+      }
+      const hit=document.elementFromPoint(Math.max(0,Math.min(innerWidth-1,x)),Math.max(0,Math.min(innerHeight-1,y)));
+      return {scrollY,innerWidth,innerHeight,center:{x,y},
+        hit:hit?{tag:hit.tagName,id:hit.id||'',className:String(hit.className||'')}:null,chain};
+    });
+    console.log('GANGEMAGI_FACTOR_HITTEST '+label+' '+JSON.stringify(factorDiag));
+  }
   for(let i=0;i<5;i++)await page.locator('[data-gm-action="factor"][data-key="each"][data-step="1"]').click();
   const dense=await page.locator('.gm-fruit-bed').first().evaluate(el=>{
     const bed=el.getBoundingClientRect(),front=el.closest('.gm-crate').querySelector('.gm-crate-front').getBoundingClientRect();
