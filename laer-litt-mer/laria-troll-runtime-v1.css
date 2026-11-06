@@ -171,7 +171,17 @@ html[data-laria-character-system="troll"] :is(
 .locked-journey-profile.laria-troll-host>.laria-premium-troll-art{padding:3px 5px 0!important}
 .locked-journey-profile.laria-troll-host::after{content:none!important}
 
-/* Task companion: full figure with room to breathe. */
+/* Task companion: full figure with room to breathe.
+   Retired fox reaction strokes/profile badge must never survive on TrollActor. */
+#session-screen.task-scene .task-fox-companion.laria-troll-actor::before{content:none!important}
+#session-screen.task-scene .task-fox-companion.laria-troll-actor::after{
+  content:""!important;position:absolute!important;z-index:-1!important;
+  left:50%!important;right:auto!important;top:auto!important;bottom:1%!important;
+  width:54%!important;height:7%!important;transform:translateX(-50%)!important;
+  border-radius:50%!important;background:radial-gradient(ellipse at center,rgba(24,33,25,.28),rgba(24,33,25,.08) 58%,transparent 74%)!important;
+  opacity:1!important;filter:blur(2px)!important
+}
+#session-screen.task-scene .task-fox-companion.laria-troll-actor .task-profile-marker{display:none!important}
 #session-screen.task-scene .task-fox-companion.laria-troll-host{
   width:clamp(62px,16vw,104px)!important;height:clamp(116px,30vw,198px)!important;
   aspect-ratio:1/2!important;pointer-events:none!important;
