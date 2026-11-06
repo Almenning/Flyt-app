@@ -36,7 +36,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 /* Pixel-locked Home sign asset.
    The visible wood is a transparent cutout derived directly from the locked
    Home master. No CSS-drawn plank, no repaint layer, no alternate post system. */
-.tv-sign-nav{position:absolute;z-index:6;isolation:isolate;left:3.7%;top:24.5%;width:clamp(176px,20.5%,310px);aspect-ratio:200/255;overflow:visible;background-image:url("./assets/tallvika/tallvika-sign-home-locked.webp"),url("./assets/tallvika/tallvika-sign-posts-locked.webp");background-position:center top,center bottom;background-size:100% auto,100% auto;background-repeat:no-repeat;filter:drop-shadow(0 6px 4px #21130866)}
+.tv-sign-nav{position:absolute;z-index:6;isolation:isolate;left:3.7%;top:24.5%;width:clamp(176px,20.5%,310px);aspect-ratio:200/255;overflow:visible;background:url("./assets/tallvika/tallvika-sign-home-clean-locked.webp") center/100% 100% no-repeat;filter:drop-shadow(0 6px 4px #21130866)}
 .tv-sign-nav:before,.tv-sign-nav:after{content:none!important}
 .tv-sign{position:absolute;z-index:2;left:2.5%;width:95%;height:21.14%;display:grid;grid-template-columns:29% 1fr;align-items:center;gap:1.5%;padding:0 6% 0 10.5%;border:0;border-radius:0;background:transparent;color:#321c10;text-align:left;text-shadow:none;box-shadow:none;filter:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .tv-sign:nth-child(1){top:6.64%;transform:rotate(-.15deg)}
