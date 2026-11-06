@@ -83,7 +83,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-scene{height:calc(100dvh - 58px);min-height:560px}
   .tv-portrait-village{top:26%;height:53%}
   .tv-sign-nav{left:2.5%;top:30%;width:clamp(188px,52vw,224px)}
-  .tv-sign{padding:0 6% 0 10%;grid-template-columns:30% 1fr;gap:1%}.tv-sign-label{font-size:clamp(15px,4.05vw,18px)}.tv-sign:nth-child(3) .tv-sign-label{font-size:clamp(13px,3.45vw,15px)}.tv-sign-icon svg{width:76%}
+  .tv-sign{padding:0 5.5% 0 9.5%;grid-template-columns:29% 1fr;gap:1%}.tv-sign-label{font-size:clamp(17px,4.55vw,19px);font-weight:1000;letter-spacing:-.04em}.tv-sign:nth-child(3) .tv-sign-label{font-size:clamp(14px,3.7vw,16px)}.tv-sign-icon svg{width:74%}
   .tv-actor{left:1.5%;bottom:7%;width:clamp(85px,25%,125px);height:22%}
   .tv-actor-speech{top:5%;left:88%;width:clamp(132px,44vw,181px);font-size:12px}
   .tv-next-sign{right:4%;bottom:4.5%;width:58%;padding:8px 10px;column-gap:5px}
