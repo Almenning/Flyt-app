@@ -1,6 +1,6 @@
-/* Læria premium beta cleanup: one selected forest troll, no visible fox art.
-   Grovanova Home is intentionally excluded because its locked master already owns
-   the approved trio and navigation composition. */
+/* Læria Premium Beta — TrollActor v1
+   One selected forest troll, physically grounded in the scene.
+   Grovanova Home is excluded because its locked master already owns its characters. */
 :root{--laria-selected-troll:none}
 
 .laria-troll-host{
@@ -9,30 +9,112 @@
   border:0!important;
   border-radius:0!important;
   box-shadow:none!important;
+  isolation:isolate;
 }
 .laria-troll-host>.laria-fox-wardrobe-art,
 .laria-troll-host>.laria-fox-wardrobe-placed{display:none!important}
 
-.laria-premium-troll-art{
-  display:block!important;
-  width:100%!important;
-  height:100%!important;
-  object-fit:contain!important;
-  object-position:center bottom!important;
-  border:0!important;
-  border-radius:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
-  filter:drop-shadow(0 5px 5px rgba(25,43,35,.25));
+.laria-troll-actor::after{
+  content:"";position:absolute;z-index:-1;left:50%;bottom:2%;
+  width:52%;height:7%;transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(24,33,25,.26),rgba(24,33,25,.08) 58%,transparent 72%);
+  filter:blur(2px);pointer-events:none;
 }
 
-/* Journey companion: feet remain grounded on the existing route anchor. */
+.laria-premium-troll-art{
+  display:block!important;
+  width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center bottom!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  filter:drop-shadow(0 5px 5px rgba(25,43,35,.24));
+  transform-origin:50% 90%;
+  will-change:transform;
+  animation:laria-troll-idle 5.4s ease-in-out infinite;
+}
+
+/* Motion is deliberately small. The character belongs in the painting, not on a sticker sheet. */
+.laria-troll-actor[data-laria-troll-mood="wave"]>.laria-premium-troll-art{
+  animation:laria-troll-wave 1.05s cubic-bezier(.2,.75,.3,1) 1;
+}
+.laria-troll-actor[data-laria-troll-mood="walking"]>.laria-premium-troll-art{
+  animation:laria-troll-walk .48s ease-in-out 2;
+}
+.laria-troll-actor[data-laria-troll-mood="think"]>.laria-premium-troll-art,
+.laria-troll-actor[data-laria-troll-mood="curious"]>.laria-premium-troll-art{
+  animation:laria-troll-think 1.15s ease-in-out 1;
+}
+.laria-troll-actor[data-laria-troll-mood="hint"]>.laria-premium-troll-art{
+  animation:laria-troll-hint 1.35s ease-in-out 1;
+}
+.laria-troll-actor[data-laria-troll-mood="celebrate"]>.laria-premium-troll-art{
+  animation:laria-troll-celebrate 1.15s cubic-bezier(.18,.72,.3,1.2) 1;
+}
+.laria-troll-actor[data-laria-troll-mood="support"]>.laria-premium-troll-art{
+  animation:laria-troll-support 1.35s ease-in-out 1;
+}
+
+@keyframes laria-troll-idle{
+  0%,100%{transform:translateY(0) rotate(-.35deg) scale(1)}
+  50%{transform:translateY(-2px) rotate(.35deg) scale(1.006)}
+}
+@keyframes laria-troll-wave{
+  0%,100%{transform:translateY(0) rotate(0)}
+  26%{transform:translateY(-5px) rotate(3deg)}
+  48%{transform:translateY(-4px) rotate(-2deg)}
+  72%{transform:translateY(-3px) rotate(2deg)}
+}
+@keyframes laria-troll-walk{
+  0%,100%{transform:translateY(0) rotate(-1deg)}
+  50%{transform:translateY(-6px) rotate(1deg)}
+}
+@keyframes laria-troll-think{
+  0%,100%{transform:translateY(0) rotate(0)}
+  45%{transform:translateY(1px) rotate(3.5deg)}
+}
+@keyframes laria-troll-hint{
+  0%,100%{transform:translateY(0) scale(1)}
+  38%{transform:translateY(-3px) scale(1.018) rotate(-1.5deg)}
+  64%{transform:translateY(-2px) scale(1.012) rotate(1.5deg)}
+}
+@keyframes laria-troll-celebrate{
+  0%,100%{transform:translateY(0) scale(1) rotate(0)}
+  28%{transform:translateY(-13px) scale(1.035) rotate(-3deg)}
+  57%{transform:translateY(-4px) scale(1.015) rotate(3deg)}
+  78%{transform:translateY(-8px) scale(1.025) rotate(-1deg)}
+}
+@keyframes laria-troll-support{
+  0%,100%{transform:translateY(0) rotate(0)}
+  38%{transform:translateY(2px) rotate(2deg)}
+  70%{transform:translateY(0) rotate(-1deg)}
+}
+
+/* Short contextual speech: part of the actor, not a floating app card. */
+.laria-troll-speech{
+  position:absolute;z-index:9;left:50%;bottom:91%;
+  transform:translate(-50%,7px) scale(.96);
+  width:max-content;max-width:min(180px,44vw);
+  padding:7px 10px 8px;
+  border:1px solid rgba(116,82,47,.35);border-radius:15px;
+  background:rgba(255,249,229,.96);color:#49331f;
+  box-shadow:0 6px 16px rgba(32,39,31,.16);
+  font:800 clamp(10px,1.8vw,13px)/1.22 var(--laria-font-rounded,ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif);
+  text-align:center;opacity:0;pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease;
+}
+.laria-troll-speech::after{
+  content:"";position:absolute;left:50%;bottom:-5px;width:9px;height:9px;
+  background:inherit;border-right:1px solid rgba(116,82,47,.28);border-bottom:1px solid rgba(116,82,47,.28);
+  transform:translateX(-50%) rotate(45deg);
+}
+.laria-troll-speech[data-show="true"]{opacity:1;transform:translate(-50%,0) scale(1)}
+
+/* Journey companion: feet remain grounded on the existing route anchor and shrink into scene depth. */
 .locked-journey-board .locked-journey-traveler.laria-troll-host{
-  width:clamp(42px,11.5%,78px)!important;
-  height:auto!important;
-  aspect-ratio:1/2!important;
-  transform:translate(-50%,-100%)!important;
-  pointer-events:none!important;
+  width:clamp(42px,11.5%,78px)!important;height:auto!important;aspect-ratio:1/2!important;
+  transform:translate(-50%,-100%)!important;pointer-events:none!important;
+  transition:left 1.05s cubic-bezier(.25,.66,.29,1),top 1.05s cubic-bezier(.25,.66,.29,1),width .9s ease-out!important;
 }
 .locked-journey-board .locked-journey-traveler.laria-troll-host>.laria-premium-troll-art{
   position:absolute!important;inset:0!important;
@@ -42,43 +124,51 @@
 .locked-journey-board .locked-journey-traveler.laria-troll-host[data-laria-troll-stop="3"]{width:clamp(32px,8.5%,57px)!important}
 .locked-journey-board .locked-journey-traveler.laria-troll-host[data-laria-troll-stop="4"]{width:clamp(29px,7.5%,51px)!important}
 
-/* Small profile cameos remain readable without reviving the old portrait-card styling. */
+/* Small profile cameo: same troll, simplified framing only where a circular UI slot is semantically required. */
 .locked-journey-profile.laria-troll-host{
-  background:rgba(255,247,224,.82)!important;
-  border:2px solid rgba(255,244,214,.9)!important;
-  border-radius:50%!important;
-  overflow:hidden!important;
+  background:rgba(255,247,224,.82)!important;border:2px solid rgba(255,244,214,.9)!important;
+  border-radius:50%!important;overflow:hidden!important;
 }
 .locked-journey-profile.laria-troll-host::after{display:none!important}
-.locked-journey-profile.laria-troll-host>.laria-premium-troll-art{
-  padding:3px 5px 0!important;
-}
+.locked-journey-profile.laria-troll-host>.laria-premium-troll-art{padding:3px 5px 0!important}
+.locked-journey-profile.laria-troll-host::after{content:none!important}
 
-/* Task companion is a full figure, never a framed avatar. */
+/* Task companion: full figure with room to breathe. */
 #session-screen.task-scene .task-fox-companion.laria-troll-host{
-  width:clamp(62px,16vw,104px)!important;
-  height:clamp(116px,30vw,198px)!important;
-  aspect-ratio:1/2!important;
-  pointer-events:none!important;
+  width:clamp(62px,16vw,104px)!important;height:clamp(116px,30vw,198px)!important;
+  aspect-ratio:1/2!important;pointer-events:none!important;
 }
-#session-screen.task-scene .task-fox-companion.laria-troll-host>.laria-premium-troll-art{
-  visibility:visible!important;
-}
+#session-screen.task-scene .task-fox-companion.laria-troll-host>.laria-premium-troll-art{visibility:visible!important}
 
-/* Free-play surfaces: replace legacy mascot portraits without adding cards. */
+/* Free-play modules: legacy DOM anchors remain, but no portrait-card styling survives. */
 :is(.fr2-guide,.fr2-mastery-banner,.fr4-scene-fox,.mp-avatar,.mp-mascot,.mp-art-practice,
     .mp-pick-easy-intro,.mp-pick-mentor,.word-hunt-top,.premium-globe-header)
     .laria-premium-troll-art{
-  object-fit:contain!important;
-  object-position:center bottom!important;
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
+  object-fit:contain!important;object-position:center bottom!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+}
+
+/* Landscape phones are where decorative companions most easily become ridiculous.
+   Keep actor compact and suppress speech if vertical room is scarce. */
+@media(orientation:landscape) and (max-height:500px){
+  #session-screen.task-scene .task-fox-companion.laria-troll-host{
+    width:clamp(50px,11vw,76px)!important;height:clamp(88px,23vh,132px)!important;
+  }
+  .laria-troll-speech{max-width:150px;font-size:10px;padding:5px 8px;bottom:89%}
+  .locked-journey-board .locked-journey-traveler.laria-troll-host{width:clamp(32px,8.5%,58px)!important}
+}
+@media(orientation:portrait) and (max-width:430px){
+  #session-screen.task-scene .task-fox-companion.laria-troll-host{
+    width:clamp(58px,17vw,78px)!important;height:clamp(108px,31vw,148px)!important;
+  }
+  .laria-troll-speech{max-width:42vw}
 }
 
 /* Locked Grovanova remains the master. Never add a second mascot on Home. */
 #home-screen .bc15-locked-home .laria-troll-host{display:none!important}
 
 @media(prefers-reduced-motion:reduce){
+  .laria-premium-troll-art,
+  .laria-troll-actor[data-laria-troll-mood]>.laria-premium-troll-art{animation:none!important}
   .locked-journey-board .locked-journey-traveler.laria-troll-host{transition:none!important}
 }
