@@ -42,26 +42,26 @@ async function collect(page){
     const keys=['multiply','fraction','table'];
     const actions=keys.map(key=>{
       const matches=[...document.querySelectorAll('#tallvika-world button[data-tv="'+key+'"]')];
-      return {key,count:matches.length,...(summary(matches[0])||{})};
+      const el=matches[0],base=summary(el)||{};
+      if(!el)return {key,count:matches.length,...base};
+      const before=getComputedStyle(el,'::before'),after=getComputedStyle(el,'::after');
+      return {key,count:matches.length,...base,
+        postBefore:before.content,postAfter:after.content,
+        postBeforeWidth:before.width,postAfterWidth:after.width};
     });
     const next=summary(document.querySelector('#tallvika-world [data-tv="next"]'));
     const selected=[...document.querySelectorAll('#tallvika-world .tv-actor[data-troll-id]')].map(summary);
-    const signControls=actions.map(x=>document.querySelector('#tallvika-world button[data-tv="'+x.key+'"]'));
-    const ancestors=signControls[0]?[signControls[0].parentElement,signControls[0].parentElement?.parentElement]:[];
-    const woodStructure=ancestors.map(el=>{
-      if(!el)return null;
-      const before=getComputedStyle(el,'::before'),after=getComputedStyle(el,'::after');
-      return {className:el.className,
-        before:before.content,after:after.content,
-        beforeWidth:before.width,afterWidth:after.width};
-    });
+    const nav=document.querySelector('#tallvika-world .tv-sign-nav');
+    const navBefore=nav?getComputedStyle(nav,'::before'):null;
+    const navAfter=nav?getComputedStyle(nav,'::after'):null;
+    const sharedPosts=nav?{before:navBefore.content,after:navAfter.content}:null;
     const sceneCss=getComputedStyle(scene);
     return {viewport:{width:innerWidth,height:innerHeight},
       scrollWidth:document.documentElement.scrollWidth,
       clientWidth:document.documentElement.clientWidth,
       scene:summary(scene),sceneBackground:sceneCss.backgroundImage,sceneBackgroundSize:sceneCss.backgroundSize,sceneBackgroundPosition:sceneCss.backgroundPosition,
       speech:summary(document.querySelector('#tallvika-world .tv-actor-speech')),
-      actions,next,selected,woodStructure};
+      actions,next,selected,sharedPosts};
   });
 }
 
@@ -76,6 +76,10 @@ function assertPremium(a,label){
     assert.ok(x.y>=a.scene.y-2&&x.bottom<=a.scene.bottom+2,label+' '+x.key+' outside scene');
     assert.ok(x.x>=-2&&x.right<=a.viewport.width+2,label+' '+x.key+' outside device width');
     assert.ok(x.y>=-2&&x.bottom<=a.viewport.height+4,label+' '+x.key+' below the visible device');
+    assert.notEqual(x.postBefore,'none',label+' '+x.key+' is missing its left post');
+    assert.notEqual(x.postAfter,'none',label+' '+x.key+' is missing its right post');
+    assert.ok(parseFloat(x.postBeforeWidth)>=8&&parseFloat(x.postAfterWidth)>=8,
+      label+' '+x.key+' posts are too small to read as two real supports');
   }
   const [multiply,fraction,table]=a.actions;
   assert.ok(multiply.y+multiply.height<=fraction.y+5,label+' Gangemagi/Brøklab overlap');
@@ -83,9 +87,10 @@ function assertPremium(a,label){
   const minX=Math.min(...a.actions.map(x=>x.x));
   const maxX=Math.max(...a.actions.map(x=>x.x));
   assert.ok(maxX-minX<=a.scene.width*.11,label+' signs are not a single left-side stack');
-  assert.ok(a.actions.some(x=>x.background!=='none'||x.backgroundColor!=='rgba(0, 0, 0, 0)')||
-    a.woodStructure.some(x=>x&&(x.before!=='none'||x.after!=='none')),
+  assert.ok(a.actions.every(x=>x.background!=='none'||x.backgroundColor!=='rgba(0, 0, 0, 0)'),
     label+' no visible wooden navigation; likely old invisible house hotspots');
+  assert.ok(a.sharedPosts&&a.sharedPosts.before==='none'&&a.sharedPosts.after==='none',
+    label+' rejected shared continuous post pair returned');
   assert.ok(a.next&&a.next.width>=44&&a.next.height>=44,label+' missing Next adventure');
   assert.ok(a.next.x>=0&&a.next.right<=a.viewport.width+2&&a.next.bottom<=a.viewport.height+4,
     label+' Next adventure is clipped');
