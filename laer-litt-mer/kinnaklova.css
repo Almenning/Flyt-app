@@ -33,16 +33,23 @@ html:has(#subject-screen.kinnaklova-active),body:has(#subject-screen.kinnaklova-
 #kinnaklova-world:not([data-ki-art="ready"]) .ki-master{visibility:hidden}
 .ki-companions{position:absolute;inset:0;z-index:3;pointer-events:none}
 #kinnaklova-world:not([data-ki-art="ready"]) .ki-companions{visibility:hidden}
-.ki-troll{
- position:absolute;display:block;object-fit:contain;object-position:center bottom;
- height:auto;pointer-events:none;user-select:none;-webkit-user-select:none;
- /* Keep the three original identities and pixels; no CSS pseudo-animation. */
+/* Premium beta: one selected companion, grounded in the landscape.
+   The actor scales with the locked stage, so portrait/landscape never gets a detached sticker. */
+.ki-companion-actor{
+ position:absolute;left:8.5%;bottom:3%;width:9.5%;height:27%;
+ pointer-events:none;overflow:visible!important
 }
-.ki-troll-storesoster{left:9.2%;top:59.4%;width:10.2%;height:28.0%}
-/* Place all three companions on existing terrain without covering the
-   exact painted words on the approved signs. No change to backdrop pixels. */
-.ki-troll-lillebror{left:52.7%;top:38.7%;width:9.5%;height:21.4%}
-.ki-troll-lillesoster{right:8.7%;top:48.3%;width:9.2%;height:19.2%}
+.ki-companion-actor .ki-troll{
+ position:absolute;inset:0;width:100%!important;height:100%!important;
+ display:block;object-fit:contain;object-position:center bottom;
+ pointer-events:none;user-select:none;-webkit-user-select:none
+}
+@media(max-width:700px){
+ .ki-companion-actor{left:7%;bottom:2.5%;width:11%;height:31%}
+}
+@media(orientation:landscape) and (max-height:500px){
+ .ki-companion-actor{left:8%;bottom:2%;width:8.5%;height:25%}
+}
 /* The title, wooden signs, breadcrumb and dotted route are *painted in
    the locked art*. We only position invisible interaction surfaces. */
 .ki-painted-hit{
