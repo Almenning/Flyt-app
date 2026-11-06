@@ -300,6 +300,78 @@ async function verifyLegacyHome(browser,url,out,engineName,name,width,height){
   await ctx.close();
 }
 
+async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height){
+  const label=engineName+'-'+name;
+  const ctx=await browser.newContext({
+    viewport:{width,height},
+    isMobile:width<=430,
+    hasTouch:true,
+    serviceWorkers:'block',
+    reducedMotion:'reduce'
+  });
+  await ctx.addInitScript(v=>localStorage.setItem('laerlittmer-v2',JSON.stringify(v)),seed(2));
+  const page=await ctx.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await blockExternal(page);
+
+  const worlds=[
+    {id:'norwegian',root:'#eggenipa-world:visible',actor:'#eggenipa-world .eg-companion-actor[data-troll="lillesoster"]',touch:'#eggenipa-world .eg-portal:visible'},
+    {id:'math',root:'#tallvika-world:visible',actor:'#tallvika-world .tv-actor[data-troll-id="lillesoster"]',touch:'#tallvika-world .tv-sign:visible'},
+    {id:'english',root:'#kinnaklova-world:visible',actor:'#kinnaklova-world .ki-companion-actor[data-troll="lillesoster"]',touch:'#kinnaklova-world .ki-card:visible'},
+    {id:'geography',root:'#geography-screen.active .locked-journey-map[data-journey-subject="geography"]:visible',actor:'#geography-screen.active .locked-journey-traveler[data-troll="lillesoster"]',touch:'#geography-screen.active .locked-journey-hotspot:visible'}
+  ];
+
+  for(const spec of worlds){
+    await page.goto(url+'?app=laria&surface='+encodeURIComponent(label+'-'+spec.id),{
+      waitUntil:'domcontentloaded',timeout:90000
+    });
+    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:20000});
+    await page.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
+    const world=page.locator(spec.root).first();
+    await world.waitFor({state:'visible',timeout:22000});
+
+    const worldBox=await world.evaluate(el=>{
+      const r=el.getBoundingClientRect();
+      return {x:r.x,right:r.right,w:r.width,h:r.height};
+    });
+    assert.ok(worldBox.w>0&&worldBox.h>0,label+' '+spec.id+' zero world geometry');
+    assert.ok(worldBox.x>=-3&&worldBox.right<=width+3,
+      label+' '+spec.id+' world exceeds viewport '+JSON.stringify(worldBox));
+
+    const actor=page.locator(spec.actor).first();
+    await actor.waitFor({state:'visible',timeout:14000});
+    const actorBox=await actor.evaluate(el=>{
+      const r=el.getBoundingClientRect();
+      return {x:r.x,right:r.right,w:r.width,h:r.height};
+    });
+    assert.ok(actorBox.w>=20&&actorBox.h>=38&&actorBox.x>=-3&&actorBox.right<=width+3,
+      label+' '+spec.id+' TrollActor geometry '+JSON.stringify(actorBox));
+
+    const controls=await page.locator(spec.touch).evaluateAll(list=>list.slice(0,4).map(el=>{
+      const r=el.getBoundingClientRect();
+      return {w:r.width,h:r.height};
+    }));
+    assert.ok(controls.length>0,label+' '+spec.id+' missing primary controls');
+    assert.ok(controls.every(r=>r.w>=44&&r.h>=44),
+      label+' '+spec.id+' undersized touch control '+JSON.stringify(controls));
+
+    await noHorizontalOverflow(page,label+' '+spec.id);
+    assert.equal(
+      await page.locator(spec.root+' img[src*="lia-fox"]:visible,'+spec.root+' img[src*="/assets/fox/"]:visible').count(),
+      0,
+      label+' '+spec.id+' visible fox art survived'
+    );
+    await page.screenshot({
+      path:path.join(out,label+'-'+spec.id+'.png'),
+      fullPage:false,
+      animations:'disabled'
+    });
+  }
+
+  assert.deepEqual(errors,[],label+' world surface errors '+errors.join('; '));
+  await ctx.close();
+}
+
 (async()=>{
   const {s,url}=await server();
   const out=process.env.LARIA_PREMIUM_BETA_SCREENSHOTS||'/tmp/laria-premium-beta';
@@ -319,6 +391,7 @@ async function verifyLegacyHome(browser,url,out,engineName,name,width,height){
             await verifyOnboarding(browser,url,out,engineName,name,width,height);
             await verifyTaskActor(browser,url,out,engineName,name,width,height);
             await verifyLegacyHome(browser,url,out,engineName,name,width,height);
+            await verifyWorldSurfaces(browser,url,out,engineName,name,width,height);
             console.log('PASS '+label);
           }catch(e){
             failed++;
