@@ -156,8 +156,8 @@ async function finishSession(page){
     // Prompt 15: profile, one-screen onboarding, grade adaptation and parent trust.
     {
       const profileCases=[
-        {label:'phone',viewport:{width:390,height:844},avatar:'girl',name:'Mina',grade:2,band:'grade-band-young'},
-        {label:'ipad',viewport:{width:820,height:1180},avatar:'boy',name:'Noah',grade:7,band:'grade-band-older'}
+        {label:'phone',viewport:{width:390,height:844},troll:'lillesoster',legacyAvatar:'girl',name:'Mina',grade:2,band:'grade-band-young'},
+        {label:'ipad',viewport:{width:820,height:1180},troll:'lillebror',legacyAvatar:'boy',name:'Noah',grade:7,band:'grade-band-older'}
       ];
       for(const cfg of profileCases){
         const ctx=await browser.newContext({viewport:cfg.viewport,isMobile:cfg.label==='phone',hasTouch:true,serviceWorkers:'block'});
@@ -168,7 +168,7 @@ async function finishSession(page){
         await p.locator('#onboarding.show').waitFor();
         assert.equal(await p.locator('#onboarding').getAttribute('data-profile-release'),'profile-rc1',cfg.label+' onboarding release drifted');
         assert.equal(await p.locator('.onboard-step').count(),1,cfg.label+' onboarding must remain one deliberate setup screen');
-        assert.equal(await p.locator('.avatar-choice-card').count(),2,cfg.label+' must offer revegutt and revejente');
+        assert.equal(await p.locator('.avatar-choice-card[data-troll]').count(),3,cfg.label+' must offer all three premium trolls');
         assert.equal(await p.locator('.grade-btn').count(),10,cfg.label+' must offer grades 1-10');
         const fit=await p.evaluate(()=>{
           const card=document.querySelector('.onboarding-card').getBoundingClientRect();
@@ -179,7 +179,7 @@ async function finishSession(page){
         const gradeTargets=await p.locator('.grade-btn').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
         assert.ok(gradeTargets.every(h=>h>=44),cfg.label+' onboarding has undersized grade target: '+gradeTargets.join(','));
 
-        await p.locator('.avatar-choice-card[data-avatar="'+cfg.avatar+'"]').click();
+        await p.locator('.avatar-choice-card[data-troll="'+cfg.troll+'"]').click();
         await p.locator('#profile-name').fill(cfg.name);
         await p.locator('.grade-btn[data-grade="'+cfg.grade+'"]').click();
         await p.locator('#profile-next').click();
@@ -188,22 +188,23 @@ async function finishSession(page){
           profile:state.profile,
           appClass:document.querySelector('.app').className,
           greeting:document.getElementById('home-greeting')?.textContent||'',
-          avatar:document.querySelector('.avatar')?.dataset.profileAvatar||null,
+          troll:document.querySelector('.avatar')?.dataset.troll||null,
           gradeLabel:document.getElementById('home-grade-label')?.textContent||''
         }));
         assert.equal(profile.profile.name,cfg.name,cfg.label+' profile name did not persist');
-        assert.equal(profile.profile.avatar,cfg.avatar,cfg.label+' profile avatar did not persist');
+        assert.equal(profile.profile.tallvikaTroll,cfg.troll,cfg.label+' selected troll did not persist');
+        assert.equal(profile.profile.avatar,cfg.legacyAvatar,cfg.label+' legacy avatar migration metadata drifted');
         assert.equal(Number(profile.profile.grade),cfg.grade,cfg.label+' profile grade did not persist');
         assert.equal(profile.profile.setupVersion,2,cfg.label+' profile setup version changed unexpectedly');
         assert.ok(profile.appClass.includes(cfg.band),cfg.label+' wrong grade design band: '+profile.appClass);
         assert.match(profile.greeting,new RegExp(cfg.name),cfg.label+' Home does not reuse profile name');
-        assert.equal(profile.avatar,cfg.avatar,cfg.label+' Home does not reuse selected fox');
+        assert.equal(profile.troll,cfg.troll,cfg.label+' Home does not reuse selected troll');
         assert.equal(profile.gradeLabel,cfg.grade+'. klasse',cfg.label+' Home grade label drifted');
 
         await p.reload({waitUntil:'domcontentloaded'});
         await p.locator('#home-screen.active').waitFor();
         assert.equal(await p.locator('#onboarding').isVisible(),false,cfg.label+' repeated onboarding after completed profile');
-        assert.equal(await p.locator('.avatar').getAttribute('data-profile-avatar'),cfg.avatar,cfg.label+' avatar changed after reload');
+        assert.equal(await p.locator('.avatar').getAttribute('data-troll'),cfg.troll,cfg.label+' troll changed after reload');
         assert.match(await p.locator('#home-greeting').textContent(),new RegExp(cfg.name),cfg.label+' name changed after reload');
 
         if(cfg.label==='phone'){
