@@ -20,8 +20,8 @@ const CLOTHING_GLYPHS=Object.freeze({
 });
 let mode='home',fromCamp=false,returnFocus=null,returnView='home';
 const QUESTS=[
- {action:'words',eyebrow:'Et lite eventyr, hvis du vil',title:'Ord har gjemt seg i Bokskogen',copy:'Reven har sett ord mellom bokstavene. Hvor mange klarer du å finne?',button:'Start Ordjakt →'},
- {action:'globe',eyebrow:'Et lite eventyr, hvis du vil',title:'Finn et nytt sted på Kloden',copy:'Reven lurer på om du kan oppdage et land du ikke har besøkt før.',button:'Åpne Kloden →'},
+ {action:'words',eyebrow:'Et lite eventyr, hvis du vil',title:'Ord har gjemt seg i Bokskogen',copy:'Trollet ditt har sett ord mellom bokstavene. Hvor mange klarer du å finne?',button:'Start Ordjakt →'},
+ {action:'globe',eyebrow:'Et lite eventyr, hvis du vil',title:'Finn et nytt sted på Kloden',copy:'Trollet ditt lurer på om du kan oppdage et land du ikke har besøkt før.',button:'Åpne Kloden →'},
  {action:'fraction',eyebrow:'Et lite eventyr, hvis du vil',title:'Kan du dele noe rettferdig?',copy:'Gå inn i Brøklab og bygg en brøk på din egen måte.',button:'Til Brøklab →'},
  {action:'multiply',eyebrow:'Et lite eventyr, hvis du vil',title:'Finn et mønster i tallene',copy:'Bli med til Gangemagi og pakk jordbær i like kurver. Kan du finne mønsteret?',button:'Lek med tall →'}
 ];
@@ -34,7 +34,15 @@ function wordHuntThemeProgress(){
 }
 function wordHuntRounds(){return wordHuntThemeProgress().rounds}
 const young=()=>currentGrade()<=2;
-function selectedFoxSource(which){return window.LARIA_FOX.source(which);}
+function selectedFoxSource(which){
+ const id=state?.profile?.tallvikaTroll;
+ const trolls={
+  storesoster:'./assets/gangemagi-troll/storesoster.webp',
+  lillesoster:'./assets/gangemagi-troll/lillesoster.webp',
+  lillebror:'./assets/gangemagi-troll/lillebror.webp'
+ };
+ return trolls[id]||window.LARIA_FOX.source(which);
+}
 function activitySubject(scope,last){
  if(scope?.subject==='geography'||String(scope?.type||'').startsWith('geo')||['country','collection','world','grade','geography-theme'].includes(scope?.type))return 'geography';
  if(['norwegian','math','english'].includes(scope?.subject))return scope.subject;
@@ -98,6 +106,10 @@ function activity(name){
 }
 function closeDialog(){const d=document.getElementById('bc12-dialog');if(d?.open)d.close();returnFocus?.focus();}
 function dialog(kind){
+ if(kind==='wardrobe'&&window.LARIA_TROLL_ACTOR?.openChooser){
+   window.LARIA_TROLL_ACTOR.openChooser();
+   return;
+ }
  const gearPreviewEnabled=window.LARIA_FOX_WARDROBE?.gearPreviewEnabled===true;
  // Deferred outfit art is not a child-facing activity. The underlying
  // collection still records earned clothing and equipped slots unchanged.
@@ -157,7 +169,7 @@ function dialog(kind){
     '<div class="bc12-equipment-grid">'+wearables.map(item=>'<div class="bc12-equipment-card" data-collectible-id="'+item.id+'" data-owned="'+item.owned+'">'+
     '<span class="bc12-equipment-art" aria-hidden="true">'+(CLOTHING_GLYPHS[item.id]||'✦')+'</span><strong>'+(item.owned?item.title:'Uoppdaget utstyr')+'</strong>'+
     '<small>'+(item.equipped?'✓ I bruk':item.owned?'I garderoben':'Finnes på eventyrreisen')+'</small></div>').join('')+'</div>'+
-    '<button class="bc12-dialog-go" data-wardrobe-open>🦊 Åpne Min rev og garderoben</button>';
+    '<button class="bc12-dialog-go" data-wardrobe-open>Åpne Mine troll</button>';
  }
  else if(kind==='quest'){const q=dailyQuest();d.dataset.questAction=q.action;d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button><span class="bc12-eyebrow">'+q.eyebrow+'</span><h2 id="bc12-dialog-title">'+q.title+'</h2><p>'+q.copy+'</p><button class="bc12-dialog-go" data-quest-go>'+q.button+'</button><button class="bc12-later">Kanskje senere</button>';}
  else if(kind==='collection'&&window.LARIA_MAGICAL_BOOK?.open){
@@ -223,7 +235,7 @@ function dialog(kind){
       '<p>Finn alle ordene i en runde for å få et temaklistremerke. Du kan spille favorittene dine så ofte du vil.</p>'+
       '<div class="bc12-wordhunt-stickers" role="group" aria-label="Mine ordtemaer">'+themeStickers+'</div></section>'+
     '<div class="bc12-shelf"><div><span aria-hidden="true">✦</span><strong>'+visited+'</strong><small>steder besøkt</small></div><div><span aria-hidden="true">🔤</span><strong>'+wordRounds+'</strong><small>ordjakter</small></div><div><span aria-hidden="true">♜</span><strong>'+trophies+'</strong><small>eventyr fullført</small></div></div>'+
-    '<button class="bc12-dialog-go" data-wardrobe-open>Min rev · Se reven din</button>'+ 
+    '<button class="bc12-dialog-go" data-wardrobe-open>Mine troll · Se trollet ditt</button>'+ 
     '<button class="bc12-dialog-go" data-dialog-home>Tilbake til basecamp</button>';
  }
  d.querySelector('.bc12-close').onclick=closeDialog;d.querySelector('.bc12-later')?.addEventListener('click',closeDialog);
@@ -287,12 +299,12 @@ function markup(){return '<section class="bc12" data-release="basecamp-rc1" aria
  '<div class="bc12-journey-route" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path class="bc12-route-edge" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path><path class="bc12-route-main" pathLength="100" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path><path class="bc12-route-progress" pathLength="100" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path></svg><span class="bc12-route-bridge"></span></div>'+
  '<div class="bc12-you-are-here" aria-hidden="true"><i></i><span>Du er her</span></div>'+
  '<div class="bc12-next-beacon" aria-hidden="true"><i></i><span>Neste sted</span></div>'+
- '<div class="bc12-fox"><img src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="Din valgte rev venter på stien" draggable="false"></div><button type="button" class="bc12-fox-call bc14-fox-open" data-camp="wardrobe" aria-label="Åpne Min rev" data-camp-fox-call>Min rev · Se reven din ›</button>'+
+ '<div class="bc12-fox"><img src="'+selectedFoxSource(window.LARIA_FOX.choice())+'" alt="Trollet ditt venter på stien" draggable="false"></div><button type="button" class="bc12-fox-call bc14-fox-open" data-camp="wardrobe" aria-label="Åpne Mine troll" data-camp-fox-call>Mine troll · Se trollet ditt ›</button>'+
  '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em data-camp-next-type>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
- '<button type="button" class="bc14-free" data-camp="open-explore"><span class="bc14-free-icon" aria-hidden="true">✧</span><span><strong>Utforsk og lek</strong><small>Prøv det du liker</small></span><b aria-hidden="true">›</b></button>'+ '<button class="bc12-quest" data-camp="quest"><span class="bc12-wax" aria-hidden="true">✦</span><span>Et brev fra reven<small>Vil du bli med?</small></span></button>'+
+ '<button type="button" class="bc14-free" data-camp="open-explore"><span class="bc14-free-icon" aria-hidden="true">✧</span><span><strong>Utforsk og lek</strong><small>Prøv det du liker</small></span><b aria-hidden="true">›</b></button>'+ '<button class="bc12-quest" data-camp="quest"><span class="bc12-wax" aria-hidden="true">✦</span><span>Et brev fra trollet<small>Vil du bli med?</small></span></button>'+
  '<button class="bc12-treasure" data-camp="collection"><span>Samlingen min</span></button>'+
  '<i class="bc12-spark a" aria-hidden="true"></i><i class="bc12-spark b" aria-hidden="true"></i><i class="bc12-spark c" aria-hidden="true"></i>'+
- '<nav class="bc12-nav" aria-label="Læria hovedmeny">'+[['home','Hjem'],['travel','Reisen'],['explore','Utforsk'],['collection','Samlebok'],['wardrobe','Min rev']].map(([a,t])=>'<button data-camp="'+a+'"><span aria-hidden="true">'+(a==='wardrobe'?'<i class="bc14-nav-fox"></i>':icons[a])+'</span>'+t+'</button>').join('')+'</nav></section>';
+ '<nav class="bc12-nav" aria-label="Læria hovedmeny">'+[['home','Hjem'],['travel','Reisen'],['explore','Utforsk'],['collection','Samlebok'],['wardrobe','Mine troll']].map(([a,t])=>'<button data-camp="'+a+'"><span aria-hidden="true">'+(a==='wardrobe'?'<i class="bc14-nav-fox"></i>':icons[a])+'</span>'+t+'</button>').join('')+'</nav></section>';
 }
 function runCampAction(action){
  if(!action)return;
@@ -343,14 +355,14 @@ function render(){
  const profile=(typeof state!=='undefined'&&state?.profile)?state.profile:{};
  const playerName=typeof profile.name==='string'?profile.name.trim():'';
  const playerAvatar=profile.avatar==='girl'?'girl':'boy';
- const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img){img.src=selectedFoxSource(playerAvatar);img.alt='Læria-reven venter på stien'}}
+ const fox=host.querySelector('.bc12-fox');if(fox){const trollId=profile.tallvikaTroll||'storesoster';fox.dataset.troll=trollId;fox.setAttribute('aria-label','Trollet ditt er med i Læria');const img=fox.querySelector('img');if(img){img.src=selectedFoxSource(playerAvatar);img.alt='Trollet ditt venter på stien'}}
  host.querySelector('h1').textContent=mode==='explore'?'Hva vil du leke med?':(playerName?'Hei, '+playerName+'!':'Hei, eventyrer!');
  host.querySelector('[data-camp-intro]').textContent=mode==='explore'?'Velg et sted. Bli så lenge du vil.':'Hva har du lyst til å gjøre i dag?';
  const questCopy=host.querySelector('.bc12-quest > span:nth-child(2)');
  if(questCopy)questCopy.innerHTML=currentGrade()>=8?
    'Dagens oppdrag<small>Helt frivillig</small>':
-   'Et brev fra reven<small>Vil du bli med?</small>';
- const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent='Min rev · Se reven din ›';
+   'Et brev fra trollet<small>Vil du bli med?</small>';
+ const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent='Mine troll · Se trollet ditt ›';
  const trip=next(),journeyButton=host.querySelector('.bc12-journey');
  host.dataset.journeySubject=trip.subject||'norwegian';
  host.dataset.journeyComplete=trip.complete?'true':'false';
