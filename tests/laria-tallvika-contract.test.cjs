@@ -16,11 +16,13 @@ assert.doesNotMatch(js,/tv-mobile-actions|tv-portal-card|tv-dock|tv-navigation-n
 assert.doesNotMatch(css,/tv-mobile-actions|tv-portal-card|tv-dock|tv-portal-art/,'Tallvika must not style a second activity menu');
 assert.match(css,/\.tv-sign-nav\{position:absolute/);
 assert.match(css,/Pixel-locked Home sign reuse/,'Tallvika must use the locked Home sign pixels');
-assert.match(css,/kjosnes-home-tablet\.webp/,'Tallvika sign must source the locked 1127x681 Home master');
-assert.match(css,/background-size:593\.16% auto/,'Locked Home sign crop scale changed');
-assert.match(css,/background-position:3\.735% 39\.347%/,'Locked Home sign crop moved');
-assert.match(css,/\.tv-sign-nav:after\{content:""/,'Shared post continuation must remain behind the cropped sign');
-assert.match(css,/\.tv-sign\{position:absolute;z-index:2/,'Tallvika activity hit areas must align over the painted boards');
+assert.match(css,/kjosnes-home-tablet\.webp/,'Tallvika planks must source the locked 1127x681 Home master');
+assert.match(css,/background-size:593\.16% auto/,'Locked Home plank crop scale changed');
+assert.match(css,/background-position:3\.735% 33\.1%/,'First locked Home plank crop moved');
+assert.match(css,/background-position:3\.735% 41\.45%/,'Second locked Home plank crop moved');
+assert.match(css,/background-position:3\.735% 49\.85%/,'Third locked Home plank crop moved');
+assert.match(css,/\.tv-sign-nav:before,\.tv-sign-nav:after\{content:""/,'The shared two-post construction must remain behind the plank stack');
+assert.match(css,/\.tv-sign\{position:absolute;z-index:2/,'Tallvika activity planks must align over the shared posts');
 assert.match(css,/tallvika-figure-free-20261028\.webp/);
 assert.match(css,/aspect-ratio:190\/160/);assert.match(css,/:focus-visible/);
 for(const name of ['assets/tallvika/laria-tallvika-premium-locked-20261027.png','assets/tallvika/tallvika-figure-free-20261028.webp','assets/gangemagi-troll/storesoster.webp','assets/gangemagi-troll/lillesoster.webp','assets/gangemagi-troll/lillebror.webp'])assert.ok(fs.statSync(path.join(root,name)).size>50_000,name+' must remain an original-quality local asset');
