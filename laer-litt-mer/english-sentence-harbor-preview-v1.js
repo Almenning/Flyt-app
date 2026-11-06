@@ -3,11 +3,11 @@
  */
 (function(){
  'use strict';
- const buddy=window.LARIA_CHAPTER_FOX_BUDDY;
+ const buddy=window.LARIA_CHAPTER_TROLL_BUDDY||window.LARIA_CHAPTER_FOX_BUDDY;
  const core=window.LARIA_ENGLISH_SENTENCE_HARBOR;if(!core)return;
  let ui=null;
  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
- const fox=()=>'<img class="sh-fox" src="'+esc(ui.foxSrc)+'" alt="Reven din er med til Setningshavna">';
+ const fox=()=>{const a=window.LARIA_TROLL_ACTOR,t=a?.selected?.();const src=t?.src||ui.foxSrc||'./assets/gangemagi-troll/storesoster.webp';return '<img class="sh-fox laria-premium-troll-art" src="'+esc(src)+'" alt="Trollet ditt er med til Setningshavna">';};
  const shell=body=>'<div class="sh-shell"><header class="sh-top"><button type="button" data-sh-act="close" class="sh-quiet">← Tilbake</button><span class="sh-tag">INTERN TEST · ENGELSK KAPITTEL 2</span></header><main class="sh-main">'+body+'</main></div>';
  function intro(){
    const p=core.progress(ui.state),session=core.resume(ui.state);
@@ -59,9 +59,9 @@
    const foxState=buddy.response({subject:'english',stageId:s.stage.id,kind:t.kind,
      feedback:s.feedback,expanded:ui.hintShown});
    const foxPanel='<div class="sh-companion sh-fox-'+foxState.mood+'">'+fox()+
-     '<div class="sh-fox-copy"><span class="sh-eyebrow">REVENS ENGELSKE KROK</span>'+
+     '<div class="sh-fox-copy"><span class="sh-eyebrow">ENGELSKHJØRNET</span>'+
      '<p id="sh-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
-     (foxState.showHint?'<button type="button" class="sh-fox-help" data-sh-act="hint" aria-controls="sh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>';
+     (foxState.showHint?'<button type="button" class="sh-fox-help" data-sh-act="hint" aria-controls="sh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint':'Få hint')+'">Hint</button>':'')+'</div>';
    const options=t.kind!=='sentence'?'<div class="sh-options" role="group" aria-label="Velg svar"'+(t.kind==='choice'?' lang="en"':'')+'>'+
      t.options.map((opt,i)=>'<button type="button" data-sh-act="answer" data-sh-index="'+i+
      '" class="sh-option'+(s.feedback?.answer===opt?' sh-answer':'')+'"'+(s.feedback?' disabled':'')+
@@ -157,7 +157,7 @@
    const app=document.querySelector('.app'),root=document.createElement('section');
    ui={root,state:args.state,save:args.save,app,wasInert:app?.inert||false,
      focus:document.activeElement,overflow:document.documentElement.style.overflow,
-     foxSrc:allowed?src:'./lia-fox-explorer-home.webp',mode:'intro',result:null,hintShown:false};
+     foxSrc:allowed?src:'./assets/gangemagi-troll/storesoster.webp',mode:'intro',result:null,hintShown:false};
    root.id='laria-english-sentence-harbor-preview';root.className='sh-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
    root.setAttribute('aria-label','Setningshavna, internt engelsk eventyr');root.tabIndex=-1;
