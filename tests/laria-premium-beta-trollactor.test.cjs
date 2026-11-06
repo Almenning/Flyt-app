@@ -10,6 +10,9 @@ const runtime=file('laria-troll-runtime-v1.js');
 const css=file('laria-troll-runtime-v1.css');
 const home=file('home-kjosnes-v15.js');
 const wardrobe=file('laria-fox-wardrobe.js');
+const fraction=file('fraction-premium-v2.js');
+const basecamp=file('home-basecamp-v12.js');
+const journey=file('locked-journey-renderer.js');
 
 assert.match(index,/laria-troll-runtime-v1\.css/,'Premium beta TrollActor CSS must be loaded');
 assert.match(index,/laria-troll-runtime-v1\.js/,'Premium beta TrollActor runtime must be loaded');
@@ -42,6 +45,12 @@ assert.match(css,/@media\(orientation:portrait\) and \(max-width:430px\)/,
 assert.match(css,/\.laria-troll-actor::after/,'TrollActor must be grounded with a scene shadow');
 assert.match(css,/animation:laria-troll-idle/,'TrollActor must have subtle idle life');
 assert.match(css,/prefers-reduced-motion/,'TrollActor must respect reduced-motion');
+assert.match(journey,/every journey starts with the selected troll in the DOM/,'Journeys must render the selected troll natively');
+assert.match(journey,/Trollet ditt er klart\. Er du\?/,'Journey mission copy must be troll-first');
+assert.match(basecamp,/kind==='wardrobe'&&window\.LARIA_TROLL_ACTOR\?\.openChooser/,'Legacy Basecamp wardrobe must route to Mine troll');
+assert.match(basecamp,/Et brev fra trollet/,'Legacy Basecamp visible quest copy must be troll-first');
+assert.match(fraction,/window\.LARIA_TROLL_ACTOR/,'Broklab must source its helper from TrollActor');
+assert.doesNotMatch(fraction,/Trykk på reven for/,'Broklab must not expose fox-era help copy');
 assert.match(home,/kjosnes-home-tablet\.webp/,'Grovanova tablet master must remain intact');
 assert.match(home,/kjosnes-home-phone\.webp/,'Grovanova phone master must remain intact');
 
