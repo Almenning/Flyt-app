@@ -14,9 +14,9 @@ assert.match(js,/openMultiplicationLab/);assert.match(js,/openFractionLab/);asse
 assert.match(js,/class="tv-sign" data-tv="multiply"/);assert.match(js,/class="tv-sign" data-tv="fraction"/);assert.match(js,/class="tv-sign" data-tv="table"/);
 assert.doesNotMatch(js,/tv-mobile-actions|tv-portal-card|tv-dock|tv-navigation-note/,'Tallvika must not render a second activity menu');
 assert.doesNotMatch(css,/tv-mobile-actions|tv-portal-card|tv-dock|tv-portal-art/,'Tallvika must not style a second activity menu');
-assert.match(css,/\.tv-sign-nav\{position:absolute/);assert.match(css,/\.tv-sign-nav:before,\.tv-sign-nav:after/,'Exactly two shared wooden posts must support the whole sign stack');assert.doesNotMatch(css,/\.tv-sign:before,\.tv-sign:after/,'Do not recreate separate posts under each board');
+assert.match(css,/\.tv-sign-nav\{position:absolute/);assert.match(css,/\.tv-sign:before,\.tv-sign:after/,'Every activity sign must own its own two wooden posts');assert.match(css,/\.tv-sign-nav:before,\.tv-sign-nav:after\{content:none!important\}/,'The rejected shared post pair must stay disabled');
 assert.match(css,/tallvika-figure-free-20261028\.webp/);
-assert.match(css,/min-height:clamp\(52px/);assert.match(css,/:focus-visible/);
+assert.match(css,/min-height:clamp\(48px/);assert.match(css,/:focus-visible/);
 for(const name of ['assets/tallvika/laria-tallvika-premium-locked-20261027.png','assets/tallvika/tallvika-figure-free-20261028.webp','assets/gangemagi-troll/storesoster.webp','assets/gangemagi-troll/lillesoster.webp','assets/gangemagi-troll/lillebror.webp'])assert.ok(fs.statSync(path.join(root,name)).size>50_000,name+' must remain an original-quality local asset');
 assert.match(js,/sceneSrc:'\.\/assets\/tallvika\/storesoster-inworld-approved-20261026\.webp'/);
 console.log('Tallvika integrated-world contract passed');
