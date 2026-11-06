@@ -1140,3 +1140,29 @@
       transparent 86.3%,transparent 100%)!important;
   }
 }
+
+
+/* Final portrait-tablet cleanup: the locked phone master contains the old
+   baked journey board. Cover only that lower board zone behind the real v16
+   journey control, leaving mountains, trolls and the approved upper scene intact. */
+@media (min-width:700px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-deck::after{
+    content:"";
+    position:absolute;
+    z-index:1;
+    left:5%;
+    right:5%;
+    top:18%;
+    height:22%;
+    pointer-events:none;
+    border-radius:40% 44% 22% 28%;
+    background:
+      radial-gradient(ellipse 88% 92% at 50% 55%,
+        rgba(27,49,38,.995) 0%,
+        rgba(28,51,39,.985) 58%,
+        rgba(30,54,41,.92) 76%,
+        rgba(30,54,41,.52) 90%,
+        rgba(30,54,41,0) 100%);
+    filter:blur(3px);
+  }
+}
