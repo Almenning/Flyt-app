@@ -2258,7 +2258,7 @@
       box-shadow:0 10px 0 rgba(72,76,121,.08),0 24px 38px rgba(55,65,98,.16)!important
     }
     .grade-band-young .home-continue:after{
-      content:"🦊  Jeg er klar!"!important;position:absolute!important;z-index:3!important;
+      content:"✦  Jeg er klar!"!important;position:absolute!important;z-index:3!important;
       left:18px!important;top:18px!important;padding:8px 11px!important;border-radius:16px 16px 16px 5px!important;
       background:rgba(255,255,255,.94)!important;color:#3B4A60!important;font-size:11px!important;font-weight:950!important;
       box-shadow:0 5px 13px rgba(37,50,71,.12)!important
@@ -2485,7 +2485,7 @@
 <div class="app">
   <header class="top" id="topbar">
     <div class="brand">Læria</div>
-    <div class="avatar" aria-hidden="true">🦊</div>
+    <div class="avatar" aria-hidden="true"></div>
   </header>
 
   <main>
@@ -2645,7 +2645,7 @@
           </div>
 
           <div class="fox-guide" id="fox-guide">
-            <div class="fox-guide-face" aria-hidden="true">🦊</div>
+            <div class="fox-guide-face" aria-hidden="true">✦</div>
             <div><strong id="fox-guide-title">Vi starter enkelt</strong><p id="fox-guide-copy">Én liten økt er nok. Resten er bonus.</p></div>
           </div>
 
@@ -2699,7 +2699,7 @@
           <div class="journey-summary-ring" id="journey-summary-ring" style="--journey-pct:0"><span id="journey-summary-pct">0%</span></div>
         </div>
         <div class="journey-now-card" id="journey-now-card">
-          <div class="journey-now-fox" aria-hidden="true">🦊</div>
+          <div class="journey-now-fox" aria-hidden="true">✦</div>
           <div><span>DU ER HER</span><strong id="journey-now-title">Første oppdrag</strong><small id="journey-now-copy">Start reisen og vinn ditt første samleobjekt.</small></div>
         </div>
         <div class="journey-collection" id="journey-collection" aria-label="Samleobjekter fra reisen"></div>
@@ -3871,7 +3871,7 @@ function renderAll(){
   applyGradeDesign();
   window.LARIA_FOX.syncDecorations();
   const tone={
-    young:{title:'Hvor skal vi dra i dag?',copy:'Trollet ditt er klart! Velg en verden, finn neste sted og lær noe nytt på veien.',subject:'Velg en verden ✨',pEye:'Skattene dine',pTitle:'Se hva du har samlet! ⭐',pCopy:'Hver lille seier gjør samlingen din større.',nav:'Trofeer',explore:'Kloden',avatar:'🦊',icons:{geography:'🌍',norwegian:'📖',math:'🔢',english:'💬'}},
+    young:{title:'Hvor skal vi dra i dag?',copy:'Trollet ditt er klart! Velg en verden, finn neste sted og lær noe nytt på veien.',subject:'Velg en verden ✨',pEye:'Skattene dine',pTitle:'Se hva du har samlet! ⭐',pCopy:'Hver lille seier gjør samlingen din større.',nav:'Trofeer',explore:'Kloden',avatar:'✦',icons:{geography:'🌍',norwegian:'📖',math:'🔢',english:'💬'}},
     middle:{title:'Hei! 👋',copy:'Klar for nye utfordringer? Utforsk, løs oppdrag og bygg videre.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',explore:'Utforsk',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
     older:{title:'Hva vil du bli bedre på i dag?',copy:'Velg et fag og bygg kunnskap med korte økter og tydelig fremgang.',subject:'Dine fag',pEye:'Din fremgang',pTitle:'Kunnskap du bygger',pCopy:'Følg hva du mestrer, hva du øver på og hva som er smart å repetere.',nav:'Fremgang',explore:'Utforsk',avatar:'🌐',icons:{geography:'🌐',norwegian:'Aa',math:'∑',english:'EN'}},
     teen:{title:'Fortsett fremgangen din',copy:'Fortsett der du slapp, eller velg et fag og jobb videre mot neste mål.',subject:'Fag',pEye:'Oversikt',pTitle:'Fremgang og mestring',pCopy:'Se aktivitet, mestring og områder som er klare for videre arbeid.',nav:'Fremgang',explore:'Utforsk',avatar:'◎',icons:{geography:'GEO',norwegian:'NO',math:'∑',english:'EN'}}
@@ -3903,7 +3903,14 @@ function renderAll(){
   if(panelTitle)panelTitle.textContent=band==='young'?'Stjernene dine ⭐':band==='middle'?'Din fremgang':band==='older'?'Fremgang':'Oversikt';
   if(panelKicker)panelKicker.textContent=band==='young'?'DIN SAMLING':band==='middle'?'DENNE UKEN':band==='older'?'UTVIKLING':'STATUS';
   const subjectKicker=document.getElementById('home-subject-kicker');if(subjectKicker)subjectKicker.textContent=band==='young'?'VELG EN VERDEN':'VELG FAG';
-  const avatar=document.querySelector('.avatar');if(avatar){const chosenAvatar=state.profile?.avatar==='girl'?'girl':'boy';avatar.classList.add('profile-fox-avatar');avatar.dataset.profileAvatar=chosenAvatar;avatar.removeAttribute('aria-hidden');avatar.setAttribute('aria-label','Valgt eventyrvenn');avatar.innerHTML='<img src="'+avatarSrc(chosenAvatar)+'" alt="">'}
+  const avatar=document.querySelector('.avatar');if(avatar){
+    const trollId=['storesoster','lillesoster','lillebror'].includes(state.profile?.tallvikaTroll)?state.profile.tallvikaTroll:'storesoster';
+    const trollSrc='./assets/gangemagi-troll/'+trollId+'.webp';
+    avatar.classList.add('profile-fox-avatar','laria-troll-host','laria-troll-actor');
+    avatar.dataset.troll=trollId;avatar.dataset.lariaTrollMood='idle';
+    avatar.removeAttribute('aria-hidden');avatar.setAttribute('aria-label','Valgt eventyrvenn');
+    avatar.innerHTML='<img class="laria-premium-troll-art" src="'+trollSrc+'" alt="" aria-hidden="true">';
+  }
   Object.entries(tone.icons).forEach(([subject,icon])=>{const el=document.querySelector('.home-subject.'+subject+' .home-subject-icon');if(el)el.textContent=icon});
   document.getElementById('home-grade-label').textContent=cfg.label;
   const adultGrade=document.getElementById('adult-grade');if(adultGrade)adultGrade.value=String(grade);
@@ -5936,7 +5943,7 @@ function renderFoxGuide(){
   const goal=dailyGoal();
   if(goal.done>=goal.target){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
   const band=gradeBand();
-  title.textContent=band==='young'?'Jeg har et lite oppdrag til deg 🦊':band==='middle'?'Klar for et nytt oppdrag? 🧭':'Klar for litt mer?';
+  title.textContent=band==='young'?'Jeg har et lite oppdrag til deg ✦':band==='middle'?'Klar for et nytt oppdrag? 🧭':'Klar for litt mer?';
   copy.textContent=band==='young'?'Fem små utfordringer. Jeg starter med noe du har god sjanse til å klare.':band==='middle'?'Velg ett fag og ta et kort oppdrag. Du ser fremgangen med en gang.':'Én liten økt er nok. Resten er bonus.';
 }
 function syncGeoThemeButtons(){
