@@ -1,6 +1,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const crypto=require('node:crypto');
 const root=path.join(__dirname,'..','laer-litt-mer');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const html=read('index.html'),js=read('tallvika.js'),css=read('tallvika.css');
@@ -15,17 +16,18 @@ assert.match(js,/class="tv-sign" data-tv="multiply"/);assert.match(js,/class="tv
 assert.doesNotMatch(js,/tv-mobile-actions|tv-portal-card|tv-dock|tv-navigation-note/,'Tallvika must not render a second activity menu');
 assert.doesNotMatch(css,/tv-mobile-actions|tv-portal-card|tv-dock|tv-portal-art/,'Tallvika must not style a second activity menu');
 assert.match(css,/\.tv-sign-nav\{position:absolute/);
-assert.match(css,/Pixel-locked Home sign reuse/,'Tallvika must use the locked Home sign pixels');
-assert.match(css,/kjosnes-home-tablet\.webp/,'Tallvika planks must source the locked 1127x681 Home master');
-assert.match(css,/background-size:593\.16% auto/,'Locked Home plank crop scale changed');
-assert.match(css,/background-position:3\.735% 33\.1%/,'First locked Home plank crop moved');
-assert.match(css,/background-position:3\.735% 41\.45%/,'Second locked Home plank crop moved');
-assert.match(css,/background-position:3\.735% 49\.85%/,'Third locked Home plank crop moved');
-assert.match(css,/\.tv-sign-nav:before,\.tv-sign-nav:after\{content:""/,'The shared two-post construction must remain behind the plank stack');
-assert.match(css,/\.tv-sign\{position:absolute;z-index:2/,'Tallvika activity planks must align over the shared posts');
+assert.match(css,/Pixel-locked Home sign asset/,'Tallvika must use the locked transparent Home sign asset');
+assert.match(css,/tallvika-sign-home-locked\.webp/,'Tallvika sign must render from the derived locked Home cutout');
+assert.match(css,/aspect-ratio:200\/220/,'Locked Home sign asset ratio changed');
+assert.match(css,/\.tv-sign-nav:before,\.tv-sign-nav:after\{content:none!important\}/,'No CSS-drawn alternate post system may return');
+assert.match(css,/\.tv-sign\{position:absolute;z-index:2/,'Tallvika activity hit areas must align over the locked sign asset');
+assert.match(css,/\.tv-sign:before,\.tv-sign:after\{content:none!important\}/,'No CSS repaint layer may cover the locked wood');
 assert.match(css,/tallvika-figure-free-20261028\.webp/);
-assert.match(css,/aspect-ratio:190\/160/);assert.match(css,/:focus-visible/);
+assert.match(css,/:focus-visible/);
 for(const name of ['assets/tallvika/laria-tallvika-premium-locked-20261027.png','assets/tallvika/tallvika-figure-free-20261028.webp','assets/gangemagi-troll/storesoster.webp','assets/gangemagi-troll/lillesoster.webp','assets/gangemagi-troll/lillebror.webp'])assert.ok(fs.statSync(path.join(root,name)).size>50_000,name+' must remain an original-quality local asset');
+const signAsset=path.join(root,'assets/tallvika/tallvika-sign-home-locked.webp');
+assert.ok(fs.statSync(signAsset).size>7_000,'locked Home sign cutout must remain the committed source asset');
+assert.equal(crypto.createHash('sha256').update(fs.readFileSync(signAsset)).digest('hex'),'408178582017e0da88037f21e9a44b58cc2f4671baa24c5a44bed0d97a67479e','locked Home sign cutout changed');
 assert.match(js,/sceneSrc:'\.\/assets\/tallvika\/storesoster-inworld-approved-20261026\.webp'/);
 console.log('Tallvika integrated-world contract passed');
 
