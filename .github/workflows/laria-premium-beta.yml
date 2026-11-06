@@ -9,15 +9,6 @@ on:
       - 'laer-litt-mer/home-kjosnes-v15.*'
       - 'tests/laria-premium-beta-trollactor*'
       - '.github/workflows/laria-premium-beta.yml'
-  push:
-    branches: [feat/laria-premium-beta-cleanup-20261106]
-    paths:
-      - 'laer-litt-mer/laria-troll-runtime-v1.*'
-      - 'laer-litt-mer/assets/gangemagi-troll/**'
-      - 'laer-litt-mer/index.html'
-      - 'tests/laria-premium-beta-trollactor*'
-      - '.github/workflows/laria-premium-beta.yml'
-
 concurrency:
   group: laria-premium-beta-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
