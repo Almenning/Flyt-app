@@ -1,7 +1,7 @@
 'use strict';
 /*
  * Evidence gate for the locked Home sign family in Tallvika.
- * The reference has one continuous, left-hand wooden support behind three planks.
+ * The reference has two shared vertical wooden posts behind the full plank stack.
  * The original image is read-only; this test never changes saved progress.
  */
 const assert=require('node:assert/strict');
@@ -37,6 +37,7 @@ async function collect(page){
       return {tag:el.tagName,className:el.className,
         x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom,
         background:cs.backgroundImage,backgroundColor:cs.backgroundColor,display:cs.display,
+        clipPath:cs.clipPath,borderRadius:cs.borderRadius,
         ariaLabel:el.getAttribute('aria-label')};
     };
     const keys=['multiply','fraction','table'];
@@ -77,6 +78,7 @@ function assertPremium(a,label){
     assert.ok(x.x>=-2&&x.right<=a.viewport.width+2,label+' '+x.key+' outside device width');
     assert.ok(x.y>=-2&&x.bottom<=a.viewport.height+4,label+' '+x.key+' below the visible device');
     assert.ok(x.width/x.height>=2.65,label+' '+x.key+' no longer has the reference plank proportion');
+    assert.ok(x.clipPath&&x.clipPath!=='none',label+' '+x.key+' lost the hand-cut reference silhouette');
   }
   const [multiply,fraction,table]=a.actions;
   assert.ok(multiply.y+multiply.height<=fraction.y+5,label+' Gangemagi/Brøklab overlap');
@@ -87,9 +89,9 @@ function assertPremium(a,label){
   assert.ok(a.actions.every(x=>x.background!=='none'||x.backgroundColor!=='rgba(0, 0, 0, 0)'),
     label+' no visible wooden navigation; likely old invisible house hotspots');
   assert.ok(a.sharedPosts&&a.sharedPosts.before!=='none'&&a.sharedPosts.after!=='none',
-    label+' missing the reference screen’s shared left-hand support');
-  assert.ok(parseFloat(a.sharedPosts.beforeWidth)>=14&&parseFloat(a.sharedPosts.afterWidth)>=18,
-    label+' shared left-hand support lost its readable wood geometry');
+    label+' missing one or both shared support posts from the locked reference');
+  assert.ok(parseFloat(a.sharedPosts.beforeWidth)>=12&&parseFloat(a.sharedPosts.afterWidth)>=12,
+    label+' shared support posts lost their readable wood geometry');
   assert.ok(a.next&&a.next.width>=44&&a.next.height>=44,label+' missing Next adventure');
   assert.ok(a.next.x>=0&&a.next.right<=a.viewport.width+2&&a.next.bottom<=a.viewport.height+4,
     label+' Next adventure is clipped');
