@@ -91,10 +91,10 @@ function assertPremium(a,label){
   const minX=Math.min(...a.actions.map(x=>x.x));
   const maxX=Math.max(...a.actions.map(x=>x.x));
   assert.ok(maxX-minX<=a.scene.width*.11,label+' signs are not a single left-side stack');
-  assert.ok(a.lockedSign&&/tallvika-sign-home-locked\.webp/.test(a.lockedSign.background),
-    label+' locked transparent Home sign asset is not rendered');
-  assert.ok(/tallvika-sign-posts-locked\.webp/.test(a.lockedSign.background),
-    label+' locked long post extension is not rendered');
+  assert.ok(a.lockedSign&&/tallvika-sign-home-clean-locked\.webp/.test(a.lockedSign.background),
+    label+' unified locked transparent Home sign asset is not rendered');
+  assert.ok(!/tallvika-sign-posts-locked\.webp/.test(a.lockedSign.background),
+    label+' rejected split post layer returned');
   assert.equal(a.lockedSign.before,'none',label+' CSS-drawn left post returned over the locked asset');
   assert.equal(a.lockedSign.after,'none',label+' CSS-drawn right post returned over the locked asset');
   assert.ok(a.actions.every(x=>x.background==='none' || x.background==='none' || /none/.test(x.background)),
