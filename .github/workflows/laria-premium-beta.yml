@@ -1,0 +1,49 @@
+name: Læria Premium Beta – TrollActor og enheter
+
+on:
+  pull_request:
+    paths:
+      - 'laer-litt-mer/laria-troll-runtime-v1.*'
+      - 'laer-litt-mer/assets/gangemagi-troll/**'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/home-kjosnes-v15.*'
+      - 'tests/laria-premium-beta-trollactor*'
+      - '.github/workflows/laria-premium-beta.yml'
+  push:
+    branches: [feat/laria-premium-beta-cleanup-20261106]
+    paths:
+      - 'laer-litt-mer/laria-troll-runtime-v1.*'
+      - 'laer-litt-mer/assets/gangemagi-troll/**'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-premium-beta-trollactor*'
+      - '.github/workflows/laria-premium-beta.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  premium-beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Premium beta TrollActor contract
+        run: node tests/laria-premium-beta-trollactor.test.cjs
+      - name: TrollActor device matrix
+        env:
+          LARIA_PREMIUM_BETA_SCREENSHOTS: /tmp/laria-premium-beta
+        run: node tests/laria-premium-beta-trollactor.playwright.js
+      - name: Upload premium beta evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-premium-beta-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-premium-beta
+          if-no-files-found: warn
+          retention-days: 14
