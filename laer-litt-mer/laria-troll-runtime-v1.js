@@ -25,6 +25,7 @@
   });
   const IMAGE_SELECTORS=[
     '.bc12-fox > img',
+    '.top .avatar.profile-fox-avatar > img',
     '.locked-journey-profile > img',
     '.locked-journey-traveler > img',
     '.task-fox-companion > img',
