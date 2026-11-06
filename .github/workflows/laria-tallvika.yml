@@ -47,7 +47,7 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_TALLVIKA_SCREENSHOTS: /tmp/laria-tallvika
         run: node tests/laria-tallvika.playwright.js
-      - name: Capture NEW two-post sign navigation on desktop, iPad and iPhone
+      - name: Capture locked Home sign navigation on desktop, iPad and iPhone
         # Even if old regressions fail, inspect new sign evidence independently.
         if: always()
         env:
