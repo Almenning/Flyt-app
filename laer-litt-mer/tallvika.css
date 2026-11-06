@@ -33,14 +33,24 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 /* The painting already carries every child-visible label. Keep semantic copy
    available without painting another headline or button over the illustration. */
 .tv-scene-copy{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
-/* Locked Tallvika navigation: restore the previously approved three-sign
-   geometry. Each board has its own two long wooden posts. */
-.tv-sign-nav{position:absolute;z-index:6;left:2.2%;top:25%;width:clamp(148px,19%,284px);display:grid;gap:clamp(10px,1.45vw,18px);filter:drop-shadow(0 9px 7px #1d120b66)}
-.tv-sign{position:relative;display:grid;grid-template-columns:clamp(30px,21%,52px) 1fr;align-items:center;gap:clamp(7px,1vw,13px);min-height:clamp(52px,6.7vw,88px);padding:clamp(7px,.85vw,13px) clamp(11px,1.4vw,20px);border:0;border-radius:12px 19px 10px 16px;background:repeating-linear-gradient(174deg,transparent 0 13px,#5f321d28 14px 16px),linear-gradient(104deg,#eac07f 0%,#c78342 50%,#e2ad66 100%);color:#482714;text-align:left;text-shadow:0 1px #fff1c9;box-shadow:inset 0 0 0 3px #8a5028,inset 0 0 0 6px #e9ba75,0 5px 0 #6b3b21;transform:rotate(-1.4deg);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.tv-sign:nth-child(2){transform:rotate(1.2deg);margin-left:5%}.tv-sign:nth-child(3){transform:rotate(-.7deg);margin-left:1%}
-.tv-sign:before,.tv-sign:after{content:"";position:absolute;z-index:-1;top:62%;width:13%;height:76%;border-radius:8px;background:repeating-linear-gradient(90deg,#6f3f22 0 16%,#a46b38 18% 44%,#65391f 46% 64%,#bd7b40 66% 100%);box-shadow:inset 2px 0 #d69b59,inset -2px 0 #51301c,0 3px 0 #4d2b1c}.tv-sign:before{left:15%;transform:rotate(1deg)}.tv-sign:after{right:15%;transform:rotate(-1deg)}
-.tv-sign-nav:before,.tv-sign-nav:after{content:none!important}
-.tv-sign-icon{display:grid;place-items:center;aspect-ratio:1;border:2px solid #8a5028;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff1b9 0 12%,#e7ac55 14% 60%,#9e5b2b 62%);box-shadow:inset 0 0 0 3px #f7d18c;color:#593012;font-size:clamp(20px,2.8vw,35px);line-height:1;font-weight:950}.tv-sign-label{font-size:clamp(13px,1.7vw,24px);font-weight:950;line-height:1.02;letter-spacing:-.03em}.tv-sign:focus-visible{outline:4px solid #fff6c1;outline-offset:5px}.tv-sign:hover{filter:brightness(1.06)}
+/* Locked reference sign from the approved Home image:
+   three separate planks mounted on ONE shared pair of vertical posts.
+   The reference has no framed cards and no circular icon badges. */
+.tv-sign-nav{position:absolute;z-index:6;isolation:isolate;left:2.25%;top:25%;width:clamp(156px,19%,292px);display:grid;gap:clamp(2px,.28vw,5px);padding:clamp(3px,.35vw,6px) 0 clamp(22px,2.8vw,42px);filter:drop-shadow(0 7px 5px #22150b66)}
+/* Two shared posts behind the whole stack, matching the locked image. */
+.tv-sign-nav:before,.tv-sign-nav:after{content:"";position:absolute;z-index:0;top:1%;bottom:-3%;width:clamp(15px,8.5%,25px);border-radius:3px 4px 2px 3px;background:linear-gradient(90deg,#5a3019 0 13%,#9b5f31 18% 36%,#c48749 39% 51%,#7a4524 55% 73%,#4a2818 78% 100%);box-shadow:inset 2px 0 #d39a59,inset -2px 0 #3e2114,1px 3px 0 #392015;pointer-events:none}
+.tv-sign-nav:before{left:27.5%;transform:rotate(.6deg)}.tv-sign-nav:after{right:16.5%;transform:rotate(-.7deg)}
+.tv-sign{position:relative;z-index:1;display:grid;grid-template-columns:clamp(31px,20%,50px) 1fr;align-items:center;gap:clamp(6px,.8vw,11px);width:100%;min-height:clamp(49px,5vw,72px);padding:clamp(6px,.7vw,10px) clamp(13px,1.25vw,19px) clamp(6px,.7vw,10px) clamp(15px,1.45vw,22px);border:0;border-radius:0;background:
+  repeating-linear-gradient(176deg,transparent 0 11px,#8d4e2530 12px 13px,transparent 14px 22px),
+  linear-gradient(180deg,#f9d28c 0%,#efb86c 24%,#d98f43 77%,#bd6b31 100%);
+color:#3f2415;text-align:left;text-shadow:none;box-shadow:inset 0 2px #ffe7aa,inset 0 -2px #9f5527;clip-path:polygon(4% 1%,91% 0,94% 5%,100% 13%,97% 25%,100% 38%,97% 51%,100% 66%,97% 79%,99% 90%,93% 99%,7% 100%,3% 94%,0 83%,3% 70%,0 56%,3% 43%,0 29%,3% 17%,1% 9%);filter:drop-shadow(0 3px 1px #4a281b88);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tv-sign:nth-child(1){transform:rotate(-1deg)}
+.tv-sign:nth-child(2){transform:rotate(.55deg);margin-left:1.4%;width:98.8%}
+.tv-sign:nth-child(3){transform:rotate(-.45deg);margin-left:.4%;width:99.4%}
+.tv-sign-icon{position:relative;z-index:1;display:grid;place-items:center;width:100%;aspect-ratio:1;border:0;border-radius:0;background:none;box-shadow:none;color:#432516;font-family:"Arial Rounded MT Bold","Trebuchet MS",sans-serif;font-size:clamp(21px,2.55vw,34px);line-height:1;font-weight:950}
+.tv-sign-label{position:relative;z-index:1;font-family:"Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;font-size:clamp(14px,1.55vw,22px);font-weight:950;line-height:1;letter-spacing:-.035em;white-space:nowrap;color:#3f2415}
+.tv-sign:focus-visible{outline:4px solid #fff6c1;outline-offset:4px}
+.tv-sign:hover{filter:brightness(1.04) drop-shadow(0 3px 1px #4a281b88)}
 .tv-dialog{width:min(900px,94vw);border:0;border-radius:30px;padding:0;background:#fff7e6;color:#3e2b1c;box-shadow:0 22px 80px #1f322acc}.tv-dialog::backdrop{background:rgba(25,44,35,.64);backdrop-filter:blur(3px)}.tv-dialog form{position:relative;padding:28px;text-align:center}.tv-dialog p{margin:0;color:#956738;font-size:12px;font-weight:950;letter-spacing:.14em}.tv-dialog h2{margin:6px 0 2px;font-size:clamp(25px,4vw,40px);letter-spacing:-.04em}.tv-dialog form>span{color:#735e48;font-weight:700}.tv-dialog-close{position:absolute;right:18px;top:14px;width:48px;height:48px;border:0;border-radius:50%;background:#f2e3c5;color:#62462e;font-size:27px}
 .tv-troll-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:23px}.tv-troll-grid button{position:relative;display:grid;grid-template-rows:1fr auto;align-items:end;min-height:290px;padding:10px 10px 14px;border:3px solid #e4c990;border-radius:23px;background:linear-gradient(#fffdf3,#f5e5be);color:#52391f;font-size:18px;font-weight:950}.tv-troll-grid button.selected{border-color:#477c58;box-shadow:0 0 0 4px #c5e2bb}.tv-troll-grid img{height:230px;max-width:100%;justify-self:center;object-fit:contain;filter:drop-shadow(0 5px 4px rgba(64,43,28,.22))}.tv-troll-grid em{position:absolute;top:11px;right:11px;border-radius:99px;background:#477c58;color:#fff;padding:5px 8px;font-size:11px;font-style:normal}
 .tv-grade-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:20px}.tv-grade-option{display:grid;place-items:center;gap:1px;min-height:67px;padding:7px;border:2px solid #e4c990;border-radius:14px;background:#fffaf0;color:#51391f;font-weight:900}.tv-grade-option.selected{border-color:#477c58;background:#e5f2dd;box-shadow:inset 0 0 0 2px #afd19a}.tv-grade-option b{font-size:20px}.tv-grade-option small{font-size:10px;color:#795e42}.tv-grade-dialog{max-height:88dvh;overflow-y:auto}
@@ -64,7 +74,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-portrait-village i:nth-child(1){background-position:4% 49%}
   .tv-portrait-village i:nth-child(2){background-position:44% 49%}
   .tv-portrait-village i:nth-child(3){background-position:100% 49%}
-  .tv-sign-nav{left:2%;top:29%;width:clamp(148px,28vw,260px);gap:clamp(12px,2vw,20px)}
+  .tv-sign-nav{left:2%;top:29%;width:clamp(148px,28vw,260px);gap:clamp(2px,.35vw,5px)}
   .tv-actor{left:4%;bottom:7%;width:clamp(100px,19%,175px);height:25%;z-index:7}
   .tv-actor-speech{top:2%;left:90%;width:clamp(142px,28vw,215px);font-size:clamp(12px,1.8vw,16px)}
   .tv-next-sign{bottom:4%;right:4%;width:clamp(184px,38%,330px);min-height:62px;transform:rotate(-3deg)}
@@ -74,8 +84,8 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 @media(orientation:portrait) and (max-width:700px){
   .tv-scene{height:calc(100dvh - 58px);min-height:560px}
   .tv-portrait-village{top:26%;height:53%}
-  .tv-sign-nav{left:1.7%;top:31%;width:clamp(132px,46vw,205px);gap:10px}
-  .tv-sign{min-height:47px;padding:6px 9px;grid-template-columns:31px 1fr;gap:7px}.tv-sign-label{font-size:clamp(12px,3.25vw,15px)}.tv-sign-icon{font-size:20px}
+  .tv-sign-nav{left:1.7%;top:31%;width:clamp(132px,46vw,205px);gap:3px}
+  .tv-sign{min-height:47px;padding:6px 9px 6px 12px;grid-template-columns:31px 1fr;gap:7px}.tv-sign-label{font-size:clamp(12px,3.25vw,15px)}.tv-sign-icon{font-size:20px}
   .tv-actor{left:1.5%;bottom:7%;width:clamp(85px,25%,125px);height:22%}
   .tv-actor-speech{top:5%;left:88%;width:clamp(132px,44vw,181px);font-size:12px}
   .tv-next-sign{right:4%;bottom:4.5%;width:58%;padding:8px 10px;column-gap:5px}
@@ -97,11 +107,3 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-next-sign .tv-next-title{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.tv-next-sign,.tv-actor{transition:none;animation:none}}
-
-/* Reference-matched Home sign family override. */
-.tv-sign-nav{width:clamp(156px,19%,292px);gap:clamp(7px,.8vw,12px);padding:clamp(5px,.5vw,8px) 0 clamp(16px,2.2vw,34px)}
-.tv-sign-nav:before{content:""!important;z-index:0;left:8%;top:0;bottom:0;width:clamp(15px,9%,25px);border-radius:48% 52% 44% 55%/3% 4% 2% 3%;background:repeating-linear-gradient(88deg,#482716 0 11%,#754120 13% 34%,#b2763d 36% 52%,#5b301a 54% 74%,#8d5429 76% 100%);box-shadow:inset 3px 0 #c78b4b,inset -3px 0 #3c2014,2px 3px 0 #362016}
-.tv-sign-nav:after{content:""!important;z-index:0;left:7.4%;right:auto;top:auto;bottom:-1.3%;width:clamp(19px,11%,29px);height:clamp(13px,1.4vw,21px);border-radius:50%;background:#4b2918;box-shadow:inset 3px 1px #a56d39}
-.tv-sign{z-index:1;grid-template-columns:clamp(29px,19%,49px) 1fr;gap:clamp(7px,.85vw,12px);min-height:clamp(46px,4.55vw,70px);padding:clamp(5px,.6vw,9px) clamp(12px,1.2vw,18px) clamp(5px,.6vw,9px) clamp(16px,1.5vw,23px);border-radius:47% 44% 48% 45%/24% 27% 23% 28%;background:linear-gradient(180deg,#ffe2a2 0%,#f5bf75 18%,#d99248 78%,#bf7034 100%);color:#3d2416;box-shadow:inset 0 2px #ffefbd,inset 0 -3px #a85d2e,inset 3px 0 #bd6d35,inset -3px 0 #80421f,0 3px 0 #5b2e1a,0 6px 7px #26140857;transform:rotate(-1deg)}
-.tv-sign:nth-child(2){transform:rotate(.5deg);margin-left:1.7%}.tv-sign:nth-child(3){transform:rotate(-.45deg);margin-left:.6%}
-.tv-sign:before{z-index:0;inset:3px 5px;width:auto;height:auto;border-radius:inherit;pointer-events:none;opacity:.42;background:repeating-linear-gradient(176deg,transparent 0 11px,#87421f43 12px 13px,transparent 14px 21px);box-shadow:none;transform:none}.tv-sign:after{z-index:0;left:auto;top:auto;right:8%;bottom:19%;width:4px;height:4px;border-radius:50%;background:#74401f;box-shadow:18px 10px #8d4a22,-38px 15px #9a5629;opacity:.72;transform:none}.tv-sign-icon,.tv-sign-label{position:relative;z-index:1}.tv-sign-icon{border:0;border-radius:0;background:none;box-shadow:none;color:#442516;font-size:clamp(20px,2.6vw,34px)}.tv-sign-label{font-family:"Arial Rounded MT Bold","Trebuchet MS",sans-serif;font-size:clamp(13px,1.55vw,22px);line-height:1;white-space:nowrap}
