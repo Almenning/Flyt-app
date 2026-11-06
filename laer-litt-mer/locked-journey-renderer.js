@@ -81,6 +81,21 @@
     document.body.classList.remove(...classes);
     [screenFor(false),screenFor(true)].forEach(screen=>screen?.classList.remove(...classes));
   }
+  function syncActiveJourneyContext(){
+    const subjectScreen=screenFor(false),geoScreen=screenFor(true);
+    let subject=null;
+    if(geoScreen?.classList.contains('active')&&geoScreen.classList.contains('locked-journey-active')){
+      subject=hostFor(true)?.dataset?.journeySubject||null;
+    }else if(subjectScreen?.classList.contains('active')&&subjectScreen.classList.contains('locked-journey-active')){
+      subject=hostFor(false)?.dataset?.journeySubject||null;
+    }
+    if(subject)setJourneyContext(subject);
+    else clearJourneyContext();
+  }
+  const journeyContextObserver=new MutationObserver(syncActiveJourneyContext);
+  [screenFor(false),screenFor(true)].forEach(screen=>{
+    if(screen)journeyContextObserver.observe(screen,{attributes:true,attributeFilter:['class']});
+  });
   function resetJourneyScroll(){
     // A subject card can be focused while Basecamp is scrolled. Keep the
     // illustrated first landmark at the viewport edge when the journey opens,
@@ -166,8 +181,8 @@
       '<button class="locked-journey-waiting-back" type="button" aria-label="Tilbake fra eventyrreisen">← <span>Tilbake</span></button>'+
       '</section>';
     screen.classList.add('locked-journey-active');
-    setJourneyContext(subject);
-    resetJourneyScroll();
+    syncActiveJourneyContext();
+    if(screen.classList.contains('active'))resetJourneyScroll();
     // The original geography HTML puts two retired cards before the journey.
     // Prioritize Nordlysleiren while its approved PNG is still loading, not
     // only after decode. Otherwise Safari briefly shows the legacy cards.
@@ -411,8 +426,8 @@
       '<span aria-hidden="true">←</span><span>Tilbake</span></button>'+ 
       '<div class="locked-journey-overlay" hidden><div class="locked-journey-dim"></div><section class="locked-journey-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted"></section></div>';
     screen.classList.add('locked-journey-active');
-    setJourneyContext(subject);
-    resetJourneyScroll();
+    syncActiveJourneyContext();
+    if(screen.classList.contains('active'))resetJourneyScroll();
     if(geo){
       screen.classList.add('premium-geo-active');
       const shell=document.getElementById('geo-journey-shell'),globe=document.getElementById('open-world');
@@ -594,8 +609,10 @@
     screen?.classList.remove('locked-journey-active','premium-geo-active');
     return previousGeo.apply(this,arguments);
   };
+  syncActiveJourneyContext();
   window.LARIA_LOCKED_JOURNEY_RUNTIME={
     assetStatus:subject=>assets.get(subject)?.status||'not-requested',
-    active:()=>document.querySelector('.locked-journey-map')?.dataset.journeySubject||null
+    active:()=>document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject||null,
+    syncContext:syncActiveJourneyContext
   };
 })();
