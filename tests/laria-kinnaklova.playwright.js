@@ -7,7 +7,7 @@ const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const output=process.env.LARIA_KINNAKLOVA_SCREENSHOTS;
 const seed={
  version:7,progressSchemaVersion:3,
- profile:{grade:2,onboarded:true,name:'Kinnaklova QA',avatar:'girl',setupVersion:2},
+ profile:{grade:2,onboarded:true,name:'Kinnaklova QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},
  masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},
  lastMilestone:null,recentCountryWin:null,lastActivity:null,
@@ -51,10 +51,12 @@ async function takeActivity(page,action,label){
    label+' '+action+' VoiceOver question language is incorrect');
  assert.equal(speechLanguage.answers,expectedAnswers,
    label+' '+action+' VoiceOver answer language is incorrect');
- // Direct Kinnaklova has no retired fox actor; the real troll rig arrives
- // as a separately approved art layer, not a static mascot substitution.
- assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-   label+' '+action+' still renders the retired fox');
+ const actor=page.locator('#session-screen.active .task-fox-companion.task-troll-companion');
+ await actor.waitFor({state:'visible',timeout:8000});
+ assert.equal(await actor.getAttribute('data-troll'),'lillesoster',
+   label+' '+action+' lost the selected TrollActor');
+ assert.match(await actor.locator('img').getAttribute('src'),/gangemagi-troll\/lillesoster\.webp$/,
+   label+' '+action+' uses wrong TrollActor art');
  assert.equal(await page.evaluate(()=>state.profile.avatar),'girl',
    label+' '+action+' changed the saved profile identity');
  assert.ok(result.count>=5,label+' missing real learning questions in '+action);
