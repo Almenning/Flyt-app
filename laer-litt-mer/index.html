@@ -5918,7 +5918,7 @@ function renderHomeContinue(){
   if(state.activeSession&&active){
     const subject=['norwegian','math','english'].includes(active.subject)?active.subject:'geography';
     wrap.dataset.subject=subject;
-    eye.textContent=young?'REVEN VENTER HER':'Fortsett der du slapp';
+    eye.textContent=young?'TROLLET VENTER HER':'Fortsett der du slapp';
     document.getElementById('home-continue-title').textContent=young?worldNames[subject]:(active.subject&&active.subject!=='geography'?(SUBJECTS[active.subject]?.title||'Fortsett'):'Geografi');
     const done=Math.max(0,Number(state.activeSession.qIndex||0)),total=Array.isArray(state.activeSession.questions)?state.activeSession.questions.length:5;
     document.getElementById('home-continue-copy').textContent=young?((active.label||'Oppdrag')+' · '+Math.max(0,total-done)+' igjen'):((active.label||'Pågående økt')+' · '+done+' av '+total+' ferdig');
