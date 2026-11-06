@@ -1092,19 +1092,21 @@
    as sampled sky rather than a dark canopy. */
 @media (min-width:700px) and (orientation:portrait){
   .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready::before{
+    /* Atmospheric extension of the exact locked phone master. The centre stays
+       crisp and untouched; only the otherwise-empty iPad side area is softened. */
     background:
-      linear-gradient(180deg,rgba(15,40,48,.16),rgba(21,45,36,.28)),
-      url("./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-locked1") center 38% / cover no-repeat!important;
-    filter:saturate(.92) brightness(.72)!important;
-    transform:none!important;
+      linear-gradient(180deg,rgba(13,42,53,.10),rgba(22,52,41,.16)),
+      url("./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1") center center / cover no-repeat!important;
+    filter:blur(9px) saturate(.90) brightness(.68)!important;
+    transform:scale(1.035)!important;
     opacity:1!important;
-    box-shadow:inset 0 0 88px rgba(9,27,24,.24)!important;
+    box-shadow:none!important;
   }
   .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-greeting{
-    width:min(100%,390px)!important;
-    max-width:390px!important;
-    min-height:54px!important;
-    padding:9px 22px 10px!important;
+    width:min(100%,410px)!important;
+    max-width:410px!important;
+    min-height:70px!important;
+    padding:10px 24px 11px!important;
   }
 }
 @media (orientation:landscape) and (min-height:581px) and (max-aspect-ratio:3/2){
