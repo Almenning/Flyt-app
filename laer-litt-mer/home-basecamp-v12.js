@@ -182,11 +182,14 @@ function dialog(kind){
    try{savedMarket=JSON.parse(localStorage.getItem('laria-gangemagi-v1')||'null');}catch(_){}
    const market=engine?.normalize?.(savedMarket)||{wins:[]};
    const avatar=window.LARIA_FOX.choice();
+   const trollId=window.LARIA_TROLL_ACTOR?.choice?.()||state.profile?.tallvikaTroll||'storesoster';
+   const trollSrc=window.LARIA_TROLL_ACTOR?.source?.(trollId)||('./assets/gangemagi-troll/'+trollId+'.webp');
+   const companionMarkup='<img class="laria-premium-troll-art" data-troll="'+trollId+'" src="'+trollSrc+'" alt="" aria-hidden="true">';
    window.LARIA_MAGICAL_BOOK.open(d,{
      treasures:store.filter(item=>item.kind==='treasure'&&item.realm!=='all'),
      wordPacks:themes,themeRounds:progress.themeRounds,
      missions:engine?.MISSIONS||[],wins:market.wins||[],
-     avatar,foxMarkup:window.LARIA_FOX_WARDROBE.render(avatar,inventory,'world'),
+     avatar,trollId,companionMarkup,
      wordRounds:wordHuntRounds(),
      placesVisited:Object.values(state.journey?.nodes||{}).filter(n=>n?.passed||Number(n?.attempts)>0).length,
      trophies:Object.keys(state.journey?.gradeWins||{}).length
