@@ -7,7 +7,7 @@ const {chromium,webkit}=require('playwright');
 const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const out=process.env.LARIA_EGGENIPA_SCREENSHOTS;
 const state={
- version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Eggenipa QA',avatar:'girl',setupVersion:2},
+ version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Eggenipa QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},
  skillEvidence:{},preferences:{sound:false,autoRead:false},lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{},chapterProgress:{}},answerLog:[],sessionLog:[],activeSession:null
@@ -155,8 +155,12 @@ async function run(engine,browserType,view,viewport){
   assert.ok(question.text,label+' missing reading question');
   assert.equal(await page.locator('#session-screen.active .task-world-chip').textContent(),'Eggenipa',
     label+' old Bokskogen name remains in reading lesson');
-  assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-    label+' legacy fox is still inside the Norwegian lesson');
+  const actor=page.locator('#session-screen.active .task-fox-companion.task-troll-companion');
+  await actor.waitFor({state:'visible',timeout:8000});
+  assert.equal(await actor.getAttribute('data-troll'),'lillesoster',
+    label+' selected TrollActor is missing from the Norwegian lesson');
+  assert.match(await actor.locator('img').getAttribute('src'),/gangemagi-troll\/lillesoster\.webp$/,
+    label+' Norwegian lesson uses wrong TrollActor art');
   assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
     label+' neutral Norwegian guide missing');
   assert.equal(await page.locator('#session-screen.active .task-norsk-guide').getAttribute('aria-label'),'Få et hint',
