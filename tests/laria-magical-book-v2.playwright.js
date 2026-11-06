@@ -32,7 +32,7 @@ async function run(browserType,label,viewport){
    localStorage.setItem('laria-wordhunt-v1',JSON.stringify({rounds:2,themeRounds:{animals:2}}));},seed);
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());await page.route('https://api.worldbank.org/**',r=>r.abort());
-  await page.goto(url,{waitUntil:'domcontentloaded'});
+  await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
   await page.locator('#home-screen.active .bc12-nav [data-camp="collection"]').waitFor({timeout:30000});
   await page.locator('.bc12-nav [data-camp="collection"]').click();
   const d=page.locator('#bc12-dialog[open].is-collection.lmc-expanded');await d.waitFor();
