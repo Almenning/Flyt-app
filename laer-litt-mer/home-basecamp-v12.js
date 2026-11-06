@@ -123,10 +123,10 @@ function dialog(kind){
  if(kind==='wardrobe'&&!gearPreviewEnabled){
    const avatar=window.LARIA_FOX.choice();
    d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button>'+
-     '<span class="bc12-eyebrow">Lærias eventyrverden</span><h2 id="bc12-dialog-title">Min rev</h2>'+
-     '<div class="bc12-wardrobe-preview" role="img" aria-label="Din '+window.LARIA_FOX.label(avatar)+'">'+
+     '<span class="bc12-eyebrow">Lærias eventyrverden</span><h2 id="bc12-dialog-title">Mine troll</h2>'+
+     '<div class="bc12-wardrobe-preview" role="img" aria-label="Din eventyrvenn">'+
        window.LARIA_FOX_WARDROBE.render(avatar,window.LARIA_COLLECTION_STORE.snapshot(),'world')+'</div>'+
-     '<p class="bc12-wardrobe-hint">Reven din blir med på alle eventyrene, akkurat slik du valgte den.</p>'+
+     '<p class="bc12-wardrobe-hint">Trollet ditt blir med på alle eventyrene, akkurat slik du valgte det.</p>'+
      '<button type="button" class="bc12-dialog-go" data-dialog-home>Tilbake til Læria</button>';
  }
  else if(kind==='wardrobe'){
@@ -134,10 +134,10 @@ function dialog(kind){
    const wearable=core.available(collection).filter(item=>item.kind==='clothing');
    const slots={head:'Hode',neck:'Hals',back:'Rygg',cape:'Kappe'};
    d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button>'+
-    '<span class="bc12-eyebrow">Min rev · Lærias eventyrverden</span><h2 id="bc12-dialog-title">Kle på din rev</h2>'+
-    '<div class="bc12-wardrobe-preview" role="img" aria-label="Din '+window.LARIA_FOX.label(avatar)+' med valgt utstyr">'+
+    '<span class="bc12-eyebrow">Mine troll · Lærias eventyrverden</span><h2 id="bc12-dialog-title">Velg eventyrvenn</h2>'+
+    '<div class="bc12-wardrobe-preview" role="img" aria-label="Din eventyrvenn med valgt utstyr">'+
       window.LARIA_FOX_WARDROBE.render(avatar,collection,'world')+'</div>'+
-    '<p class="bc12-wardrobe-hint">Alt du finner, beholder du. Prøv ulike plagg på reven din!</p>'+
+    '<p class="bc12-wardrobe-hint">Alt du finner, beholder du. Trollvalget følger deg gjennom Læria.</p>'+
     '<div class="bc12-wardrobe-grid" role="group" aria-label="Velg klær og utstyr">'+wearable.map(item=>{
       const active=item.equipped,owned=item.owned;
       return '<button type="button" class="bc12-wardrobe-item" data-wear="'+item.id+'" data-owned="'+owned+'" aria-pressed="'+active+'" '+(!owned?'disabled':'')+'>'+
@@ -165,7 +165,7 @@ function dialog(kind){
     '<div class="bc12-collection-tabs" role="group" aria-label="Bla i samleboken">'+
     '<button type="button" data-collection-tab="collection">Minner</button>'+
     '<button type="button" aria-current="page" data-collection-tab="equipment">Utstyr</button></div>'+
-    '<div class="bc12-memory-intro"><b>'+owned+' av '+wearables.length+' plagg funnet</b><span>Prøv utstyret på din rev. Du beholder det du har funnet.</span></div>'+
+    '<div class="bc12-memory-intro"><b>'+owned+' av '+wearables.length+' plagg funnet</b><span>Du beholder alt utstyret du har funnet.</span></div>'+
     '<div class="bc12-equipment-grid">'+wearables.map(item=>'<div class="bc12-equipment-card" data-collectible-id="'+item.id+'" data-owned="'+item.owned+'">'+
     '<span class="bc12-equipment-art" aria-hidden="true">'+(CLOTHING_GLYPHS[item.id]||'✦')+'</span><strong>'+(item.owned?item.title:'Uoppdaget utstyr')+'</strong>'+
     '<small>'+(item.equipped?'✓ I bruk':item.owned?'I garderoben':'Finnes på eventyrreisen')+'</small></div>').join('')+'</div>'+
