@@ -1085,3 +1085,37 @@
     box-shadow:inset 18px -12px 30px rgba(41,111,168,.18)!important;
   }
 }
+
+
+/* Final iPad-specific polish: use only locked scenery as portrait sidefill,
+   fully cover the baked child-name line, and keep the landscape nav cleanup
+   as sampled sky rather than a dark canopy. */
+@media (min-width:700px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready::before{
+    background:
+      linear-gradient(180deg,rgba(15,40,48,.16),rgba(21,45,36,.28)),
+      url("./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-locked1") center 38% / cover no-repeat!important;
+    filter:saturate(.92) brightness(.72)!important;
+    transform:none!important;
+    opacity:1!important;
+    box-shadow:inset 0 0 88px rgba(9,27,24,.24)!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home.bc16-portrait-ready .bc16-portrait-greeting{
+    width:min(100%,390px)!important;
+    max-width:390px!important;
+    min-height:54px!important;
+    padding:9px 22px 10px!important;
+  }
+}
+@media (orientation:landscape) and (min-height:581px) and (max-aspect-ratio:3/2){
+  .grade-band-young .bc12.bc15-locked-home.bc16-tablet-cover-ready .bc16-tablet-nav-cover{
+    right:-1.25%!important;
+    top:-.75%!important;
+    width:20.5%!important;
+    height:18%!important;
+    border-bottom-left-radius:76% 64%!important;
+    filter:none!important;
+    box-shadow:none!important;
+    opacity:.98!important;
+  }
+}
