@@ -1,7 +1,7 @@
 'use strict';
 /*
- * Evidence gate for the locked Home sign family in Tallvika.
- * The reference has two shared vertical wooden posts behind the full plank stack.
+ * Evidence gate for the pixel-locked Home sign family in Tallvika.
+ * The visible plank stack is cropped from the locked Home master; only copy is repainted.
  * The original image is read-only; this test never changes saved progress.
  */
 const assert=require('node:assert/strict');
@@ -53,16 +53,25 @@ async function collect(page){
     const next=summary(document.querySelector('#tallvika-world [data-tv="next"]'));
     const selected=[...document.querySelectorAll('#tallvika-world .tv-actor[data-troll-id]')].map(summary);
     const nav=document.querySelector('#tallvika-world .tv-sign-nav');
+    const navStyle=nav?getComputedStyle(nav):null;
     const navBefore=nav?getComputedStyle(nav,'::before'):null;
     const navAfter=nav?getComputedStyle(nav,'::after'):null;
-    const sharedPosts=nav?{before:navBefore.content,after:navAfter.content,beforeWidth:navBefore.width,afterWidth:navAfter.width}:null;
+    const referenceSign=nav?{
+      background:navStyle.backgroundImage,
+      backgroundSize:navStyle.backgroundSize,
+      backgroundPosition:navStyle.backgroundPosition,
+      before:navBefore.content,
+      after:navAfter.content,
+      afterBackground:navAfter.backgroundImage,
+      afterHeight:navAfter.height
+    }:null;
     const sceneCss=getComputedStyle(scene);
     return {viewport:{width:innerWidth,height:innerHeight},
       scrollWidth:document.documentElement.scrollWidth,
       clientWidth:document.documentElement.clientWidth,
       scene:summary(scene),sceneBackground:sceneCss.backgroundImage,sceneBackgroundSize:sceneCss.backgroundSize,sceneBackgroundPosition:sceneCss.backgroundPosition,
       speech:summary(document.querySelector('#tallvika-world .tv-actor-speech')),
-      actions,next,selected,sharedPosts};
+      actions,next,selected,referenceSign};
   });
 }
 
@@ -77,8 +86,7 @@ function assertPremium(a,label){
     assert.ok(x.y>=a.scene.y-2&&x.bottom<=a.scene.bottom+2,label+' '+x.key+' outside scene');
     assert.ok(x.x>=-2&&x.right<=a.viewport.width+2,label+' '+x.key+' outside device width');
     assert.ok(x.y>=-2&&x.bottom<=a.viewport.height+4,label+' '+x.key+' below the visible device');
-    assert.ok(x.width/x.height>=2.65,label+' '+x.key+' no longer has the reference plank proportion');
-    assert.ok(x.clipPath&&x.clipPath!=='none',label+' '+x.key+' lost the hand-cut reference silhouette');
+    assert.ok(x.width/x.height>=2.65,label+' '+x.key+' no longer has the reference plank hit-area proportion');
   }
   const [multiply,fraction,table]=a.actions;
   assert.ok(multiply.y+multiply.height<=fraction.y+5,label+' Gangemagi/Brøklab overlap');
@@ -86,12 +94,14 @@ function assertPremium(a,label){
   const minX=Math.min(...a.actions.map(x=>x.x));
   const maxX=Math.max(...a.actions.map(x=>x.x));
   assert.ok(maxX-minX<=a.scene.width*.11,label+' signs are not a single left-side stack');
-  assert.ok(a.actions.every(x=>x.background!=='none'||x.backgroundColor!=='rgba(0, 0, 0, 0)'),
-    label+' no visible wooden navigation; likely old invisible house hotspots');
-  assert.ok(a.sharedPosts&&a.sharedPosts.before!=='none'&&a.sharedPosts.after!=='none',
-    label+' missing one or both shared support posts from the locked reference');
-  assert.ok(parseFloat(a.sharedPosts.beforeWidth)>=12&&parseFloat(a.sharedPosts.afterWidth)>=12,
-    label+' shared support posts lost their readable wood geometry');
+  assert.ok(a.referenceSign&&/kjosnes-home-tablet\.webp/.test(a.referenceSign.background),
+    label+' sign is no longer using the locked Home master pixels');
+  assert.ok(a.referenceSign.backgroundSize.includes('593.16%'),
+    label+' locked Home sign crop scale changed');
+  assert.notEqual(a.referenceSign.after,'none',
+    label+' shared post continuation disappeared below the three-board crop');
+  assert.ok(/linear-gradient/.test(a.referenceSign.afterBackground),
+    label+' shared two-post continuation lost its wood rendering');
   assert.ok(a.next&&a.next.width>=44&&a.next.height>=44,label+' missing Next adventure');
   assert.ok(a.next.x>=0&&a.next.right<=a.viewport.width+2&&a.next.bottom<=a.viewport.height+4,
     label+' Next adventure is clipped');
