@@ -172,3 +172,52 @@
   .laria-troll-actor[data-laria-troll-mood]>.laria-premium-troll-art{animation:none!important}
   .locked-journey-board .locked-journey-traveler.laria-troll-host{transition:none!important}
 }
+
+
+/* Premium troll chooser replaces the retired fox wardrobe outside locked Grovanova. */
+.laria-premium-troll-dialog{
+  width:min(92vw,560px);max-height:min(88dvh,720px);overflow:auto;
+  border:3px solid rgba(118,83,49,.78);border-radius:28px;padding:24px 22px 22px;
+  background:
+    radial-gradient(circle at 12% 7%,rgba(255,255,255,.72),transparent 27%),
+    linear-gradient(165deg,#fff9e9 0%,#f5e5bf 58%,#ead2a4 100%);
+  color:#49331f;box-shadow:0 26px 80px rgba(18,34,31,.42);
+  font-family:var(--laria-font-rounded,ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif);
+}
+.laria-premium-troll-dialog::backdrop{background:rgba(14,33,38,.62);backdrop-filter:blur(6px)}
+.laria-premium-troll-dialog h2{margin:3px 0 8px;font-size:clamp(28px,6vw,40px);letter-spacing:-.04em}
+.laria-troll-dialog-eyebrow{display:block;color:#7a5a37;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.12em}
+.laria-troll-dialog-lead,.laria-troll-dialog-note{margin:0;color:#6c5137;font-weight:700;line-height:1.45}
+.laria-troll-dialog-note{margin-top:15px;font-size:12px;text-align:center}
+.laria-troll-dialog-close{
+  position:absolute;right:10px;top:8px;width:44px;height:44px;border:0;border-radius:50%;
+  background:rgba(255,255,255,.55);color:#563920;font-size:30px;line-height:1;cursor:pointer
+}
+.laria-troll-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.laria-troll-choice{
+  min-height:190px;border:2px solid rgba(128,91,54,.26);border-radius:22px;padding:10px 9px 12px;
+  background:rgba(255,252,240,.76);color:#49331f;display:grid;grid-template-rows:minmax(118px,1fr) auto auto;
+  place-items:center;gap:5px;cursor:pointer;box-shadow:0 7px 16px rgba(61,47,30,.08);
+}
+.laria-troll-choice img{width:100%;height:100%;max-height:150px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 6px 5px rgba(34,42,31,.18))}
+.laria-troll-choice strong{font-size:14px}
+.laria-troll-choice span{font-size:11px;font-weight:900;color:#7b664b}
+.laria-troll-choice[aria-pressed="true"]{
+  border-color:#6f9b72;background:#f1f6df;box-shadow:0 0 0 3px rgba(111,155,114,.16),0 8px 20px rgba(61,47,30,.1)
+}
+.laria-troll-choice[aria-pressed="true"] span{color:#3f7248}
+@media(max-width:520px){
+  .laria-premium-troll-dialog{padding:21px 16px 18px}
+  .laria-troll-choices{gap:8px}
+  .laria-troll-choice{min-height:165px;padding:8px 5px 10px}
+  .laria-troll-choice img{max-height:126px}
+  .laria-troll-choice strong{font-size:12px}
+}
+@media(orientation:landscape) and (max-height:500px){
+  .laria-premium-troll-dialog{width:min(86vw,640px);max-height:92dvh;padding:15px 18px}
+  .laria-premium-troll-dialog h2{font-size:28px}
+  .laria-troll-dialog-lead,.laria-troll-dialog-note{font-size:11px}
+  .laria-troll-choices{margin-top:10px;gap:10px}
+  .laria-troll-choice{min-height:125px;grid-template-rows:82px auto auto;padding:5px}
+  .laria-troll-choice img{max-height:85px}
+}
