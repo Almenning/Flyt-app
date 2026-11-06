@@ -55,6 +55,66 @@
     return TROLLS[id]?id:DEFAULT;
   }
   function selected(){return TROLLS[choice()];}
+  function persistChoice(id){
+    if(!TROLLS[id])return false;
+    let saved=false;
+    try{
+      if(typeof state!=='undefined'&&state?.profile){
+        state.profile={...state.profile,tallvikaTroll:id};
+        if(typeof saveState==='function')saveState();
+        saved=true;
+      }
+    }catch(_){}
+    try{
+      const bridge=root.LARIA_TALLVIKA_BRIDGE;
+      const s=bridge?.state?.();
+      if(s?.profile){
+        s.profile={...s.profile,tallvikaTroll:id};
+        bridge.save?.();
+        saved=true;
+      }
+    }catch(_){}
+    doc.dispatchEvent(new CustomEvent('laria:troll-changed',{detail:{id}}));
+    refresh();
+    return saved;
+  }
+  function ensureChooser(){
+    let d=doc.getElementById('laria-premium-troll-dialog');
+    if(d)return d;
+    d=doc.createElement('dialog');
+    d.id='laria-premium-troll-dialog';
+    d.className='laria-premium-troll-dialog';
+    d.innerHTML='<button type="button" class="laria-troll-dialog-close" aria-label="Lukk">×</button>'+
+      '<span class="laria-troll-dialog-eyebrow">Lærias eventyrvenner</span>'+
+      '<h2>Mine troll</h2>'+
+      '<p class="laria-troll-dialog-lead">Velg hvem som skal bli med deg gjennom Læria.</p>'+
+      '<div class="laria-troll-choices" role="group" aria-label="Velg troll"></div>'+
+      '<p class="laria-troll-dialog-note">Valget følger deg i reiser, oppgaver og lek.</p>';
+    doc.body.appendChild(d);
+    d.querySelector('.laria-troll-dialog-close').addEventListener('click',()=>d.close());
+    d.addEventListener('click',e=>{if(e.target===d)d.close();});
+    return d;
+  }
+  function openChooser(){
+    const d=ensureChooser(),active=choice();
+    const choices=d.querySelector('.laria-troll-choices');
+    choices.innerHTML=Object.values(TROLLS).map(t=>
+      '<button type="button" class="laria-troll-choice" data-troll-choice="'+t.id+'" aria-pressed="'+(t.id===active?'true':'false')+'">'+
+      '<img src="'+t.src+'" alt="" aria-hidden="true"><strong>'+t.label+'</strong>'+
+      '<span>'+(t.id===active?'Valgt':'Velg')+'</span></button>'
+    ).join('');
+    choices.querySelectorAll('[data-troll-choice]').forEach(button=>button.addEventListener('click',()=>{
+      const id=button.dataset.trollChoice;
+      persistChoice(id);
+      choices.querySelectorAll('[data-troll-choice]').forEach(b=>{
+        const on=b.dataset.trollChoice===id;
+        b.setAttribute('aria-pressed',on?'true':'false');
+        b.querySelector('span').textContent=on?'Valgt':'Velg';
+      });
+      root.setTimeout(()=>d.close(),260);
+    }));
+    if(!d.open)d.showModal();
+  }
   function line(kind){
     const lines=LINES[kind]||[];
     return lines.length?lines[Math.floor(Math.random()*lines.length)]:'';
@@ -130,6 +190,21 @@
     }
   }
 
+  function syncLegacyHomeCopy(){
+    doc.querySelectorAll('#home-screen .bc12:not(.bc15-locked-home)').forEach(home=>{
+      const nav=home.querySelector('.bc12-nav [data-camp="wardrobe"]');
+      if(nav){
+        nav.setAttribute('aria-label','Mine troll');
+        [...nav.childNodes].filter(n=>n.nodeType===3).forEach(n=>{n.nodeValue='Mine troll';});
+      }
+      const call=home.querySelector('[data-camp-fox-call]');
+      if(call){call.textContent='Mine troll · Se trollet ditt ›';call.setAttribute('aria-label','Åpne Mine troll');}
+      const quest=home.querySelector('.bc12-quest > span:nth-child(2)');
+      if(quest)quest.innerHTML=(quest.innerHTML||'').replace(/reven/gi,'trollet');
+      const img=home.querySelector('.bc12-fox > img');
+      if(img)img.alt='Det valgte trollet ditt venter på stien';
+    });
+  }
   function syncLabels(){
     const troll=selected();
     doc.querySelectorAll('.locked-fox-label').forEach(el=>{
@@ -148,6 +223,7 @@
     syncLabels();
     doc.documentElement.dataset.lariaTroll=choice();
     doc.documentElement.style.setProperty('--laria-selected-troll','url("'+selected().src+'")');
+    syncLegacyHomeCopy();
   }
   function refresh(){
     if(queued)return;
@@ -166,6 +242,13 @@
 
   function bindInteractions(){
     doc.addEventListener('click',event=>{
+      const trollEntry=event.target.closest?.('#home-screen .bc12:not(.bc15-locked-home) [data-camp="wardrobe"],#home-screen .bc12:not(.bc15-locked-home) [data-camp-fox-call]');
+      if(trollEntry){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        openChooser();
+        return;
+      }
       const hotspot=event.target.closest?.('.locked-journey-hotspot,[data-locked-place]');
       if(hotspot){
         const host=hotspot.closest('.locked-journey-map,.locked-journey-board')?.querySelector('.locked-journey-traveler.laria-troll-host');
@@ -214,7 +297,7 @@
     choice,selected,
     source:id=>(TROLLS[id]||TROLLS[DEFAULT]).src,
     label:id=>(TROLLS[id]||TROLLS[DEFAULT]).label,
-    refresh,mood
+    persistChoice,openChooser,refresh,mood
   });
   root.LARIA_TROLL=root.LARIA_TROLL_ACTOR;
 
