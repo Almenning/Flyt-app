@@ -146,7 +146,7 @@
        (free?'<header class="gm-story"><div class="gm-story-main"><span class="gm-story-kicker">DU BESTEMMER</span><h2>'+esc(storyTitle())+'</h2><p>'+esc(challengeText())+'</p></div>'+
        '<span class="gm-story-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span></header>':questBoard(sum,goal))+
        '<div class="gm-scene"><div class="gm-fox" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
-         '<div class="gm-fox-art" aria-hidden="true">'+selectedCompanion()+'</div>'+
+         '<div class="gm-fox-art laria-troll-host laria-troll-actor" data-laria-troll-mood="'+(complete?'celebrate':hintStep?'hint':foxMood==='cheer'?'celebrate':foxMood==='think'?'think':'curious')+'" aria-hidden="true">'+selectedCompanion()+'</div>'+
          '<div class="gm-fox-bubble"><span class="gm-fox-bubble-label">Trollet ditt sier:</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
          '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp det trollet sier">◖))</button></div>'+
        '</div>'+
@@ -215,7 +215,7 @@
      '<button type="button" class="gm-book-back" data-gm-action="book" aria-label="Tilbake til Gangemagi"><span aria-hidden="true">‹</span> Tilbake til Gangemagi</button>'+
      '<div class="gm-book-v2-world"><div class="gm-book-v2-inner">'+
        '<header class="gm-book-intro">'+
-         '<div class="gm-book-fox-art" aria-hidden="true">'+selectedCompanion()+'</div>'+
+         '<div class="gm-book-fox-art laria-troll-host laria-troll-actor" data-laria-troll-mood="idle" aria-hidden="true">'+selectedCompanion()+'</div>'+
          '<div class="gm-book-intro-copy"><span class="gm-book-overline">✦ EVENTYRBOK FRA TALLVIKA ✦</span>'+
          '<h2>Min markedsbok</h2><p>Her kan du velge et eventyr og spille det så mange ganger du vil. Jeg blir med deg!</p></div>'+
          '<div class="gm-book-trophy" role="img" aria-label="'+n+' av '+total+' magiske blomster samlet">'+
