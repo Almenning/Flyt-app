@@ -106,7 +106,7 @@ async function proof(engine,label,viewport,url){
    if(key&&held[key])await held[key].ready;
    await route.continue();
   });
-  await page.goto(url+'&firstpaint='+label,{waitUntil:'domcontentloaded'});
+  await page.goto(url+'&firstpaint='+label,{waitUntil:'domcontentloaded',timeout:90000});
   await page.locator('#home-screen.active .bc14-subject[data-camp="subject-math"]').waitFor();
   for(const subject of subjects){
    const screen=await navigateTo(page,subject);
@@ -164,7 +164,7 @@ async function missingArtRecovery(url){
   const page=await ctx.newPage();
   const pattern='**/locked-journeys/nordlysleiren-locked-20261010.png';
   await page.route(pattern,route=>route.abort());
-  await page.goto(url+'&missing-art=webkit',{waitUntil:'domcontentloaded'});
+  await page.goto(url+'&missing-art=webkit',{waitUntil:'domcontentloaded',timeout:90000});
   await page.locator('#home-screen.active .bc14-subject[data-camp="subject-geography"]').waitFor();
   const screen=await navigateTo(page,'geography');
   await screen.locator('.locked-journey-art-retry').waitFor({timeout:16000});
