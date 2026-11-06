@@ -13,6 +13,8 @@ for(const asset of ['tallvika.css','tallvika.js']){
 assert.match(html,/math:Object\.freeze\(\{title:'Tallvika'\}\)/);
 assert.match(js,/openMultiplicationLab/);assert.match(js,/openFractionLab/);assert.match(js,/returnFromActivity/);
 assert.match(js,/class="tv-sign" data-tv="multiply"/);assert.match(js,/class="tv-sign" data-tv="fraction"/);assert.match(js,/class="tv-sign" data-tv="table"/);
+assert.match(js,/tv-sign-icon[^>]*aria-hidden="true"><svg/,'Tallvika signs must use illustrated pictograms, not text glyphs');
+assert.doesNotMatch(js,/tv-sign-icon[^>]*>[×½▦]</,'Rejected text-symbol sign icons returned');
 assert.doesNotMatch(js,/tv-mobile-actions|tv-portal-card|tv-dock|tv-navigation-note/,'Tallvika must not render a second activity menu');
 assert.doesNotMatch(css,/tv-mobile-actions|tv-portal-card|tv-dock|tv-portal-art/,'Tallvika must not style a second activity menu');
 assert.match(css,/\.tv-sign-nav\{position:absolute/);
