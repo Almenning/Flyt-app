@@ -83,14 +83,27 @@
   }
   function syncActiveJourneyContext(){
     const subjectScreen=screenFor(false),geoScreen=screenFor(true);
-    let subject=null;
+    const classes=['norwegian','math','english','geography'].map(name=>'locked-journey-subject-'+name);
+    let subject=null,activeScreen=null;
     if(geoScreen?.classList.contains('active')&&geoScreen.classList.contains('locked-journey-active')){
-      subject=hostFor(true)?.dataset?.journeySubject||null;
+      subject=hostFor(true)?.dataset?.journeySubject||null;activeScreen=geoScreen;
     }else if(subjectScreen?.classList.contains('active')&&subjectScreen.classList.contains('locked-journey-active')){
-      subject=hostFor(false)?.dataset?.journeySubject||null;
+      subject=hostFor(false)?.dataset?.journeySubject||null;activeScreen=subjectScreen;
     }
-    if(subject)setJourneyContext(subject);
-    else clearJourneyContext();
+    if(subject){
+      const wanted='locked-journey-subject-'+subject;
+      // MutationObserver sees the class changes made by setJourneyContext().
+      // Do nothing when the desired context is already exact, otherwise it
+      // would remove/re-add the same class forever in a microtask loop.
+      const bodyExact=document.body.classList.contains(wanted)&&classes.every(c=>c===wanted||!document.body.classList.contains(c));
+      const screenExact=activeScreen?.classList.contains(wanted)&&classes.every(c=>c===wanted||!activeScreen.classList.contains(c));
+      if(bodyExact&&screenExact)return;
+      setJourneyContext(subject);
+      return;
+    }
+    if(classes.some(c=>document.body.classList.contains(c)||subjectScreen?.classList.contains(c)||geoScreen?.classList.contains(c))){
+      clearJourneyContext();
+    }
   }
   const journeyContextObserver=new MutationObserver(syncActiveJourneyContext);
   [screenFor(false),screenFor(true)].forEach(screen=>{
