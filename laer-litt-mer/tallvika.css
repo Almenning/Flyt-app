@@ -38,7 +38,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
    Home master. No CSS-drawn plank, no repaint layer, no alternate post system. */
 .tv-sign-nav{position:absolute;z-index:6;isolation:isolate;left:2.25%;top:25%;width:clamp(164px,19%,292px);aspect-ratio:200/220;overflow:visible;background:url("./assets/tallvika/tallvika-sign-home-locked.webp") center/contain no-repeat;filter:drop-shadow(0 6px 4px #21130866)}
 .tv-sign-nav:before,.tv-sign-nav:after{content:none!important}
-.tv-sign{position:absolute;z-index:2;left:2.5%;width:95%;height:23.5%;display:grid;grid-template-columns:28% 1fr;align-items:center;gap:1.5%;padding:0 7% 0 11%;border:0;border-radius:0;background:transparent;color:#3d2415;text-align:left;text-shadow:none;box-shadow:none;filter:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tv-sign{position:absolute;z-index:2;left:2.5%;width:95%;height:24.5%;display:grid;grid-template-columns:28% 1fr;align-items:center;gap:1.5%;padding:0 7% 0 11%;border:0;border-radius:0;background:transparent;color:#3d2415;text-align:left;text-shadow:none;box-shadow:none;filter:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .tv-sign:nth-child(1){top:7.7%;transform:rotate(-.15deg)}
 .tv-sign:nth-child(2){top:33.3%;transform:rotate(.08deg)}
 .tv-sign:nth-child(3){top:58.1%;transform:rotate(-.08deg)}
