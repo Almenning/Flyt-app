@@ -24,6 +24,7 @@
     curious:['Hva tror du skjer her?','Skal vi undersøke?']
   });
   const IMAGE_SELECTORS=[
+    '.bc12-fox > img',
     '.locked-journey-profile > img',
     '.locked-journey-traveler > img',
     '.task-fox-companion > img',
