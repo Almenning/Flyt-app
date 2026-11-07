@@ -1717,12 +1717,13 @@ async function finishSession(page){
             showScreen('session');renderQuestion();
           });
           await p.locator('#session-screen.active').waitFor();
-          assert.equal(await p.locator('#session-screen.active .task-fox-companion').count(),0,
-            'Old fox should be absent from Norsk task scene');
+          const norskActor=p.locator('#session-screen.active .task-fox-companion.laria-troll-host .laria-premium-troll-art');
+          await norskActor.waitFor({state:'visible',timeout:12000});
+          assert.equal(await norskActor.count(),1,'Norsk must render exactly one selected TrollActor');
           assert.equal(await p.locator('#session-screen.active .task-norsk-guide').count(),1,
             'Norsk must display one accessible neutral hint guide');
           assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
-            'Removing the Norwegian visual fox must not alter profile data');
+            'TrollActor migration must not alter legacy profile migration metadata');
           await p.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
           await p.locator('#home-screen.active .bc12').waitFor();
         }
@@ -1731,7 +1732,8 @@ async function finishSession(page){
         await p.locator('#adult-screen.active').waitFor();
         assert.equal(await p.locator('#adult-screen').getAttribute('data-parent-trust-release'),'parent-trust-rc1');
         assert.equal((await p.locator('#adult-profile-name').textContent()).trim(),cfg.name);
-        assert.equal((await p.locator('#adult-profile-avatar').textContent()).trim(),cfg.avatar==='girl'?'Revejente':'Revegutt');
+        assert.equal((await p.locator('#adult-profile-avatar').textContent()).trim(),
+          ({storesoster:'Storesøster',lillesoster:'Lillesøster',lillebror:'Lillebror'})[cfg.troll]);
         assert.doesNotMatch(await p.locator('#adult-screen').innerText(),/tidlig test|vennetest/i,'parent area still exposes prototype language');
         await p.locator('#open-parent-info').click();
         await p.locator('#parent-info-screen.active').waitFor();
@@ -2163,8 +2165,9 @@ async function finishSession(page){
     assert.equal(reading.subject,'norwegian');
     assert.equal(reading.module,'reading');
     assert.ok(reading.question,'Lesekroken must contain a real reading question');
-    assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-      'the retired fox must not appear in Norwegian reading tasks');
+    const readingActor=page.locator('#session-screen.active .task-fox-companion.laria-troll-host .laria-premium-troll-art');
+    await readingActor.waitFor({state:'visible',timeout:12000});
+    assert.equal(await readingActor.count(),1,'Norwegian reading must render exactly one selected TrollActor');
     await finishSession(page);
     await page.locator('#complete-screen.active').waitFor();
     await page.locator('#complete-home').click();
@@ -2592,25 +2595,21 @@ async function finishSession(page){
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-subject'),subject,subject+' wrong task-scene subject');
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-band'),'young',subject+' grade 2 should use young task specialization');
       assert.equal(await page.locator('.laria-task-card').count(),1,subject+' should render exactly one premium task card');
+      const taskActor=page.locator('#session-screen.active .task-fox-companion.laria-troll-host .laria-premium-troll-art');
+      await taskActor.waitFor({state:'visible',timeout:12000});
+      assert.equal(await taskActor.count(),1,subject+' must render exactly one selected TrollActor');
+      const actorMatches=await taskActor.evaluate(img=>
+        img.getAttribute('src')===window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()));
+      assert.equal(actorMatches,true,subject+' must use the selected persistent TrollActor');
       if(subject==='norwegian'){
-        assert.equal(await page.locator('.task-fox-companion img').count(),0,
-          'Norsk must not render the retired fox');
         const guide=page.locator('#session-screen.active .task-norsk-guide');
         await guide.waitFor({state:'visible',timeout:12000});
         const bounds=await guide.boundingBox();
         assert.ok(bounds&&bounds.width>=44&&bounds.height>=44,
           'Norsk lost its visible, child-friendly help indicator');
       }else if(subject==='english'){
-        assert.equal(await page.locator('.task-fox-companion').count(),0,'Kinnaklova must not show retired fox');
         assert.equal((await page.locator('#session-screen.active .task-world-chip').innerText()).trim(),'Kinnaklova');
         assert.equal(await page.evaluate(()=>sessionScope?.module),'words','English opened wrong module');
-      }else{
-        // Existing profile actor remains in other subjects.
-        assert.equal(await page.locator('.task-fox-companion img').count(),1,
-          subject+' needs one in-world fox companion');
-        const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
-          img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
-        assert.equal(personalFox,true,subject+' must use the selected persistent fox');
       }
       assert.ok((await page.locator('.answer,.letter-tile,.word-tile,.sequence-tile,#math-input,#quiz-map-canvas').count())>0,subject+' task scene has no active interaction');
       await page.locator('#close-session').click();
