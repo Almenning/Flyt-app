@@ -58,8 +58,15 @@ async function run(engine,engineName,label,viewport){
        assert.equal(painted.image,'none',label+' duplicates the original painted landscape signs');
        assert.equal(painted.nameVisible,'hidden',label+' shows two Words labels on one sign');
      }else{
-       assert.notEqual(painted.image,'none',label+' cropped portrait source requires a fully legible interactive sign');
-       assert.equal(painted.nameVisible,'visible',label+' portrait sign lost its legible label');
+       // The portrait camera still shows the original painted Words board.
+       // Sentences and Reading require one separate navigation plank each.
+       assert.equal(painted.image,'none',label+' duplicates the original painted Words board in portrait');
+       assert.equal(painted.nameVisible,'hidden',label+' overlays Words twice in portrait');
+       for(const sign of ['sentences','reading']){
+         const bg=await world.locator('.ki-painted-'+sign).evaluate(el=>getComputedStyle(el).backgroundImage);
+         assert.match(bg,/laria-light-arrow-sign\.svg/,
+           label+' portrait '+sign+' requires an accessible scene-native arrow');
+       }
        const position=await world.locator('.ki-master').evaluate(el=>getComputedStyle(el).objectPosition);
        assert.ok(position.startsWith('50%'),label+' portrait crops the original Kinnaklova heading');
      }
@@ -86,6 +93,18 @@ async function run(engine,engineName,label,viewport){
    assert.equal(await world.locator(spec.signs+':visible').count(),3,label+' '+spec.id+' must show three scene destinations');
    const actor=world.locator(spec.actor);
    await actor.waitFor({state:'visible',timeout:14000});
+   if(spec.id==='english'){
+     const positions=await world.evaluate(el=>{
+       const rect=n=>{const r=n.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom}};
+       const troll=el.querySelector('.ki-companion-actor');
+       return {actor:rect(troll),signs:[...el.querySelectorAll('.ki-painted-hit.laria-wayfinder')].map(rect)};
+     });
+     const overlaps=(a,b)=>
+       Math.min(a.right,b.right)-Math.max(a.left,b.left)>6&&
+       Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>6;
+     assert.ok(positions.signs.every(sign=>!overlaps(positions.actor,sign)),
+       label+' chosen skogstroll obscures an English activity sign '+JSON.stringify(positions));
+   }
    const id=await actor.getAttribute('data-troll');
    assert.equal(id,'lillesoster',label+' '+spec.id+' switched original companion');
    await chooser.click();
