@@ -69,7 +69,9 @@ async function run(engine,label,viewport){
        ['words','find','reading'],label+' direct Norsk activities lost');
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' old Bokskogen map is visible');
-     await world.locator('.eg-portal[data-eg="reading"]').click();
+     // Eggenipa's child-facing UI is the painted hotspot. The older portal
+     // remains an internal compatibility route and is intentionally hidden.
+     await world.locator('.eg-scene-reading:visible, .eg-portal[data-eg="reading"]:visible').first().click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',label+' reading route broke');
      await page.locator('#close-session').click();
