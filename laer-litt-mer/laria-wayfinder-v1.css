@@ -85,9 +85,9 @@
  font-size:clamp(11px,1.5vw,19px)!important;white-space:nowrap!important;
  filter:drop-shadow(0 3px 3px #43251265)!important
 }
-#kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder{left:22%!important;top:73.6%!important;width:20.4%!important}
-#kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{left:62.3%!important;top:48.5%!important;width:19.4%!important}
-#kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{left:81%!important;top:66.4%!important;width:18.6%!important}
+#kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder{left:22%!important;top:75.4%!important;width:20.4%!important}
+#kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{left:62.3%!important;top:49.6%!important;width:19.4%!important}
+#kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{left:81%!important;top:68.9%!important;width:18.6%!important}
 #kinnaklova-world .ki-plank-name{display:block;pointer-events:none!important}
 #kinnaklova-world[data-ki-art="ready"] .ki-card{
  border:0!important;border-radius:0!important;box-shadow:none!important;
@@ -128,4 +128,29 @@
  #eggenipa-world .eg-scene-hit.laria-wayfinder,
  #laria-geography-world .gv-sign.laria-wayfinder,
  #kinnaklova-world .ki-painted-hit.laria-wayfinder{transition:none!important;animation:none!important}
+}
+/* On narrow phones, make the signs INSIDE the painted Kinnaklova stage
+   tappable. Hide duplicate cards once the approved painting is verified.
+   The unapproved-art fallback still shows normal accessible cards. */
+@media(max-width:700px){
+ #kinnaklova-world[data-ki-art="ready"] .ki-actions{display:none!important}
+ #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder{
+  display:flex!important;height:21%!important;min-height:44px!important;
+  padding:3px 17px 5px 3px!important;font-size:clamp(11px,2.9vw,13px)!important
+ }
+ #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder{
+  left:13%!important;top:74%!important;width:34%!important
+ }
+ #kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{
+  left:54%!important;top:45%!important;width:37%!important
+ }
+ #kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{
+  left:64%!important;top:72%!important;width:36%!important
+ }
+}
+/* The 16:9 master must not leave Words below the visible short-landscape
+   screen. Shrink horizontally just enough to preserve the entire tap route
+   with no arbitrary crop of the locked church, coast or mountain. */
+@media(orientation:landscape) and (max-height:500px){
+ #kinnaklova-world .ki-stage{width:min(100%,calc(100dvh * 2.08))!important}
 }
