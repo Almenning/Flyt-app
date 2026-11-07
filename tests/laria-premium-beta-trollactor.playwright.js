@@ -350,6 +350,17 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
     assert.ok(worldBox.x>=-3&&worldBox.right<=width+3,
       label+' '+spec.id+' world exceeds viewport '+JSON.stringify(worldBox));
 
+    if(spec.id==='norwegian'&&name==='ipad-landscape'){
+      const hero=await page.locator('#eggenipa-world .eg-hero').evaluate(el=>{
+        const r=el.getBoundingClientRect();
+        return {top:r.top,bottom:r.bottom,width:r.width,height:r.height};
+      });
+      assert.ok(hero.top<=68&&hero.bottom>=height-4,
+        label+' Eggenipa must fill the iPad landscape scene '+JSON.stringify(hero));
+      assert.equal(await page.locator('#eggenipa-world .eg-portals:visible').count(),0,
+        label+' Eggenipa must not duplicate illustrated activity hotspots with cards');
+    }
+
     if(spec.id==='math'&&name==='ipad-landscape'){
       const scene=await page.locator('#tallvika-world .tv-scene').evaluate(el=>{
         const r=el.getBoundingClientRect();
