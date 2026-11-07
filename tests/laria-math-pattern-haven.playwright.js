@@ -36,8 +36,7 @@ async function enter(page){
      overlays:[...document.querySelectorAll('[role="dialog"]:not([hidden])')].map(x=>x.id)};
  });
  console.log('Mønsterhagen preview launcher diagnostic: '+JSON.stringify(diag));
- if(await button.isVisible())await button.click();
- else await button.evaluate(el=>el.click());
+ await button.evaluate(el=>el.click());
  await page.locator('#laria-math-pattern-haven-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('.mh-story-map [data-mh-act="stage"]').count(),5,'five map stops; voluntary quick-start is separate');
 }
