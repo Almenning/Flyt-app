@@ -24,6 +24,12 @@ html[data-laria-character-system="troll"] :is(
 ):not(.laria-premium-troll-art){visibility:hidden!important}
 
 
+/* The old transparent globe guide is a separate fox overlay. The new
+   selected companion in the globe header is the visible child guide. */
+html[data-laria-character-system="troll"] #world-screen .premium-globe-guide:not(.laria-premium-troll-art){
+  visibility:hidden!important;
+}
+
 .laria-troll-host{
   overflow:visible!important;
   background:transparent!important;
