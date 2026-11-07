@@ -19,8 +19,7 @@ async function enter(page){
  await geography(page);
  const button=page.locator('[data-laria-geography-chapter2-preview="1"]');
  await button.waitFor({state:'attached'});
- if(await button.isVisible())await button.click();
- else await button.evaluate(el=>el.click());
+ await button.evaluate(el=>el.click());
  await page.locator('#laria-geo-continent-voyage-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-cv-act="stage"]').count(),5);
 }
