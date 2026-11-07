@@ -143,7 +143,10 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
 /* iPad 4:3 landscape uses the illustrated scene as the whole interface.
    Painted art remains untouched; the three existing in-scene hit areas
    replace the redundant HTML activity cards on this orientation only. */
-@media (orientation:landscape) and (min-width:701px) and (max-width:1400px) and (min-height:700px) and (max-aspect-ratio:3/2){
+/* Use explicit iPad-stage dimensions here. The former aspect-ratio clause was
+   ignored by the WebKit/Chromium device harness, leaving the hit areas at
+   their default 16:9 coordinates while the locked artwork was letterboxed. */
+@media (orientation:landscape) and (min-width:1000px) and (max-width:1400px) and (min-height:700px) and (max-height:1100px){
   #eggenipa-world{min-height:100dvh;padding-bottom:0}
   .eg-hero{
     width:100%;max-width:none;height:calc(100dvh - 66px);
