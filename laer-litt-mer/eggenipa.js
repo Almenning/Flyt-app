@@ -56,15 +56,14 @@
     }
     identity=nextIdentity;
     root.innerHTML=
-      '<header class="eg-top"><button type="button" class="eg-home" data-eg="home" aria-label="Tilbake til Hjem">← <span>Hjem</span></button>'+
-      '<span class="eg-top-label">LÆRIA · NORSK</span><span class="eg-grade" aria-label="Oppgaver tilpasset '+profileGrade+'. klasse">'+profileGrade+'. klasse</span></header>'+
+      // In-scene controls are the sole navigation. No hidden duplicate Home.
       '<section class="eg-hero eg-art-pending" aria-label="Eggenipa og tre steder å leke">'+
       '<img class="eg-master" src="'+ART+'" width="1672" height="941" loading="eager" fetchpriority="high" decoding="async" alt="Illustrert landskap ved Eggenipa med fjord, trehytte, blomster, bro og bibliotek" draggable="false">'+
-      '<button type="button" class="eg-scene-home" data-eg="home" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button>'+
+      '<button type="button" class="eg-scene-home eg-home" data-eg="home" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button>'+
       '<div class="eg-world-brand" aria-label="Læria, norsk ved Eggenipa"><strong>Læria</strong><span>Oppdag Eggenipa</span></div>'+
       '<span class="eg-world-grade" aria-hidden="true">'+profileGrade+'. klasse</span>'+
-      '<div class="eg-companion-actor laria-troll-host laria-troll-actor" data-troll="'+trollId+'" data-laria-troll-mood="idle" aria-label="Trollet ditt er med ved Eggenipa">'+
-      '<img class="laria-premium-troll-art" src="'+safe(trollSrc)+'" alt="" aria-hidden="true" draggable="false"></div>'+
+      '<button type="button" class="eg-companion-actor laria-troll-host laria-troll-actor" data-eg="troll" data-troll="'+trollId+'" data-laria-troll-mood="idle" aria-label="Snakk med det valgte trollet ved Eggenipa">'+
+      '<img class="laria-premium-troll-art" src="'+safe(trollSrc)+'" alt="" aria-hidden="true" draggable="false"></button>'+
       '<button type="button" class="eg-scene-hit eg-scene-words" data-eg="words" aria-label="Åpne Ordjakt i trehytta"><span>Ordjakt</span></button>'+
       '<button type="button" class="eg-scene-hit eg-scene-find" data-eg="find" aria-label="Åpne Finn ordene ved hagen"><span>Finn ordene</span></button>'+
       '<button type="button" class="eg-scene-hit eg-scene-reading" data-eg="reading" aria-label="Åpne Lesekroken ved biblioteket"><span>Lesekroken</span></button></section>'+
@@ -100,6 +99,9 @@
     const action=button.dataset.eg;
     if(action==='home'){
       if(!window.LARIA_RETURN_TO_BASECAMP?.())bridge()?.setTab?.('home');
+    }else if(action==='troll'){
+      const actor=root?.querySelector('.eg-companion-actor');
+      if(actor)window.LARIA_TROLL_ACTOR?.mood?.(actor,'curious',{say:'Hva vil du utforske i Bokskogen?'});
     }else if(action==='words'){
       button.focus({preventScroll:true});
       window.openWordHunt?.();
