@@ -135,6 +135,11 @@ async function verify(engine,label,viewport){
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
+   if(subject==='geography'){
+    const landing=page.locator('#laria-geography-world:visible');
+    await landing.waitFor({timeout:16000});
+    await landing.locator('[data-gv="journey"]').click();
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map');
    await root.waitFor({timeout:16000});
    await page.waitForFunction(s=>{
@@ -194,6 +199,9 @@ async function verify(engine,label,viewport){
      // Preserve saved checkpoint data through Bokskogen -> Eggenipa -> Home.
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }else if(subject==='geography'){
+     await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+     await page.locator('#laria-geography-world [data-gv="home"]').click();
    }
    await page.locator('#home-screen.active').waitFor({timeout:16000});
   }

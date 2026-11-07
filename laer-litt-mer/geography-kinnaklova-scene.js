@@ -53,8 +53,10 @@
     phase='journey';
     if(root)root.hidden=true;
     if(screen.classList.contains('gv-visible'))screen.classList.remove('gv-visible');
-    if(!screen.classList.contains('locked-journey-active')){
-      try{window.renderGeoJourney?.();}catch(_){}
+    // Always render the genuine journey after entering the landscape sign.
+    // The old 'locked-journey-active' class may be set before the map is visible.
+    try{window.renderGeoJourney?.();}catch(error){
+      console.error('[Læria] Geografireisen kunne ikke åpnes',error);
     }
     requestAnimationFrame(()=>window.scrollTo(0,0));
   }

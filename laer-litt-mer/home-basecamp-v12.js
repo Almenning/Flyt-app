@@ -238,7 +238,7 @@ function dialog(kind){
       '<p>Finn alle ordene i en runde for å få et temaklistremerke. Du kan spille favorittene dine så ofte du vil.</p>'+
       '<div class="bc12-wordhunt-stickers" role="group" aria-label="Mine ordtemaer">'+themeStickers+'</div></section>'+
     '<div class="bc12-shelf"><div><span aria-hidden="true">✦</span><strong>'+visited+'</strong><small>steder besøkt</small></div><div><span aria-hidden="true">🔤</span><strong>'+wordRounds+'</strong><small>ordjakter</small></div><div><span aria-hidden="true">♜</span><strong>'+trophies+'</strong><small>eventyr fullført</small></div></div>'+
-    '<button class="bc12-dialog-go" data-wardrobe-open>Mine troll · Se trollet ditt</button>'+ 
+    '<button class="bc12-dialog-go" data-wardrobe-open>Mine troll · Se trollet ditt</button>'+
     '<button class="bc12-dialog-go" data-dialog-home>Tilbake til basecamp</button>';
  }
  d.querySelector('.bc12-close').onclick=closeDialog;d.querySelector('.bc12-later')?.addEventListener('click',closeDialog);
