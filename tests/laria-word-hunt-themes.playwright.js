@@ -159,6 +159,9 @@ async function verify(engine,launcher,label,viewport,url){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   try{
    await open(page,url);
+   const entranceArt=await page.locator('.word-hunt-overlay.is-theme-entry').evaluate(el=>getComputedStyle(el).backgroundImage);
+   assert.match(entranceArt,/eggenipa-master-laast-20261025\.png/,
+     label+' Ordjakt reintroduced the retired fox landscape instead of locked Eggenipa');
    assert.equal(await page.locator('.word-hunt-theme-picker .wh-theme-start:visible').count(),0,
      label+' must not advertise resuming a round that was never started');
    // Capture the genuine child-facing first screen before keyboard focus
