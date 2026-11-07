@@ -81,8 +81,10 @@
   #kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{
     left:79%!important;top:67.7%!important;width:21%!important;
   }
+  /* Keep the selected live troll on the clear foreground path, not
+     in front of the original painted Words sign. */
   #kinnaklova-world[data-ki-art="ready"] .ki-companion-actor{
-    left:5%!important;bottom:4%!important;
+    left:38%!important;bottom:2%!important;
     width:clamp(86px,11%,144px)!important;height:25%!important;
     z-index:5;pointer-events:auto;
   }
@@ -120,11 +122,19 @@
   }
   #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder
     .ki-plank-name{visibility:visible!important}
+  /* The approved portrait crop still shows the existing painted Words
+     arrow. Keep its full accessible hitbox, but don't draw a second arrow
+     or a second label over those original pixels. */
   #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder{
-    left:0%!important;top:74.2%!important;width:33%!important;
+    left:0%!important;top:76.3%!important;width:33%!important;
+    height:clamp(100px,8.8dvh,132px)!important;
+    background:none!important;filter:none!important;
+    color:transparent!important;
   }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder
+    .ki-plank-name{visibility:hidden!important}
   #kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{
-    left:67%!important;top:49.8%!important;width:33%!important;
+    left:67%!important;top:51.8%!important;width:33%!important;
   }
   #kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{
     left:57%!important;top:82.5%!important;width:36%!important;
@@ -134,7 +144,7 @@
     font-size:clamp(16px,2vw,21px)!important;
   }
   #kinnaklova-world[data-ki-art="ready"] .ki-companion-actor{
-    left:4%!important;bottom:3.2%!important;width:clamp(91px,13%,136px)!important;
+    left:34%!important;bottom:3.2%!important;width:clamp(91px,13%,136px)!important;
     height:24%!important;
   }
 }
