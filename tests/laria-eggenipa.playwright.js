@@ -65,7 +65,7 @@ async function run(engine,browserType,view,viewport){
   assert.match(await landingActor.locator('img').getAttribute('src'),/gangemagi-troll\/lillesoster\.webp$/,
     label+' Eggenipa landing lost selected TrollActor');
   const actorBox=await landingActor.evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height}});
-  assert.ok(actorBox.w>20&&actorBox.h>40&&actorBox.x>=-1&&actorBox.right<=innerWidth+1,
+  assert.ok(actorBox.w>20&&actorBox.h>40&&actorBox.x>=-1&&actorBox.right<=viewport.width+1,
     label+' Eggenipa TrollActor has invalid scene geometry: '+JSON.stringify(actorBox));
   const before=await page.evaluate(()=>structuredClone(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes));
   const portals=await page.locator('#eggenipa-world .eg-portal').evaluateAll(list=>list.map(b=>b.dataset.eg));
