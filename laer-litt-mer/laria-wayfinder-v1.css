@@ -139,13 +139,13 @@
   padding:3px 17px 5px 3px!important;font-size:clamp(11px,2.9vw,13px)!important
  }
  #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder{
-  left:13%!important;top:74%!important;width:34%!important
+  left:13%!important;top:70%!important;width:34%!important
  }
  #kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{
   left:54%!important;top:45%!important;width:37%!important
  }
  #kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{
-  left:64%!important;top:72%!important;width:36%!important
+  left:64%!important;top:65%!important;width:36%!important
  }
 }
 /* The 16:9 master must not leave Words below the visible short-landscape
