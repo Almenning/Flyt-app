@@ -166,14 +166,24 @@ async function verifyBasecamp(page,label,width,height){
   // The Norwegian map is retired. Touch the real reading entrance and
   // verify readable lesson, return, and unchanged accessible geometry.
   const norwegian=page.locator('#eggenipa-world:visible');
-  assert.deepEqual(await norwegian.locator('.eg-portal')
+  const sceneActions=norwegian.locator('.eg-scene-hit:visible');
+  const portalActions=norwegian.locator('.eg-portal:visible');
+  const norwegianActions=await sceneActions.count()?sceneActions:portalActions;
+  assert.deepEqual(await norwegianActions
     .evaluateAll(items=>items.map(item=>item.dataset.eg)),['words','find','reading'],
     label+' three Norwegian activities missing');
   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
     label+' retired Norwegian map visible');
   await noOverflow(page,label+' Eggenipa');
-  assertTap(await rect(page,'#eggenipa-world .eg-portal[data-eg="reading"]'),label+' Lesekroken entry');
-  await norwegian.locator('.eg-portal[data-eg="reading"]').tap();
+  const readingEntrance=await sceneActions.count()
+    ?norwegian.locator('.eg-scene-reading:visible')
+    :norwegian.locator('.eg-portal[data-eg="reading"]:visible');
+  assertTap(await readingEntrance.evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom,
+      display:getComputedStyle(el).display,visibility:getComputedStyle(el).visibility};
+  }),label+' Lesekroken entry');
+  await readingEntrance.tap();
   await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
   assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian',label+' wrong subject');
   assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',label+' wrong Norsk module');

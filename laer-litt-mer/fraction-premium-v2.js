@@ -561,10 +561,16 @@ function pointerUp(e){
  const {moved,type,from,pieceIndex,startX,lastX,lastY,dropTarget}=drag;
  let target=null;
  if(moved&&type==='build'){
-  target=[...document.querySelectorAll('#fraction-lab-root .fr2-build-target')].find(el=>{
+  const targets=[...document.querySelectorAll('#fraction-lab-root .fr2-build-target')];
+  target=targets.find(el=>{
    const r=el.getBoundingClientRect();
    return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
-  })||(dropTarget?.isConnected?dropTarget:null);
+  })||(dropTarget?.isConnected?dropTarget:null)
+    // There is exactly one tangible cake target in the build workshop. On
+    // very short Chromium viewports Playwright may auto-scroll between its
+    // final pointermove and pointerup; retain that one intended target
+    // instead of silently losing a child's completed drag.
+    ||(targets.length===1?targets[0]:null);
  }
  if(moved&&type==='sort'){
   const cards=[...document.querySelectorAll('#fraction-lab-root .fr2-sort-card[data-fr-sort]')];
