@@ -89,6 +89,22 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-next-sign{right:4%;bottom:4.5%;width:58%;padding:8px 10px;column-gap:5px}
   .tv-next-sign .tv-next-arrow{min-width:42px;height:42px}
 }
+/* 4:3 iPad landscape: fill the entire app stage without stretching
+   the locked painting. The scenic image remains unchanged; cover only
+   trims peripheral scenery while navigation remains separate touch layers. */
+@media (orientation:landscape) and (min-width:701px) and (max-width:1400px) and (min-height:700px) and (max-aspect-ratio:3/2){
+  .tv-main{padding-inline:0}
+  .tv-stage{width:100%;max-width:none}
+  .tv-scene{
+    height:calc(100dvh - 70px);
+    min-height:650px;
+    aspect-ratio:auto;
+    border-radius:0;
+    box-shadow:none;
+    background-size:cover;
+    background-position:center center;
+  }
+}
 @media(orientation:landscape) and (max-height:500px){
   .tv-top{height:44px}
   /* A short landscape viewport must be completely illustrated: no side voids,
