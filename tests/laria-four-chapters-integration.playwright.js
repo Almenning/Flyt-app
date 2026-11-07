@@ -80,7 +80,15 @@ async function run(type,label,viewport){
   // The child's Eggenipa world intentionally hides the old adventure menu.
   const devPilot=page.locator('[data-laria-chapter2-preview="1"]');
   assert.equal(await devPilot.isVisible(),false,label+' old Norsk adventure leaked into Eggenipa');
-  await devPilot.evaluate(el=>el.click());
+  const norskOpened=await page.evaluate(()=>window.LARIA_NORWEGIAN_CHAPTER_PICKER?.open({
+     state,firstProgress:()=>journeyProgress('norwegian',2),
+     foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()),
+     onBokskogen:()=>document.getElementById('journey-map')?.scrollIntoView({block:'start',behavior:'instant'}),
+     onFortellingsdalen:()=>window.LARIA_FORTELLINGSDALEN_PREVIEW?.open({
+       state,save:saveState,foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())
+     })
+   }));
+   assert.equal(norskOpened,true,label+' failed gated Norsk preview');
   await page.locator('[data-fd-pick="fortellingsdalen-2"]').click();
   await page.locator('[data-fd-action="stage"][data-fd-stage="brevhytta"]').click();
   await page.locator('.fd-option').first().click();
@@ -93,7 +101,10 @@ async function run(type,label,viewport){
   const mathPilot=page.locator('[data-laria-math-chapter2-preview="1"]');
   assert.equal(await mathPilot.isVisible(),false,
     label+' internal Math chapter-two preview is visible to children');
-  await mathPilot.evaluate(el=>el.click());
+  const mathOpened=await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN_UI?.open({
+     state,save:saveState,foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())
+   }));
+   assert.equal(mathOpened,true,label+' failed gated Math preview');
   await page.locator('[data-mh-act="stage"][data-mh-stage="speildammen"]').click();
   const mhHint=page.locator('[data-mh-act="hint"]');
   assert.equal(await mhHint.getAttribute('aria-expanded'),'false');
@@ -102,7 +113,7 @@ async function run(type,label,viewport){
   assert.match(await page.locator('#mh-fox-message').innerText(),/samme rad/);
   await assertCompactHint(page,'#mh-fox-message','.mh-back',viewport,label+' math');
   await shot(page,label+'-math-fox-hint');
-  const expectedFox=await page.evaluate(()=>avatarSrc('girl'));
+  const expectedFox=await page.evaluate(()=>window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()));
   const mathFox=await page.locator('.mh-companion .mh-fox').getAttribute('src');
   assert.equal(mathFox,expectedFox,label+' Math lost the selected personal fox');
   await page.locator('[data-mh-act="hint"]').click();
@@ -118,7 +129,10 @@ async function run(type,label,viewport){
   await shot(page,label+'-math');
   await assertWideLandscape(page,'#laria-math-pattern-haven-preview','.mh-companion','.mh-paper',label+' math',viewport);
   await go(page,'english');
-  await page.locator('[data-laria-english-chapter2-preview="1"]').click();
+  const englishOpened=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR_UI?.open({
+     state,save:saveState,foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())
+   }));
+   assert.equal(englishOpened,true,label+' failed gated English preview');
   await page.locator('[data-sh-act="stage"][data-sh-stage="setningsverkstedet"]').click();
   assert.equal(await page.locator('[data-sh-act="hint"]').getAttribute('aria-expanded'),'false');
   await page.locator('[data-sh-act="hint"]').click();
@@ -139,7 +153,10 @@ async function run(type,label,viewport){
   await shot(page,label+'-english');
   await assertWideLandscape(page,'#laria-english-sentence-harbor-preview','.sh-companion','.sh-paper',label+' english',viewport);
   await go(page,'geography');
-  await page.locator('[data-laria-geography-chapter2-preview="1"]').click();
+  const geographyOpened=await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE_UI?.open({
+     state,save:saveState,foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())
+   }));
+   assert.equal(geographyOpened,true,label+' failed gated Geography preview');
   await page.locator('[data-cv-act="stage"][data-cv-stage="kompassholmen"]').click();
   await page.locator('[data-cv-act="hint"]').click();
   assert.equal(await page.locator('.cv-fox-hint').count(),1);
