@@ -74,6 +74,35 @@ function place(el,box,part,viewport){
  el.style.setProperty('bottom','auto','important');
 }
 
+// The four light arrow signs on the approved Grovanova LANDSCAPE master
+// are painted artwork. Add only invisible and accessible hit areas, and
+// forward clicks to existing subject buttons to preserve app navigation.
+const HOME_SIGN_SUBJECTS=[['norwegian','Norsk'],['math','Matte'],['english','Engelsk'],['geography','Geografi']];
+function ensureHomeSignHits(host){
+ let nav=host.querySelector('.bc15-subject-signs');
+ if(nav)return nav;
+ nav=document.createElement('nav');
+ nav.className='bc15-subject-signs';
+ nav.setAttribute('aria-label','Fag på de malte treskiltene');
+ for(const [id,label] of HOME_SIGN_SUBJECTS){
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='bc15-painted-subject';
+  button.dataset.bc15Subject=id;
+  button.setAttribute('aria-label','Åpne '+label+' fra treskiltet');
+  button.addEventListener('click',event=>{
+   event.preventDefault();
+   if(!host.classList.contains('bc15-locked-home')||
+       host.dataset.bc15Master!=='landscape')return;
+   // Exactly the same handler as the approved bottom-row subject card.
+   host.querySelector('.bc14-subject[data-camp="subject-'+id+'"]')?.click();
+  });
+  nav.appendChild(button);
+ }
+ host.appendChild(nav);
+ return nav;
+}
+
 function mapControlsToArtwork(host,imgW,imgH,portrait){
  const rect=host.getBoundingClientRect();
  const artAspect=imgW/imgH;
@@ -115,6 +144,21 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    liveNext:[.073,.836,.235,.040]
  };
  const viewport={width:rect.width,height:rect.height};
+ // Map four separately tappable signboards onto the APPROVED master.
+ // Coordinates are relative to the underlying image, not fixed pixels.
+ const signs=ensureHomeSignHits(host);
+ signs.hidden=portrait;
+ if(!portrait){
+  const signBoxes=[
+   [.012,.314,.170,.074], // Norsk
+   [.012,.394,.170,.074], // Matte
+   [.012,.473,.170,.074], // Engelsk
+   [.012,.552,.170,.074]  // Geografi
+  ];
+  signs.querySelectorAll('.bc15-painted-subject').forEach((button,index)=>{
+   place(button,box,signBoxes[index],viewport);
+  });
+ }
  place(host.querySelector('.bc14-subjects'),box,layout.subjects,viewport);
  place(host.querySelector('.bc12-journey'),box,layout.journey,viewport);
  place(host.querySelector('.bc12-nav'),box,layout.nav,viewport);
@@ -176,6 +220,9 @@ function clearMappedControls(host){
    const el=host.querySelector(sel);if(!el)return;
    ['left','top','width','height','right','bottom'].forEach(p=>el.style.removeProperty(p));
  });
+ host.querySelectorAll('.bc15-painted-subject').forEach(button=>{
+  ['left','top','width','height','right','bottom'].forEach(prop=>button.style.removeProperty(prop));
+ });
  host.style.removeProperty('background-size');
  host.style.removeProperty('background-position');
  ['--bc15-art-left','--bc15-art-top','--bc15-art-width','--bc15-art-height'].forEach(p=>host.style.removeProperty(p));
@@ -189,6 +236,7 @@ async function activate(){
    host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
+   host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='ineligible';
    host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    return false;
@@ -199,6 +247,7 @@ async function activate(){
    host.classList.remove('bc15-locked-home','bc15-pending');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
+   host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='inactive';
    host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    return false;
@@ -240,6 +289,7 @@ async function activate(){
    host.classList.add('bc15-fallback');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
+   host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='missing';
    host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    console.warn('[Læria Home v15] Locked master not activated.',err);
