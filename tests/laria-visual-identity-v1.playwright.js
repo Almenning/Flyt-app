@@ -32,7 +32,24 @@ async function run(engine,name,layout,viewport){
    await home.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
    const world=page.locator(spec.root+':visible');
    await world.waitFor({state:'visible',timeout:18000});
-   if(spec.id==='english')await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:20000});
+   if(spec.id==='english'){
+     await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:20000});
+     const frame=await world.locator('.ki-master').evaluate(async image=>{
+       await image.decode();
+       // A verified image must survive WebKit's next two composite frames,
+       // not just become 'ready' in data attributes while still visually blank.
+       await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+       const s=getComputedStyle(image),b=image.getBoundingClientRect();
+       return {loaded:image.complete,size:[image.naturalWidth,image.naturalHeight],
+         visibility:s.visibility,opacity:s.opacity,display:s.display,
+         rect:[b.width,b.height],fit:s.objectFit};
+     });
+     assert.equal(frame.loaded,true,'Kinnaklova artwork not loaded');
+     assert.deepEqual(frame.size,[1672,941],'Locked Kinnaklova original not decoded');
+     assert.equal(frame.visibility,'visible','Kinnaklova artwork hidden after SHA approval');
+     assert.ok(Number(frame.opacity)>.99,'Kinnaklova artwork still transparent after ready status');
+     assert.ok(frame.rect.every(v=>v>200),'Kinnaklova image not occupying the scene');
+   }
    const back=world.locator(spec.home+':visible');
    const button=await back.evaluate(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return{
      width:r.width,height:r.height,image:s.backgroundImage,top:r.top,left:r.left,role:el.getAttribute('aria-label')
@@ -68,7 +85,14 @@ async function run(engine,name,layout,viewport){
      assert.equal(await world.locator('.ki-world-brand:visible').count(),0,
        'Kinnaklova duplicates its painted wordmark');
    }
-   await page.screenshot({path:path.join(OUT,name+'-'+layout+'-'+spec.id+'.png'),animations:'disabled'});
+   const screenshot=await page.screenshot({path:path.join(OUT,name+'-'+layout+'-'+spec.id+'.png'),animations:'disabled'});
+   // One scenic iPad Kinnaklova view is normally >1 MB as a PNG. A blank
+   // green stage with only signs is ~110 KB, despite the old geometry tests
+   // being green. This minimum catches the missing painting before sign-off.
+   if(spec.id==='english'&&layout.startsWith('ipad')){
+     assert.ok(screenshot.byteLength>450000,
+       name+' '+layout+' English background did not paint; PNG '+screenshot.byteLength+' bytes');
+   }
    await back.click();
    await home.waitFor({state:'visible',timeout:14000});
   }
