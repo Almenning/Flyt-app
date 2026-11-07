@@ -10,7 +10,7 @@ const js=read('tallvika.js'),css=read('tallvika-fjord-v2.css'),html=read('index.
 assert.match(html,/tallvika-fjord-v2\.css/,'Tallvika v2 stylesheet must load');
 assert.match(js,/data-tv-art="fjord-no-buildings-v2"/,'new scene version must render');
 for(const action of ['multiply','fraction','table'])
-  assert.match(js,new RegExp('class="tv-sign" data-tv="'+action+'"'),'missing interactive wooden sign '+action);
+  assert.match(js,new RegExp('class="tv-sign laria-wayfinder" data-tv="'+action+'"'),'missing interactive wooden sign '+action);
 assert.doesNotMatch(js,/Velg et hus|Se på husene/,'retired house navigation text returned');
 assert.match(js,/class="tv-next-sign" data-tv="next"/,'Next adventure must stay in the landscape');
 assert.match(js,/tv-actor-touch laria-troll-host laria-troll-actor/,'troll must be a separate animated button');
