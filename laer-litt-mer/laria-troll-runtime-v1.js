@@ -187,7 +187,12 @@
     img.style.removeProperty('visibility');
     if(parent&&!greeted.has(parent)&&parent.closest('.screen.active')){
       greeted.add(parent);
-      root.setTimeout(()=>mood(parent,'wave',{duration:1200}),120);
+      root.setTimeout(()=>{
+        // A late welcome must never replace a task-specific reaction or speech.
+        if(parent.isConnected&&(!parent.dataset.lariaTrollMood||parent.dataset.lariaTrollMood==='idle')){
+          mood(parent,'wave',{duration:1200});
+        }
+      },120);
     }
   }
 
