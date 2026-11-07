@@ -19,7 +19,10 @@ async function enter(page){
  await geography(page);
  const button=page.locator('[data-laria-geography-chapter2-preview="1"]');
  await button.waitFor({state:'attached'});
- await button.evaluate(el=>el.click());
+ const opened=await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE_UI?.open({
+   state,save:saveState,foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())
+  }));
+  assert.equal(opened,true,'Internal Kontinentseilasen preview not opened');
  await page.locator('#laria-geo-continent-voyage-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-cv-act="stage"]').count(),5);
 }
