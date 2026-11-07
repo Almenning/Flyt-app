@@ -65,9 +65,9 @@
       '<button type="button" class="eg-scene-choose" data-eg="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
       '<button type="button" class="eg-companion-actor laria-troll-host laria-troll-actor" data-eg="troll" data-troll="'+trollId+'" data-laria-troll-mood="idle" aria-label="Snakk med det valgte trollet ved Eggenipa">'+
       '<img class="laria-premium-troll-art" src="'+safe(trollSrc)+'" alt="" aria-hidden="true" draggable="false"></button>'+
-      '<button type="button" class="eg-scene-hit eg-scene-words" data-eg="words" aria-label="Åpne Ordjakt i trehytta"><span>Ordjakt</span></button>'+
-      '<button type="button" class="eg-scene-hit eg-scene-find" data-eg="find" aria-label="Åpne Finn ordene ved hagen"><span>Finn ordene</span></button>'+
-      '<button type="button" class="eg-scene-hit eg-scene-reading" data-eg="reading" aria-label="Åpne Lesekroken ved biblioteket"><span>Lesekroken</span></button></section>'+
+      '<button type="button" class="eg-scene-hit eg-scene-words laria-wayfinder" data-eg="words" aria-label="Åpne Ordjakt i trehytta"><span>Ordjakt</span></button>'+
+      '<button type="button" class="eg-scene-hit eg-scene-find laria-wayfinder" data-eg="find" aria-label="Åpne Finn ordene ved hagen"><span>Finn ordene</span></button>'+
+      '<button type="button" class="eg-scene-hit eg-scene-reading laria-wayfinder" data-eg="reading" aria-label="Åpne Lesekroken ved biblioteket"><span>Lesekroken</span></button></section>'+
       '<div class="eg-intro"><div><small>VELG DIN EGEN VEI</small><h2>Hva vil du oppdage?</h2></div>'+
       '<p>'+(greeting?'Hei, '+safe(greeting)+'! ':'')+'Velg det du liker. Du kan alltid prøve igjen.</p></div>'+
       '<nav class="eg-portals" aria-label="Velg en norskaktivitet">'+actions.map(portal).join('')+'</nav>'+

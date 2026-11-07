@@ -34,9 +34,9 @@
         '<span class="gv-grade" aria-hidden="true">'+grade+'. klasse</span>'+
         '<button type="button" class="gv-choose" data-gv="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
         '<div class="gv-brand" aria-label="Læria, Geografi"><strong>Læria</strong><span>Oppdag Nordlysleiren</span></div>'+
-        '<button type="button" class="gv-sign gv-sign-journey" data-gv="journey" aria-label="Åpne Geografireisen">Geografireisen <span aria-hidden="true">›</span></button>'+
-        '<button type="button" class="gv-sign gv-sign-globe" data-gv="globe" aria-label="Åpne Kloden">Kloden <span aria-hidden="true">›</span></button>'+
-        '<button type="button" class="gv-sign gv-sign-country" data-gv="country" aria-label="Start Land og flagg">Land og flagg <span aria-hidden="true">›</span></button>'+
+        '<button type="button" class="gv-sign gv-sign-journey laria-wayfinder" data-gv="journey" aria-label="Åpne Geografireisen">Geografireisen <span aria-hidden="true">›</span></button>'+
+        '<button type="button" class="gv-sign gv-sign-globe laria-wayfinder" data-gv="globe" aria-label="Åpne Kloden">Kloden <span aria-hidden="true">›</span></button>'+
+        '<button type="button" class="gv-sign gv-sign-country laria-wayfinder" data-gv="country" aria-label="Start Land og flagg">Land og flagg <span aria-hidden="true">›</span></button>'+
         '<button type="button" class="gv-troll laria-troll-host laria-troll-actor" data-gv="troll" data-troll="'+id+'" data-laria-troll-mood="idle" aria-label="Snakk med trollet ditt i Nordlysleiren">'+
         '<img class="laria-premium-troll-art" src="'+safe(src)+'" alt="" aria-hidden="true" draggable="false"></button>'+
         '</div>';

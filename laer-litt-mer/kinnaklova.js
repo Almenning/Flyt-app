@@ -126,8 +126,8 @@
       '<img class="ki-troll laria-premium-troll-art" data-ki-character="'+selectedId+'" src="'+escapeText(selectedSrc)+'" alt="" aria-hidden="true" draggable="false" loading="eager"></button>'+
       '</div>'+
       '<button type="button" class="ki-painted-hit ki-painted-home" data-ki="home" aria-label="Tilbake til Hjem"></button>'+
-      ACTIONS.map(a=>'<button type="button" class="ki-painted-hit ki-painted-'+a.id+
-        '" data-ki="'+a.id+'" aria-label="Åpne '+a.name+' ved Kinnaklova"></button>').join('')+
+      ACTIONS.map(a=>'<button type="button" class="ki-painted-hit ki-painted-'+a.id+' laria-wayfinder'+
+        '" data-ki="'+a.id+'" aria-label="Åpne '+a.name+' ved Kinnaklova"><span class="ki-plank-name" aria-hidden="true">'+a.name+'</span></button>').join('')+
       '</div>'+
       '<div class="ki-intro"><div><small>ENGELSK · VELG DET DU LIKER</small><h2>Hva vil du oppdage?</h2></div>'+
       '<p>'+(name?'Hei, '+escapeText(name)+'! ':'')+'Utforsk ordene, lek med setninger, eller les en historie.</p></div>'+
