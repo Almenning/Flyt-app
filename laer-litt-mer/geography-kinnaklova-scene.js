@@ -95,7 +95,14 @@
     if(active()){
       if(phase==='landing')landing();
     }else{
-      phase='landing';key='';
+      // A geography mission temporarily opens the common session/complete
+      // screen. Preserve the journey phase so "Tilbake" returns to the same
+      // painted map, not to a landing overlay hiding the restored journey.
+      // Navigating elsewhere (Home, Utforsk, another subject) resets it.
+      const childLearningScreen=['session-screen','complete-screen'].some(id=>
+        document.getElementById(id)?.classList.contains('active'));
+      if(!(phase==='journey'&&childLearningScreen))phase='landing';
+      key='';
       if(screen.classList.contains('gv-visible'))screen.classList.remove('gv-visible');
       if(root){root.remove();root=null;}
     }
