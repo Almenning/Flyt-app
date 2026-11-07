@@ -78,7 +78,10 @@ async function run(engine,label,viewport){
      const before=await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{}));
      assert.equal(await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{})),before,
        label+' English landing must not mutate journey progress');
-     await ki.locator('[data-ki="words"].ki-card').click();
+      await page.waitForFunction(()=>['ready','missing','unapproved'].includes(document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+      const paintedWords=ki.locator('.ki-painted-words');
+      if(await paintedWords.isVisible())await paintedWords.click();
+      else await ki.locator('.ki-card[data-ki="words"]:visible').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const state=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,question:sessionQuestions[qIndex]?.prompt}));
      assert.equal(state.subject,'english',label+' English engine not reached');
