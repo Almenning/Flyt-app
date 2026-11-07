@@ -53,6 +53,20 @@ async function run(browser,engine,label,viewport,url){
       noOverflow:document.documentElement.scrollWidth<=innerWidth+3
     };
   });
+  if(viewport.width<=350&&viewport.height<=620){
+    // The selected original TrollActor is a separate living layer, but must
+    // never expand to the entire scene and push tactile pieces off a tiny phone.
+    const tiny=await page.evaluate(()=>{
+      const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();
+        return r?{top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null;};
+      return {actor:rect('.fr5-fox-mentor .laria-premium-troll-art'),
+        tray:rect('.fr6-piece-tray'),cake:rect('.fr2-build-target')};
+    });
+    assert.ok(tiny.actor&&tiny.actor.height<=72,
+      label+' selected troll stretched the tiny workshop: '+JSON.stringify(tiny));
+    assert.ok(tiny.tray&&tiny.tray.top>=0&&tiny.tray.bottom<=viewport.height,
+      label+' physical loose pieces should be reachable without auto-scroll: '+JSON.stringify(tiny));
+  }
   if(label.includes('tiny'))await photo(page,label+'-00-first-fold-diagnostic');
   assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.equivalentsBesideCake&&firstFold.noOverflow,
     label+' first viewport must show cake, 1/4, both controls and personal fox: '+JSON.stringify(firstFold));
