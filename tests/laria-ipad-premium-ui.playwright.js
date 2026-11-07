@@ -48,8 +48,21 @@ async function run(engine,engineName,label,viewport){
        label+' Engelsk must fill the complete iPad display '+JSON.stringify(framing));
      assert.equal(framing.fit,'cover',label+' Engelsk portrait and landscape must use immersive scene framing');
      assert.deepEqual(framing.natural,[1672,941],label+' changed approved Kinnaklova source dimensions');
-     assert.equal(await world.locator('.ki-world-brand:visible').count(),1,
-       label+' missing shared Læria top treatment');
+     assert.equal(await world.locator('.ki-world-brand:visible').count(),0,
+       label+' duplicate HTML logo covers the original painted Læria title');
+     const painted=await world.locator('.ki-painted-words.laria-wayfinder').evaluate(el=>({
+       image:getComputedStyle(el).backgroundImage,
+       nameVisible:getComputedStyle(el.querySelector('.ki-plank-name')).visibility
+     }));
+     if(viewport.width>viewport.height){
+       assert.equal(painted.image,'none',label+' duplicates the original painted landscape signs');
+       assert.equal(painted.nameVisible,'hidden',label+' shows two Words labels on one sign');
+     }else{
+       assert.notEqual(painted.image,'none',label+' cropped portrait source requires a fully legible interactive sign');
+       assert.equal(painted.nameVisible,'visible',label+' portrait sign lost its legible label');
+       const position=await world.locator('.ki-master').evaluate(el=>getComputedStyle(el).objectPosition);
+       assert.ok(position.startsWith('50%'),label+' portrait crops the original Kinnaklova heading');
+     }
      const signs=await world.locator('.ki-painted-hit.laria-wayfinder:visible').evaluateAll(nodes=>nodes.map(el=>{
        const a=el.getBoundingClientRect(),hit=document.elementFromPoint(a.x+a.width/2,a.y+a.height/2);
        return {id:el.dataset.ki,x:a.x,y:a.y,right:a.right,bottom:a.bottom,
