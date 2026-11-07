@@ -171,6 +171,14 @@ async function verify(engine,launcher,label,viewport,url){
      assert.ok(top.top>=-1&&top.bottom<=top.viewport,
        label+' theme title hidden on compact iPhone entry: '+JSON.stringify(top));
    }
+   // The initial gallery must not show four empty beige art frames while
+   // Safari delays lazy loading. All five images are present and eager.
+   await page.waitForFunction(()=>{
+     const art=[...document.querySelectorAll('.word-hunt-theme-picker:not([hidden]) .wh-theme-card img')];
+     return art.length===5&&art.every(img=>img.complete&&img.naturalWidth>100);
+   },null,{timeout:13000});
+   assert.equal(await entryModal.locator('.wh-theme-card img[loading="eager"]').count(),5,
+     label+' theme artworks were left lazy and missing on first paint');
    await shot(page,label+'-first-topic-gallery');
    // When resume is hidden, cycle between the last visible card and close.
    await entryModal.locator('.wh-theme-card').last().focus();
@@ -322,7 +330,21 @@ async function verify(engine,launcher,label,viewport,url){
    await page.keyboard.press('Shift+Tab');
    assert.equal(await resume.evaluate(el=>el===document.activeElement),true,
      label+' Shift+Tab skipped the saved-round resume action');
-   await resume.click();
+   try{
+     await resume.click({timeout:14000});
+   }catch(error){
+     const geometry=await resume.evaluate(el=>{
+       const r=el.getBoundingClientRect(),p=el.closest('.wh-theme-panel');
+       const st=getComputedStyle(el),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+       return {rect:{x:r.x,y:r.y,w:r.width,h:r.height},
+         panelScroll:p?.scrollTop,panelHeight:p?.clientHeight,
+         panelScrollHeight:p?.scrollHeight,
+         display:st.display,visibility:st.visibility,active:document.activeElement===el,
+         hit:hit?.className,hitIsButton:hit===el||el.contains(hit)};
+     });
+     await shot(page,label+'-resume-blocked');
+     throw new Error(label+' resume real pointer click failed '+JSON.stringify(geometry)+' '+error.message);
+   }
    await page.locator('.word-hunt-cell:visible').first().waitFor();
    assert.deepEqual(await page.locator('.word-hunt-word').allTextContents().then(items=>items.map(s=>s.replace(/^✓\s*/,'').trim())),next,
      'Resuming an unfinished puzzle must preserve its exact target words');
