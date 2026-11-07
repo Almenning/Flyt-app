@@ -208,3 +208,118 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
     letter-spacing:-.02em;overflow-wrap:anywhere;
   }
 }
+
+
+/* Kinnaklova shared subject direction - Eggenipa.
+ * Keep the approved painting. Three wooden wayfinding signs, the Læria crest,
+ * and the actual navigation live WITHIN it, not as cards under the picture. */
+#eggenipa-world{
+  min-height:100dvh!important;padding-bottom:0!important;
+  background:#e6ead7!important
+}
+#eggenipa-world .eg-top,#eggenipa-world .eg-intro,
+#eggenipa-world .eg-portals{display:none!important}
+#eggenipa-world .eg-hero{
+  width:100%;max-width:none;height:100dvh;min-height:560px;
+  aspect-ratio:auto;overflow:hidden;
+  background:#b8cbb0
+}
+#eggenipa-world .eg-master{
+  width:100%;height:100%;object-fit:cover!important;
+  object-position:center 48%
+}
+#eggenipa-world .eg-scene-home{
+  position:absolute;top:max(12px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));
+  z-index:8;min-width:88px;min-height:44px;
+  padding:6px 16px;border:2px solid #f5dca5;border-radius:999px;
+  color:#fff4d8;background:linear-gradient(#88522f,#5c321d);
+  box-shadow:0 4px 0 #422a1a,0 8px 20px #152b2766;
+  font-size:14px;font-weight:950;cursor:pointer
+}
+#eggenipa-world .eg-world-brand{
+  position:absolute;top:2.2%;left:50%;transform:translateX(-50%);
+  z-index:7;min-width:clamp(166px,24%,310px);
+  display:grid;place-items:center;gap:1px;padding:9px 18px 10px;
+  border:3px solid #674020;border-radius:24px 22px 18px 20px;
+  color:#fff2cf;text-shadow:0 2px 2px #27180b9e;
+  background:linear-gradient(160deg,#966438,#603716 68%,#573214);
+  box-shadow:inset 0 2px 0 #f9d69288,0 6px 0 #3a2417,0 11px 21px #20140b66;
+  pointer-events:none
+}
+#eggenipa-world .eg-world-brand strong{
+  font:1000 clamp(27px,3.9vw,49px)/1 ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif;
+  letter-spacing:-.055em
+}
+#eggenipa-world .eg-world-brand span{
+  color:#f7d7a3;font:900 clamp(11px,1.4vw,18px)/1.22 ui-rounded,system-ui,sans-serif
+}
+#eggenipa-world .eg-world-grade{
+  position:absolute;top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));
+  z-index:8;padding:8px 13px;min-height:42px;border:2px solid #e9d5ae;
+  border-radius:999px;background:#fff8e9df;color:#583c29;
+  font-size:13px;font-weight:950
+}
+/* Only the three small interactive signs may catch taps; never a screen-wide
+ * transparent hotspot stealing gestures from the child or the companion. */
+#eggenipa-world .eg-scene-hit{
+  display:flex!important;z-index:6;align-items:center;justify-content:center;
+  width:clamp(126px,15vw,214px);height:clamp(47px,5.4vw,73px);
+  min-height:44px;min-width:120px;padding:0;
+  background:transparent!important;border:0;border-radius:16px;
+  box-shadow:none!important
+}
+#eggenipa-world .eg-scene-hit span{
+  position:relative;width:100%;height:100%;min-height:44px;
+  justify-content:center;padding:8px 26px 8px 11px;
+  border:2px solid #59341d;border-radius:12px 20px 16px 11px;
+  color:#ffebc1;background:linear-gradient(178deg,#976034 0%,#6d3c20 57%,#4c2916 100%);
+  box-shadow:inset 0 2px 0 #f0be8070,0 4px 0 #3d261a,0 7px 14px #17291966;
+  font:950 clamp(14px,1.75vw,23px)/1.1 ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif;
+  text-shadow:0 1px 2px #32180b;white-space:nowrap;transform:none!important
+}
+#eggenipa-world .eg-scene-hit span::after{
+  content:"›";position:absolute;right:5px;top:50%;transform:translateY(-50%);
+  width:25px;height:25px;display:grid;place-items:center;border-radius:50%;
+  border:2px solid #d8d68a;background:#437b49;color:white;font-size:19px
+}
+#eggenipa-world .eg-scene-words{left:13%;top:71%;right:auto;bottom:auto}
+#eggenipa-world .eg-scene-find{left:42%;top:84%;right:auto;bottom:auto}
+#eggenipa-world .eg-scene-reading{left:auto;right:5%;top:73%;bottom:auto}
+#eggenipa-world .eg-scene-hit:focus-visible{
+  outline:4px solid #fff6b6;outline-offset:3px
+}
+#eggenipa-world .eg-companion-actor{left:3.2%;bottom:2%;width:9%;height:27%;z-index:5}
+@media(max-width:700px){
+  #eggenipa-world .eg-hero{height:100dvh;min-height:590px}
+  #eggenipa-world .eg-master{object-position:center 50%}
+  #eggenipa-world .eg-world-brand{top:9%;min-width:170px}
+  #eggenipa-world .eg-world-brand strong{font-size:31px}
+  #eggenipa-world .eg-world-brand span{font-size:12px}
+  #eggenipa-world .eg-world-grade{font-size:11px;min-height:44px;padding:11px 9px}
+  #eggenipa-world .eg-scene-hit{
+    width:clamp(135px,46%,200px);height:clamp(52px,7dvh,65px)
+  }
+  #eggenipa-world .eg-scene-hit span{font-size:clamp(14px,4vw,18px)}
+  #eggenipa-world .eg-scene-words{left:4%;top:45%}
+  #eggenipa-world .eg-scene-find{left:28%;top:64%}
+  #eggenipa-world .eg-scene-reading{right:4%;top:81%}
+  #eggenipa-world .eg-companion-actor{left:3%;bottom:6%;width:18%;height:23%}
+}
+@media(orientation:landscape) and (max-height:500px){
+  #eggenipa-world .eg-hero{height:100dvh;min-height:0}
+  #eggenipa-world .eg-world-brand{top:3%;min-width:165px;padding:5px 14px}
+  #eggenipa-world .eg-world-brand strong{font-size:28px}
+  #eggenipa-world .eg-world-brand span{font-size:10px}
+  #eggenipa-world .eg-scene-hit{
+    width:clamp(124px,20%,175px);height:47px
+  }
+  #eggenipa-world .eg-scene-hit span{font-size:14px}
+  #eggenipa-world .eg-scene-words{left:15%;top:67%}
+  #eggenipa-world .eg-scene-find{left:42%;top:80%}
+  #eggenipa-world .eg-scene-reading{right:5%;top:69%}
+  #eggenipa-world .eg-companion-actor{left:3%;bottom:2%;width:8%;height:30%}
+}
+@media(prefers-reduced-motion:reduce){
+  #eggenipa-world .eg-scene-hit,
+  #eggenipa-world .eg-world-brand{transition:none!important}
+}
