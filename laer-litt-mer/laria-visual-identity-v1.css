@@ -133,9 +133,9 @@
   transform:none!important;
 }
 /* Unified two posts UNDER the plank. They are part of a single sign system. */
-:is(#tallvika-world .tv-sign.laria-wayfinder::after,
-    #laria-geography-world .gv-sign.laria-wayfinder::after,
-    #eggenipa-world .eg-scene-hit.laria-wayfinder > span::before){
+#tallvika-world .tv-sign.laria-wayfinder::after,
+#laria-geography-world .gv-sign.laria-wayfinder::after,
+#eggenipa-world .eg-scene-hit.laria-wayfinder > span::before{
   content:""!important;position:absolute!important;display:block!important;
   top:calc(100% - 7px)!important;left:23%!important;
   width:54%!important;height:clamp(17px,2.45dvh,29px)!important;
