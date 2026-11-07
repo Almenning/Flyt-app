@@ -121,3 +121,157 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-next-sign .tv-next-title{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.tv-next-sign,.tv-actor{transition:none;animation:none}}
+
+/* Kinnaklova shared subject direction - Tallvika.
+   Scene-native wooden signs replace the old stacked signboard. They are
+   actual controls, independent of the painting; learning routes are unchanged.
+   The house art is baked into the locked image and is NOT falsely erased. */
+#tallvika-world{background:#e6ead7!important}
+#tallvika-world .tv-top{display:none!important}
+#tallvika-world .tv-main{padding:0!important}
+#tallvika-world .tv-stage{width:100%;max-width:none}
+#tallvika-world .tv-scene{
+  width:100%;height:100dvh;min-height:560px;
+  aspect-ratio:auto;border-radius:0;box-shadow:none;
+  background-size:cover;background-position:center center
+}
+#tallvika-world .tv-scene-home,
+#tallvika-world .tv-scene-grade,
+#tallvika-world .tv-scene-choose{
+  position:absolute;z-index:9;top:max(12px,env(safe-area-inset-top));
+  display:flex;align-items:center;justify-content:center;
+  min-height:44px;max-width:40%;padding:6px 12px;
+  border:2px solid #e7c793;border-radius:999px;
+  background:linear-gradient(#86522f,#613518);
+  box-shadow:0 4px 0 #3c2514,0 8px 18px #23180d66;
+  color:#fff3d2;font-size:13px;font-weight:900;text-shadow:0 1px 2px #321b0e
+}
+#tallvika-world .tv-scene-home{left:max(13px,env(safe-area-inset-left))}
+#tallvika-world .tv-scene-grade{
+  right:max(115px,calc(env(safe-area-inset-right) + 114px));pointer-events:none
+}
+#tallvika-world .tv-scene-choose{right:max(12px,env(safe-area-inset-right))}
+#tallvika-world .tv-world-brand{display:none}
+/* Full-scene sign host; no stacked post, cards or old sign-rack background. */
+#tallvika-world .tv-sign-nav{
+  position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;max-width:none!important;
+  aspect-ratio:auto!important;isolation:isolate;
+  background:none!important;filter:none!important;
+  padding:0!important;margin:0!important;
+  pointer-events:none
+}
+#tallvika-world .tv-sign{
+  position:absolute!important;z-index:6;pointer-events:auto;
+  width:clamp(132px,17%,235px);height:clamp(48px,5.6vw,76px);
+  min-height:44px;min-width:126px;
+  display:flex!important;align-items:center;justify-content:center;
+  grid-template-columns:none!important;gap:7px!important;
+  padding:7px 10px!important;border:2px solid #59351e!important;
+  border-radius:13px 20px 17px 12px!important;
+  background:linear-gradient(175deg,#9c6539 0%,#774522 54%,#522e17 100%)!important;
+  color:#fff0c8!important;
+  box-shadow:inset 0 2px 0 #f9d38b7d,0 5px 0 #3a2415,0 10px 18px #14221d82!important;
+  transform:none!important;text-shadow:0 1px 2px #2b180e!important;
+  -webkit-tap-highlight-color:transparent
+}
+#tallvika-world .tv-sign .tv-sign-icon{
+  width:28px;height:28px;flex:0 0 28px;color:#f1d7a1;
+  display:grid;place-items:center
+}
+#tallvika-world .tv-sign-icon svg{width:25px!important;filter:none!important}
+#tallvika-world .tv-sign-label,
+#tallvika-world .tv-sign:nth-child(3) .tv-sign-label{
+  color:#fff0c8!important;font-size:clamp(14px,1.5vw,21px)!important;
+  font-family:ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif;
+  font-weight:950;line-height:1.04;letter-spacing:-.03em;
+  white-space:normal;overflow-wrap:normal
+}
+/* Stagger the three activity signs around the actual landscape objects. */
+#tallvika-world .tv-sign:nth-child(1){left:11%!important;top:28%!important}
+#tallvika-world .tv-sign:nth-child(2){left:41%!important;top:43%!important}
+#tallvika-world .tv-sign:nth-child(3){left:auto!important;right:5%!important;top:34%!important}
+#tallvika-world .tv-sign:focus-visible{
+  outline:4px solid #fff6be!important;outline-offset:4px
+}
+#tallvika-world .tv-next-sign{
+  transform:none!important;right:3%;bottom:4%;
+  border-color:#d3b078;border-radius:15px;
+  background:linear-gradient(#92603a,#633a1d);
+  color:#ffedc4;text-shadow:0 1px #2d180b;
+  box-shadow:0 5px 0 #3d2717,0 9px 19px #1f190e77
+}
+#tallvika-world .tv-next-sign .tv-next-arrow{
+  background:#497e4a;border-color:#cde1a0;
+  box-shadow:none
+}
+#tallvika-world .tv-actor{left:3%;bottom:3%;width:clamp(94px,10%,150px);height:27%}
+#tallvika-world .tv-actor-speech{
+  width:clamp(122px,16vw,205px);
+  font-size:clamp(11px,1.2vw,15px);left:95%;top:7%
+}
+@media(orientation:portrait) and (max-width:1100px){
+  #tallvika-world .tv-scene{
+    min-height:630px;height:100dvh;background-size:auto 100%;
+    background-position:center center
+  }
+  #tallvika-world .tv-world-brand{
+    display:grid;position:absolute;z-index:8;
+    left:50%;top:8%;transform:translateX(-50%);
+    min-width:clamp(166px,36%,245px);
+    padding:9px 16px 11px;text-align:center;
+    border:3px solid #6d4323;border-radius:23px 22px 17px 17px;
+    color:#fff3d2;text-shadow:0 2px 2px #281a12a8;
+    background:linear-gradient(165deg,#946237,#603619);
+    box-shadow:inset 0 2px 0 #f4c78883,0 5px 0 #422815,0 11px 17px #20161275;
+    pointer-events:none
+  }
+  #tallvika-world .tv-world-brand strong{
+    font:1000 clamp(29px,5vw,44px)/1 ui-rounded,system-ui,sans-serif
+  }
+  #tallvika-world .tv-world-brand span{font-size:13px;font-weight:900}
+  #tallvika-world .tv-sign{
+    width:clamp(150px,36%,230px);height:clamp(51px,8vw,70px)
+  }
+  #tallvika-world .tv-sign:nth-child(1){left:7%!important;top:42%!important}
+  #tallvika-world .tv-sign:nth-child(2){left:auto!important;right:5%!important;top:59%!important}
+  #tallvika-world .tv-sign:nth-child(3){left:15%!important;right:auto!important;top:74%!important}
+  #tallvika-world .tv-sign-label,#tallvika-world .tv-sign:nth-child(3) .tv-sign-label{
+    font-size:clamp(14px,2.7vw,20px)!important
+  }
+  #tallvika-world .tv-actor{left:1.5%;bottom:4%;width:clamp(80px,20%,132px);height:20%}
+  #tallvika-world .tv-actor-speech{left:80%;width:clamp(105px,28vw,175px);font-size:12px}
+  #tallvika-world .tv-next-sign{right:2%;bottom:2%;width:clamp(170px,48%,300px)}
+}
+@media(max-width:700px){
+  #tallvika-world .tv-scene-home,
+  #tallvika-world .tv-scene-grade,
+  #tallvika-world .tv-scene-choose{font-size:11px;padding:6px 9px}
+  #tallvika-world .tv-scene-grade{right:104px}
+  #tallvika-world .tv-world-brand{top:14%}
+  #tallvika-world .tv-world-brand strong{font-size:31px}
+  #tallvika-world .tv-sign{width:clamp(152px,49%,194px)}
+  #tallvika-world .tv-sign:nth-child(1){left:5%!important;top:42%!important}
+  #tallvika-world .tv-sign:nth-child(2){right:4%!important;top:59%!important}
+  #tallvika-world .tv-sign:nth-child(3){left:8%!important;top:74%!important}
+  #tallvika-world .tv-sign-icon{flex-basis:23px!important;width:23px!important}
+  #tallvika-world .tv-sign-label,
+  #tallvika-world .tv-sign:nth-child(3) .tv-sign-label{font-size:14px!important}
+  #tallvika-world .tv-next-sign{bottom:3%;right:3%;width:44%;min-height:48px;padding:6px 9px}
+  #tallvika-world .tv-next-sign strong{font-size:12px}
+  #tallvika-world .tv-next-sign .tv-next-arrow{min-width:39px;height:39px}
+}
+@media(orientation:landscape) and (max-height:500px){
+  #tallvika-world .tv-scene{min-height:0;height:100dvh}
+  #tallvika-world .tv-sign{width:clamp(122px,20%,170px);height:44px;padding:4px 6px!important}
+  #tallvika-world .tv-sign:nth-child(1){left:16%!important;top:46%!important}
+  #tallvika-world .tv-sign:nth-child(2){left:41%!important;top:65%!important}
+  #tallvika-world .tv-sign:nth-child(3){right:6%!important;top:46%!important}
+  #tallvika-world .tv-sign-label,#tallvika-world .tv-sign:nth-child(3) .tv-sign-label{font-size:13px!important}
+  #tallvika-world .tv-scene-home,
+  #tallvika-world .tv-scene-grade,
+  #tallvika-world .tv-scene-choose{top:6px}
+  #tallvika-world .tv-actor{left:3%;bottom:1%;width:70px;height:30%}
+  #tallvika-world .tv-actor-speech{font-size:10px;left:90%;top:-12%}
+  #tallvika-world .tv-next-sign{right:2%;bottom:4%;min-height:44px;width:160px}
+}
