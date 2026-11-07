@@ -36,8 +36,30 @@ async function run(engine,engineName,label,viewport){
    await page.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
    const world=page.locator(spec.root+':visible');
    await world.waitFor({timeout:18000});
-   if(spec.id==='english')
+   if(spec.id==='english'){
      await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:18000});
+     const framing=await world.locator('.ki-stage').evaluate(el=>{
+       const a=el.getBoundingClientRect(),img=el.querySelector('.ki-master');
+       return {x:a.x,y:a.y,width:a.width,height:a.height,
+         fit:getComputedStyle(img).objectFit,natural:[img.naturalWidth,img.naturalHeight]};
+     });
+     assert.ok(Math.abs(framing.x)<=2&&Math.abs(framing.y)<=2&&
+       Math.abs(framing.width-viewport.width)<=2&&Math.abs(framing.height-viewport.height)<=2,
+       label+' Engelsk must fill the complete iPad display '+JSON.stringify(framing));
+     assert.equal(framing.fit,'cover',label+' Engelsk portrait and landscape must use immersive scene framing');
+     assert.deepEqual(framing.natural,[1672,941],label+' changed approved Kinnaklova source dimensions');
+     assert.equal(await world.locator('.ki-world-brand:visible').count(),1,
+       label+' missing shared Læria top treatment');
+     const signs=await world.locator('.ki-painted-hit.laria-wayfinder:visible').evaluateAll(nodes=>nodes.map(el=>{
+       const a=el.getBoundingClientRect(),hit=document.elementFromPoint(a.x+a.width/2,a.y+a.height/2);
+       return {id:el.dataset.ki,x:a.x,y:a.y,right:a.right,bottom:a.bottom,
+         w:a.width,h:a.height,tappable:hit===el||el.contains(hit)};
+     }));
+     assert.equal(signs.length,3,label+' Kinnaklova requires exactly three visible painted destinations');
+     assert.ok(signs.every(x=>x.w>=44&&x.h>=44&&x.x>=0&&x.y>=0&&
+       x.right<=viewport.width+2&&x.bottom<=viewport.height+2&&x.tappable),
+       label+' Kinnaklova destinations must be tappable in both orientations '+JSON.stringify(signs));
+   }
    const chooser=world.locator(spec.chooser);
    await chooser.waitFor({state:'visible',timeout:15000});
    const controls=await chooser.evaluate(el=>{
