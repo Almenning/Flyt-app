@@ -98,7 +98,9 @@ async function run(engine,label,width,height){
     label+' did not open the three approved Norsk activities');
   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
     label+' retired Norwegian map is still visible');
-  await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+  const reading=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  if(await reading.count())await reading.click();
+  else await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible').click();
   await page.locator('#session-screen.active').waitFor({timeout:16000});
   const session=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module}));
   assert.equal(session.subject,'norwegian',label+' wrong subject after Norsk card');

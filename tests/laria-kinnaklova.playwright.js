@@ -26,7 +26,9 @@ async function visitEnglish(page){
  await page.locator('#subject-screen.active #kinnaklova-world').waitFor({state:'visible',timeout:16000});
 }
 async function takeActivity(page,action,label){
- await page.locator('#kinnaklova-world .ki-card[data-ki="'+action+'"]').click();
+ const painted=page.locator('#kinnaklova-world .ki-painted-'+action+':visible');
+ if(await painted.count())await painted.click();
+ else await page.locator('#kinnaklova-world .ki-card[data-ki="'+action+'"]:visible').click();
  await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
  const result=await page.evaluate(()=>({
    subject:sessionScope?.subject,module:sessionScope?.module,

@@ -105,6 +105,13 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
  .eg-portal:hover{transform:translateY(-3px);box-shadow:0 8px 0 #d3bc91,0 16px 22px rgba(69,57,35,.14)}
 }
 .eg-portal:active{transform:translateY(2px);box-shadow:0 3px 0 #d3bc91}
+/* On tablet and desktop the three labels are already part of the illustrated
+   world. Keeping a second row of cards below turns one clear choice into two
+   competing menus. Phones retain the card list, where the painted labels are
+   deliberately hidden for touch comfort. */
+@media(min-width:701px){
+ .eg-intro,.eg-portals{display:none!important}
+}
 @media(max-width:700px){
  .eg-companion-actor{left:3%;bottom:2%;width:12%;height:34%}
  .eg-top{height:58px;padding:0 12px}

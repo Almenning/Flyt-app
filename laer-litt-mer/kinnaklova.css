@@ -131,6 +131,13 @@ html:has(#subject-screen.kinnaklova-active),body:has(#subject-screen.kinnaklova-
  .ki-card:hover{transform:translateY(-2px);box-shadow:0 8px 0 #ceb48b,0 15px 24px #65513a20}
 }
 .ki-card:active{transform:translateY(2px);box-shadow:0 2px 0 #ceb48b}
+/* The certified Kinnaklova plate contains the activity signs. At tablet and
+   desktop sizes those real painted hit areas are the only menu; the card row
+   remains as the compact-phone fallback and when artwork verification fails. */
+@media(min-width:701px){
+ #kinnaklova-world[data-ki-art="ready"] .ki-intro,
+ #kinnaklova-world[data-ki-art="ready"] .ki-actions{display:none!important}
+}
 @media(max-width:700px){
  .ki-utility{display:flex;min-height:55px;padding:6px 12px}
  .ki-utility>span:nth-child(2){font-size:10px;letter-spacing:.035em}
