@@ -69,12 +69,12 @@ async function run(browserType,engine,name,viewport){
    });
    assert.ok(b.w>=44&&b.h>=44&&b.x>=-2&&b.x+b.w<=viewport.width+2&&b.y>=-2&&b.y+b.h<=viewport.height+2,
      engine+' '+name+' '+spec.id+' sign outside device: '+JSON.stringify(b));
-   // The locked Kinnaklova landscape already paints the approved signs.
-   // On spacious landscape screens the live button is a transparent hitbox,
-   // not an extra wooden plank pasted over the original. Portrait and
-   // compact screens use real SVG boards where the camera crop hides signs.
+   // The locked Kinnaklova original already paints Words. An extra
+   // visible board would duplicate those pixels. On iPad the Words button
+   // stays transparent; portrait still supplies new, legible Sentences and
+   // Reading planks where the approved panoramic camera cuts them off.
    const usesPaintedEnglishSign=spec.id==='english'&&
-     viewport.width>=701&&viewport.height>=600&&!portrait;
+     viewport.width>=701&&viewport.height>=600;
    if(usesPaintedEnglishSign){
      assert.equal(b.background,'none',
        engine+' '+name+' English duplicated a sign already painted in the certified Kinnaklova art');
