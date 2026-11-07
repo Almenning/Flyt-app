@@ -18,8 +18,7 @@ async function enter(page){
  await english(page);
  const launch=page.locator('[data-laria-english-chapter2-preview="1"]');
  await launch.waitFor({timeout:16000});
- if(await launch.isVisible())await launch.click();
- else await launch.evaluate(el=>el.click());
+ await launch.evaluate(el=>el.click());
  await page.locator('#laria-english-sentence-harbor-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-sh-act="stage"]').count(),5);
 }
