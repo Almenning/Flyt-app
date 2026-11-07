@@ -197,7 +197,12 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert.deepEqual(eggenipaPortals,['words','find','reading'],name+' direct Norsk activities missing');
   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
     name+' old Norsk map leaked into the child journey');
-  await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').tap();
+  // On an illustrated landscape the painted portal is the real child-facing
+  // target. Portrait retains the accessible card while the stage is letterboxed.
+  const paintedReading=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  const readingEntry=(await paintedReading.count())?paintedReading:
+    page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible');
+  await readingEntry.tap();
   await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
   const reading=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
     prompt:sessionQuestions[qIndex]?.prompt,grade:sessionScope?.grade}));
