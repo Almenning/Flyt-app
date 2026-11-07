@@ -1,0 +1,292 @@
+/* LÆRIA – locked visual identity, 7 Nov 2026.
+   One design token source for logo, two-post sign and Home control.
+   Do not modify the SHA-locked paintings or the original TrollActor assets.
+   Kinnaklova and Grovanova include baked-in signs/logo; see visual-art gate. */
+:root{
+  --laria-brand-ink:#563019;
+  --laria-brand-gold:#f8daa0;
+  --laria-sign-ink:#56341c;
+  --laria-sign-art:url("./assets/ui/laria-light-arrow-sign.svg");
+  --laria-home-art:url("./assets/ui/laria-home-round.svg");
+  --laria-ui-font:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",system-ui,sans-serif;
+  --laria-sign-shadow:drop-shadow(0 4px 3px #38250f75);
+}
+/* ONE crest in each scene with clean, non-baked title artwork.
+   Kinnaklova/Grovanova need a separate visually approved clean source
+   before a new crest can replace their existing painted wordmark. */
+:is(#eggenipa-world .eg-world-brand,
+    #tallvika-world .tv-world-brand,
+    #laria-geography-world .gv-brand){
+  box-sizing:border-box!important;
+  position:absolute!important;z-index:8!important;
+  display:grid!important;place-items:center!important;
+  gap:1px!important;left:50%!important;top:3%!important;
+  right:auto!important;bottom:auto!important;
+  transform:translateX(-50%)!important;
+  min-width:clamp(174px,25%,306px)!important;
+  width:max-content!important;max-width:66%!important;
+  padding:9px 27px 10px!important;
+  border:4px solid #8b572d!important;
+  border-radius:38px 40px 32px 34px!important;
+  background:
+    repeating-linear-gradient(175deg,transparent 0 16px,#a86b3824 17px 18px,transparent 19px 31px),
+    linear-gradient(180deg,#ffe4a4 0%,#f1c27f 53%,#d69a59 100%)!important;
+  color:var(--laria-brand-ink)!important;
+  text-shadow:0 1px 0 #fff1c7!important;
+  box-shadow:inset 0 2px 0 #fff3c3,0 5px 0 #794921,0 9px 15px #1d2e2470!important;
+  font-family:var(--laria-ui-font)!important;
+  pointer-events:none!important;
+}
+:is(#eggenipa-world .eg-world-brand,
+    #tallvika-world .tv-world-brand,
+    #laria-geography-world .gv-brand)::before,
+:is(#eggenipa-world .eg-world-brand,
+    #tallvika-world .tv-world-brand,
+    #laria-geography-world .gv-brand)::after{
+  content:""!important;position:absolute!important;
+  display:block!important;z-index:1!important;
+  top:28%!important;width:24px!important;height:16px!important;
+  border-radius:85% 4% 85% 12%!important;
+  background:linear-gradient(155deg,#83b44c,#397336 76%)!important;
+  box-shadow:inset 2px 1px 0 #b6d47b,0 2px 2px #3425114d!important
+}
+:is(#eggenipa-world .eg-world-brand,
+    #tallvika-world .tv-world-brand,
+    #laria-geography-world .gv-brand)::before{
+  left:-10px!important;transform:rotate(-28deg)!important
+}
+:is(#eggenipa-world .eg-world-brand,
+    #tallvika-world .tv-world-brand,
+    #laria-geography-world .gv-brand)::after{
+  right:-10px!important;transform:scaleX(-1) rotate(-28deg)!important
+}
+:is(#eggenipa-world .eg-world-brand,
+    #tallvika-world .tv-world-brand,
+    #laria-geography-world .gv-brand) strong{
+  font:900 clamp(29px,3.9vw,46px)/.98 Georgia,"Times New Roman",serif!important;
+  letter-spacing:-.055em!important;
+  color:var(--laria-brand-ink)!important;
+  text-shadow:0 1px 0 #fff0c8,0 2px 1px #75431f55!important;
+  white-space:nowrap!important
+}
+:is(#eggenipa-world .eg-world-brand,
+    #tallvika-world .tv-world-brand,
+    #laria-geography-world .gv-brand) span{
+  color:#54391f!important;font:900 clamp(11px,1.3vw,15px)/1.15 var(--laria-ui-font)!important;
+  text-shadow:0 1px 0 #fff0c8!important;
+  white-space:nowrap!important
+}
+/* ONE round wooden Home button in every active subject world.
+   The image owns the visual glyph; original button labels remain available
+   to assistive tech, and the original click handlers remain untouched. */
+:is(#eggenipa-world .eg-scene-home,
+    #tallvika-world .tv-scene-home,
+    #laria-geography-world .gv-home,
+    #kinnaklova-world[data-ki-art="ready"] .ki-painted-home){
+  appearance:none!important;
+  position:absolute!important;z-index:20!important;
+  top:max(9px,env(safe-area-inset-top))!important;
+  left:max(9px,env(safe-area-inset-left))!important;
+  right:auto!important;bottom:auto!important;
+  display:grid!important;place-items:center!important;
+  width:58px!important;height:58px!important;
+  min-width:48px!important;min-height:48px!important;
+  padding:0!important;margin:0!important;
+  border:0!important;border-radius:50%!important;
+  background:var(--laria-home-art) center/contain no-repeat!important;
+  box-shadow:none!important;filter:none!important;
+  color:transparent!important;text-shadow:none!important;font-size:0!important;
+  line-height:0!important;cursor:pointer!important;
+  -webkit-tap-highlight-color:transparent!important;
+  touch-action:manipulation!important
+}
+#kinnaklova-world[data-ki-art="ready"] .ki-painted-home span,
+#eggenipa-world .eg-scene-home span{display:none!important}
+:is(#eggenipa-world .eg-scene-home,
+    #tallvika-world .tv-scene-home,
+    #laria-geography-world .gv-home,
+    #kinnaklova-world[data-ki-art="ready"] .ki-painted-home):focus-visible{
+  outline:4px solid #fff7b1!important;outline-offset:3px!important
+}
+:is(#eggenipa-world .eg-scene-home,
+    #tallvika-world .tv-scene-home,
+    #laria-geography-world .gv-home,
+    #kinnaklova-world[data-ki-art="ready"] .ki-painted-home):active{
+  transform:translateY(2px)!important;filter:brightness(.96)!important
+}
+/* SAME light-oak plaque for all activity signs that are not painted in the
+   source image. The positions are owned by the scenes, not by this component. */
+:is(#tallvika-world .tv-sign.laria-wayfinder,
+    #laria-geography-world .gv-sign.laria-wayfinder,
+    #eggenipa-world .eg-scene-hit.laria-wayfinder > span){
+  box-sizing:border-box!important;
+  min-width:130px!important;min-height:54px!important;
+  border:0!important;border-radius:0!important;
+  background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+  box-shadow:none!important;
+  filter:var(--laria-sign-shadow)!important;
+  color:var(--laria-sign-ink)!important;
+  font:950 clamp(13px,1.6vw,20px)/1.09 var(--laria-ui-font)!important;
+  text-shadow:0 1px 0 #fff4cf!important;
+  letter-spacing:-.025em!important;
+  transition:filter .13s ease,transform .13s ease!important;
+  transform:none!important;
+}
+/* Unified two posts UNDER the plank. They are part of a single sign system. */
+:is(#tallvika-world .tv-sign.laria-wayfinder::after,
+    #laria-geography-world .gv-sign.laria-wayfinder::after,
+    #eggenipa-world .eg-scene-hit.laria-wayfinder > span::before){
+  content:""!important;position:absolute!important;display:block!important;
+  top:calc(100% - 7px)!important;left:23%!important;
+  width:54%!important;height:clamp(17px,2.45dvh,29px)!important;
+  border:0!important;border-radius:0!important;
+  background:
+    linear-gradient(90deg,#80522b,#c79454 44%,#70421f) 8% 0/12px 100% no-repeat,
+    linear-gradient(90deg,#734626,#bd8648 50%,#663b1c) 91% 0/12px 100% no-repeat!important;
+  box-shadow:none!important;filter:none!important;
+  pointer-events:none!important;z-index:-1!important;transform:none!important
+}
+#tallvika-world .tv-sign.laria-wayfinder,
+#laria-geography-world .gv-sign.laria-wayfinder{
+  isolation:isolate!important;overflow:visible!important;
+  height:clamp(58px,5.5vw,77px)!important;
+  width:clamp(145px,18%,237px)!important;
+  padding:8px 23px 10px 12px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  gap:0!important;text-align:center!important
+}
+#tallvika-world .tv-sign.laria-wayfinder .tv-sign-icon{display:none!important}
+#tallvika-world .tv-sign.laria-wayfinder .tv-sign-label,
+#tallvika-world .tv-sign.laria-wayfinder:nth-child(3) .tv-sign-label{
+  color:var(--laria-sign-ink)!important;
+  font:950 clamp(13px,1.6vw,20px)/1.1 var(--laria-ui-font)!important;
+  text-shadow:0 1px 0 #fff4cf!important;
+  white-space:normal!important;letter-spacing:-.025em!important
+}
+#eggenipa-world .eg-scene-hit.laria-wayfinder{
+  overflow:visible!important;isolation:isolate!important;
+  width:clamp(145px,18%,237px)!important;
+  height:clamp(58px,5.5vw,77px)!important;
+  min-width:130px!important;min-height:54px!important;
+  border:0!important;background:none!important;box-shadow:none!important;
+  padding:0!important
+}
+#eggenipa-world .eg-scene-hit.laria-wayfinder > span{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100%!important;
+  padding:8px 24px 10px 12px!important;isolation:isolate!important;
+  white-space:normal!important
+}
+#eggenipa-world .eg-scene-hit.laria-wayfinder > span::after{display:none!important}
+#laria-geography-world .gv-sign.laria-wayfinder>span{display:none!important}
+/* The one legacy continuation sign also uses the same wood and type. */
+#tallvika-world .tv-next-sign{
+  background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+  border:0!important;border-radius:0!important;
+  color:var(--laria-sign-ink)!important;
+  text-shadow:0 1px 0 #fff4cf!important;
+  box-shadow:none!important;filter:var(--laria-sign-shadow)!important
+}
+#tallvika-world .tv-next-sign strong,
+#tallvika-world .tv-next-sign .tv-next-title{color:var(--laria-sign-ink)!important}
+#tallvika-world .tv-next-sign .tv-next-arrow{display:none!important}
+/* Kinnaklova already has the original Words/Sentences/Reading painted into
+   its SHA-approved panoramic master. NEVER draw duplicates in landscape.
+   In portrait, where the camera hides Sentences and Reading, their separate
+   boards use the identical shared vector and two posts. */
+@media(min-width:701px) and (min-height:600px) and (orientation:portrait){
+  #kinnaklova-world[data-ki-art="ready"]
+    :is(.ki-painted-sentences.laria-wayfinder,.ki-painted-reading.laria-wayfinder){
+    background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+    border:0!important;border-radius:0!important;
+    box-shadow:none!important;filter:var(--laria-sign-shadow)!important;
+    color:var(--laria-sign-ink)!important;
+    font:950 clamp(14px,1.8vw,21px)/1.1 var(--laria-ui-font)!important;
+    text-shadow:0 1px 0 #fff4cf!important
+  }
+  #kinnaklova-world[data-ki-art="ready"]
+    :is(.ki-painted-sentences.laria-wayfinder,.ki-painted-reading.laria-wayfinder)::after{
+    content:""!important;position:absolute!important;display:block!important;
+    top:calc(100% - 7px)!important;left:23%!important;
+    width:54%!important;height:clamp(17px,2.45dvh,29px)!important;
+    background:
+      linear-gradient(90deg,#80522b,#c79454 44%,#70421f) 8% 0/12px 100% no-repeat,
+      linear-gradient(90deg,#734626,#bd8648 50%,#663b1c) 91% 0/12px 100% no-repeat!important;
+    pointer-events:none!important;z-index:-1!important
+  }
+}
+/* If the image is not ready, preserve existing access to learning. */
+#kinnaklova-world:not([data-ki-art="ready"]) .ki-card{
+  min-height:54px!important;
+}
+:is(#tallvika-world .tv-sign.laria-wayfinder,
+    #eggenipa-world .eg-scene-hit.laria-wayfinder,
+    #laria-geography-world .gv-sign.laria-wayfinder,
+    #kinnaklova-world .ki-painted-hit.laria-wayfinder,
+    #tallvika-world .tv-next-sign):focus-visible{
+  outline:4px solid #fff4ac!important;outline-offset:3px!important
+}
+@media(hover:hover){
+  :is(#tallvika-world .tv-sign.laria-wayfinder,
+      #eggenipa-world .eg-scene-hit.laria-wayfinder > span,
+      #laria-geography-world .gv-sign.laria-wayfinder):hover{filter:brightness(1.04) var(--laria-sign-shadow)!important}
+}
+@media(orientation:portrait) and (max-width:1100px){
+  :is(#eggenipa-world .eg-world-brand,#tallvika-world .tv-world-brand,
+      #laria-geography-world .gv-brand){top:7%!important}
+  :is(#tallvika-world .tv-sign.laria-wayfinder,#laria-geography-world .gv-sign.laria-wayfinder){
+    width:clamp(151px,35%,240px)!important;height:clamp(57px,8vw,75px)!important
+  }
+  #eggenipa-world .eg-scene-hit.laria-wayfinder{
+    width:clamp(150px,35%,240px)!important;height:clamp(57px,8vw,75px)!important
+  }
+}
+@media(max-width:700px){
+  :is(#eggenipa-world .eg-world-brand,#tallvika-world .tv-world-brand,
+      #laria-geography-world .gv-brand){
+    top:11%!important;min-width:170px!important;max-width:69%!important;
+    padding:7px 19px 8px!important;border-width:3px!important
+  }
+  :is(#eggenipa-world .eg-world-brand,#tallvika-world .tv-world-brand,
+      #laria-geography-world .gv-brand) strong{font-size:31px!important}
+  :is(#eggenipa-world .eg-world-brand,#tallvika-world .tv-world-brand,
+      #laria-geography-world .gv-brand) span{font-size:11px!important}
+  :is(#eggenipa-world .eg-scene-hit.laria-wayfinder,
+      #tallvika-world .tv-sign.laria-wayfinder,
+      #laria-geography-world .gv-sign.laria-wayfinder){
+    width:clamp(134px,45%,198px)!important;height:clamp(53px,7dvh,64px)!important;
+    min-width:126px!important;min-height:50px!important
+  }
+  #eggenipa-world .eg-scene-hit.laria-wayfinder > span,
+  #tallvika-world .tv-sign.laria-wayfinder .tv-sign-label,
+  #laria-geography-world .gv-sign.laria-wayfinder{
+    font-size:clamp(12px,3.3vw,16px)!important
+  }
+  :is(#eggenipa-world .eg-scene-home,#tallvika-world .tv-scene-home,
+      #laria-geography-world .gv-home,
+      #kinnaklova-world[data-ki-art="ready"] .ki-painted-home){
+    width:48px!important;height:48px!important
+  }
+}
+@media(orientation:landscape) and (max-height:500px){
+  :is(#eggenipa-world .eg-world-brand,#tallvika-world .tv-world-brand,
+      #laria-geography-world .gv-brand){top:2%!important;padding:5px 17px 6px!important}
+  :is(#eggenipa-world .eg-world-brand,#tallvika-world .tv-world-brand,
+      #laria-geography-world .gv-brand) strong{font-size:27px!important}
+  :is(#eggenipa-world .eg-world-brand,#tallvika-world .tv-world-brand,
+      #laria-geography-world .gv-brand) span{font-size:10px!important}
+  :is(#eggenipa-world .eg-scene-hit.laria-wayfinder,
+      #tallvika-world .tv-sign.laria-wayfinder,
+      #laria-geography-world .gv-sign.laria-wayfinder){
+    width:clamp(121px,19%,170px)!important;height:48px!important;
+    min-height:44px!important;min-width:112px!important
+  }
+  :is(#eggenipa-world .eg-scene-home,#tallvika-world .tv-scene-home,
+      #laria-geography-world .gv-home,
+      #kinnaklova-world[data-ki-art="ready"] .ki-painted-home){width:44px!important;height:44px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  :is(#eggenipa-world .eg-scene-hit.laria-wayfinder > span,
+      #tallvika-world .tv-sign.laria-wayfinder,
+      #laria-geography-world .gv-sign.laria-wayfinder){transition:none!important}
+}
