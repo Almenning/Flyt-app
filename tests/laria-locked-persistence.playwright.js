@@ -56,7 +56,7 @@ async function verify(engine,label,viewport){
      const saved=await page.evaluate(key=>state.journey.nodes[key],marked.norwegian.key);
      assert.equal(saved?.passed,true,label+' Norwegian historical checkpoint was lost');
      assert.equal(saved?.best,5,label+' Norwegian checkpoint evidence changed');
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     await page.locator('#eggenipa-world .eg-scene-reading:visible, #eggenipa-world .eg-portal[data-eg="reading"]:visible').first().click();
      await page.locator('#session-screen.active').waitFor({timeout:16000});
      await page.locator('#close-session').click();
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
