@@ -111,12 +111,21 @@ async function verify(type,label,viewport){
    await page.locator('[data-cv-act="intro"]').click();
    await page.locator('[data-cv-act="stage"][data-cv-stage="passbrygga"]').click();
    assert.equal(await page.locator('.cv-stamp').count(),6,'six continent stamps should be available');
-   if(viewport.width===320){
-     const firstStamp=await page.locator('.cv-stamp').first().boundingBox();
-     assert.ok(firstStamp&&firstStamp.y<viewport.height-75,
-       label+' a compact phone must reveal the first passport choice without aimless scrolling');
-   }
    await photo(page,label+'-passport');
+   if(viewport.width===320){
+     const layout=await page.locator('#laria-geo-continent-voyage-preview').evaluate(root=>{
+       const rect=selector=>{
+         const r=root.querySelector(selector)?.getBoundingClientRect();
+         return r?{top:Math.round(r.top),bottom:Math.round(r.bottom),height:Math.round(r.height)}:null;
+       };
+       return {overlayScroll:root.scrollTop,nav:rect('.cv-task-nav'),
+         companion:rect('.cv-companion'),progress:rect('.cv-count'),
+         question:rect('.cv-paper .cv-heading'),
+         passport:rect('.cv-passport'),firstStamp:rect('.cv-stamp')};
+     });
+     assert.ok(layout.firstStamp&&layout.firstStamp.top<viewport.height-75,
+       label+' a compact phone must reveal the first passport choice without aimless scrolling: '+JSON.stringify(layout));
+   }
    await answer(page);
    const legacy=await page.evaluate(()=>({wins:state.journey.gradeWins['geography:2'],node:state.journey.nodes['geography:2:one']}));
    assert.deepEqual(legacy,{wins:{at:111},node:{best:4}},label+' Nordlysleiren progress altered');
