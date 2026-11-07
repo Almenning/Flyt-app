@@ -102,7 +102,7 @@ body:has(#geography-screen.gv-visible){background:#e8eadc!important}
   }
   #laria-geography-world .gv-sign-journey{left:6%;top:43%}
   #laria-geography-world .gv-sign-globe{left:auto;right:4%;top:62%}
-  #laria-geography-world .gv-sign-country{left:12%;right:auto;top:78%}
+  #laria-geography-world .gv-sign-country{left:40%;right:auto;top:79%}
   #laria-geography-world .gv-troll{left:2%;bottom:3%;width:clamp(84px,21%,130px);height:19%}
 }
 @media(max-width:700px){
@@ -112,7 +112,7 @@ body:has(#geography-screen.gv-visible){background:#e8eadc!important}
   #laria-geography-world .gv-sign{width:clamp(155px,48%,197px);height:54px;font-size:14px}
   #laria-geography-world .gv-sign-journey{left:5%;top:43%}
   #laria-geography-world .gv-sign-globe{right:4%;top:62%}
-  #laria-geography-world .gv-sign-country{left:9%;top:78%}
+  #laria-geography-world .gv-sign-country{left:40%;right:auto;top:79%}
   #laria-geography-world .gv-troll{width:88px;height:19%;bottom:2%}
 }
 @media(orientation:landscape) and (max-height:500px){
