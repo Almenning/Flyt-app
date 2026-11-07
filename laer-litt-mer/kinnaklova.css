@@ -191,3 +191,30 @@ html:has(#subject-screen.kinnaklova-active),body:has(#subject-screen.kinnaklova-
  }
  #session-screen.task-scene .ki-reading-story::before{left:16px;top:9px;font-size:10px}
 }
+
+
+/* Premium portrait-phone entrance: three storybook signposts, not stacked
+   website cards. Painted master stays fully visible and integrity-gated. */
+@media (max-width:700px){
+  #kinnaklova-world[data-ki-art="ready"] .ki-intro{display:none!important}
+  #kinnaklova-world[data-ki-art="ready"] .ki-actions{
+    position:relative;z-index:7;width:calc(100% - 20px);
+    margin:-8px auto 0;padding:0;
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-card{
+    min-width:0;min-height:62px;height:62px;padding:5px;
+    justify-content:center;text-align:center;gap:0;
+    border:2px solid #966338;border-radius:14px;
+    color:#4b301c;background:linear-gradient(165deg,#fae5bb,#e0b178 58%,#c58b4b);
+    box-shadow:0 4px 0 #916339,0 7px 13px #40351b33;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-card-symbol,
+  #kinnaklova-world[data-ki-art="ready"] .ki-card-arrow,
+  #kinnaklova-world[data-ki-art="ready"] .ki-card-copy small{display:none!important}
+  #kinnaklova-world[data-ki-art="ready"] .ki-card-copy{min-width:0}
+  #kinnaklova-world[data-ki-art="ready"] .ki-card-copy strong{
+    font-size:clamp(12px,3.5vw,16px);line-height:1.14;
+    letter-spacing:-.02em;overflow-wrap:anywhere;
+  }
+}
