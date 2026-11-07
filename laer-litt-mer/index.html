@@ -6894,7 +6894,16 @@ document.getElementById('complete-home').onclick=()=>{
   armJourneyWorldReaction(scope);
   if(scope.type==='subject'&&scope.subject==='english'){openSubject('english');return}
   if(scope.type==='journey'&&scope.subject&&scope.subject!=='geography'){openSubject(scope.subject);return}
-  if(scope.type==='geo-journey'||scope.subject==='geography'){renderGeographyContinue();showScreen('geography');return}
+  if(scope.type==='geo-journey'){
+    // The button explicitly promises "Tilbake til reisekartet".
+    // Do not let the Nordlysleiren landing facade cover the child's
+    // newly completed map, even after a session -> completion transition.
+    renderGeographyContinue();
+    showScreen('geography');
+    window.LARIA_GEOGRAPHY_SCENE?.journey?.();
+    return;
+  }
+  if(scope.subject==='geography'){renderGeographyContinue();showScreen('geography');return}
   // The child who finishes Lesekroken should be back at their Norwegian
   // world, able to choose another activity, even in grades 1–2.
   if(scope.subject==='norwegian'){openSubject('norwegian');return}

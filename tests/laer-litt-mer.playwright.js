@@ -1469,11 +1469,11 @@ async function finishSession(page){
     await p1.evaluate(()=>document.getElementById('open-geography').click());
     await p1.locator('#geography-screen.active').waitFor();
     assert.equal(await p1.locator('.geo-theme[data-geo-theme="capital"]').isVisible(),false);
-    // Explicitly choose Land and wait for the geographic view before starting.
-    // An earlier test clicked the theme button during the screen transition.
-    await p1.locator('.geo-theme[data-geo-theme="country"]').click();
+    // The approved Nordlysleiren entry replaces the hidden old theme row.
+    // Test the child-facing Land og flagg sign instead of invisible legacy UI.
+    await p1.locator('#laria-geography-world:visible').waitFor({timeout:16000});
     assert.match(await p1.locator('#start-geography-theme').innerText(),/Start Land/);
-    await p1.locator('#start-geography-theme').click();
+    await p1.locator('#laria-geography-world [data-gv="country"]').click();
     const gradeOneStarted=await p1.locator('#session-screen.active').waitFor({timeout:12000}).then(()=>true).catch(()=>false);
     if(!gradeOneStarted){
       const diagnosis=await p1.evaluate(()=>({
