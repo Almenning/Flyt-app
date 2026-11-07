@@ -69,8 +69,23 @@ async function run(browserType,engine,name,viewport){
    });
    assert.ok(b.w>=44&&b.h>=44&&b.x>=-2&&b.x+b.w<=viewport.width+2&&b.y>=-2&&b.y+b.h<=viewport.height+2,
      engine+' '+name+' '+spec.id+' sign outside device: '+JSON.stringify(b));
-   assert.match(b.background,/laria-light-arrow-sign\.svg/,
-     engine+' '+name+' '+spec.id+' did not render the matching Grovanova arrow');
+   // The locked Kinnaklova landscape already paints the approved signs.
+   // On spacious landscape screens the live button is a transparent hitbox,
+   // not an extra wooden plank pasted over the original. Portrait and
+   // compact screens use real SVG boards where the camera crop hides signs.
+   const usesPaintedEnglishSign=spec.id==='english'&&
+     viewport.width>=701&&viewport.height>=600&&!portrait;
+   if(usesPaintedEnglishSign){
+     assert.equal(b.background,'none',
+       engine+' '+name+' English duplicated a sign already painted in the certified Kinnaklova art');
+     const nameVisibility=await sign.locator('.ki-plank-name').evaluate(el=>getComputedStyle(el).visibility);
+     assert.equal(nameVisibility,'hidden',engine+' '+name+' English duplicate sign caption returned');
+     assert.equal(await root.locator('.ki-world-brand:visible').count(),0,
+       engine+' '+name+' English should retain its painted Læria title, not a second logo');
+   }else{
+     assert.match(b.background,/laria-light-arrow-sign\.svg/,
+       engine+' '+name+' '+spec.id+' did not render the matching Grovanova arrow');
+   }
    await page.screenshot({path:path.join(out,engine+'-'+name+'-'+spec.id+'.png'),animations:'disabled',fullPage:false});
    await sign.click();
    await page.locator(spec.target).waitFor({state:'visible',timeout:18000});
