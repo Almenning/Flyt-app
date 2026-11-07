@@ -67,13 +67,20 @@ async function run(engine,browserType,view,viewport){
   const actorBox=await landingActor.evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height}});
   assert.ok(actorBox.w>20&&actorBox.h>40&&actorBox.x>=-1&&actorBox.right<=viewport.width+1,
     label+' Eggenipa TrollActor has invalid scene geometry: '+JSON.stringify(actorBox));
+  assert.equal(await page.locator('#eggenipa-world [data-eg="home"]').count(),1,label+' duplicate in-scene Home');
+  const companion=page.locator('#eggenipa-world button.eg-companion-actor[data-eg="troll"]');
+  assert.equal(await companion.count(),1,label+' selected troll must be a button, not a sticker');
+  await companion.tap();
+  await page.locator('#eggenipa-world .eg-companion-actor .laria-troll-speech[data-show="true"]').waitFor({timeout:4000});
+  assert.match(await page.locator('#eggenipa-world .eg-companion-actor .laria-troll-speech').innerText(),/Bokskogen/,
+    label+' selected troll must respond to child touch');
   const before=await page.evaluate(()=>structuredClone(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes));
   const portals=await page.locator('#eggenipa-world .eg-portal').evaluateAll(list=>list.map(b=>b.dataset.eg));
   assert.deepEqual(portals,['words','find','reading'],label+' wrong three learning places');
   assert.equal(await page.locator('#eggenipa-world [data-eg="map"],#eggenipa-world .eg-next').count(),0,
     label+' retired journey CTA is still shown');
   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,label+' map unexpectedly visible');
-  assert.equal(await page.locator('#eggenipa-world .eg-grade').evaluate(el=>el.tagName),'SPAN',label+' grade must not be false selector');
+  assert.equal(await page.locator('#eggenipa-world .eg-world-grade').evaluate(el=>el.tagName),'SPAN',label+' grade must not be false selector');
   if(viewport.width>700){
     const hits=await page.locator('#eggenipa-world .eg-scene-hit').evaluateAll(list=>
       list.map(el=>({name:el.dataset.eg,r:el.getBoundingClientRect().toJSON(),display:getComputedStyle(el).display})));
