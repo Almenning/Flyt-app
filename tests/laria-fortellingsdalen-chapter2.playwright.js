@@ -16,8 +16,16 @@ const seed={
 async function openChooser(page){
   await page.evaluate(()=>openSubject('norwegian'));
   const launcher=page.locator('[data-laria-chapter2-preview="1"]');
-  await launcher.waitFor({timeout:12000});
-  await launcher.evaluate(el=>el.click());
+  await launcher.waitFor({state:'attached',timeout:12000});
+  const opened=await page.evaluate(()=>window.LARIA_NORWEGIAN_CHAPTER_PICKER?.open({
+    state,firstProgress:()=>journeyProgress('norwegian',2),
+    foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()),
+    onBokskogen:()=>document.getElementById('journey-map')?.scrollIntoView({block:'start',behavior:'instant'}),
+    onFortellingsdalen:()=>window.LARIA_FORTELLINGSDALEN_PREVIEW?.open({
+      state,save:saveState,foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())
+    })
+  }));
+  assert.equal(opened,true,'Norsk chapter preview failed to open');
   await page.locator('#laria-norwegian-chapter-picker [role="dialog"]').waitFor({timeout:12000});
   assert.equal(await page.locator('[data-fd-chapter-card]').count(),2);
   assert.match(await page.locator('[data-fd-chapter-card="bokskogen-1"]').innerText(),/Bokskogen/);
