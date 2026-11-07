@@ -323,3 +323,19 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
   #eggenipa-world .eg-scene-hit,
   #eggenipa-world .eg-world-brand{transition:none!important}
 }
+
+
+/* Premium 2.0: the original selected troll is a genuine touch target.
+   It remains a separate actor above the untouched Eggenipa painting. */
+#eggenipa-world .eg-companion-actor[data-eg="troll"]{
+  appearance:none;display:block;min-width:44px;min-height:44px;
+  padding:0;border:0;border-radius:0;background:transparent;
+  cursor:pointer;pointer-events:auto;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+#eggenipa-world .eg-companion-actor[data-eg="troll"]:focus-visible{
+  outline:3px solid #fff1b2;outline-offset:4px;border-radius:18px;
+}
+#eggenipa-world .eg-companion-actor[data-eg="troll"] > img{
+  pointer-events:none;user-select:none;-webkit-user-select:none;
+}
