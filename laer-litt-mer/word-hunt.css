@@ -891,7 +891,7 @@
   overflow:hidden;
   background:
     linear-gradient(180deg,rgba(18,42,36,.18),rgba(12,34,28,.38)),
-    url('./bokskogen-verden.png') center 46%/cover no-repeat;
+    url('./assets/norsk/eggenipa-master-laast-20261025.png') center 48%/cover no-repeat;
 }
 .word-hunt-overlay.is-theme-entry .word-hunt-theme-picker{
   background:linear-gradient(180deg,rgba(16,43,37,.06),rgba(16,43,37,.26));
@@ -909,7 +909,7 @@
   opacity:.33;
   background:
     linear-gradient(180deg,rgba(255,248,222,.05) 0%,rgba(255,248,222,.50) 65%,#fff5dc00),
-    url('./bokskogen-verden.png') center 10%/cover no-repeat;
+    url('./assets/norsk/eggenipa-master-laast-20261025.png') center 25%/cover no-repeat;
 }
 .word-hunt-overlay.is-theme-entry .wh-theme-eyebrow{
   font-size:clamp(10px,1.2vw,13px);letter-spacing:.19em;
