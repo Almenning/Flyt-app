@@ -195,7 +195,10 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
 
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:18000});
-  await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+  const paintedReading=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  const readingEntry=(await paintedReading.count())?paintedReading:
+    page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible');
+  await readingEntry.click();
   await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:18000});
 
   const selector='#session-screen.active .task-fox-companion.laria-troll-host .laria-premium-troll-art';
@@ -316,7 +319,7 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
   await blockExternal(page);
 
   const worlds=[
-    {id:'norwegian',root:'#eggenipa-world:visible',actor:'#eggenipa-world .eg-companion-actor[data-troll="lillesoster"]',touch:'#eggenipa-world .eg-portal:visible'},
+    {id:'norwegian',root:'#eggenipa-world:visible',actor:'#eggenipa-world .eg-companion-actor[data-troll="lillesoster"]',touch:'#eggenipa-world .eg-portal:visible, #eggenipa-world .eg-scene-hit:visible'},
     {id:'math',root:'#tallvika-world:visible',actor:'#tallvika-world .tv-actor[data-troll-id="lillesoster"]',touch:'#tallvika-world .tv-sign:visible'},
     {id:'english',root:'#kinnaklova-world:visible',actor:'#kinnaklova-world .ki-companion-actor[data-troll="lillesoster"]',touch:'#kinnaklova-world .ki-card:visible'},
     {id:'geography',root:'#geography-screen.active .locked-journey-map[data-journey-subject="geography"]:visible',actor:'#geography-screen.active .locked-journey-traveler[data-troll="lillesoster"]',touch:'#geography-screen.active .locked-journey-hotspot:visible'}
