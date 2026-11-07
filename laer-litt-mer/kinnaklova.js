@@ -119,13 +119,14 @@
       '<span class="ki-stage-grade" aria-hidden="true">'+grade+'. klasse</span>'+
       '<button type="button" class="ki-stage-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
       '<img class="ki-master"'+(HAS_CLEAN_MASTER?' src="'+ART+'"':'')+' alt="Kinnaklova med Kinn kyrkje, klokketårnet, sjøen og de karakteristiske tvillingtoppene" width="1672" height="941" draggable="false" decoding="async">'+
+      '<div class="ki-world-brand" aria-label="Læria, engelsk ved Kinnaklova"><strong>Læria</strong><span>Oppdag Kinnaklova</span></div>'+
       '<div class="ki-art-unavailable" hidden role="status"><strong>Den låste Kinnaklova-illustrasjonen mangler i denne utviklingsversjonen.</strong>'+
       '<span>Import av ren bakgrunn er nødvendig før visuell godkjenning og publisering.</span></div>'+
       '<div class="ki-companions" aria-label="Ditt valgte troll er med på Kinnaklova">'+
       '<button type="button" class="ki-companion-actor laria-troll-host laria-troll-actor" data-ki="troll" data-troll="'+selectedId+'" data-laria-troll-mood="idle" aria-label="Snakk med '+escapeText(selected.name)+' på Kinnaklova">'+
       '<img class="ki-troll laria-premium-troll-art" data-ki-character="'+selectedId+'" src="'+escapeText(selectedSrc)+'" alt="" aria-hidden="true" draggable="false" loading="eager"></button>'+
       '</div>'+
-      '<button type="button" class="ki-painted-hit ki-painted-home" data-ki="home" aria-label="Tilbake til Hjem"></button>'+
+      '<button type="button" class="ki-painted-hit ki-painted-home" data-ki="home" aria-label="Tilbake til Hjem"><span aria-hidden="true">‹ Hjem</span></button>'+
       ACTIONS.map(a=>'<button type="button" class="ki-painted-hit ki-painted-'+a.id+' laria-wayfinder'+
         '" data-ki="'+a.id+'" aria-label="Åpne '+a.name+' ved Kinnaklova"><span class="ki-plank-name" aria-hidden="true">'+a.name+'</span></button>').join('')+
       '</div>'+
