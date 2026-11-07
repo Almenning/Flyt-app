@@ -1,0 +1,147 @@
+/* Læria Kinnaklova iPad-first scene. 2026-11-07.
+ * The SHA-verified 1672x941 clean original is NEVER modified.
+ * Framing is presentation-only, reserved for spacious iPad/desktop viewports.
+ * Both orientations fill the first viewport; the three destinations remain
+ * independent DOM buttons, not baked-in or duplicated mobile cards.
+ * Portrait reframes the original church and Kinnaklova twin peaks. A separate
+ * artist-approved portrait master is still preferable for final art sign-off.
+ */
+#kinnaklova-world .ki-world-brand{display:none}
+@media(min-width:701px) and (min-height:600px){
+  html:has(#subject-screen.kinnaklova-active),
+  body:has(#subject-screen.kinnaklova-active){
+    overflow-x:hidden!important;
+  }
+  .app:has(#subject-screen.kinnaklova-active){
+    width:100%!important;max-width:none!important;
+    margin:0!important;padding:0!important;overflow:visible!important;
+  }
+  #subject-screen.kinnaklova-active:has(#kinnaklova-world[data-ki-art="ready"]){
+    width:100vw!important;max-width:none!important;
+    height:100dvh!important;min-height:100dvh!important;
+    margin:0!important;padding:0!important;overflow:visible!important;
+    position:relative!important;left:50%;transform:translateX(-50%);
+  }
+  #kinnaklova-world[data-ki-art="ready"]{
+    position:relative;width:100vw!important;height:100dvh!important;
+    min-height:100dvh!important;padding:0!important;margin:0!important;
+    overflow:hidden!important;background:#83b6bb!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-stage{
+    position:relative!important;isolation:isolate;
+    width:100%!important;max-width:none!important;height:100dvh!important;
+    min-height:100dvh!important;aspect-ratio:auto!important;
+    margin:0!important;overflow:hidden!important;background:#91b5a4;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-master{
+    width:100%!important;height:100%!important;
+    object-fit:cover!important;object-position:54% 50%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-utility,
+  #kinnaklova-world[data-ki-art="ready"] .ki-actions,
+  #kinnaklova-world[data-ki-art="ready"] .ki-intro{display:none!important}
+  /* Align the actual scene controls with Eggenipa/Tallvika. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-home{
+    position:absolute!important;top:max(12px,env(safe-area-inset-top))!important;
+    left:max(12px,env(safe-area-inset-left))!important;
+    width:auto!important;height:44px!important;
+    min-width:86px!important;padding:7px 15px!important;
+    z-index:11!important;display:flex!important;align-items:center!important;
+    justify-content:center!important;
+    background:linear-gradient(#86522f,#613518)!important;
+    border:2px solid #e7c793!important;border-radius:999px!important;
+    color:#fff3d2!important;text-shadow:0 1px 2px #321b0e!important;
+    box-shadow:0 4px 0 #3c2514,0 8px 18px #23180d66!important;
+    font:900 13px ui-rounded,"SF Pro Rounded",system-ui,sans-serif!important;
+    cursor:pointer;touch-action:manipulation;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-world-brand{
+    position:absolute!important;top:2.4%;left:50%;transform:translateX(-50%);
+    z-index:9;display:grid!important;place-items:center;gap:1px;
+    min-width:clamp(180px,25%,315px);padding:9px 17px 10px;
+    border:3px solid #674020;border-radius:24px 22px 18px 20px;
+    color:#fff2cf;text-shadow:0 2px 2px #27180b9e;
+    background:linear-gradient(160deg,#966438,#603716 68%,#573214);
+    box-shadow:inset 0 2px 0 #f9d69288,0 6px 0 #3a2417,0 11px 21px #20140b66;
+    pointer-events:none;
+  }
+  #kinnaklova-world .ki-world-brand strong{
+    font:1000 clamp(27px,3.9vw,49px)/1 ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif;
+    letter-spacing:-.055em
+  }
+  #kinnaklova-world .ki-world-brand span{
+    color:#f7d7a3;font:900 clamp(11px,1.4vw,18px)/1.22 ui-rounded,system-ui,sans-serif;
+    white-space:nowrap;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder{
+    z-index:7!important;min-width:132px!important;min-height:48px!important;
+    height:clamp(50px,7vh,76px)!important;
+    padding:5px 22px 8px 8px!important;
+    font-size:clamp(14px,1.65vw,20px)!important;
+    isolation:isolate;overflow:visible!important;
+    filter:drop-shadow(0 3px 4px #43251265)!important;
+    touch-action:manipulation;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder{
+    left:16.5%!important;top:74%!important;width:23%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{
+    left:60%!important;top:49%!important;width:22%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{
+    left:78%!important;top:68%!important;width:21%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-companion-actor{
+    left:5%!important;bottom:4%!important;
+    width:clamp(86px,11%,144px)!important;height:25%!important;
+    z-index:5;pointer-events:auto;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-resume{
+    position:absolute;z-index:10;left:50%;bottom:max(12px,env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    margin:0;width:min(92vw,520px);padding:10px 12px;
+    background:#fff7e5ef;box-shadow:0 5px 16px #32221255;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-resume p{font-size:13px}
+  #kinnaklova-world[data-ki-art="ready"] .ki-stage-choose,
+  #kinnaklova-world[data-ki-art="ready"] .ki-stage-grade{
+    z-index:12;top:max(12px,env(safe-area-inset-top));
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-home:focus-visible,
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit:focus-visible{
+    outline:4px solid #fff6b6!important;outline-offset:3px!important;
+  }
+}
+@media(min-width:701px) and (min-height:600px) and (orientation:portrait){
+  /* A carefully chosen portrait window retains the church and the famous
+     peaks. Side coast is outside the portrait camera, but the actual original
+     remains untouched and the three native routes stay on-screen. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-master{
+    object-position:24% 50%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-world-brand{
+    top:5.5%;min-width:206px;padding:8px 18px 9px;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-world-brand strong{font-size:36px}
+  #kinnaklova-world[data-ki-art="ready"] .ki-world-brand span{font-size:12px}
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder{
+    left:14%!important;top:76%!important;width:31%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{
+    left:61%!important;top:49%!important;width:32%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{
+    left:56%!important;top:81%!important;width:36%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder{
+    height:clamp(58px,6.1dvh,78px)!important;
+    font-size:clamp(16px,2vw,21px)!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-companion-actor{
+    left:4%!important;bottom:3.2%!important;width:clamp(91px,13%,136px)!important;
+    height:24%!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #kinnaklova-world .ki-world-brand{animation:none;transition:none}
+}
