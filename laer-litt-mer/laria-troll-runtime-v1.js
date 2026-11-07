@@ -184,7 +184,10 @@
     img.alt='';
     img.setAttribute('aria-hidden','true');
     img.classList.add('laria-premium-troll-art');
-    img.style.removeProperty('visibility');
+    // Legacy fox styles still contain !important visibility guards. Once this
+    // node has become TrollActor art, runtime ownership is explicit.
+    img.style.setProperty('visibility','visible','important');
+    img.style.setProperty('display','block','important');
     if(parent&&!greeted.has(parent)&&parent.closest('.screen.active')){
       greeted.add(parent);
       root.setTimeout(()=>{
