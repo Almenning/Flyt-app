@@ -140,6 +140,20 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
  .eg-companion-actor{left:4%;bottom:2%;width:7.5%;height:27%}
  .eg-scene-hit{align-items:flex-start;padding-top:8px}
 }
+/* iPad 4:3 landscape uses the illustrated scene as the whole interface.
+   Painted art remains untouched; the three existing in-scene hit areas
+   replace the redundant HTML activity cards on this orientation only. */
+@media (orientation:landscape) and (min-width:701px) and (max-width:1400px) and (min-height:700px) and (max-aspect-ratio:3/2){
+  #eggenipa-world{min-height:100dvh;padding-bottom:0}
+  .eg-hero{
+    width:100%;max-width:none;height:calc(100dvh - 66px);
+    min-height:650px;aspect-ratio:auto;
+  }
+  .eg-master{object-fit:cover;object-position:center center}
+  .eg-intro,.eg-portals{display:none!important}
+  .eg-scene-hit{display:flex!important}
+  .eg-companion-actor{left:4%;bottom:3%;width:8%;height:27%}
+}
 @media(min-width:701px) and (max-width:1040px){
  .eg-portals{gap:10px}
  .eg-portal{min-height:190px}
