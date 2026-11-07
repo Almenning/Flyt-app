@@ -116,37 +116,25 @@ async function run(engine,label,viewport){
      await root.waitFor({state:'visible',timeout:16000});
    }catch(error){
      const after=await page.evaluate(()=>{
-       const screen=document.getElementById('subject-screen'),map=document.getElementById('journey-map');
-       const section=document.getElementById('subject-journey-section'),eg=document.getElementById('eggenipa-world');
-       const s=el=>el?{className:el.className,display:getComputedStyle(el).display,
-         visibility:getComputedStyle(el).visibility,hidden:el.hidden,
-         subject:el.dataset.journeySubject,waiting:el.dataset.journeyWaiting,
-         box:[Math.round(el.getBoundingClientRect().width),Math.round(el.getBoundingClientRect().height)]}:null;
-       return {screen:s(screen),map:s(map),section:s(section),eggenipa:s(eg),
-         mapVisible:window.LARIA_EGGENIPA?.isMapOpen?.(),paintedBack:map?.querySelector('.locked-journey-back')?.getAttribute('aria-label')};
-     });
-     const sceneInfo=await page.evaluate(()=>{
-       const get=q=>{
-         const el=document.querySelector(q);
+       const geo=document.getElementById('geography-screen');
+       const map=document.getElementById('geo-journey-map');
+       const shell=document.getElementById('geo-journey-shell');
+       const landing=document.getElementById('laria-geography-world');
+       const s=el=>{
          if(!el)return null;
-         const rect=el.getBoundingClientRect();
-         const style=getComputedStyle(el);
-         return {tag:el.tagName,className:el.className,hidden:el.hidden,
-           display:style.display,visibility:style.visibility,
-           width:rect.width,height:rect.height,
-           parentDisplay:el.parentElement?getComputedStyle(el.parentElement).display:null};
+         const cs=getComputedStyle(el),rect=el.getBoundingClientRect();
+         return {className:el.className,display:cs.display,visibility:cs.visibility,
+           hidden:el.hidden,inlineDisplay:el.style.display,position:cs.position,
+           box:[Math.round(rect.width),Math.round(rect.height)],
+           top:Math.round(rect.top),dataset:{...el.dataset}};
        };
-       return {activeScreens:[...document.querySelectorAll('.screen.active')].map(el=>el.id),
-         bodyClass:document.body.className,
-         geographyScreen:get('#geography-screen'),
-         geographyLanding:get('#laria-geography-world'),
-         geographyShell:get('#geo-journey-shell'),
-         geographyMap:get('#geo-journey-map'),
-         geographyWaiting:get('#geography-screen .locked-journey-waiting-stage'),
-         lockedAsset:window.LARIA_LOCKED_JOURNEY_RUNTIME?.assetStatus?.('geography'),
-         activeMap:window.LARIA_LOCKED_JOURNEY_RUNTIME?.active?.()};
+       return {geo:s(geo),shell:s(shell),map:s(map),landing:s(landing),
+         children:[...geo.children].map(el=>({id:el.id,display:getComputedStyle(el).display})),
+         journeyAsset:window.LARIA_LOCKED_JOURNEY_RUNTIME?.assetStatus?.('geography'),
+         activeSubject:window.LARIA_LOCKED_JOURNEY_RUNTIME?.active?.(),
+         bodyClass:document.body.className};
      });
-     console.error('[LARIA_JOURNEY_TIMEOUT]',label,JSON.stringify({after,sceneInfo}));
+     console.error('[LARIA_GEOGRAPHY_JOURNEY_HIDDEN]',label,JSON.stringify(after));
      throw error;
    }
    const currentStop=root.locator('.locked-journey-hotspot.state-current').first();

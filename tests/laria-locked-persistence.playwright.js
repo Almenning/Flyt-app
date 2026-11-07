@@ -103,7 +103,15 @@ async function verify(engine,label,viewport){
      assert.ok(legacy.progress.total>0&&legacy.next,
        label+' original English journey engine no longer sees its checkpoints');
      const beforeActivity=await page.evaluate(()=>JSON.stringify(state.journey.nodes));
-     await ki.locator('.ki-card[data-ki="words"]').click();
+     // Kinnaklova's verified painting is the menu on tablet/desktop.
+     // Cards remain a phone/fallback interface; they may be hidden.
+     await page.waitForFunction(()=>{
+       const world=document.querySelector('#subject-screen.active #kinnaklova-world');
+       return ['ready','missing','unapproved'].includes(world?.dataset.kiArt);
+     },null,{timeout:20000});
+     const wordsSign=ki.locator('.ki-painted-words');
+     if(await wordsSign.isVisible())await wordsSign.click();
+     else await ki.locator('.ki-card[data-ki="words"]:visible').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const session=await page.evaluate(()=>({
        subject:sessionScope?.subject,
