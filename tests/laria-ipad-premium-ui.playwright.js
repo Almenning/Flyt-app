@@ -68,7 +68,15 @@ async function run(engine,engineName,label,viewport){
            label+' portrait '+sign+' requires an accessible scene-native arrow');
        }
        const position=await world.locator('.ki-master').evaluate(el=>getComputedStyle(el).objectPosition);
-       assert.ok(position.startsWith('50%'),label+' portrait crops the original Kinnaklova heading');
+       assert.ok(position.startsWith('48%'),label+' portrait framing lost the approved Kinnaklova title');
+       for(const sign of ['sentences','reading']){
+         const poles=await world.locator('.ki-painted-'+sign).evaluate(el=>({
+           content:getComputedStyle(el,'::after').content,
+           background:getComputedStyle(el,'::after').backgroundImage
+         }));
+         assert.notEqual(poles.content,'none',label+' missing '+sign+' signposts in portrait');
+         assert.notEqual(poles.background,'none',label+' '+sign+' signposts not drawn');
+       }
      }
      const signs=await world.locator('.ki-painted-hit.laria-wayfinder:visible').evaluateAll(nodes=>nodes.map(el=>{
        const a=el.getBoundingClientRect(),hit=document.elementFromPoint(a.x+a.width/2,a.y+a.height/2);
