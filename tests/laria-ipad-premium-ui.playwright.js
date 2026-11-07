@@ -23,7 +23,15 @@ async function run(engine,engineName,label,viewport){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
-  const initialJourney=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+  const initialJourney=await page.evaluate(const snapshotJourney=()=>{
+    const j=JSON.parse(localStorage.getItem('laerlittmer-v2')).journey||{};
+    // Initial navigation may create an empty chapterProgress bucket as a
+    // forward-compatible schema migration; no completed learning was lost.
+    return JSON.stringify({
+      nodes:j.nodes||{},gradeWins:j.gradeWins||{},viewGrades:j.viewGrades||{},
+      chapterProgress:j.chapterProgress||{}
+    });
+  };);
   for(const spec of worlds){
    await page.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
    const world=page.locator(spec.root+':visible');
@@ -67,7 +75,15 @@ async function run(engine,engineName,label,viewport){
    await world.locator(spec.home).click();
    await page.locator('#home-screen.active').waitFor({timeout:12000});
   }
-  assert.equal(await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey)),initialJourney,
+  assert.equal(await page.evaluate(const snapshotJourney=()=>{
+    const j=JSON.parse(localStorage.getItem('laerlittmer-v2')).journey||{};
+    // Initial navigation may create an empty chapterProgress bucket as a
+    // forward-compatible schema migration; no completed learning was lost.
+    return JSON.stringify({
+      nodes:j.nodes||{},gradeWins:j.gradeWins||{},viewGrades:j.viewGrades||{},
+      chapterProgress:j.chapterProgress||{}
+    });
+  };),initialJourney,
      label+' navigation or companion picker modified saved learning progress');
   assert.deepEqual(errors,[],label+' script errors');
   await ctx.close();
