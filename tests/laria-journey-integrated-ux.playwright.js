@@ -102,6 +102,15 @@ async function run(engine,label,viewport){
      await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
      continue;
    }
+   if(subject==='geography'){
+     // The child enters the original journey through the new Nordlysleiren
+     // scene, not directly from Home. Check the real sign navigation.
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:16000});
+     assert.equal(await landing.locator('.gv-sign').count(),3,
+       label+' missing Nordlysleiren activity signs');
+     await landing.locator('[data-gv="journey"]').click();
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    try{
      await root.waitFor({state:'visible',timeout:16000});
@@ -116,7 +125,7 @@ async function run(engine,label,viewport){
        return {screen:s(screen),map:s(map),section:s(section),eggenipa:s(eg),
          mapVisible:window.LARIA_EGGENIPA?.isMapOpen?.(),paintedBack:map?.querySelector('.locked-journey-back')?.getAttribute('aria-label')};
      });
-     console.error('[NORSK_BOKSKOGEN_TIMEOUT]',label,JSON.stringify(after));
+     console.error('[LARIA_JOURNEY_TIMEOUT]',label,JSON.stringify(after));
      throw error;
    }
    const currentStop=root.locator('.locked-journey-hotspot.state-current').first();
@@ -141,6 +150,10 @@ async function run(engine,label,viewport){
    await root.waitFor({timeout:16000});
    assert.equal(await page.locator('#session-screen.active').count(),0,label+' task did not close');
    await root.locator('.locked-journey-back').click();
+   if(subject==='geography'){
+     await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+     await page.locator('#laria-geography-world [data-gv="home"]').click();
+   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');

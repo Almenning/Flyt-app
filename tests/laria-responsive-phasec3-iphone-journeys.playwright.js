@@ -46,7 +46,13 @@ async function photo(page,name){
 }
 async function visit(page,subject){
  await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible').click();
- const screen=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active.locked-journey-active');
+ if(subject==='geography'){
+  const landing=page.locator('#laria-geography-world:visible');
+  await landing.waitFor({timeout:16000});
+  assert.equal(await landing.locator('.gv-sign').count(),3,'Nordlysleiren entrances missing');
+  await landing.locator('[data-gv="journey"]').click();
+ }
+ const screen=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active.locked-journey-active:not(.gv-visible)');
  await screen.waitFor({timeout:18000});
  await page.waitForFunction(which=>{
   const map=document.querySelector('.screen.active.locked-journey-active .locked-journey-map');
@@ -181,6 +187,10 @@ async function validate(page,subject,label,view,screen){
  await sheet.locator('.locked-sheet-close').click();
  await screen.locator('.locked-journey-back').scrollIntoViewIfNeeded();
  await screen.locator('.locked-journey-back').click();
+ if(subject==='geography'){
+  await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+  await page.locator('#laria-geography-world [data-gv="home"]').click();
+ }
  await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:11000});
  // A subject class left on the body must not leak scenery onto Home.
  const home=await page.evaluate(()=>({
