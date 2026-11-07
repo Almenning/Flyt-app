@@ -103,6 +103,12 @@ async function returnFromLockedJourney(page,screen,subject,label){
    const utility=world.locator('.ki-utility [data-ki="home"]');
    if(await utility.isVisible())await utility.click();
    else await world.locator('.ki-painted-home').click();
+ }else if(subject==='geography'){
+   // Geography now has a proper Nordlysleiren scene in front of the old map.
+   // The Home sign goes straight back without opening an unrelated lesson.
+   const world=page.locator('#laria-geography-world:visible');
+   await world.waitFor({timeout:16000});
+   await world.locator('[data-gv="home"]').click();
  }else{
    const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});

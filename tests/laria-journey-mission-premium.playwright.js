@@ -127,7 +127,11 @@ async function run(engine,label,viewport,url){
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' English unexpectedly reopened the retired map');
      const before=await page.evaluate(()=>JSON.stringify(state.journey));
-     await world.locator('.ki-card[data-ki="sentences"]').click();
+     await page.waitForFunction(()=>['ready','missing','unapproved'].includes(
+       document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+     const painted=world.locator('.ki-painted-sentences');
+     if(await painted.isVisible())await painted.click();
+     else await world.locator('.ki-card[data-ki="sentences"]:visible').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const session=await page.evaluate(()=>({
        subject:sessionScope?.subject,module:sessionScope?.module,
@@ -154,6 +158,11 @@ async function run(engine,label,viewport,url){
      else await world.locator('.ki-painted-home').click();
      await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:16000});
      continue;
+   }
+   if(subject==='geography'){
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:16000});
+     await landing.locator('[data-gv="journey"]').click();
    }
    const map=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await map.waitFor({timeout:14000});
@@ -253,6 +262,11 @@ async function run(engine,label,viewport,url){
    await page.reload({waitUntil:'domcontentloaded'});
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:20000});
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='geography'){
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:16000});
+     await landing.locator('[data-gv="journey"]').click();
+   }
    const afterReload=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await afterReload.waitFor({timeout:14000});
    await afterReload.locator('.locked-journey-hotspot').first().click();
@@ -286,6 +300,11 @@ async function run(engine,label,viewport,url){
    assert.equal(await afterReload.locator('.locked-journey-board > .locked-journey-traveler').count(),1,
       label+' '+subject+' troll was not returned to the illustrated map');
    await afterReload.locator('.locked-journey-back').click();
+   if(subject==='geography'){
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:12000});
+     await landing.locator('[data-gv="home"]').click();
+   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');

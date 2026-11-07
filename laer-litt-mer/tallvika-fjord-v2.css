@@ -69,7 +69,7 @@
 }
 #tallvika-world .tv-sign-icon svg{width:26px!important;height:26px!important;display:block!important}
 #tallvika-world .tv-sign .tv-sign-label,#tallvika-world .tv-sign:nth-child(3) .tv-sign-label{
-  color:#fff2d4!important;font:950 clamp(14px,1.45vw,20px)/1.05 ui-rounded,system-ui,sans-serif!important;
+  color:#fff2d4!important;font:950 clamp(17px,1.85vw,23px)/1.05 ui-rounded,system-ui,sans-serif!important;
   letter-spacing:-.025em!important;white-space:nowrap!important;
 }
 #tallvika-world .tv-sign:focus-visible,#tallvika-world .tv-actor-touch:focus-visible{
