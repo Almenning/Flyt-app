@@ -125,7 +125,28 @@ async function run(engine,label,viewport){
        return {screen:s(screen),map:s(map),section:s(section),eggenipa:s(eg),
          mapVisible:window.LARIA_EGGENIPA?.isMapOpen?.(),paintedBack:map?.querySelector('.locked-journey-back')?.getAttribute('aria-label')};
      });
-     console.error('[LARIA_JOURNEY_TIMEOUT]',label,JSON.stringify(after));
+     const sceneInfo=await page.evaluate(()=>{
+       const get=q=>{
+         const el=document.querySelector(q);
+         if(!el)return null;
+         const rect=el.getBoundingClientRect();
+         const style=getComputedStyle(el);
+         return {tag:el.tagName,className:el.className,hidden:el.hidden,
+           display:style.display,visibility:style.visibility,
+           width:rect.width,height:rect.height,
+           parentDisplay:el.parentElement?getComputedStyle(el.parentElement).display:null};
+       };
+       return {activeScreens:[...document.querySelectorAll('.screen.active')].map(el=>el.id),
+         bodyClass:document.body.className,
+         geographyScreen:get('#geography-screen'),
+         geographyLanding:get('#laria-geography-world'),
+         geographyShell:get('#geo-journey-shell'),
+         geographyMap:get('#geo-journey-map'),
+         geographyWaiting:get('#geography-screen .locked-journey-waiting-stage'),
+         lockedAsset:window.LARIA_LOCKED_JOURNEY_RUNTIME?.assetStatus?.('geography'),
+         activeMap:window.LARIA_LOCKED_JOURNEY_RUNTIME?.active?.()};
+     });
+     console.error('[LARIA_JOURNEY_TIMEOUT]',label,JSON.stringify({after,sceneInfo}));
      throw error;
    }
    const currentStop=root.locator('.locked-journey-hotspot.state-current').first();
