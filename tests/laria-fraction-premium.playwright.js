@@ -108,8 +108,15 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="reset"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[]);
   assert.equal(await page.locator('.fr6-piece-tray .fr2-spare').count(),4);
-  await page.locator('.fr6-piece-tray [data-piece-index="3"]').dragTo(page.locator('.fr2-build-target'));
-  assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[3],'dragging piece 4 must not fill piece 1: '+JSON.stringify(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.dragDiagnostics())));
+  // On a 320px phone the piece tray and cake cannot be visible together.
+  // The real child-facing action is tap-to-place; dragging across a scroll
+  // boundary is not a valid one-gesture interaction. Keep drag QA on larger
+  // screens where both targets can be reached.
+  const fourthPiece=page.locator('.fr6-piece-tray [data-piece-index="3"]');
+  if(viewport.width<=360)await fourthPiece.tap();
+  else await fourthPiece.dragTo(page.locator('.fr2-build-target'));
+  assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[3],
+    'placing piece 4 must fill its actual sector, not piece 1: '+JSON.stringify(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.dragDiagnostics())));
   // A denominator change may reshape the cake, but must not erase the
   // filled piece merely because its prior sector index is out of range.
   await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
