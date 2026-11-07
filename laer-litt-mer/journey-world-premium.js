@@ -8,7 +8,10 @@
     geography:{image:'geografi-verden.png',name:'Nordlysleiren',places:['Kartstien','Ekspedisjonsstien','Flaggbrygga','Kompassplassen','Fjellstien','Observatoriet','Kompassfyret'],points:[[52,83],[79,67],[26,53],[59,45],[84,35],[67,26],[81,17]]}
   };
   const esc=s=>escapeAttr(String(s));
-  function selectedJourneyFox(){return window.LARIA_FOX.source(selectedJourneyAvatar());}
+  function selectedJourneyFox(){
+    return window.LARIA_TROLL_ACTOR?.selected?.()?.src||
+      window.LARIA_FOX.source(selectedJourneyAvatar());
+  }
   function selectedJourneyAvatar(){
     try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }

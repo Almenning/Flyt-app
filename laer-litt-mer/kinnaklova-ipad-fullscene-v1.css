@@ -1,0 +1,153 @@
+/* Læria Kinnaklova iPad-first scene. 2026-11-07.
+ * The SHA-verified 1672x941 clean original is NEVER modified.
+ * Framing is presentation-only, reserved for spacious iPad/desktop viewports.
+ * Both orientations fill the first viewport; the three destinations remain
+ * independent DOM buttons, not baked-in or duplicated mobile cards.
+ * Portrait reframes the original church and Kinnaklova twin peaks. A separate
+ * artist-approved portrait master is still preferable for final art sign-off.
+ */
+#kinnaklova-world .ki-world-brand{display:none}
+@media(min-width:701px) and (min-height:600px){
+  html:has(#subject-screen.kinnaklova-active),
+  body:has(#subject-screen.kinnaklova-active){
+    overflow-x:hidden!important;
+  }
+  .app:has(#subject-screen.kinnaklova-active){
+    width:100%!important;max-width:none!important;
+    margin:0!important;padding:0!important;overflow:visible!important;
+  }
+  #subject-screen.kinnaklova-active:has(#kinnaklova-world[data-ki-art="ready"]){
+    width:100vw!important;max-width:none!important;
+    height:100dvh!important;min-height:100dvh!important;
+    margin:0!important;padding:0!important;overflow:visible!important;
+    position:relative!important;left:50%;transform:translateX(-50%);
+  }
+  #kinnaklova-world[data-ki-art="ready"]{
+    position:relative;width:100vw!important;height:100dvh!important;
+    min-height:100dvh!important;padding:0!important;margin:0!important;
+    overflow:hidden!important;background:#83b6bb!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-stage{
+    position:relative!important;isolation:isolate;
+    width:100%!important;max-width:none!important;height:100dvh!important;
+    min-height:100dvh!important;aspect-ratio:auto!important;
+    margin:0!important;overflow:hidden!important;background:#91b5a4;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-master{
+    width:100%!important;height:100%!important;
+    object-fit:cover!important;object-position:94% 50%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-utility,
+  #kinnaklova-world[data-ki-art="ready"] .ki-actions,
+  #kinnaklova-world[data-ki-art="ready"] .ki-intro{display:none!important}
+  /* Align the actual scene controls with Eggenipa/Tallvika. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-home{
+    position:absolute!important;top:max(12px,env(safe-area-inset-top))!important;
+    left:max(12px,env(safe-area-inset-left))!important;
+    width:auto!important;height:44px!important;
+    min-width:86px!important;padding:7px 15px!important;
+    z-index:11!important;display:flex!important;align-items:center!important;
+    justify-content:center!important;
+    background:linear-gradient(#86522f,#613518)!important;
+    border:2px solid #e7c793!important;border-radius:999px!important;
+    color:#fff3d2!important;text-shadow:0 1px 2px #321b0e!important;
+    box-shadow:0 4px 0 #3c2514,0 8px 18px #23180d66!important;
+    font:900 13px ui-rounded,"SF Pro Rounded",system-ui,sans-serif!important;
+    cursor:pointer;touch-action:manipulation;
+  }
+  /* The verified master ALREADY paints Læria and its title. A second
+     HTML plaque would cover the original and is deliberately suppressed. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-world-brand{display:none!important}
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder{
+    z-index:7!important;min-width:132px!important;min-height:48px!important;
+    height:clamp(50px,7vh,76px)!important;
+    padding:5px 22px 8px 8px!important;
+    font-size:clamp(14px,1.65vw,20px)!important;
+    isolation:isolate;overflow:visible!important;
+    filter:none!important;box-shadow:none!important;
+    background:none!important;border:0!important;color:transparent!important;
+    touch-action:manipulation;
+  }
+  /* In landscape the locked painting has all three wooden signs.
+     The live buttons are transparent touch surfaces over those signs. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder
+    .ki-plank-name{visibility:hidden!important}
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder{
+    left:6%!important;top:74.2%!important;width:23%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{
+    left:55.5%!important;top:50%!important;width:22%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{
+    left:79%!important;top:67.7%!important;width:21%!important;
+  }
+  /* Keep the selected live troll on the clear foreground path, not
+     in front of the original painted Words sign. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-companion-actor{
+    left:38%!important;bottom:2%!important;
+    width:clamp(86px,11%,144px)!important;height:25%!important;
+    z-index:5;pointer-events:auto;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-resume{
+    position:absolute;z-index:10;left:50%;bottom:max(12px,env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    margin:0;width:min(92vw,520px);padding:10px 12px;
+    background:#fff7e5ef;box-shadow:0 5px 16px #32221255;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-resume p{font-size:13px}
+  #kinnaklova-world[data-ki-art="ready"] .ki-stage-choose,
+  #kinnaklova-world[data-ki-art="ready"] .ki-stage-grade{
+    z-index:12;top:max(12px,env(safe-area-inset-top));
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-home:focus-visible,
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit:focus-visible{
+    outline:4px solid #fff6b6!important;outline-offset:3px!important;
+  }
+}
+@media(min-width:701px) and (min-height:600px) and (orientation:portrait){
+  /* A carefully chosen portrait window retains the church and the famous
+     peaks. Side coast is outside the portrait camera, but the actual original
+     remains untouched and the three native routes stay on-screen. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-master{
+    object-position:50% 50%!important;
+  }
+  /* The portrait crop now centers the complete painted Læria title.
+     Words/Sentences extend beyond the camera frame; native tappable planks
+     cover those partial signs while Reading has one new scene-native plank. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder{
+    background:var(--laria-light-plank) center/100% 100% no-repeat!important;
+    filter:drop-shadow(0 3px 3px #43251265)!important;
+    color:#402813!important;
+    padding:6px 22px 9px 7px!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder
+    .ki-plank-name{visibility:visible!important}
+  /* The approved portrait crop still shows the existing painted Words
+     arrow. Keep its full accessible hitbox, but don't draw a second arrow
+     or a second label over those original pixels. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder{
+    left:0%!important;top:76.3%!important;width:33%!important;
+    height:clamp(100px,8.8dvh,132px)!important;
+    background:none!important;filter:none!important;
+    color:transparent!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder
+    .ki-plank-name{visibility:hidden!important}
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{
+    left:67%!important;top:51.8%!important;width:33%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{
+    left:57%!important;top:82.5%!important;width:36%!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder{
+    height:clamp(58px,6.1dvh,78px)!important;
+    font-size:clamp(16px,2vw,21px)!important;
+  }
+  #kinnaklova-world[data-ki-art="ready"] .ki-companion-actor{
+    left:34%!important;bottom:3.2%!important;width:clamp(91px,13%,136px)!important;
+    height:24%!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #kinnaklova-world .ki-world-brand{animation:none;transition:none}
+}

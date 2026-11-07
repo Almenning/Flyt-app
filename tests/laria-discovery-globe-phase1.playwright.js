@@ -333,7 +333,16 @@ async function verifyPointerDrag(page,label,isDiscovery){
  await page.mouse.move(x,y);
  await page.mouse.down();
  await page.mouse.move(x+52,y+12,{steps:5});
- await page.waitForTimeout(130);
+ // WebKit may paint a large continent after 130 ms. Wait for the real live
+ // moving-material frame, not a timed guess or a pre-drag canvas snapshot.
+ if(isDiscovery)await page.waitForFunction(()=>{
+   const canvas=document.getElementById('globe-canvas');
+   return window.__lariaGlobeInteracting===true&&globePointers.size===1&&
+     canvas?.dataset.discoveryMoving==='true'&&
+     Number(canvas.dataset.discoveryTerrainField||0)===0&&
+     Number(canvas.dataset.discoveryMovingMaterial||0)>0;
+ },null,{timeout:7000});
+ else await page.waitForTimeout(130);
  const during=await page.evaluate(()=>({
    moving:window.__lariaGlobeInteracting,
    pointerCount:globePointers.size,

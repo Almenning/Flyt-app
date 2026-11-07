@@ -29,7 +29,9 @@ async function run(engine,label,viewport){
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' obsolete Bokskogen map is visible');
      const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes);
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     { const painted=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  const entry=(await painted.count())?painted:page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible');
+  await entry.click(); }
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const learning=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
        question:sessionQuestions[qIndex]?.prompt}));
@@ -50,7 +52,7 @@ async function run(engine,label,viewport){
      // directly and the old map remains intentionally hidden.
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' missing math houses');
+     assert.equal(await tv.locator('.tv-sign').count(),3,label+' missing math activity signs');
      const next=tv.locator('[data-tv="next"]');
      assert.equal(await next.isEnabled(),true,label+' next math mission must remain reachable');
      await next.click();
@@ -76,7 +78,10 @@ async function run(engine,label,viewport){
      const before=await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{}));
      assert.equal(await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{})),before,
        label+' English landing must not mutate journey progress');
-     await ki.locator('[data-ki="words"].ki-card').click();
+      await page.waitForFunction(()=>['ready','missing','unapproved'].includes(document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+      const paintedWords=ki.locator('.ki-painted-words');
+      if(await paintedWords.isVisible())await paintedWords.click();
+      else await ki.locator('.ki-card[data-ki="words"]:visible').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const state=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,question:sessionQuestions[qIndex]?.prompt}));
      assert.equal(state.subject,'english',label+' English engine not reached');
@@ -97,21 +102,39 @@ async function run(engine,label,viewport){
      await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
      continue;
    }
+   if(subject==='geography'){
+     // The child enters the original journey through the new Nordlysleiren
+     // scene, not directly from Home. Check the real sign navigation.
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:16000});
+     assert.equal(await landing.locator('.gv-sign').count(),3,
+       label+' missing Nordlysleiren activity signs');
+     await landing.locator('[data-gv="journey"]').click();
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    try{
      await root.waitFor({state:'visible',timeout:16000});
    }catch(error){
      const after=await page.evaluate(()=>{
-       const screen=document.getElementById('subject-screen'),map=document.getElementById('journey-map');
-       const section=document.getElementById('subject-journey-section'),eg=document.getElementById('eggenipa-world');
-       const s=el=>el?{className:el.className,display:getComputedStyle(el).display,
-         visibility:getComputedStyle(el).visibility,hidden:el.hidden,
-         subject:el.dataset.journeySubject,waiting:el.dataset.journeyWaiting,
-         box:[Math.round(el.getBoundingClientRect().width),Math.round(el.getBoundingClientRect().height)]}:null;
-       return {screen:s(screen),map:s(map),section:s(section),eggenipa:s(eg),
-         mapVisible:window.LARIA_EGGENIPA?.isMapOpen?.(),paintedBack:map?.querySelector('.locked-journey-back')?.getAttribute('aria-label')};
+       const geo=document.getElementById('geography-screen');
+       const map=document.getElementById('geo-journey-map');
+       const shell=document.getElementById('geo-journey-shell');
+       const landing=document.getElementById('laria-geography-world');
+       const s=el=>{
+         if(!el)return null;
+         const cs=getComputedStyle(el),rect=el.getBoundingClientRect();
+         return {className:el.className,display:cs.display,visibility:cs.visibility,
+           hidden:el.hidden,inlineDisplay:el.style.display,position:cs.position,
+           box:[Math.round(rect.width),Math.round(rect.height)],
+           top:Math.round(rect.top),dataset:{...el.dataset}};
+       };
+       return {geo:s(geo),shell:s(shell),map:s(map),landing:s(landing),
+         children:[...geo.children].map(el=>({id:el.id,display:getComputedStyle(el).display})),
+         journeyAsset:window.LARIA_LOCKED_JOURNEY_RUNTIME?.assetStatus?.('geography'),
+         activeSubject:window.LARIA_LOCKED_JOURNEY_RUNTIME?.active?.(),
+         bodyClass:document.body.className};
      });
-     console.error('[NORSK_BOKSKOGEN_TIMEOUT]',label,JSON.stringify(after));
+     console.error('[LARIA_GEOGRAPHY_JOURNEY_HIDDEN]',label,JSON.stringify(after));
      throw error;
    }
    const currentStop=root.locator('.locked-journey-hotspot.state-current').first();
@@ -136,6 +159,10 @@ async function run(engine,label,viewport){
    await root.waitFor({timeout:16000});
    assert.equal(await page.locator('#session-screen.active').count(),0,label+' task did not close');
    await root.locator('.locked-journey-back').click();
+   if(subject==='geography'){
+     await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+     await page.locator('#laria-geography-world [data-gv="home"]').click();
+   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');

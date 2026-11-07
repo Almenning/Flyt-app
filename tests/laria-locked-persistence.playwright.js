@@ -56,7 +56,7 @@ async function verify(engine,label,viewport){
      const saved=await page.evaluate(key=>state.journey.nodes[key],marked.norwegian.key);
      assert.equal(saved?.passed,true,label+' Norwegian historical checkpoint was lost');
      assert.equal(saved?.best,5,label+' Norwegian checkpoint evidence changed');
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     await page.locator('#eggenipa-world .eg-scene-reading:visible, #eggenipa-world .eg-portal[data-eg="reading"]:visible').first().click();
      await page.locator('#session-screen.active').waitFor({timeout:16000});
      await page.locator('#close-session').click();
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
@@ -67,7 +67,7 @@ async function verify(engine,label,viewport){
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' Tallvika activity entries');
+     assert.equal(await tv.locator('.tv-sign').count(),3,label+' Tallvika activity signs');
      const old=await page.evaluate(id=>({
        checkpoint:state.journey.nodes[journeyNodeKey('math',2,id)],
        progress:journeyProgress('math',2),
@@ -103,7 +103,15 @@ async function verify(engine,label,viewport){
      assert.ok(legacy.progress.total>0&&legacy.next,
        label+' original English journey engine no longer sees its checkpoints');
      const beforeActivity=await page.evaluate(()=>JSON.stringify(state.journey.nodes));
-     await ki.locator('.ki-card[data-ki="words"]').click();
+     // Kinnaklova's verified painting is the menu on tablet/desktop.
+     // Cards remain a phone/fallback interface; they may be hidden.
+     await page.waitForFunction(()=>{
+       const world=document.querySelector('#subject-screen.active #kinnaklova-world');
+       return ['ready','missing','unapproved'].includes(world?.dataset.kiArt);
+     },null,{timeout:20000});
+     const wordsSign=ki.locator('.ki-painted-words');
+     if(await wordsSign.isVisible())await wordsSign.click();
+     else await ki.locator('.ki-card[data-ki="words"]:visible').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const session=await page.evaluate(()=>({
        subject:sessionScope?.subject,
@@ -134,6 +142,11 @@ async function verify(engine,label,viewport){
      else await ki.locator('.ki-utility [data-ki="home"]').click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
+   }
+   if(subject==='geography'){
+    const landing=page.locator('#laria-geography-world:visible');
+    await landing.waitFor({timeout:16000});
+    await landing.locator('[data-gv="journey"]').click();
    }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map');
    await root.waitFor({timeout:16000});
@@ -194,6 +207,9 @@ async function verify(engine,label,viewport){
      // Preserve saved checkpoint data through Bokskogen -> Eggenipa -> Home.
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }else if(subject==='geography'){
+     await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+     await page.locator('#laria-geography-world [data-gv="home"]').click();
    }
    await page.locator('#home-screen.active').waitFor({timeout:16000});
   }

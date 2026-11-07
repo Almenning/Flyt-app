@@ -1,0 +1,50 @@
+name: Læria Kinnaklova – felles fagforsider
+
+on:
+  pull_request:
+    paths:
+      - 'laer-litt-mer/eggenipa.*'
+      - 'laer-litt-mer/tallvika.*'
+      - 'laer-litt-mer/kinnaklova.*'
+      - 'laer-litt-mer/geography-kinnaklova-scene.*'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-kinnaklova-unified-subjects.playwright.js'
+      - '.github/workflows/laria-kinnaklova-unified-subjects.yml'
+
+concurrency:
+  group: laria-unified-subjects-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  visual-and-navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Validate scene scripts
+        run: |
+          node --check laer-litt-mer/eggenipa.js
+          node --check laer-litt-mer/tallvika.js
+          node --check laer-litt-mer/geography-kinnaklova-scene.js
+          node --check tests/laria-kinnaklova-unified-subjects.playwright.js
+      - name: Test real iPhone, iPad and Mac compositions in Chromium and WebKit
+        env:
+          LARIA_UNIFIED_SUBJECT_SCREENSHOTS: /tmp/laria-unified-subjects
+        run: node tests/laria-kinnaklova-unified-subjects.playwright.js
+      - name: Upload actual app screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-kinnaklova-unified-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-unified-subjects
+          if-no-files-found: warn
+          retention-days: 14

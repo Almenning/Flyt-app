@@ -54,7 +54,7 @@
       '<span class="fd-chapter-trial">KAPITTELVALG · TESTVERSJON</span></header>'+
       '<div class="fd-chapter-heading"><div class="fd-chapter-heading-text"><div class="fd-chapter-eyebrow">NORSK · DIN EGEN REISE</div>'+
       '<h1 id="fd-chapters-title">Velg ditt eventyr</h1><p>Fortsett reisen, eller bli igjen i historien du liker aller best.</p></div>'+
-      '<div class="fd-chapter-fox"><img alt="Reven din følger deg" src="'+escapeHtml(view.options.foxSrc)+'"></div></div>'+
+      '<div class="fd-chapter-fox"><img class="laria-premium-troll-art" alt="Trollet ditt følger deg" src="'+escapeHtml(window.LARIA_TROLL_ACTOR?.selected?.()?.src||view.options.foxSrc)+'"></div></div>'+
       '<section class="fd-chapter-choices" aria-label="Eventyrene i Norsk">'+
        data.chapters.map(chapterCard).join('')+'</section>'+
       '<p class="fd-chapter-footnote">Du kan besøke et fullført eventyr så mange ganger du vil. Eventyr 2 er foreløpig bare tilgjengelig i testversjonen.</p></div>';

@@ -20,11 +20,8 @@
     try{return state?.profile?.avatar==='girl'?'girl':'boy'}catch(_){return 'boy'}
   }
   function selectedAvatarSource(){
-    const which=selectedAvatar();
-    try{
-      if(typeof avatarSrc==='function')return avatarSrc(which);
-      return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
-    }catch(_){return './lia-fox-explorer-home.webp'}
+    const id=selectedTroll(),troll=TROLL_COMPANIONS[id];
+    return troll?.src||'./assets/gangemagi-troll/storesoster.webp';
   }
   const TROLL_COMPANIONS=Object.freeze({
     storesoster:Object.freeze({name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'}),
@@ -57,22 +54,11 @@
       ';width:'+px(w,941)+';height:'+px(h,1672)+'">';
   }
   function liveProfileMarkup(progress,subject){
-    // Nordlysleiren follows the locked skogstroll decision. Other legacy
-    // journeys retain their existing fox identity until their art-first worlds
-    // replace those maps.
-    if(subject==='geography'){
-      const id=selectedTroll(),troll=TROLL_COMPANIONS[id];
-      return '<div class="locked-journey-profile locked-journey-profile-troll" data-troll="'+id+'" aria-label="Ditt valgte skogstroll: '+esc(troll.name)+'">'+
-        '<span class="locked-journey-troll-art"><img src="'+esc(troll.src)+'" alt=""></span></div>'+
-        '<div class="locked-journey-live-progress" role="status" aria-label="'+esc(progress.done+' av '+progress.total+' oppdrag fullført i denne reisen')+'">'+
-        '<span aria-hidden="true">★</span><b>'+progress.done+' / '+progress.total+'</b></div>';
-    }
-    const which=selectedAvatar(),label=which==='girl'?'Din valgte revejente':'Din valgte revegutt';
-    // The approved painting contains a sample portrait and "127". Cover both
-    // with real local profile/progress UI so decorative pixels are never
-    // presented as the child's saved avatar or earned score.
-    return '<div class="locked-journey-profile" data-avatar="'+which+'" aria-label="'+label+'">'+
-      '<img src="'+esc(selectedAvatarSource())+'" alt=""></div>'+
+    const id=selectedTroll(),troll=TROLL_COMPANIONS[id];
+    // Premium beta: every journey starts with the selected troll in the DOM.
+    // No fox is created and replaced later.
+    return '<div class="locked-journey-profile" data-troll="'+id+'" aria-label="Ditt valgte troll: '+esc(troll.name)+'">'+
+      '<img src="'+esc(troll.src)+'" alt=""></div>'+
       '<div class="locked-journey-live-progress" role="status" aria-label="'+esc(progress.done+' av '+progress.total+' oppdrag fullført i denne reisen')+'">'+
       '<span aria-hidden="true">★</span><b>'+progress.done+' / '+progress.total+'</b></div>';
   }
@@ -95,6 +81,34 @@
     document.body.classList.remove(...classes);
     [screenFor(false),screenFor(true)].forEach(screen=>screen?.classList.remove(...classes));
   }
+  function syncActiveJourneyContext(){
+    const subjectScreen=screenFor(false),geoScreen=screenFor(true);
+    const classes=['norwegian','math','english','geography'].map(name=>'locked-journey-subject-'+name);
+    let subject=null,activeScreen=null;
+    if(geoScreen?.classList.contains('active')&&geoScreen.classList.contains('locked-journey-active')){
+      subject=hostFor(true)?.dataset?.journeySubject||null;activeScreen=geoScreen;
+    }else if(subjectScreen?.classList.contains('active')&&subjectScreen.classList.contains('locked-journey-active')){
+      subject=hostFor(false)?.dataset?.journeySubject||null;activeScreen=subjectScreen;
+    }
+    if(subject){
+      const wanted='locked-journey-subject-'+subject;
+      // MutationObserver sees the class changes made by setJourneyContext().
+      // Do nothing when the desired context is already exact, otherwise it
+      // would remove/re-add the same class forever in a microtask loop.
+      const bodyExact=document.body.classList.contains(wanted)&&classes.every(c=>c===wanted||!document.body.classList.contains(c));
+      const screenExact=activeScreen?.classList.contains(wanted)&&classes.every(c=>c===wanted||!activeScreen.classList.contains(c));
+      if(bodyExact&&screenExact)return;
+      setJourneyContext(subject);
+      return;
+    }
+    if(classes.some(c=>document.body.classList.contains(c)||subjectScreen?.classList.contains(c)||geoScreen?.classList.contains(c))){
+      clearJourneyContext();
+    }
+  }
+  const journeyContextObserver=new MutationObserver(syncActiveJourneyContext);
+  [screenFor(false),screenFor(true)].forEach(screen=>{
+    if(screen)journeyContextObserver.observe(screen,{attributes:true,attributeFilter:['class']});
+  });
   function resetJourneyScroll(){
     // A subject card can be focused while Basecamp is scrolled. Keep the
     // illustrated first landmark at the viewport edge when the journey opens,
@@ -180,8 +194,8 @@
       '<button class="locked-journey-waiting-back" type="button" aria-label="Tilbake fra eventyrreisen">← <span>Tilbake</span></button>'+
       '</section>';
     screen.classList.add('locked-journey-active');
-    setJourneyContext(subject);
-    resetJourneyScroll();
+    syncActiveJourneyContext();
+    if(screen.classList.contains('active'))resetJourneyScroll();
     // The original geography HTML puts two retired cards before the journey.
     // Prioritize Nordlysleiren while its approved PNG is still loading, not
     // only after decode. Otherwise Safari briefly shows the legacy cards.
@@ -334,7 +348,7 @@
         '</small></span><b aria-hidden="true">➜</b></button>':'';
     const intro=stage.progress.complete&&finished?(chapterOne?'Første eventyr er fullført!':'Hele reisen er fullført!'):
       finished?'Du klarte oppdraget!':
-      lead?'Reven er klar. Er du?':
+      lead?'Trollet ditt er klart. Er du?':
       place.total===0?'Et nytt sted å utforske.':
       'Dette stedet venter på deg.';
     const support=stage.progress.complete&&finished?(chapterOne?'Alle hovedoppdrag i første eventyr er gjennomført. Du kan alltid spille igjen.':'Alle hovedoppdrag er gjennomført. Du kan alltid spille igjen.'):
@@ -410,11 +424,10 @@
         // The reusable character is positioned by its feet. The original
         // painted generic fox still requires artwork retouch before publishing.
         const point=contract.foxFootAnchor(subject,here.index);
-        if(subject==='geography'){
+        {
           const id=selectedTroll(),troll=TROLL_COMPANIONS[id];
-          return '<div class="locked-journey-traveler locked-journey-troll-traveler" data-troll="'+id+'" data-laria-troll-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="Ditt skogstroll er med på reisen: '+esc(troll.name)+'"><span class="locked-journey-troll-art"><img src="'+esc(troll.src)+'" alt=""></span><span class="locked-fox-label">Mitt troll</span></div>';
+          return '<div class="locked-journey-traveler" data-troll="'+id+'" data-laria-troll-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="Trollet ditt er med på reisen: '+esc(troll.name)+'"><img src="'+esc(troll.src)+'" alt=""><span class="locked-fox-label">Mitt troll</span></div>';
         }
-        return '<div class="locked-journey-traveler" data-avatar="'+selectedAvatar()+'" data-laria-fox-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="Din rev er med på reisen"><img src="'+esc(selectedAvatarSource())+'" alt=""><span class="locked-fox-label">Min rev</span></div>';
       })():'')+
       '<div class="locked-journey-hits">'+places.map(p=>placeButton(subject,p,model,s.firstOpen)).join('')+'</div>'+
       '<button type="button" class="locked-journey-back" aria-label="Tilbake til '+(window.LARIA_BASECAMP_RETURN_VIEW?.()==='travel'?'Reisen':window.LARIA_BASECAMP_RETURN_VIEW?.()==='explore'?'Utforsk':'Hjem')+'"></button>'+
@@ -426,8 +439,8 @@
       '<span aria-hidden="true">←</span><span>Tilbake</span></button>'+ 
       '<div class="locked-journey-overlay" hidden><div class="locked-journey-dim"></div><section class="locked-journey-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted"></section></div>';
     screen.classList.add('locked-journey-active');
-    setJourneyContext(subject);
-    resetJourneyScroll();
+    syncActiveJourneyContext();
+    if(screen.classList.contains('active'))resetJourneyScroll();
     if(geo){
       screen.classList.add('premium-geo-active');
       const shell=document.getElementById('geo-journey-shell'),globe=document.getElementById('open-world');
@@ -609,8 +622,10 @@
     screen?.classList.remove('locked-journey-active','premium-geo-active');
     return previousGeo.apply(this,arguments);
   };
+  syncActiveJourneyContext();
   window.LARIA_LOCKED_JOURNEY_RUNTIME={
     assetStatus:subject=>assets.get(subject)?.status||'not-requested',
-    active:()=>document.querySelector('.locked-journey-map')?.dataset.journeySubject||null
+    active:()=>document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject||null,
+    syncContext:syncActiveJourneyContext
   };
 })();

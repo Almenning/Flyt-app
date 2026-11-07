@@ -7,7 +7,7 @@ const {chromium,webkit}=require('playwright');
 const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const out=process.env.LARIA_EGGENIPA_SCREENSHOTS;
 const state={
- version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Eggenipa QA',avatar:'girl',setupVersion:2},
+ version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Eggenipa QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},
  skillEvidence:{},preferences:{sound:false,autoRead:false},lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{},chapterProgress:{}},answerLog:[],sessionLog:[],activeSession:null
@@ -60,13 +60,27 @@ async function run(engine,browserType,view,viewport){
    return {w:img.naturalWidth,h:img.naturalHeight};
   });
   assert.deepEqual(master,{w:1672,h:941},label+' wrong locked art');
+  const landingActor=page.locator('#eggenipa-world .eg-companion-actor[data-troll="lillesoster"]');
+  await landingActor.waitFor({state:'visible',timeout:8000});
+  assert.match(await landingActor.locator('img').getAttribute('src'),/gangemagi-troll\/lillesoster\.webp$/,
+    label+' Eggenipa landing lost selected TrollActor');
+  const actorBox=await landingActor.evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height}});
+  assert.ok(actorBox.w>20&&actorBox.h>40&&actorBox.x>=-1&&actorBox.right<=viewport.width+1,
+    label+' Eggenipa TrollActor has invalid scene geometry: '+JSON.stringify(actorBox));
+  assert.equal(await page.locator('#eggenipa-world [data-eg="home"]').count(),1,label+' duplicate in-scene Home');
+  const companion=page.locator('#eggenipa-world button.eg-companion-actor[data-eg="troll"]');
+  assert.equal(await companion.count(),1,label+' selected troll must be a button, not a sticker');
+  await companion.tap();
+  await page.locator('#eggenipa-world .eg-companion-actor .laria-troll-speech[data-show="true"]').waitFor({timeout:4000});
+  assert.match(await page.locator('#eggenipa-world .eg-companion-actor .laria-troll-speech').innerText(),/Bokskogen/,
+    label+' selected troll must respond to child touch');
   const before=await page.evaluate(()=>structuredClone(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes));
   const portals=await page.locator('#eggenipa-world .eg-portal').evaluateAll(list=>list.map(b=>b.dataset.eg));
   assert.deepEqual(portals,['words','find','reading'],label+' wrong three learning places');
   assert.equal(await page.locator('#eggenipa-world [data-eg="map"],#eggenipa-world .eg-next').count(),0,
     label+' retired journey CTA is still shown');
   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,label+' map unexpectedly visible');
-  assert.equal(await page.locator('#eggenipa-world .eg-grade').evaluate(el=>el.tagName),'SPAN',label+' grade must not be false selector');
+  assert.equal(await page.locator('#eggenipa-world .eg-world-grade').evaluate(el=>el.tagName),'SPAN',label+' grade must not be false selector');
   if(viewport.width>700){
     const hits=await page.locator('#eggenipa-world .eg-scene-hit').evaluateAll(list=>
       list.map(el=>({name:el.dataset.eg,r:el.getBoundingClientRect().toJSON(),display:getComputedStyle(el).display})));
@@ -90,7 +104,7 @@ async function run(engine,browserType,view,viewport){
   }
   await shot(page,label+'-eggenipa',true);
 
-  await page.locator('#eggenipa-world .eg-portal[data-eg="words"]').tap();
+  await page.locator('#eggenipa-world .eg-scene-words:visible, #eggenipa-world .eg-portal[data-eg="words"]:visible').first().tap();
   await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-theme-picker:not([hidden])').waitFor({timeout:12000});
   assert.equal(await page.locator('#word-hunt-overlay .wh-theme-close').getAttribute('aria-label'),'Tilbake til Norsk',
     label+' theme back button names the wrong return world');
@@ -108,7 +122,7 @@ async function run(engine,browserType,view,viewport){
   await page.locator('#word-hunt-overlay .word-hunt-back').tap();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
 
-  await page.locator('#eggenipa-world .eg-portal[data-eg="find"]').tap();
+  await page.locator('#eggenipa-world .eg-scene-find:visible, #eggenipa-world .eg-portal[data-eg="find"]:visible').first().tap();
   await page.locator('#find-the-words-overlay:not([hidden])').waitFor({timeout:12000});
   assert.match(await page.locator('#find-the-words-overlay .fw-scene-image').getAttribute('src'),
     /find-the-words-garden-premium\.webp/,
@@ -143,7 +157,7 @@ async function run(engine,browserType,view,viewport){
   assert.equal(pictureSave.round,3,label+' painted garden round did not persist');
   assert.equal(pictureSave.track,'eggenipa',label+' premium round selection was not saved');
 
-  await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').tap();
+  await page.locator('#eggenipa-world .eg-scene-reading:visible, #eggenipa-world .eg-portal[data-eg="reading"]:visible').first().tap();
   await page.locator('#session-screen.active').waitFor({timeout:14000});
   const question=await page.evaluate(()=>({
    subject:sessionScope?.subject,module:sessionScope?.module,grade:sessionScope?.grade,
@@ -155,8 +169,12 @@ async function run(engine,browserType,view,viewport){
   assert.ok(question.text,label+' missing reading question');
   assert.equal(await page.locator('#session-screen.active .task-world-chip').textContent(),'Eggenipa',
     label+' old Bokskogen name remains in reading lesson');
-  assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-    label+' legacy fox is still inside the Norwegian lesson');
+  const actor=page.locator('#session-screen.active .task-fox-companion.task-troll-companion');
+  await actor.waitFor({state:'visible',timeout:8000});
+  assert.equal(await actor.getAttribute('data-troll'),'lillesoster',
+    label+' selected TrollActor is missing from the Norwegian lesson');
+  assert.match(await actor.locator('img').getAttribute('src'),/gangemagi-troll\/lillesoster\.webp$/,
+    label+' Norwegian lesson uses wrong TrollActor art');
   assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
     label+' neutral Norwegian guide missing');
   assert.equal(await page.locator('#session-screen.active .task-norsk-guide').getAttribute('aria-label'),'Få et hint',

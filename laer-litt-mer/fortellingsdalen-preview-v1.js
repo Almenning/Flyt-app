@@ -6,9 +6,9 @@
   let ui=null;
   const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const mark=(n,total)=>Math.min(100,Math.round(n/Math.max(1,total)*100));
-  const safeAvatar=src=>{const value=String(src||'');return /^(\.\/|\/|https:\/\/)/.test(value)||/^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/i.test(value)?value:'./lia-fox-explorer-home.webp'};
+  const safeAvatar=src=>{const actor=window.LARIA_TROLL_ACTOR,t=actor?.selected?.();if(t?.src)return t.src;const value=String(src||'');return /^(\.\/|\/|https:\/\/)/.test(value)||/^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/i.test(value)?value:'./assets/gangemagi-troll/storesoster.webp'};
   function fox(){
-    return '<img class="fd-fox-portrait" alt="Din rev er med på eventyret" src="'+esc(ui.foxSrc)+'">';
+    return '<img class="fd-fox-portrait laria-premium-troll-art" alt="Trollet ditt er med på eventyret" src="'+esc(safeAvatar(ui.foxSrc))+'">';
   }
   function shell(body){
     return '<div class="fd-app"><header class="fd-top"><button class="fd-back" type="button" data-fd-action="close" aria-label="Lukk Fortellingsdalen">← Tilbake</button>'+
@@ -72,10 +72,10 @@
     }).join('');
     return shell('<article class="fd-story-layout" tabindex="-1">'+
       '<div class="fd-story-top"><button type="button" class="fd-quiet-back" data-fd-action="intro">← Alle stedene</button><span>'+esc(session.stage.title)+'</span></div>'+
-      '<div class="fd-story-companion" data-fd-fox-mood="'+esc(foxState.mood)+'" data-fd-story-place="'+esc(session.stage.id)+'" style="--fd-scene-x:'+art.stop(session.stage.id).marker.x+'%;--fd-scene-y:'+art.stop(session.stage.id).marker.y+'%;" aria-label="Reven din er med på historien">'+
+      '<div class="fd-story-companion" data-fd-fox-mood="'+esc(foxState.mood)+'" data-fd-story-place="'+esc(session.stage.id)+'" style="--fd-scene-x:'+art.stop(session.stage.id).marker.x+'%;--fd-scene-y:'+art.stop(session.stage.id).marker.y+'%;" aria-label="Trollet ditt er med på historien">'+
       '<img class="fd-story-art" src="'+esc(art.ASSET.src)+'" alt="" draggable="false" loading="eager" aria-hidden="true">'+fox()+
-      '<div class="fd-story-fox-copy"><span class="fd-eyebrow">REVENS FORTELLERKROK</span><p id="fd-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
-      (foxState.showHint?'<button class="fd-fox-help" type="button" data-fd-action="hint" aria-controls="fd-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>'+
+      '<div class="fd-story-fox-copy"><span class="fd-eyebrow">FORTELLERKROKEN</span><p id="fd-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
+      (foxState.showHint?'<button class="fd-fox-help" type="button" data-fd-action="hint" aria-controls="fd-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint':'Få hint')+'">Hint</button>':'')+'</div>'+
       '<div class="fd-story-banner"><span>SPOR '+n+' AV '+session.total+'</span><div class="fd-story-bar"><span style="width:'+mark(pending?n:n-1,session.total)+'%"></span></div></div>'+
       '<div class="fd-letter"><div class="fd-letter-decoration">✦</div><h2>'+esc(session.story.title)+'</h2><p>'+esc(session.story.passage)+'</p>'+
       '<div class="fd-letter-actions"><button type="button" class="fd-read" data-fd-action="read" aria-label="Les opp historien, spørsmålet og svaralternativene">🔊 Les høyt</button>'+

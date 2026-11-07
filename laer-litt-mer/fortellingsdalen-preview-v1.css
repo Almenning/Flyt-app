@@ -682,3 +682,34 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
     animation:none!important;
   }
 }
+
+/* Child-readable story hints on portrait phones: the hint action gets its
+ * own row instead of squeezing the sentence into a narrow flex column. */
+@media (max-width:650px){
+  #laria-fortellingsdalen-preview .fd-story-companion{
+    display:grid;
+    grid-template-columns:56px minmax(0,1fr);
+    column-gap:11px;row-gap:3px;align-items:center;
+  }
+  #laria-fortellingsdalen-preview .fd-story-companion .fd-fox-portrait{
+    grid-column:1;grid-row:1 / span 2;
+    width:56px;height:66px;flex:none;
+  }
+  #laria-fortellingsdalen-preview .fd-story-companion .fd-story-fox-copy{
+    grid-column:2;grid-row:1;
+    width:100%;min-width:0;
+  }
+  #laria-fortellingsdalen-preview .fd-story-companion .fd-fox-help{
+    grid-column:2;grid-row:2;
+    justify-self:start;
+  }
+}
+@media (max-width:360px){
+  #laria-fortellingsdalen-preview .fd-story-companion{
+    grid-template-columns:48px minmax(0,1fr);
+    column-gap:9px;
+  }
+  #laria-fortellingsdalen-preview .fd-story-companion .fd-fox-portrait{
+    width:48px;height:58px;
+  }
+}

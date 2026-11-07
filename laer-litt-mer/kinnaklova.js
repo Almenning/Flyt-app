@@ -100,7 +100,10 @@
     const app=bridge(),state=app?.state?.(),grade=Number(app?.currentGrade?.()||2);
     const name=String(state?.profile?.name||'').trim();
     const resume=state?.activeSession?.scope?.subject==='english';
-    const key=JSON.stringify([grade,name,resume]);
+    const selectedId=CHARACTERS.some(c=>c.id===state?.profile?.tallvikaTroll)?state.profile.tallvikaTroll:'storesoster';
+    const selected=CHARACTERS.find(c=>c.id===selectedId)||CHARACTERS[0];
+    const selectedSrc=window.LARIA_TROLL_ACTOR?.source?.(selectedId)||selected.src;
+    const key=JSON.stringify([grade,name,resume,selectedId]);
     const host=ensureRoot();
     if(renderKey===key&&host.firstElementChild){
       if(!screen.classList.contains('kinnaklova-active'))screen.classList.add('kinnaklova-active');
@@ -110,18 +113,22 @@
     revokeArt();
     host.innerHTML=
       '<header class="ki-utility"><button type="button" data-ki="home" aria-label="Tilbake til Hjem">‹ Hjem</button>'+
-      '<span>ENGELSK · KINNAKLOVA</span><span class="ki-grade">'+grade+'. klasse</span></header>'+
+      '<span>ENGELSK · KINNAKLOVA</span><span class="ki-grade">'+grade+'. klasse</span>'+
+      '<button type="button" class="ki-utility-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button></header>'+
       '<div class="ki-stage" role="group" aria-label="Kinnaklova med Words, Sentences og Reading">'+
+      '<span class="ki-stage-grade" aria-hidden="true">'+grade+'. klasse</span>'+
+      '<button type="button" class="ki-stage-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
       '<img class="ki-master"'+(HAS_CLEAN_MASTER?' src="'+ART+'"':'')+' alt="Kinnaklova med Kinn kyrkje, klokketårnet, sjøen og de karakteristiske tvillingtoppene" width="1672" height="941" draggable="false" decoding="async">'+
+      '<div class="ki-world-brand" aria-label="Læria, engelsk ved Kinnaklova"><strong>Læria</strong><span>Oppdag Kinnaklova</span></div>'+
       '<div class="ki-art-unavailable" hidden role="status"><strong>Den låste Kinnaklova-illustrasjonen mangler i denne utviklingsversjonen.</strong>'+
       '<span>Import av ren bakgrunn er nødvendig før visuell godkjenning og publisering.</span></div>'+
-      '<div class="ki-companions" aria-label="De tre godkjente skogstrollene">'+
-      CHARACTERS.map(c=>'<img class="ki-troll ki-troll-'+c.id+'" data-ki-character="'+c.id+'" src="'+(c.sceneSrc||c.src)+
-       '" alt="'+c.name+'" draggable="false" loading="eager">').join('')+
+      '<div class="ki-companions" aria-label="Ditt valgte troll er med på Kinnaklova">'+
+      '<button type="button" class="ki-companion-actor laria-troll-host laria-troll-actor" data-ki="troll" data-troll="'+selectedId+'" data-laria-troll-mood="idle" aria-label="Snakk med '+escapeText(selected.name)+' på Kinnaklova">'+
+      '<img class="ki-troll laria-premium-troll-art" data-ki-character="'+selectedId+'" src="'+escapeText(selectedSrc)+'" alt="" aria-hidden="true" draggable="false" loading="eager"></button>'+
       '</div>'+
-      '<button type="button" class="ki-painted-hit ki-painted-home" data-ki="home" aria-label="Tilbake til Hjem"></button>'+
-      ACTIONS.map(a=>'<button type="button" class="ki-painted-hit ki-painted-'+a.id+
-        '" data-ki="'+a.id+'" aria-label="Åpne '+a.name+' ved Kinnaklova"></button>').join('')+
+      '<button type="button" class="ki-painted-hit ki-painted-home" data-ki="home" aria-label="Tilbake til Hjem"><span aria-hidden="true">‹ Hjem</span></button>'+
+      ACTIONS.map(a=>'<button type="button" class="ki-painted-hit ki-painted-'+a.id+' laria-wayfinder'+
+        '" data-ki="'+a.id+'" aria-label="Åpne '+a.name+' ved Kinnaklova"><span class="ki-plank-name" aria-hidden="true">'+a.name+'</span></button>').join('')+
       '</div>'+
       '<div class="ki-intro"><div><small>ENGELSK · VELG DET DU LIKER</small><h2>Hva vil du oppdage?</h2></div>'+
       '<p>'+(name?'Hei, '+escapeText(name)+'! ':'')+'Utforsk ordene, lek med setninger, eller les en historie.</p></div>'+
@@ -133,6 +140,10 @@
     image.addEventListener('error',()=>onArtStatus(image),{once:true});
     onArtStatus(image);
     if(!screen.classList.contains('kinnaklova-active'))screen.classList.add('kinnaklova-active');
+    requestAnimationFrame(()=>{
+      const actor=host.querySelector('.ki-companion-actor');
+      if(actor)window.LARIA_TROLL_ACTOR?.mood?.(actor,'wave',{say:false,duration:1050});
+    });
   }
   screen.addEventListener('click',event=>{
     const button=event.target.closest?.('#kinnaklova-world [data-ki]');
@@ -140,6 +151,12 @@
     const action=button.dataset.ki;
     if(action==='home'){
       if(!window.LARIA_RETURN_TO_BASECAMP?.())bridge()?.setTab?.('home');
+    }else if(action==='choose'){
+      window.LARIA_TROLL_ACTOR?.openChooser?.();
+    }else if(action==='troll'){
+      const actor=root?.querySelector('.ki-companion-actor');
+      if(actor&&root?.dataset.kiArt==='ready')
+        window.LARIA_TROLL_ACTOR?.mood?.(actor,'curious',{say:'Ready to learn some English?'});
     }else if(action==='resume'){
       bridge()?.resumeSession?.('english');
     }else{
@@ -159,6 +176,7 @@
     }
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
+  document.addEventListener('laria:troll-changed',()=>{if(isActive()){renderKey='';build();}});
   if(isActive())build();
   window.LARIA_KINNAKLOVA=Object.freeze({
     build,art:ART,

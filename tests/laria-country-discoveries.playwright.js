@@ -47,7 +47,7 @@ async function run(engine,label,viewport,url,avatar){
   assert.match(await page.locator('.country-discoveries').innerText(),/Matterhorn/);
   assert.match(await page.locator('.country-discoveries').innerText(),/retoromansk/);
   assert.equal(await page.locator('.country-story').getAttribute('data-country-content'),'ready');
-  assert.equal(await page.locator('.country-story-fox').getAttribute('src'),await page.evaluate(()=>LARIA_FOX.worldSource(LARIA_FOX.choice())));
+  assert.equal(await page.locator('.country-story-fox').getAttribute('src'),await page.evaluate(()=>LARIA_TROLL_ACTOR.selected().src));
   assert.match(await page.locator('.country-story-facts').innerText(),/2024/);
   assert(!/8,2/.test(await page.locator('.country-story-facts').innerText()));
   assert.equal(await page.evaluate(()=>__countrySpeech.items.length),0,'No country autoplay');

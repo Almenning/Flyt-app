@@ -297,6 +297,19 @@
  }
 }
 
+/* Small portrait phones still use the painted navigation chrome, but every
+   invisible hit target must retain a real 44px touch box in WebKit. */
+@media(orientation:portrait) and (max-width:700px){
+ .grade-band-young .bc12.bc15-locked-home .bc12-nav{
+   display:grid!important;visibility:visible!important;min-height:52px!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home .bc12-nav button{
+   display:flex!important;visibility:visible!important;
+   min-width:44px!important;min-height:44px!important;
+   align-items:center!important;justify-content:center!important;
+ }
+}
+
 
 /* Dynamic copy over the locked artwork.
    Polish 2 uses the same illustrated wood language as the painted Home controls. */

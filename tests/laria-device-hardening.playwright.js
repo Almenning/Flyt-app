@@ -166,14 +166,24 @@ async function verifyBasecamp(page,label,width,height){
   // The Norwegian map is retired. Touch the real reading entrance and
   // verify readable lesson, return, and unchanged accessible geometry.
   const norwegian=page.locator('#eggenipa-world:visible');
-  assert.deepEqual(await norwegian.locator('.eg-portal')
+  const sceneActions=norwegian.locator('.eg-scene-hit:visible');
+  const portalActions=norwegian.locator('.eg-portal:visible');
+  const norwegianActions=await sceneActions.count()?sceneActions:portalActions;
+  assert.deepEqual(await norwegianActions
     .evaluateAll(items=>items.map(item=>item.dataset.eg)),['words','find','reading'],
     label+' three Norwegian activities missing');
   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
     label+' retired Norwegian map visible');
   await noOverflow(page,label+' Eggenipa');
-  assertTap(await rect(page,'#eggenipa-world .eg-portal[data-eg="reading"]'),label+' Lesekroken entry');
-  await norwegian.locator('.eg-portal[data-eg="reading"]').tap();
+  const readingEntrance=await sceneActions.count()
+    ?norwegian.locator('.eg-scene-reading:visible')
+    :norwegian.locator('.eg-portal[data-eg="reading"]:visible');
+  assertTap(await readingEntrance.evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom,
+      display:getComputedStyle(el).display,visibility:getComputedStyle(el).visibility};
+  }),label+' Lesekroken entry');
+  await readingEntrance.tap();
   await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
   assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian',label+' wrong subject');
   assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',label+' wrong Norsk module');
@@ -209,12 +219,19 @@ async function verifyOlderHome(page,label,width,height,grade){
   assert.equal(await page.locator('#bottom-nav:visible').count(),0,
     label+' may not expose a second Home navigation');
   await noOverflow(page,label+' unified Home');
+  await page.waitForFunction(()=>{
+    const img=document.querySelector('#home-screen.active .bc12:not(.bc15-locked-home) .bc12-fox > img');
+    return !!img && img.classList.contains('laria-premium-troll-art')
+      && img.getAttribute('src')===window.LARIA_TROLL_ACTOR?.source(window.LARIA_TROLL_ACTOR.choice());
+  },null,{timeout:12000});
   const srcMatches=await page.evaluate(()=>{
-    const img=document.querySelector('.bc12-fox img');
-    return img?.getAttribute('src')===window.LARIA_FOX.source(state.profile.avatar)
-      && !!document.querySelector('.bc12-fox .laria-fox-wardrobe-art');
+    const host=document.querySelector('#home-screen.active .bc12:not(.bc15-locked-home) .bc12-fox');
+    const img=host?.querySelector(':scope > img');
+    return !!host?.classList.contains('laria-troll-host')
+      && img?.getAttribute('src')===window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())
+      && !host.querySelector('.laria-fox-wardrobe-art');
   });
-  assert.equal(srcMatches,true,label+' must show the selected personal fox and its clothing layer');
+  assert.equal(srcMatches,true,label+' must show the selected TrollActor, without obsolete fox clothes');
   if(width<=700){
     const placement=await page.evaluate(()=>{
       const box=sel=>document.querySelector(sel)?.getBoundingClientRect();
@@ -223,9 +240,9 @@ async function verifyOlderHome(page,label,width,height,grade){
       const overlap=(a,b)=>a&&b?Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)):0;
       return {visible:!!fox&&fox.width>=44&&fox.height>=44,areas:signs.map(sign=>overlap(fox,sign)),fox:fox?{left:fox.left,top:fox.top,right:fox.right,bottom:fox.bottom}:null};
     });
-    assert.equal(placement.visible,true,label+' chosen fox must remain a proper, visible companion');
+    assert.equal(placement.visible,true,label+' chosen troll must remain a proper, visible companion');
     assert.ok(placement.areas.every(a=>a<2),
-      label+' chosen fox must not cover either painted activity sign: '+JSON.stringify(placement));
+      label+' chosen troll must not cover either painted activity sign: '+JSON.stringify(placement));
   }
   for(const sel of ['.bc14-subject[data-camp="subject-norwegian"]','.bc14-subject[data-camp="subject-math"]',
     '.bc14-subject[data-camp="subject-english"]','.bc14-subject[data-camp="subject-geography"]',
@@ -238,9 +255,11 @@ async function verifyOlderHome(page,label,width,height,grade){
   await page.locator('#bc12-dialog .bc12-close').tap();
   await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
   await page.locator('.bc12-nav [data-camp="wardrobe"]').tap();
-  await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg').waitFor();
-  await page.locator('#bc12-dialog .bc12-close').tap();
-  await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
+  await page.locator('#laria-premium-troll-dialog[open] [data-troll-choice]').first().waitFor();
+  assert.equal(await page.locator('#laria-premium-troll-dialog [data-troll-choice]').count(),3,
+    label+' the three approved troll choices must be available');
+  await page.locator('#laria-premium-troll-dialog .laria-troll-dialog-close').tap();
+  await page.locator('#laria-premium-troll-dialog[open]').waitFor({state:'hidden'});
   // A real subject round-trip, without falling back to the obsolete Home.
   await page.locator('.bc14-subject[data-camp="subject-math"]').tap();
   await page.locator('#subject-screen.active').waitFor();
@@ -257,9 +276,13 @@ async function verifyOlderHome(page,label,width,height,grade){
       saveState();renderAll();
     });
     assert.equal(await page.locator('.bc12').getAttribute('data-grade-band'),'teen');
+    await page.waitForFunction(()=>{
+      const img=document.querySelector('#home-screen.active .bc12-fox > img');
+      return img?.getAttribute('src')===window.LARIA_TROLL_ACTOR?.source(window.LARIA_TROLL_ACTOR.choice());
+    },null,{timeout:12000});
     assert.equal(await page.locator('.bc12-fox img').getAttribute('src'),
-      await page.evaluate(()=>window.LARIA_FOX.source('girl')),
-      label+' fox identity must survive grade change');
+      await page.evaluate(()=>window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())),
+      label+' selected troll must survive grade change');
     assert.equal(await page.locator('.bc14-subject:visible').count(),4);
   }
   await noOverflow(page,label+' returned Home');

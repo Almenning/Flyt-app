@@ -49,7 +49,13 @@ async function serve(){
 async function visit(page,subject){
  await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible').click();
  const screen=subject==='geography'?'geography':'subject';
- await page.locator('#'+screen+'-screen.active.locked-journey-active').waitFor({timeout:16000});
+ if(subject==='geography'){
+  const landing=page.locator('#laria-geography-world:visible');
+  await landing.waitFor({timeout:16000});
+  assert.equal(await landing.locator('.gv-sign').count(),3,'Nordlysleiren entrances missing');
+  await landing.locator('[data-gv="journey"]').click();
+ }
+ await page.locator('#'+screen+'-screen.active.locked-journey-active:not(.gv-visible)').waitFor({timeout:16000});
  await page.waitForFunction(s=>{
   const active=document.querySelector('.screen.active.locked-journey-active');
   const map=active?.querySelector('.locked-journey-map');
@@ -98,7 +104,16 @@ async function validateStage(page,subject,label,viewport,screen){
  assert(near(data.viewport.w,width,1)&&near(data.viewport.h,height,1),label+' viewport mismatched '+JSON.stringify(data.viewport));
  assert(data.app.w>=width-2&&data.screen.w>=width-2,label+' old 480px shell is still active '+JSON.stringify(data));
  assert(data.appPaddingBottom==='0px',label+' old bottom-nav padding was exposed');
- assert(data.appBackground.includes(subject+'-premium.webp'),label+' missing matching approved landscape atmosphere '+data.appBackground);
+ // Nordlysleiren itself is the approved painting. A blown-up duplicate
+ // geography card behind it is deliberately retired in the premium beta.
+ if(subject==='geography'){
+   assert(data.appBackground.includes('radial-gradient(')&&
+     !data.appBackground.includes('geography-premium.webp'),
+     label+' geography stage must provide clean atmosphere without duplicated art '+data.appBackground);
+ }else{
+   assert(data.appBackground.includes(subject+'-premium.webp'),
+     label+' missing matching approved landscape atmosphere '+data.appBackground);
+ }
  assert(data.originalMarkup==='2026-10-10'&&data.activeSubject===subject,label+' wrong approved map');
  assert.deepEqual(data.imageNatural,[941,1672],label+' original map missing');
  assert(data.imageFit==='contain',label+' art was cropped');
@@ -153,6 +168,10 @@ async function verifyTapAndBack(page,screen,subject,label){
  await overlay.locator('.locked-sheet-close').click();
  await screen.locator('.locked-journey-back').scrollIntoViewIfNeeded();
  await screen.locator('.locked-journey-back').click();
+ if(subject==='geography'){
+  await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+  await page.locator('#laria-geography-world [data-gv="home"]').click();
+ }
  await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
  // A hidden journey may retain its subject marker while background preloading
  // settles. Only the ACTIVE screen may own the scenic full-width stage.
@@ -227,6 +246,10 @@ async function run(engine,label,viewport,url){
    }else{
     await screen.locator('.locked-journey-back').scrollIntoViewIfNeeded();
     await screen.locator('.locked-journey-back').click();
+    if(subject==='geography'){
+     await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+     await page.locator('#laria-geography-world [data-gv="home"]').click();
+    }
     await page.locator('#home-screen.active').waitFor({timeout:12000});
    }
   }

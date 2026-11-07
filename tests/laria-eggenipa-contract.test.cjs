@@ -45,6 +45,15 @@ test('Three independent Norsk activities, no journey map in the child UI',()=>{
   assert.match(html,/sessionScope\?\.subject!==expectedSubject/);
 });
 
+test('Eggenipa renders one selected TrollActor inside the locked scene',()=>{
+  assert.match(js,/tallvikaTroll/);
+  assert.match(js,/window\.LARIA_TROLL_ACTOR\?\.source/);
+  assert.match(js,/eg-companion-actor laria-troll-host laria-troll-actor/);
+  assert.match(css,/\.eg-companion-actor\{/);
+  assert.match(css,/@media\(max-width:700px\)[\s\S]*\.eg-companion-actor/);
+  assert.match(css,/orientation:landscape[\s\S]*\.eg-companion-actor/);
+});
+
 test('Artwork stays an external unchanged source, not generated on screen',()=>{
   assert.match(js,/assets\/norsk\/eggenipa-master-laast-20261025\.png/);
   assert.match(js,/<img class="eg-master"/);

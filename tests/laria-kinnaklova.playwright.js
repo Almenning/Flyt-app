@@ -7,7 +7,7 @@ const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const output=process.env.LARIA_KINNAKLOVA_SCREENSHOTS;
 const seed={
  version:7,progressSchemaVersion:3,
- profile:{grade:2,onboarded:true,name:'Kinnaklova QA',avatar:'girl',setupVersion:2},
+ profile:{grade:2,onboarded:true,name:'Kinnaklova QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},
  masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},
  lastMilestone:null,recentCountryWin:null,lastActivity:null,
@@ -26,7 +26,13 @@ async function visitEnglish(page){
  await page.locator('#subject-screen.active #kinnaklova-world').waitFor({state:'visible',timeout:16000});
 }
 async function takeActivity(page,action,label){
- await page.locator('#kinnaklova-world .ki-card[data-ki="'+action+'"]').click();
+  // Artwork is asynchronous. Let the integrity gate settle before choosing
+  // painted controls; fallback cards only exist when the asset fails closed.
+  await page.waitForFunction(()=>['ready','missing','unapproved'].includes(
+    document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+  const painted=page.locator('#kinnaklova-world .ki-painted-'+action+':visible');
+  if(await painted.count())await painted.click();
+  else await page.locator('#kinnaklova-world .ki-card[data-ki="'+action+'"]:visible').click();
  await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
  const result=await page.evaluate(()=>({
    subject:sessionScope?.subject,module:sessionScope?.module,
@@ -51,10 +57,12 @@ async function takeActivity(page,action,label){
    label+' '+action+' VoiceOver question language is incorrect');
  assert.equal(speechLanguage.answers,expectedAnswers,
    label+' '+action+' VoiceOver answer language is incorrect');
- // Direct Kinnaklova has no retired fox actor; the real troll rig arrives
- // as a separately approved art layer, not a static mascot substitution.
- assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-   label+' '+action+' still renders the retired fox');
+ const actor=page.locator('#session-screen.active .task-fox-companion.task-troll-companion');
+ await actor.waitFor({state:'visible',timeout:8000});
+ assert.equal(await actor.getAttribute('data-troll'),'lillesoster',
+   label+' '+action+' lost the selected TrollActor');
+ assert.match(await actor.locator('img').getAttribute('src'),/gangemagi-troll\/lillesoster\.webp$/,
+   label+' '+action+' uses wrong TrollActor art');
  assert.equal(await page.evaluate(()=>state.profile.avatar),'girl',
    label+' '+action+' changed the saved profile identity');
  assert.ok(result.count>=5,label+' missing real learning questions in '+action);
@@ -119,16 +127,30 @@ async function run(browserType,name,viewport){
       width:rect.width,height:rect.height,naturalWidth:img.naturalWidth};
   });
   assert.ok(art.width>250,name+' no stage visible');
-  assert.ok(Math.abs(art.height-art.width*941/1672)<3,name+' must not crop approved art');
-  const documents=await world.locator('.ki-troll').evaluateAll(els=>els.map(el=>({
-    id:el.dataset.kiCharacter,src:el.getAttribute('src')
-  })));
-  assert.deepEqual(documents.map(el=>el.id),['storesoster','lillebror','lillesoster']);
-  assert.deepEqual(documents.map(el=>el.src),[
-    './assets/kinnaklova/storesoster-inworld-approved-20261026.webp',
-    './assets/gangemagi-troll/lillebror.webp',
-    './assets/gangemagi-troll/lillesoster.webp'
-  ],name+' must use the already painted approved Storesøster and unchanged other originals');
+  if(viewport.width>=701&&viewport.height>=600){
+    const frame=await world.locator('.ki-stage').evaluate(stage=>{
+      const b=stage.getBoundingClientRect(),im=stage.querySelector('.ki-master');
+      return {left:b.left,top:b.top,width:b.width,height:b.height,
+        imageFit:getComputedStyle(im).objectFit,imagePosition:getComputedStyle(im).objectPosition};
+    });
+    assert.ok(Math.abs(frame.left)<=2&&Math.abs(frame.top)<=2&&
+      Math.abs(frame.width-viewport.width)<=2&&Math.abs(frame.height-viewport.height)<=2,
+      name+' iPad/desktop must be one full-viewport Kinnaklova scene: '+JSON.stringify(frame));
+    assert.equal(frame.imageFit,'cover',name+' artwork should fill scene, without deforming pixels');
+    // Kinnaklova's SHA-verified artwork already paints the Læria crest.
+    // A second HTML header created an obvious double-logo visual defect.
+    assert.equal(await world.locator('.ki-world-brand:visible').count(),0,
+      name+' added a duplicate HTML crest over the original painted Læria heading');
+  }else{
+    assert.ok(Math.abs(art.height-art.width*941/1672)<3,name+' compact phone must retain uncropped original art');
+  }
+  const actor=world.locator('.ki-companion-actor[data-troll="lillesoster"]');
+  assert.equal(await actor.count(),1,name+' must render one selected TrollActor');
+  const actorImg=actor.locator('.ki-troll');
+  assert.equal(await actorImg.getAttribute('data-ki-character'),'lillesoster',name+' wrong selected Kinnaklova troll');
+  assert.equal(await actorImg.getAttribute('src'),'./assets/gangemagi-troll/lillesoster.webp',
+    name+' selected Kinnaklova troll must use the persistent identity asset');
+  assert.equal(await world.locator('.ki-troll').count(),1,name+' Kinnaklova must not show all three trolls at once');
   if(art.ready){
     assert.equal(await page.evaluate(()=>window.LARIA_KINNAKLOVA.ready()),true);
     assert.equal(await world.locator('.ki-companions').isVisible(),true);

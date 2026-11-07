@@ -118,7 +118,7 @@ async function run(engine,label,viewport,url,avatar='girl'){
         viewport:innerWidth,sceneWidth:scene.width,sceneHeight:scene.height,paintAlpha:sample[3],
         actionHeight:button.height,actionWidth:button.width,canvasHeight:scene.getBoundingClientRect().height,
         background:bodyStyle.backgroundImage,
-        foxSrc:fox.getAttribute('src'),selected:window.LARIA_FOX.worldSource(window.LARIA_FOX.choice()),
+        foxSrc:fox.getAttribute('src'),selected:window.LARIA_TROLL_ACTOR?.selected?.()?.src,
         foxWidth:foxRect.width,foxHeight:foxRect.height,scrollWidth:document.documentElement.scrollWidth,
         factCount:card.querySelectorAll('.country-story-fact').length
       };
@@ -129,7 +129,7 @@ async function run(engine,label,viewport,url,avatar='girl'){
       label+' country art not actually painted '+JSON.stringify(details));
     assert(details.canvasHeight>=240,label+' illustrated hero shrunk too far');
     assert(details.foxSrc===details.selected&&details.foxWidth>60&&details.foxHeight>70,
-      label+' wrong or missing selected fox '+JSON.stringify(details));
+      label+' wrong or missing selected troll '+JSON.stringify(details));
     assert(details.actionHeight>=48&&details.actionWidth>140,label+' practice button too small');
     assert(details.factCount===3,label+' facts missing or duplicated');
     if(viewport.width>=700&&viewport.height>520){

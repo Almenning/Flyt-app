@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nb">
+<html lang="nb" data-laria-character-system="troll">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -2258,7 +2258,7 @@
       box-shadow:0 10px 0 rgba(72,76,121,.08),0 24px 38px rgba(55,65,98,.16)!important
     }
     .grade-band-young .home-continue:after{
-      content:"🦊  Jeg er klar!"!important;position:absolute!important;z-index:3!important;
+      content:"✦  Jeg er klar!"!important;position:absolute!important;z-index:3!important;
       left:18px!important;top:18px!important;padding:8px 11px!important;border-radius:16px 16px 16px 5px!important;
       background:rgba(255,255,255,.94)!important;color:#3B4A60!important;font-size:11px!important;font-weight:950!important;
       box-shadow:0 5px 13px rgba(37,50,71,.12)!important
@@ -2354,16 +2354,47 @@
     .avatar-choice-label{display:block;margin-top:5px;font-size:15px;font-weight:950;letter-spacing:-.02em}.avatar-choice-note{display:block;margin-top:1px;font-size:10px;font-weight:800;color:#748096}.profile-name-label{display:block;text-align:left;margin:1px 3px 7px;color:#2C4168;font-size:13px;font-weight:950}.profile-name-wrap{position:relative}.profile-name-wrap:before{content:"☺";position:absolute;left:14px;top:50%;transform:translateY(-50%);z-index:2;color:#71809A;font-size:18px}.profile-name-wrap .name-input{margin:0;padding-left:43px!important;text-align:left;font-weight:850;border-color:#CBD9EB;background:rgba(255,255,255,.97)}.profile-next{margin-top:12px!important}
     .top .avatar.profile-fox-avatar{position:relative;overflow:visible;padding:0;background:linear-gradient(145deg,#E7F5FF,#FFF2DE);border:2px solid #fff;box-shadow:0 5px 13px rgba(45,67,101,.12)}.top .avatar.profile-fox-avatar img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}.top .avatar.profile-fox-avatar[data-profile-avatar="girl"] img{transform:none}.top .avatar.profile-fox-avatar[data-profile-avatar="girl"]:after{content:""}
     @media(max-height:700px){.onboarding-card{padding:16px 16px 13px!important;border-radius:28px!important}.onboard-brandmark{margin-bottom:4px;font-size:18px}.onboard-profile h1{font-size:26px;margin-top:4px}.onboard-profile>.hero-copy{font-size:13px;margin-bottom:8px}.avatar-choice-grid{margin:8px 0 10px;gap:8px}.avatar-art{height:112px}.avatar-fox-img{height:118px}.avatar-choice-label{font-size:14px}.avatar-choice-note{display:none}.profile-next{margin-top:8px!important}}
+
+    /* Premium beta onboarding: choose the same forest troll that follows the child in-world. */
+    .avatar-choice-grid[data-troll-picker]{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .avatar-choice-grid[data-troll-picker] .avatar-choice-card{
+      padding:6px 5px 9px;background:linear-gradient(180deg,#FBF8EE,#EAF2E5);
+      border-color:rgba(93,104,72,.19);border-radius:22px;
+    }
+    .avatar-choice-grid[data-troll-picker] .avatar-choice-card:nth-child(2){background:linear-gradient(180deg,#FFF8F1,#F5E9DF)}
+    .avatar-choice-grid[data-troll-picker] .avatar-choice-card:nth-child(3){background:linear-gradient(180deg,#F4FAFF,#E8F2F2)}
+    .avatar-choice-grid[data-troll-picker] .avatar-art{
+      height:clamp(108px,25vw,142px);overflow:visible;background:transparent!important;
+    }
+    .avatar-choice-grid[data-troll-picker] .avatar-troll-img{
+      position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+      width:auto;height:100%;max-width:100%;object-fit:contain;object-position:center bottom;
+      filter:drop-shadow(0 8px 7px rgba(43,61,56,.20));
+    }
+    .avatar-choice-grid[data-troll-picker] .avatar-choice-label{font-size:clamp(12px,3.3vw,15px)}
+    .avatar-choice-grid[data-troll-picker] .avatar-choice-note{font-size:9px;line-height:1.2}
+    @media(max-width:360px){
+      .avatar-choice-grid[data-troll-picker]{gap:5px}
+      .avatar-choice-grid[data-troll-picker] .avatar-choice-card{padding:4px 3px 7px;border-radius:18px}
+      .avatar-choice-grid[data-troll-picker] .avatar-art{height:96px}
+      .avatar-choice-grid[data-troll-picker] .avatar-choice-label{font-size:11px}
+      .avatar-choice-grid[data-troll-picker] .avatar-choice-note{display:none}
+    }
+    @media(orientation:landscape) and (max-height:500px){
+      .avatar-choice-grid[data-troll-picker] .avatar-art{height:82px}
+      .avatar-choice-grid[data-troll-picker]{margin:5px 0 7px}
+      .avatar-choice-grid[data-troll-picker] .avatar-choice-note{display:none}
+    }
 </style>
   <!-- Active Læria styles. Order is dependency-sensitive; shared layers load before scoped overrides. -->
   <!-- Labs -->
   <link rel="stylesheet" href="./laria-foundation-v1.css?v=20261006-p8foundation1" />
-  <link rel="stylesheet" href="./math-pattern-haven-preview-v1.css?v=20261017-paintedstudy1" />
+  <link rel="stylesheet" href="./math-pattern-haven-preview-v1.css?v=20261107-early-start1" />
   <link rel="stylesheet" href="./english-sentence-harbor-preview-v1.css?v=20261017-en2a" />
-  <link rel="stylesheet" href="./geography-continent-voyage-preview-v1.css?v=20261017-geo2layout1" />
+  <link rel="stylesheet" href="./geography-continent-voyage-preview-v1.css?v=20261107-compact-passport1" />
     <link rel="stylesheet" href="./fraction-lab.css?v=20261006-assets1" />
     <link rel="stylesheet" href="./fraction-premium-v2.css?v=20261009-illustrated3" />
-    <link rel="stylesheet" href="./fraction-premium-v4.css?v=20261023-premium-workbench1" />
+    <link rel="stylesheet" href="./fraction-premium-v4.css?v=20261107-premium-beta-fold2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261006-assets1" />
   <link rel="stylesheet" href="./multiplication-premium-v2.css?v=20261015-phase-d1-44px-touches1" />
   <link rel="stylesheet" href="./multiplication-illustrated-groups-v3.css?v=20261009-mp3a" />
@@ -2375,7 +2406,7 @@
   <link rel="stylesheet" href="./multiplication-pick-material-v5.css?v=20261009-premium-art5c" />
   <link rel="stylesheet" href="./multiplication-pick-vessels-v6.css?v=20261009-world-vessels6a" />
   <link rel="stylesheet" href="./multiplication-pick-closeup-v7.css?v=20261009-closeup-parity7a" />
-  <link rel="stylesheet" href="./multiplication-gangemagi-v1.css?v=20261023-gangemagi-release37" />
+  <link rel="stylesheet" href="./multiplication-gangemagi-v1.css?v=20261107-gangemagi-release38" />
   <link rel="stylesheet" href="./gangemagi-dagens-oppdrag-v1.css?v=20261023-gangemagi-release37" />
   <link rel="stylesheet" href="./gangemagi-markedsbok-approved-v2.css?v=20261017-approved2" />
   <!-- Journey / Bokskogen -->
@@ -2395,7 +2426,7 @@
   <link rel="stylesheet" href="./laria-unified-v13.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-navigation-v13.css?v=20261019-painted-card2" />
   <link rel="stylesheet" href="./home-subjects-v14.css?v=20261013-phase4c-young-explore-visible" />
-  <link rel="stylesheet" href="./home-kjosnes-v15.css?v=20261024-alive1" />
+  <link rel="stylesheet" href="./home-kjosnes-v15.css?v=20261107-touch2" />
   <link rel="stylesheet" href="./home-grades-v16.css?v=20261011-unified-home2" />
   <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261026-norsk-readaloud44" />
   <!-- Kloden: one active scene stylesheet; art + renderer are loaded below in runtime order -->
@@ -2407,9 +2438,10 @@
   <link rel="stylesheet" href="./globe-ux-phase2.css?v=20261013-ipad-controls" />
   <!-- Original approved art: guarded rendering, no substitutions -->
   <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261027-nordlys-troll1" />
-  <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261015-ipad-mac-stage1-iphone-c3" />
+  <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261107-geo-no-duplicate1" />
   <link rel="stylesheet" href="./laria-fox-identity.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-fox-presence.css?v=20261027-nordlys-troll1" />
+  <link rel="stylesheet" href="./laria-troll-runtime-v1.css?v=20261107-premium-beta5" />
   <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
   <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261027-nordlys-troll1" />
   <link rel="stylesheet" href="./laria-country-detail-premium-v1.css?v=20261015-story3-curated1" />
@@ -2454,7 +2486,7 @@
 <div class="app">
   <header class="top" id="topbar">
     <div class="brand">Læria</div>
-    <div class="avatar" aria-hidden="true">🦊</div>
+    <div class="avatar" aria-hidden="true"></div>
   </header>
 
   <main>
@@ -2614,7 +2646,7 @@
           </div>
 
           <div class="fox-guide" id="fox-guide">
-            <div class="fox-guide-face" aria-hidden="true">🦊</div>
+            <div class="fox-guide-face" aria-hidden="true">✦</div>
             <div><strong id="fox-guide-title">Vi starter enkelt</strong><p id="fox-guide-copy">Én liten økt er nok. Resten er bonus.</p></div>
           </div>
 
@@ -2668,7 +2700,7 @@
           <div class="journey-summary-ring" id="journey-summary-ring" style="--journey-pct:0"><span id="journey-summary-pct">0%</span></div>
         </div>
         <div class="journey-now-card" id="journey-now-card">
-          <div class="journey-now-fox" aria-hidden="true">🦊</div>
+          <div class="journey-now-fox" aria-hidden="true">✦</div>
           <div><span>DU ER HER</span><strong id="journey-now-title">Første oppdrag</strong><small id="journey-now-copy">Start reisen og vinn ditt første samleobjekt.</small></div>
         </div>
         <div class="journey-collection" id="journey-collection" aria-label="Samleobjekter fra reisen"></div>
@@ -2693,7 +2725,7 @@
           </button>
           <button class="math-lab-card multiplication" id="open-multiplication-lab" type="button">
             <div class="module-icon">✖️</div>
-            <div style="flex:1"><strong>Gangemagi</strong><small>Plukk, pakk og lær gange med din egen rev. Den vanlige 10 × 10-tabellen er fortsatt her.</small></div>
+            <div style="flex:1"><strong>Gangemagi</strong><small>Plukk, pakk og lær gange med trollet ditt. Den vanlige 10 × 10-tabellen er fortsatt her.</small></div>
             <div class="topic-arrow">›</div>
           </button>
         </div>
@@ -2957,7 +2989,7 @@
       <div class="card privacy-note">
         <div class="row" style="align-items:flex-start">
           <div style="font-size:28px">🛡️</div>
-          <div><h3>Personvern</h3><p>Profilnavn, valgt rev, klassetrinn, fremgang og svar lagres lokalt på denne enheten. Læria krever ikke konto, e-post, fødselsdato eller posisjon, og har ingen annonser eller sporing.</p></div>
+          <div><h3>Personvern</h3><p>Profilnavn, valgt troll, klassetrinn, fremgang og svar lagres lokalt på denne enheten. Læria krever ikke konto, e-post, fødselsdato eller posisjon, og har ingen annonser eller sporing.</p></div>
         </div>
       </div>
 
@@ -3019,7 +3051,7 @@
         <div class="card privacy-note">
           <div class="row" style="align-items:flex-start">
             <div style="font-size:28px">🛡️</div>
-            <div><h3>Rolig også for de voksne</h3><p>Appen har ingen annonser eller sporing. Profilnavn, valgt rev, klassetrinn, svar og fremgang lagres lokalt på enheten. Vi krever ikke konto, e-post, fødselsdato eller posisjon.</p></div>
+            <div><h3>Rolig også for de voksne</h3><p>Appen har ingen annonser eller sporing. Profilnavn, valgt troll, klassetrinn, svar og fremgang lagres lokalt på enheten. Vi krever ikke konto, e-post, fødselsdato eller posisjon.</p></div>
           </div>
         </div>
 
@@ -3156,10 +3188,11 @@
         <div class="onboard-brandmark" aria-label="Læria">Læria <b>✦</b></div>
         <div class="eyebrow">LAG DIN BRUKER</div>
         <h1 id="profile-onboarding-title">Velg din eventyrvenn</h1>
-        <p class="hero-copy">Velg reven din, skriv navnet ditt og start reisen.</p>
-        <div class="avatar-choice-grid" role="group" aria-label="Velg rev">
-          <button type="button" class="avatar-choice-card" data-avatar="boy" aria-pressed="false"><span class="avatar-art" aria-hidden="true"><img class="avatar-fox-img" data-profile-avatar-img alt=""></span><span class="avatar-choice-label">Revegutt</span><span class="avatar-choice-note">Eventyrlysten og klar</span></button>
-          <button type="button" class="avatar-choice-card" data-avatar="girl" aria-pressed="false"><span class="avatar-art" aria-hidden="true"><img class="avatar-fox-img" data-profile-avatar-img alt=""></span><span class="avatar-choice-label">Revejente</span><span class="avatar-choice-note">Nysgjerrig og klar</span></button>
+        <p class="hero-copy">Velg trollet som skal følge deg gjennom Læria, skriv navnet ditt og start reisen.</p>
+        <div class="avatar-choice-grid" data-troll-picker role="group" aria-label="Velg troll">
+          <button type="button" class="avatar-choice-card" data-troll="storesoster" aria-pressed="false"><span class="avatar-art" aria-hidden="true"><img class="avatar-troll-img" data-profile-troll-img src="./assets/gangemagi-troll/storesoster.webp" alt=""></span><span class="avatar-choice-label">Storesøster</span><span class="avatar-choice-note">Modig og nysgjerrig</span></button>
+          <button type="button" class="avatar-choice-card" data-troll="lillesoster" aria-pressed="false"><span class="avatar-art" aria-hidden="true"><img class="avatar-troll-img" data-profile-troll-img src="./assets/gangemagi-troll/lillesoster.webp" alt=""></span><span class="avatar-choice-label">Lillesøster</span><span class="avatar-choice-note">Leken og oppfinnsom</span></button>
+          <button type="button" class="avatar-choice-card" data-troll="lillebror" aria-pressed="false"><span class="avatar-art" aria-hidden="true"><img class="avatar-troll-img" data-profile-troll-img src="./assets/gangemagi-troll/lillebror.webp" alt=""></span><span class="avatar-choice-label">Lillebror</span><span class="avatar-choice-note">Nysgjerrig og modig</span></button>
         </div>
         <label class="profile-name-label" for="profile-name">Hva heter du?</label>
         <div class="profile-name-wrap"><input class="name-input" id="profile-name" maxlength="20" autocomplete="off" autocapitalize="words" placeholder="Skriv navnet ditt" aria-describedby="profile-error"></div>
@@ -3839,7 +3872,7 @@ function renderAll(){
   applyGradeDesign();
   window.LARIA_FOX.syncDecorations();
   const tone={
-    young:{title:'Hvor skal vi dra i dag?',copy:'Reven er klar! Velg en verden, finn neste sted og lær noe nytt på veien.',subject:'Velg en verden ✨',pEye:'Skattene dine',pTitle:'Se hva du har samlet! ⭐',pCopy:'Hver lille seier gjør samlingen din større.',nav:'Trofeer',explore:'Kloden',avatar:'🦊',icons:{geography:'🌍',norwegian:'📖',math:'🔢',english:'💬'}},
+    young:{title:'Hvor skal vi dra i dag?',copy:'Trollet ditt er klart! Velg en verden, finn neste sted og lær noe nytt på veien.',subject:'Velg en verden ✨',pEye:'Skattene dine',pTitle:'Se hva du har samlet! ⭐',pCopy:'Hver lille seier gjør samlingen din større.',nav:'Trofeer',explore:'Kloden',avatar:'✦',icons:{geography:'🌍',norwegian:'📖',math:'🔢',english:'💬'}},
     middle:{title:'Hei! 👋',copy:'Klar for nye utfordringer? Utforsk, løs oppdrag og bygg videre.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',explore:'Utforsk',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
     older:{title:'Hva vil du bli bedre på i dag?',copy:'Velg et fag og bygg kunnskap med korte økter og tydelig fremgang.',subject:'Dine fag',pEye:'Din fremgang',pTitle:'Kunnskap du bygger',pCopy:'Følg hva du mestrer, hva du øver på og hva som er smart å repetere.',nav:'Fremgang',explore:'Utforsk',avatar:'🌐',icons:{geography:'🌐',norwegian:'Aa',math:'∑',english:'EN'}},
     teen:{title:'Fortsett fremgangen din',copy:'Fortsett der du slapp, eller velg et fag og jobb videre mot neste mål.',subject:'Fag',pEye:'Oversikt',pTitle:'Fremgang og mestring',pCopy:'Se aktivitet, mestring og områder som er klare for videre arbeid.',nav:'Fremgang',explore:'Utforsk',avatar:'◎',icons:{geography:'GEO',norwegian:'NO',math:'∑',english:'EN'}}
@@ -3871,7 +3904,14 @@ function renderAll(){
   if(panelTitle)panelTitle.textContent=band==='young'?'Stjernene dine ⭐':band==='middle'?'Din fremgang':band==='older'?'Fremgang':'Oversikt';
   if(panelKicker)panelKicker.textContent=band==='young'?'DIN SAMLING':band==='middle'?'DENNE UKEN':band==='older'?'UTVIKLING':'STATUS';
   const subjectKicker=document.getElementById('home-subject-kicker');if(subjectKicker)subjectKicker.textContent=band==='young'?'VELG EN VERDEN':'VELG FAG';
-  const avatar=document.querySelector('.avatar');if(avatar){const chosenAvatar=state.profile?.avatar==='girl'?'girl':'boy';avatar.classList.add('profile-fox-avatar');avatar.dataset.profileAvatar=chosenAvatar;avatar.removeAttribute('aria-hidden');avatar.setAttribute('aria-label',chosenAvatar==='girl'?'Valgt figur: revejente':'Valgt figur: revegutt');avatar.innerHTML='<img src="'+avatarSrc(chosenAvatar)+'" alt="">'}
+  const avatar=document.querySelector('.avatar');if(avatar){
+    const trollId=['storesoster','lillesoster','lillebror'].includes(state.profile?.tallvikaTroll)?state.profile.tallvikaTroll:'storesoster';
+    const trollSrc='./assets/gangemagi-troll/'+trollId+'.webp';
+    avatar.classList.add('profile-fox-avatar','laria-troll-host','laria-troll-actor');
+    avatar.dataset.troll=trollId;avatar.dataset.lariaTrollMood='idle';
+    avatar.removeAttribute('aria-hidden');avatar.setAttribute('aria-label','Valgt eventyrvenn');
+    avatar.innerHTML='<img class="laria-premium-troll-art" src="'+trollSrc+'" alt="" aria-hidden="true">';
+  }
   Object.entries(tone.icons).forEach(([subject,icon])=>{const el=document.querySelector('.home-subject.'+subject+' .home-subject-icon');if(el)el.textContent=icon});
   document.getElementById('home-grade-label').textContent=cfg.label;
   const adultGrade=document.getElementById('adult-grade');if(adultGrade)adultGrade.value=String(grade);
@@ -3970,7 +4010,7 @@ function adultSummary(){
 function renderAdult(){
   const {best,worst}=adultSummary(),a7=last7Answers();
   const profileName=(state.profile?.name||'').trim();
-  const profileAvatar=state.profile?.avatar==='girl'?'Revejente':state.profile?.avatar==='boy'?'Revegutt':'Ikke valgt';
+  const profileAvatar=({storesoster:'Storesøster',lillesoster:'Lillesøster',lillebror:'Lillebror'})[state.profile?.tallvikaTroll]||'Troll';
   const profileNameEl=document.getElementById('adult-profile-name'),profileAvatarEl=document.getElementById('adult-profile-avatar');
   if(profileNameEl)profileNameEl.textContent=profileName||'Ikke valgt';
   if(profileAvatarEl)profileAvatarEl.textContent=profileAvatar;
@@ -5879,7 +5919,7 @@ function renderHomeContinue(){
   if(state.activeSession&&active){
     const subject=['norwegian','math','english'].includes(active.subject)?active.subject:'geography';
     wrap.dataset.subject=subject;
-    eye.textContent=young?'REVEN VENTER HER':'Fortsett der du slapp';
+    eye.textContent=young?'TROLLET VENTER HER':'Fortsett der du slapp';
     document.getElementById('home-continue-title').textContent=young?worldNames[subject]:(active.subject&&active.subject!=='geography'?(SUBJECTS[active.subject]?.title||'Fortsett'):'Geografi');
     const done=Math.max(0,Number(state.activeSession.qIndex||0)),total=Array.isArray(state.activeSession.questions)?state.activeSession.questions.length:5;
     document.getElementById('home-continue-copy').textContent=young?((active.label||'Oppdrag')+' · '+Math.max(0,total-done)+' igjen'):((active.label||'Pågående økt')+' · '+done+' av '+total+' ferdig');
@@ -5904,7 +5944,7 @@ function renderFoxGuide(){
   const goal=dailyGoal();
   if(goal.done>=goal.target){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
   const band=gradeBand();
-  title.textContent=band==='young'?'Jeg har et lite oppdrag til deg 🦊':band==='middle'?'Klar for et nytt oppdrag? 🧭':'Klar for litt mer?';
+  title.textContent=band==='young'?'Jeg har et lite oppdrag til deg ✦':band==='middle'?'Klar for et nytt oppdrag? 🧭':'Klar for litt mer?';
   copy.textContent=band==='young'?'Fem små utfordringer. Jeg starter med noe du har god sjanse til å klare.':band==='middle'?'Velg ett fag og ta et kort oppdrag. Du ser fremgangen med en gang.':'Én liten økt er nok. Resten er bonus.';
 }
 function syncGeoThemeButtons(){
@@ -6854,7 +6894,16 @@ document.getElementById('complete-home').onclick=()=>{
   armJourneyWorldReaction(scope);
   if(scope.type==='subject'&&scope.subject==='english'){openSubject('english');return}
   if(scope.type==='journey'&&scope.subject&&scope.subject!=='geography'){openSubject(scope.subject);return}
-  if(scope.type==='geo-journey'||scope.subject==='geography'){renderGeographyContinue();showScreen('geography');return}
+  if(scope.type==='geo-journey'){
+    // The button explicitly promises "Tilbake til reisekartet".
+    // Do not let the Nordlysleiren landing facade cover the child's
+    // newly completed map, even after a session -> completion transition.
+    renderGeographyContinue();
+    showScreen('geography');
+    window.LARIA_GEOGRAPHY_SCENE?.journey?.();
+    return;
+  }
+  if(scope.subject==='geography'){renderGeographyContinue();showScreen('geography');return}
   // The child who finishes Lesekroken should be back at their Norwegian
   // world, able to choose another activity, even in grades 1–2.
   if(scope.subject==='norwegian'){openSubject('norwegian');return}
@@ -6864,21 +6913,28 @@ document.getElementById('complete-home').onclick=()=>{
 
 
 // Onboarding
-// One deliberate setup screen: choose fox, name and grade, then enter Læria.
+// One deliberate setup screen: choose the persistent forest troll, name and grade.
 function updateOnboarding(){
   onboardingStep=0;
   document.querySelectorAll('.onboard-step').forEach((el,i)=>el.classList.toggle('active',i===0));
 }
+const ONBOARD_TROLLS=Object.freeze({
+  storesoster:{src:'./assets/gangemagi-troll/storesoster.webp',legacyAvatar:'girl'},
+  lillesoster:{src:'./assets/gangemagi-troll/lillesoster.webp',legacyAvatar:'girl'},
+  lillebror:{src:'./assets/gangemagi-troll/lillebror.webp',legacyAvatar:'boy'}
+});
 let profileName=typeof state.profile.name==='string'?state.profile.name.trim().slice(0,20):'';
+let selectedTroll=ONBOARD_TROLLS[state.profile?.tallvikaTroll]?state.profile.tallvikaTroll:null;
+// Keep the old avatar field only as migration metadata until all legacy modules are gone.
 let selectedAvatar=state.profile.avatar==='girl'?'girl':state.profile.avatar==='boy'?'boy':null;
 let selectedGrade=Number(state.profile.grade)||null;
-function avatarSrc(which){return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp'}
 function renderAvatarChoice(){
-  document.querySelectorAll('.avatar-choice-card').forEach(btn=>{
-    const selected=btn.dataset.avatar===selectedAvatar;
+  document.querySelectorAll('.avatar-choice-card[data-troll]').forEach(btn=>{
+    const selected=btn.dataset.troll===selectedTroll;
     btn.classList.toggle('selected',selected);
     btn.setAttribute('aria-pressed',selected?'true':'false');
-    const img=btn.querySelector('[data-profile-avatar-img]');if(img)img.src=avatarSrc(btn.dataset.avatar==='girl'?'girl':'boy');
+    const img=btn.querySelector('[data-profile-troll-img]');
+    if(img)img.src=ONBOARD_TROLLS[btn.dataset.troll]?.src||ONBOARD_TROLLS.storesoster.src;
   });
   const input=document.getElementById('profile-name');if(input&&document.activeElement!==input&&input.value!==profileName)input.value=profileName;
 }
@@ -6889,8 +6945,9 @@ function renderGradeChoice(){
     b.setAttribute('aria-pressed',selected?'true':'false');
   });
 }
-document.querySelectorAll('.avatar-choice-card').forEach(btn=>btn.onclick=()=>{
-  selectedAvatar=btn.dataset.avatar==='girl'?'girl':'boy';
+document.querySelectorAll('.avatar-choice-card[data-troll]').forEach(btn=>btn.onclick=()=>{
+  selectedTroll=ONBOARD_TROLLS[btn.dataset.troll]?btn.dataset.troll:'storesoster';
+  selectedAvatar=ONBOARD_TROLLS[selectedTroll].legacyAvatar;
   renderAvatarChoice();
   document.getElementById('profile-error').textContent='';
 });
@@ -6913,10 +6970,10 @@ if(profileNameInput){
 document.getElementById('profile-next').onclick=()=>{
   profileName=(profileNameInput?.value||'').trim().replace(/\s+/g,' ').slice(0,20);
   const error=document.getElementById('profile-error');
-  if(!selectedAvatar){error.textContent='Velg reven du vil være med først.';return}
+  if(!selectedTroll){error.textContent='Velg trollet du vil ha med først.';return}
   if(!profileName){error.textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}
   if(!selectedGrade){error.textContent='Velg hvilket klassetrinn du går i.';return}
-  state.profile={...state.profile,name:profileName,avatar:selectedAvatar,grade:selectedGrade,onboarded:true,setupVersion:2};
+  state.profile={...state.profile,name:profileName,avatar:selectedAvatar||ONBOARD_TROLLS[selectedTroll].legacyAvatar,tallvikaTroll:selectedTroll,grade:selectedGrade,onboarded:true,setupVersion:2};
   saveState();
   document.getElementById('onboarding').classList.remove('show');
   setTab('home');
@@ -7161,7 +7218,7 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./geography-journey-learning-system-v1.js?v=20261016-nordlysleiren-system1" defer></script>
 <script src="./chapter-fox-buddy-v1.js?v=20261017-c2buddy2" defer></script>
 <script src="./math-pattern-haven-v1.js?v=20261017-c2pilot1" defer></script>
-<script src="./math-pattern-haven-preview-v1.js?v=20261017-paintedstudy1" defer></script>
+<script src="./math-pattern-haven-preview-v1.js?v=20261107-early-start1" defer></script>
 <script src="./english-sentence-harbor-v1.js?v=20261017-en2a" defer></script>
 <script src="./english-sentence-harbor-preview-v1.js?v=20261017-en2a" defer></script>
 <script src="./geography-continent-voyage-v1.js?v=20261017-geo2a" defer></script>
@@ -7173,15 +7230,16 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./word-hunt-themes.js?v=20261026-norsk-themes2" defer></script>
 <script src="./word-hunt.js?v=20261026-norsk-recovery2" defer></script>
 <script src="./find-the-words.js?v=20261026-norsk-find-steps1" defer></script>
-<script src="./laria-magical-collection-v2.js?v=20261017-diorama2" defer></script>
+<script src="./laria-magical-collection-v2.js?v=20261107-no-fox-feature1" defer></script>
 <script src="./home-basecamp-v12.js?v=20261017-magicalbook1" defer></script>
-<script defer src="./home-kjosnes-v15.js?v=20261024-alive1"></script>
+<script defer src="./home-kjosnes-v15.js?v=20261107-painted-arrow-taps1"></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261026-norsk-no-map1" defer></script>
 <script src="./norsk-object-extras-v1.js?v=20261026-all-early-norsk1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261026-norsk-art-isolated1-kinnaklova-reading2-ki-a11y1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261107-kinnaklova-reading2-a11y2" defer></script>
 <script src="./laria-fox-presence.js?v=20261027-nordlys-troll1" defer></script>
+<script src="./laria-troll-runtime-v1.js?v=20261107-premium-beta3" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
@@ -7192,14 +7250,24 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./laria-country-detail-premium-v1.js?v=20261015-discoveries1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
 <!-- Tallvika: locked landscape and direct-play layer. It owns no learning data. -->
-<link rel="stylesheet" href="./tallvika.css?v=20261028-journey-restored1">
-<script src="./tallvika.js?v=20261028-journey-restored1" defer></script>
+<link rel="stylesheet" href="./tallvika.css?v=20261107-ipad-landscape-fill1">
+<script src="./tallvika.js?v=20261107-light-arrow1" defer></script>
 <!-- Norsk: locked Eggenipa painting, direct-play subject screen. No new learning state. -->
-<link rel="stylesheet" href="./eggenipa.css?v=20261026-iphone-landscape-hotspots1">
-<script src="./eggenipa.js?v=20261026-garden-entry1" defer></script>
+<link rel="stylesheet" href="./eggenipa.css?v=20261107-premium-signrail-ipad2">
+<script src="./eggenipa.js?v=20261107-light-arrow1" defer></script>
 <!-- Engelsk Kinnaklova: private standalone direct-play preview. Does not alter learning state. -->
-<link rel="stylesheet" href="./kinnaklova.css?v=20261026-paintedidentity-shagate2-readingstorybook1-style2">
-<script src="./kinnaklova.js?v=20261027-kinnaklova-cleanart1" defer></script>
+<link rel="stylesheet" href="./kinnaklova.css?v=20261107-premium-signrail-reading2">
+<script src="./kinnaklova.js?v=20261107-ipad-fullscene1" defer></script>
+<!-- Geografi: Kinnaklova-style scene facade; original Nordlysleiren and Kloden remain reachable. -->
+<link rel="stylesheet" href="./geography-kinnaklova-scene.css?v=20261107-unified-signs1">
+<!-- Tallvika v2 stylesheet loads last so there are no legacy CSS collisions. -->
+<link rel="stylesheet" href="./tallvika-fjord-v2.css?v=20261107-fjord-clean-signs1">
+<script src="./geography-kinnaklova-scene.js?v=20261107-light-arrow1" defer></script>
+<!-- One iPad-first top navigation contract, without altering locked scene assets. -->
+<link rel="stylesheet" href="./laria-ipad-premium-v1.css?v=20261107-shared-troll-picker1">
+<!-- Approved Grovanova-style pointed arrow signs on real activity routes. -->
+<link rel="stylesheet" href="./laria-wayfinder-v1.css?v=20261107-pointed-wood-final2">
+<link rel="stylesheet" href="./kinnaklova-ipad-fullscene-v1.css?v=20261107-ipad-fullscene3">
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>
 <script src="./discovery-globe-phase1.js?v=20261018-antarctica-ne110-1" defer></script>

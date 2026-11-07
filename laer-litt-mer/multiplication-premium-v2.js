@@ -2,7 +2,9 @@
 (()=>{
 'use strict';
 const ROOT='multiplication-lab-root',KEY='laria_mult_premium_v1',MAX=10;
-const foxSrc=()=>window.LARIA_FOX.source(window.LARIA_FOX.choice());
+// The retained function name avoids rewriting the learning engine.  Its visible
+// companion is the selected TrollActor, never the retired fox asset.
+const foxSrc=()=>window.LARIA_TROLL_ACTOR?.selected?.()?.src||window.LARIA_FOX.source(window.LARIA_FOX.choice());
 let illustrationTheme='auto';
 const ILLUSTRATION_THEMES=['strawberry','bun','mushroom','apple'];
 function currentIllustrationTheme(){return illustrationTheme==='auto'?ILLUSTRATION_THEMES[stateBox.idx % ILLUSTRATION_THEMES.length]:illustrationTheme}

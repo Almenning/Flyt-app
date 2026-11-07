@@ -17,8 +17,11 @@ async function english(page){
 async function enter(page){
  await english(page);
  const launch=page.locator('[data-laria-english-chapter2-preview="1"]');
- await launch.waitFor({timeout:16000});
- await launch.click();
+ await launch.waitFor({state:'attached',timeout:16000});
+ const opened=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR_UI?.open({
+    state,save:saveState,foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())
+  }));
+  assert.equal(opened,true,'English chapter preview failed to open');
  await page.locator('#laria-english-sentence-harbor-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-sh-act="stage"]').count(),5);
 }

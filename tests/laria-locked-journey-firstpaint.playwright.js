@@ -61,6 +61,11 @@ async function navigateTo(page,subject){
  await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible').click();
  const screen=subject==='geography'?'geography':'subject';
  await page.locator('#'+screen+'-screen.active').waitFor();
+ if(subject==='geography'){
+  const landing=page.locator('#laria-geography-world:visible');
+  await landing.waitFor({timeout:16000});
+  await landing.locator('[data-gv="journey"]').click();
+ }
  return page.locator('#'+screen+'-screen.active');
 }
 // The original Geografi HTML places its two legacy cards ahead of the journey.
@@ -106,7 +111,7 @@ async function proof(engine,label,viewport,url){
    if(key&&held[key])await held[key].ready;
    await route.continue();
   });
-  await page.goto(url+'&firstpaint='+label,{waitUntil:'domcontentloaded'});
+  await page.goto(url+'&firstpaint='+label,{waitUntil:'domcontentloaded',timeout:90000});
   await page.locator('#home-screen.active .bc14-subject[data-camp="subject-math"]').waitFor();
   for(const subject of subjects){
    const screen=await navigateTo(page,subject);
@@ -149,6 +154,10 @@ async function proof(engine,label,viewport,url){
    if(subject==='geography')await assertGeographyPriority(screen,label+' decoded artwork');
    await shot(page,label+'-'+subject+'-02-approved-map');
    await screen.locator('.locked-journey-back').click();
+   if(subject==='geography'){
+    await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+    await page.locator('#laria-geography-world [data-gv="home"]').click();
+   }
    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').waitFor();
   }
   assert.deepEqual(errors,[],label+' unhandled script errors');
@@ -164,7 +173,7 @@ async function missingArtRecovery(url){
   const page=await ctx.newPage();
   const pattern='**/locked-journeys/nordlysleiren-locked-20261010.png';
   await page.route(pattern,route=>route.abort());
-  await page.goto(url+'&missing-art=webkit',{waitUntil:'domcontentloaded'});
+  await page.goto(url+'&missing-art=webkit',{waitUntil:'domcontentloaded',timeout:90000});
   await page.locator('#home-screen.active .bc14-subject[data-camp="subject-geography"]').waitFor();
   const screen=await navigateTo(page,'geography');
   await screen.locator('.locked-journey-art-retry').waitFor({timeout:16000});
@@ -181,6 +190,8 @@ async function missingArtRecovery(url){
       !document.querySelector('#geography-screen.active .locked-journey-art-guard');
   },{},{timeout:30000});
   await screen.locator('.locked-journey-back').click();
+  await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+  await page.locator('#laria-geography-world [data-gv="home"]').click();
   await page.locator('#home-screen.active').waitFor();
   console.log('PASS WebKit missing original artwork: clear retry, no old renderer, correct recovery');
  }finally{if(ctx)await ctx.close();await browser.close();}
