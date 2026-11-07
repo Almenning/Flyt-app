@@ -213,3 +213,27 @@
  .cv-root .cv-task .cv-stamps{gap:7px}
  .cv-root .cv-task .cv-stamp{min-height:48px;padding:8px}
 }
+
+
+/* Short iPhone passport challenge: show a real continent stamp on the first
+   screen while keeping each choice at least 44 CSS pixels tall. */
+@media(max-width:360px) and (max-height:680px){
+  #laria-geo-continent-voyage-preview.cv-root{padding:0}
+  .cv-root .cv-shell{border-radius:0;border-width:0;min-height:100dvh}
+  .cv-root .cv-top{padding:5px 9px;min-height:49px}
+  .cv-root .cv-main:has(.cv-task){padding:4px 9px}
+  .cv-root .cv-task-nav{gap:5px;min-height:36px}
+  .cv-root .cv-task-nav .cv-quiet{padding:5px 9px;min-height:44px;font-size:11px}
+  .cv-root .cv-task .cv-companion{margin:1px 0;padding:1px 6px;min-height:46px}
+  .cv-root .cv-task .cv-companion .cv-fox{width:38px;height:44px}
+  .cv-root .cv-task .cv-fox-copy .cv-eyebrow{display:none}
+  .cv-root .cv-task .cv-fox-copy p{font-size:11px;line-height:1.12}
+  .cv-root .cv-task .cv-count{margin:2px 0 4px;font-size:10px}
+  .cv-root .cv-task .cv-paper{padding:7px 8px;border-radius:14px}
+  .cv-root .cv-task .cv-paper .cv-heading{font-size:18px;line-height:1.06;margin:2px 0 5px}
+  .cv-root .cv-task .cv-passport{margin:3px 0 5px;padding:6px;gap:1px}
+  .cv-root .cv-task .cv-passport strong{font-size:20px;line-height:1.1}
+  .cv-root .cv-task .cv-passport small{font-size:10px;line-height:1.14}
+  .cv-root .cv-task .cv-stamps{gap:5px}
+  .cv-root .cv-task .cv-stamp{min-height:44px;padding:5px 7px}
+}
