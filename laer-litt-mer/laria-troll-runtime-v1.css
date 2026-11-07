@@ -203,6 +203,34 @@ html[data-laria-character-system="troll"] :is(
   background:transparent!important;border:0!important;box-shadow:none!important;
 }
 
+/* Legacy Basecamp, grades 3-10: a short landscape viewport must still
+   reserve an actual, measurable full-body TrollActor box. Locked Grovanova
+   remains untouched and never receives an overlay mascot. */
+@media (orientation:landscape) and (max-height:500px){
+  #home-screen.active .bc12:not(.bc15-locked-home) .bc12-fox.laria-troll-host{
+    display:block!important;
+    visibility:visible!important;
+    position:absolute!important;
+    left:8%!important;
+    top:16%!important;
+    bottom:auto!important;
+    width:clamp(72px,11vw,105px)!important;
+    height:clamp(108px,28vh,150px)!important;
+    min-height:108px!important;
+    aspect-ratio:2/3!important;
+    overflow:visible!important;
+    pointer-events:none!important;
+  }
+  #home-screen.active .bc12:not(.bc15-locked-home) .bc12-fox.laria-troll-host > img.laria-premium-troll-art{
+    display:block!important;
+    visibility:visible!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center bottom!important;
+  }
+}
+
 /* Landscape phones are where decorative companions most easily become ridiculous.
    Keep actor compact and suppress speech if vertical room is scarce. */
 @media(orientation:landscape) and (max-height:500px){
