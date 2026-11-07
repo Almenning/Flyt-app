@@ -58,8 +58,8 @@
     root.innerHTML=
       '<header class="eg-top"><button type="button" class="eg-home" data-eg="home" aria-label="Tilbake til Hjem">← <span>Hjem</span></button>'+
       '<span class="eg-top-label">LÆRIA · NORSK</span><span class="eg-grade" aria-label="Oppgaver tilpasset '+profileGrade+'. klasse">'+profileGrade+'. klasse</span></header>'+
-      '<section class="eg-hero" aria-label="Eggenipa og tre steder å leke">'+
-      '<img class="eg-master" src="'+ART+'" width="1672" height="941" alt="Illustrert landskap ved Eggenipa med fjord, trehytte, blomster, bro og bibliotek" draggable="false">'+
+      '<section class="eg-hero eg-art-pending" aria-label="Eggenipa og tre steder å leke">'+
+      '<img class="eg-master" src="'+ART+'" width="1672" height="941" loading="eager" fetchpriority="high" decoding="async" alt="Illustrert landskap ved Eggenipa med fjord, trehytte, blomster, bro og bibliotek" draggable="false">'+
       '<div class="eg-companion-actor laria-troll-host laria-troll-actor" data-troll="'+trollId+'" data-laria-troll-mood="idle" aria-label="Trollet ditt er med ved Eggenipa">'+
       '<img class="laria-premium-troll-art" src="'+safe(trollSrc)+'" alt="" aria-hidden="true" draggable="false"></div>'+
       '<button type="button" class="eg-scene-hit eg-scene-words" data-eg="words" aria-label="Åpne Ordjakt i trehytta"><span>Ordjakt</span></button>'+
@@ -70,6 +70,20 @@
       '<nav class="eg-portals" aria-label="Velg en norskaktivitet">'+actions.map(portal).join('')+'</nav>'+
       (resume?'<section class="eg-resume" aria-label="Pågående norskøkt"><p>Du har en norskøkt du kan fortsette når du vil.</p>'+
         '<button type="button" data-eg="resume">Fortsett økten ›</button></section>':'');
+    const master=root.querySelector('.eg-master');
+    const hero=root.querySelector('.eg-hero');
+    if(master&&hero){
+      const reveal=()=>{
+        const finish=()=>{if(master.isConnected&&master.naturalWidth>0)hero.classList.remove('eg-art-pending');};
+        if(typeof master.decode==='function')master.decode().then(finish,finish);
+        else finish();
+      };
+      if(master.complete)reveal();
+      else{
+        master.addEventListener('load',reveal,{once:true});
+        master.addEventListener('error',()=>hero.classList.add('eg-art-error'),{once:true});
+      }
+    }
     if(!screen.classList.contains('eggenipa-active'))screen.classList.add('eggenipa-active');
     root.hidden=false;
     requestAnimationFrame(()=>{
