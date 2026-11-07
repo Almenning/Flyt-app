@@ -78,6 +78,14 @@
       // a second blob URL makes Safari/WebKit reject an otherwise verified
       // WebP on some iPhone/iPad configurations.
       if(!root?.contains(image))return;
+      // A resolved SHA check is not sufficient for the child's first frame:
+      // an image can still paint blank in portrait WebKit/Chromium until
+      // decode and compositing are complete. Never show a green placeholder
+      // with apparently ready activity signs.
+      try{await image.decode();}
+      catch(_){setStatus('unapproved','decode-failed');return;}
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      if(!root?.contains(image))return;
       setStatus(image.naturalWidth===1672&&image.naturalHeight===941?'ready':'unapproved',
         image.naturalWidth===1672&&image.naturalHeight===941?'verified':'verified-dimensions-failed');
     }catch(error){setStatus('unapproved',error?.message||'integrity-error');}
