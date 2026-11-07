@@ -46,7 +46,7 @@ async function run(browser,engine,label,viewport,url){
       fractionVisible:!!value&&value.height>65&&value.top>=0&&value.bottom<=innerHeight,
       controlsVisible:!!controls&&controls.top>=0&&controls.bottom<=innerHeight,
       fractionAboveControls:!!value&&!!controls&&value.bottom<controls.top,
-      correctFox:!!fox&&fox.getAttribute('src')===window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())&&fox.complete&&fox.naturalWidth>0,
+      correctFox:!!fox&&fox.getAttribute('src')===window.LARIA_TROLL_ACTOR?.source(window.LARIA_TROLL_ACTOR.choice())&&fox.complete&&fox.naturalWidth>0,
       equivalentsBesideCake:innerWidth<700||(!!equivalents&&equivalents.top>=0&&equivalents.bottom<=innerHeight&&equivalents.left>cake.right-3),
       controlsHeight:controls?.height,
       viewportHeight:innerHeight,cakeBottom:Math.round(cake?.bottom||0),fractionBottom:Math.round(value?.bottom||0),controlsTop:Math.round(controls?.top||0),controlsBottom:Math.round(controls?.bottom||0),
