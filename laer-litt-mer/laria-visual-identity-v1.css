@@ -190,6 +190,46 @@
 #tallvika-world .tv-next-sign strong,
 #tallvika-world .tv-next-sign .tv-next-title{color:var(--laria-sign-ink)!important}
 #tallvika-world .tv-next-sign .tv-next-arrow{display:none!important}
+/* The four worlds also share the same quieter wooden secondary
+   controls (Mine troll and class selector), not unrelated dark pills. */
+:is(#eggenipa-world .eg-scene-choose,
+    #tallvika-world .tv-scene-choose,
+    #laria-geography-world .gv-choose,
+    #kinnaklova-world .ki-stage-choose,
+    #eggenipa-world .eg-world-grade,
+    #tallvika-world .tv-scene-grade,
+    #laria-geography-world .gv-grade,
+    #kinnaklova-world .ki-stage-grade){
+  box-sizing:border-box!important;
+  min-height:44px!important;padding:7px 14px!important;
+  border:2px solid #8d5b32!important;border-radius:16px!important;
+  background:linear-gradient(180deg,#ffebbe,#ebbc7d)!important;
+  color:#58341d!important;
+  box-shadow:inset 0 1px 0 #fff5d5,0 4px 0 #946039,0 7px 12px #2a241e50!important;
+  font:900 13px/1.15 var(--laria-ui-font)!important;
+  text-shadow:0 1px 0 #fff5d2!important;
+  white-space:nowrap!important
+}
+:is(#eggenipa-world .eg-scene-choose,
+    #tallvika-world .tv-scene-choose,
+    #laria-geography-world .gv-choose,
+    #kinnaklova-world .ki-stage-choose):focus-visible{
+  outline:4px solid #fff1a6!important;outline-offset:3px!important
+}
+/* "Neste eventyr" is a real navigation sign and belongs to the same family. */
+#tallvika-world .tv-next-sign{
+  isolation:isolate!important;overflow:visible!important;
+  padding-right:18px!important;text-align:center!important
+}
+#tallvika-world .tv-next-sign::after{
+  content:""!important;position:absolute!important;display:block!important;
+  top:calc(100% - 7px)!important;left:23%!important;
+  width:54%!important;height:clamp(15px,2.2dvh,27px)!important;
+  background:
+    linear-gradient(90deg,#80522b,#c79454 44%,#70421f) 8% 0/12px 100% no-repeat,
+    linear-gradient(90deg,#734626,#bd8648 50%,#663b1c) 91% 0/12px 100% no-repeat!important;
+  pointer-events:none!important;z-index:-1!important
+}
 /* Kinnaklova already has the original Words/Sentences/Reading painted into
    its SHA-approved panoramic master. NEVER draw duplicates in landscape.
    In portrait, where the camera hides Sentences and Reading, their separate
