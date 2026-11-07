@@ -177,7 +177,10 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
  position:relative;z-index:22;pointer-events:auto!important;touch-action:manipulation;
 }
 @media(max-width:400px){
- .gm-free-controls{scroll-margin-block:16px;padding-bottom:2px}
+ .gm-free-controls{scroll-margin-block:16px;padding-bottom:2px;flex-direction:column;align-items:stretch}
+ .gm-free-adjust{width:100%;flex:0 0 auto;min-width:0;padding-inline:8px 10px}
+ .gm-free-adjust>div{min-width:100px;justify-content:flex-end}
+ .gm-free-adjust button{flex:0 0 44px}
 }
 .gm-footer{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:14px 3px 0;color:#82634b;font-size:12px;font-weight:850}
 .gm-footer button{min-height:44px;border:0;background:transparent;padding:9px;color:#7c573d;font-size:12px;font-weight:950;text-decoration:underline}
