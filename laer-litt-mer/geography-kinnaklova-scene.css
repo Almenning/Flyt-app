@@ -131,3 +131,19 @@ body:has(#geography-screen.gv-visible){background:#e8eadc!important}
 @media(prefers-reduced-motion:reduce){
   #laria-geography-world .gv-sign{transition:none!important}
 }
+
+
+/* Premium 2.0: one persistent, original companion, separate from the art.
+   The character is a touchable actor, never a baked-in illustration. */
+#laria-geography-world .gv-troll[data-gv="troll"]{
+  appearance:none;display:block;min-width:44px;min-height:44px;
+  padding:0;border:0;background:transparent;border-radius:0;
+  cursor:pointer;pointer-events:auto;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+#laria-geography-world .gv-troll[data-gv="troll"] > img{
+  pointer-events:none;user-select:none;-webkit-user-select:none;
+}
+#laria-geography-world .gv-troll[data-gv="troll"]:focus-visible{
+  outline:3px solid #fff1b2;outline-offset:4px;border-radius:15px;
+}
