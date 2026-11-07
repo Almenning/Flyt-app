@@ -40,7 +40,7 @@ async function run(browserType,engine,name,viewport){
     const r=button.getBoundingClientRect();return {id:button.dataset.bc15Subject,x:r.x,y:r.y,w:r.width,h:r.height};
    }));
    assert.deepEqual(signs.map(x=>x.id),['norwegian','math','english','geography'],'wrong painted arrows order');
-   assert.ok(signs.every(s=>s.w>=44&&s.h>=44&&s.x>=0&&s.y>=0&&s.x+s.w<=innerWidth+100&&s.y+s.h<=innerHeight+5),
+   assert.ok(signs.every(s=>s.w>=44&&s.h>=44&&s.x>=0&&s.y>=0&&s.x+s.w<=viewport.width+2&&s.y+s.h<=viewport.height+2),
       'painted arrow touch rectangles are invalid '+JSON.stringify(signs));
    for(const spec of worlds){
     await home.locator('[data-bc15-subject="'+spec.id+'"]').click();
