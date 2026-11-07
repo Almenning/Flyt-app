@@ -203,6 +203,15 @@ html[data-laria-character-system="troll"] :is(
   background:transparent!important;border:0!important;box-shadow:none!important;
 }
 
+/* Young text-only task: the retired wardrobe handoff hid the original
+   profile image with a highly specific selector. TrollActor's full-body
+   image IS the live character and must remain visible in the inline row. */
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox
+  .task-prompt-fox-stage > .task-fox-companion.laria-troll-host > img.laria-premium-troll-art{
+  visibility:visible!important;
+  display:block!important;
+}
+
 /* Legacy Basecamp, grades 3-10: a short landscape viewport must still
    reserve an actual, measurable full-body TrollActor box. Locked Grovanova
    remains untouched and never receives an overlay mascot. */
