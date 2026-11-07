@@ -36,8 +36,8 @@
         '<button type="button" class="gv-sign gv-sign-journey" data-gv="journey" aria-label="Åpne Geografireisen">Geografireisen <span aria-hidden="true">›</span></button>'+
         '<button type="button" class="gv-sign gv-sign-globe" data-gv="globe" aria-label="Åpne Kloden">Kloden <span aria-hidden="true">›</span></button>'+
         '<button type="button" class="gv-sign gv-sign-country" data-gv="country" aria-label="Start Land og flagg">Land og flagg <span aria-hidden="true">›</span></button>'+
-        '<div class="gv-troll laria-troll-host laria-troll-actor" data-troll="'+id+'" data-laria-troll-mood="idle" aria-label="Trollet ditt er med på geografireisen">'+
-        '<img class="laria-premium-troll-art" src="'+safe(src)+'" alt="" aria-hidden="true" draggable="false"></div>'+
+        '<button type="button" class="gv-troll laria-troll-host laria-troll-actor" data-gv="troll" data-troll="'+id+'" data-laria-troll-mood="idle" aria-label="Snakk med trollet ditt i Nordlysleiren">'+
+        '<img class="laria-premium-troll-art" src="'+safe(src)+'" alt="" aria-hidden="true" draggable="false"></button>'+
         '</div>';
       requestAnimationFrame(()=>{
         const actor=root?.querySelector('.gv-troll');
@@ -68,6 +68,9 @@
     const action=button.dataset.gv;
     if(action==='home'){
       if(!window.LARIA_RETURN_TO_BASECAMP?.())bridge()?.setTab?.('home');
+    }else if(action==='troll'){
+      const actor=root?.querySelector('.gv-troll');
+      if(actor)window.LARIA_TROLL_ACTOR?.mood?.(actor,'curious',{say:'Skal vi utforske verden sammen?'});
     }else if(action==='journey'){
       journey();
     }else if(action==='globe'){
