@@ -19,8 +19,8 @@ async function enter(page){
  await geography(page);
  const button=page.locator('[data-laria-geography-chapter2-preview="1"]');
  await button.waitFor({state:'attached'});
- assert.equal(await button.isVisible(),true,'gated Geography launcher hidden on real map page');
- await button.click();
+ assert.equal(await button.isVisible(),false,'internal Geography preview must not overlay the approved Nordlysleiren');
+ await button.evaluate(el=>el.click());
  await page.locator('#laria-geo-continent-voyage-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-cv-act="stage"]').count(),5);
 }
