@@ -119,8 +119,8 @@
       '<div class="ki-art-unavailable" hidden role="status"><strong>Den låste Kinnaklova-illustrasjonen mangler i denne utviklingsversjonen.</strong>'+
       '<span>Import av ren bakgrunn er nødvendig før visuell godkjenning og publisering.</span></div>'+
       '<div class="ki-companions" aria-label="Ditt valgte troll er med på Kinnaklova">'+
-      '<div class="ki-companion-actor laria-troll-host laria-troll-actor" data-troll="'+selectedId+'" data-laria-troll-mood="idle" aria-label="'+escapeText(selected.name)+' er med">'+
-      '<img class="ki-troll laria-premium-troll-art" data-ki-character="'+selectedId+'" src="'+escapeText(selectedSrc)+'" alt="" aria-hidden="true" draggable="false" loading="eager"></div>'+
+      '<button type="button" class="ki-companion-actor laria-troll-host laria-troll-actor" data-ki="troll" data-troll="'+selectedId+'" data-laria-troll-mood="idle" aria-label="Snakk med '+escapeText(selected.name)+' på Kinnaklova">'+
+      '<img class="ki-troll laria-premium-troll-art" data-ki-character="'+selectedId+'" src="'+escapeText(selectedSrc)+'" alt="" aria-hidden="true" draggable="false" loading="eager"></button>'+
       '</div>'+
       '<button type="button" class="ki-painted-hit ki-painted-home" data-ki="home" aria-label="Tilbake til Hjem"></button>'+
       ACTIONS.map(a=>'<button type="button" class="ki-painted-hit ki-painted-'+a.id+
@@ -147,6 +147,10 @@
     const action=button.dataset.ki;
     if(action==='home'){
       if(!window.LARIA_RETURN_TO_BASECAMP?.())bridge()?.setTab?.('home');
+    }else if(action==='troll'){
+      const actor=root?.querySelector('.ki-companion-actor');
+      if(actor&&root?.dataset.kiArt==='ready')
+        window.LARIA_TROLL_ACTOR?.mood?.(actor,'curious',{say:'Ready to learn some English?'});
     }else if(action==='resume'){
       bridge()?.resumeSession?.('english');
     }else{
