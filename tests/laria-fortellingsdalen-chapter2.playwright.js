@@ -212,7 +212,7 @@ async function run(engine,label,viewport){
     assert.equal(await page.locator('.fd-fox img').count(),1);
     assert.equal(await page.locator('[data-fd-fox-stage]').getAttribute('data-fd-fox-stage'),'brevhytta',
       label+' fox should begin at the first unfinished stop');
-    const rightAvatar=await page.evaluate(()=>avatarSrc('girl'));
+    const rightAvatar=await page.evaluate(()=>window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()));
     assert.ok((await page.locator('.fd-fox img').getAttribute('src')).includes(rightAvatar),
       label+' selected personal fox not used');
     const noOverflow=await page.locator('#laria-fortellingsdalen-preview').evaluate(el=>el.scrollWidth<=el.clientWidth+2);
