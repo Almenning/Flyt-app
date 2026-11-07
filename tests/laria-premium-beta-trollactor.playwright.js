@@ -95,6 +95,7 @@ async function noHorizontalOverflow(page,label){
 
 const devices=[
   ['mac-1440x900',1440,900],
+  ['pc-1920x1080',1920,1080],
   ['ipad-portrait',1024,1366],
   ['ipad-landscape',1366,1024],
   ['iphone-portrait',393,852],
