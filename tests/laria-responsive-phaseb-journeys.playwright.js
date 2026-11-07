@@ -98,7 +98,16 @@ async function validateStage(page,subject,label,viewport,screen){
  assert(near(data.viewport.w,width,1)&&near(data.viewport.h,height,1),label+' viewport mismatched '+JSON.stringify(data.viewport));
  assert(data.app.w>=width-2&&data.screen.w>=width-2,label+' old 480px shell is still active '+JSON.stringify(data));
  assert(data.appPaddingBottom==='0px',label+' old bottom-nav padding was exposed');
- assert(data.appBackground.includes(subject+'-premium.webp'),label+' missing matching approved landscape atmosphere '+data.appBackground);
+ // Nordlysleiren itself is the approved painting. A blown-up duplicate
+ // geography card behind it is deliberately retired in the premium beta.
+ if(subject==='geography'){
+   assert(data.appBackground.includes('radial-gradient(')&&
+     !data.appBackground.includes('geography-premium.webp'),
+     label+' geography stage must provide clean atmosphere without duplicated art '+data.appBackground);
+ }else{
+   assert(data.appBackground.includes(subject+'-premium.webp'),
+     label+' missing matching approved landscape atmosphere '+data.appBackground);
+ }
  assert(data.originalMarkup==='2026-10-10'&&data.activeSubject===subject,label+' wrong approved map');
  assert.deepEqual(data.imageNatural,[941,1672],label+' original map missing');
  assert(data.imageFit==='contain',label+' art was cropped');
