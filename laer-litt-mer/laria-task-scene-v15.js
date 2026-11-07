@@ -54,7 +54,10 @@
   function foxChoice(){
     try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }
-  function foxSource(){return window.LARIA_FOX.source(foxChoice());}
+  function foxSource(){
+    return window.LARIA_TROLL_ACTOR?.selected?.()?.src||
+      window.LARIA_FOX.source(foxChoice());
+  }
   // Norsk uses a neutral helper until the separately approved TrollActor exists.
   // The shared fox-presence engine deliberately does not own this symbol, so
   // successful answers must trigger its one short reaction here instead.

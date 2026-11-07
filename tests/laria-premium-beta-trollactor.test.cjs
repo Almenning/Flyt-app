@@ -13,6 +13,12 @@ const wardrobe=file('laria-fox-wardrobe.js');
 const fraction=file('fraction-premium-v2.js');
 const basecamp=file('home-basecamp-v12.js');
 const journey=file('locked-journey-renderer.js');
+const taskScene=file('laria-task-scene-v15.js');
+const multiplication=file('multiplication-premium-v2.js');
+const pickPlay=file('multiplication-pick-play-v1.js');
+const chapterPicker=file('norwegian-chapter-picker-v1.js');
+const patternHaven=file('math-pattern-haven-preview-v1.js');
+const countryDetail=file('laria-country-detail-premium-v1.js');
 
 assert.match(index,/laria-troll-runtime-v1\.css/,'Premium beta TrollActor CSS must be loaded');
 assert.match(index,/laria-troll-runtime-v1\.js/,'Premium beta TrollActor runtime must be loaded');
@@ -51,6 +57,13 @@ assert.match(basecamp,/kind==='wardrobe'&&window\.LARIA_TROLL_ACTOR\?\.openChoos
 assert.match(basecamp,/Et brev fra trollet/,'Legacy Basecamp visible quest copy must be troll-first');
 assert.match(fraction,/window\.LARIA_TROLL_ACTOR/,'Broklab must source its helper from TrollActor');
 assert.doesNotMatch(fraction,/Trykk på reven for/,'Broklab must not expose fox-era help copy');
+for(const [name,source] of Object.entries({taskScene,multiplication,pickPlay,chapterPicker,patternHaven,countryDetail})){
+  assert.match(source,/LARIA_TROLL_ACTOR/,
+    name+' must request the selected TrollActor at render time, not wait for a legacy fox swap');
+}
+assert.match(runtime,/\.country-story-fox/,'Country stories must be included in TrollActor migration');
+assert.match(runtime,/\.fd-chapter-fox > img/,'Norwegian chapter picker must be included in TrollActor migration');
+assert.match(runtime,/\.mh-story-fox > img/,'Math preview companion must be included in TrollActor migration');
 assert.match(home,/kjosnes-home-tablet\.webp/,'Grovanova tablet master must remain intact');
 assert.match(home,/kjosnes-home-phone\.webp/,'Grovanova phone master must remain intact');
 

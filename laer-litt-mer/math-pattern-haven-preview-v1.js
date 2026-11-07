@@ -9,7 +9,8 @@
  let ui=null;
  const escape=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  function fox(){
-   return '<img class="mh-fox" src="'+escape(ui.foxSrc)+'" alt="Reven din er med i Mønsterhagen">';
+   const src=window.LARIA_TROLL_ACTOR?.selected?.()?.src||ui.foxSrc;
+   return '<img class="mh-fox laria-premium-troll-art" src="'+escape(src)+'" alt="Trollet ditt er med i Mønsterhagen">';
  }
  function shell(content){
    return '<div class="mh-shell"><header class="mh-top"><button type="button" data-mh-act="close" class="mh-back" aria-label="Lukk Mønsterhagen">← Tilbake</button>'+

@@ -38,7 +38,12 @@
     '.mp-pick-easy-intro > img',
     '.mp-pick-mentor > img',
     '.word-hunt-top > img.word-hunt-fox',
-    '.premium-globe-header > img.premium-globe-fox'
+    '.premium-globe-header > img.premium-globe-fox',
+    '.fd-chapter-fox > img',
+    '.mh-story-fox > img',
+    '.country-story-fox',
+    '.gm-fox-art > img',
+    '.gm-book-fox-art > img'
   ].join(',');
 
   const timers=new WeakMap();
