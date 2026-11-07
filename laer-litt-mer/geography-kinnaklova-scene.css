@@ -15,7 +15,8 @@ body:has(#geography-screen.gv-visible){background:#e8eadc!important}
   padding:0!important;margin:0!important;background:#e8eadc!important;
   overflow:hidden
 }
-#geography-screen.gv-visible > :not(#laria-geography-world){display:none!important}
+#geography-screen.active.locked-journey-active.gv-visible > :not(#laria-geography-world),
+#geography-screen.active.gv-visible > :not(#laria-geography-world){display:none!important}
 #geography-screen.gv-visible > #laria-geography-world{display:block!important}
 #laria-geography-world{font-family:ui-rounded,"SF Pro Rounded",system-ui,sans-serif}
 #laria-geography-world *{box-sizing:border-box}
