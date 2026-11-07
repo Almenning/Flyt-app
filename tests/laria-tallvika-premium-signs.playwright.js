@@ -100,7 +100,7 @@ function assertPremium(a,label){
   }
   // Kinnaklova-shared subject direction: scene-native controls, not the
   // retired stacked sign image. The locked source painting remains unchanged.
-  assert.match(a.sceneBackground,/tallvika-fjord-no-buildings-(wide|portrait)-20261107\\.webp/,
+  assert.match(a.sceneBackground,/tallvika-fjord-no-buildings-(wide|portrait)-20261107\.webp/,
     label+' house-free fjord illustration did not load');
   assert.ok(a.brand&&a.brand.width>120&&a.brand.height>34,
     label+' live Læria/Tallvika logo has missing geometry');
