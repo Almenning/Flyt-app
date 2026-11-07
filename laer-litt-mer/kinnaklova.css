@@ -218,3 +218,19 @@ html:has(#subject-screen.kinnaklova-active),body:has(#subject-screen.kinnaklova-
     letter-spacing:-.02em;overflow-wrap:anywhere;
   }
 }
+
+
+/* Premium 2.0: the selected locked troll is a separate interactive actor.
+   It is only visible after the clean Kinnaklova master passes its SHA gate. */
+#kinnaklova-world .ki-companion-actor[data-ki="troll"]{
+  appearance:none;display:block;min-width:44px;min-height:44px;
+  padding:0;border:0;background:transparent;border-radius:0;
+  cursor:pointer;pointer-events:auto;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+#kinnaklova-world .ki-companion-actor[data-ki="troll"] > img{
+  pointer-events:none;user-select:none;-webkit-user-select:none;
+}
+#kinnaklova-world .ki-companion-actor[data-ki="troll"]:focus-visible{
+  outline:3px solid #fff1b2;outline-offset:4px;border-radius:15px;
+}
