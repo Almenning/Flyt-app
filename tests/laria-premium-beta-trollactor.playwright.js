@@ -359,6 +359,17 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
         label+' Eggenipa must fill the iPad landscape scene '+JSON.stringify(hero));
       assert.equal(await page.locator('#eggenipa-world .eg-portals:visible').count(),0,
         label+' Eggenipa must not duplicate illustrated activity hotspots with cards');
+      const placement=await page.locator('#eggenipa-world .eg-hero').evaluate(stage=>{
+        const r=stage.getBoundingClientRect();
+        const artHeight=r.width*941/1672, artTop=r.top+(r.height-artHeight)/2;
+        return ['words','find','reading'].map((id,i)=>{
+          const el=stage.querySelector('.eg-scene-'+id),box=el.getBoundingClientRect();
+          const topFraction=[.10,.51,.29][i];
+          return {id,delta:Math.abs(box.top-(artTop+topFraction*artHeight)),size:box.width*box.height};
+        });
+      });
+      assert.ok(placement.every(p=>p.delta<5&&p.size>44*44),
+        label+' Eggenipa painted hotspot geometry drifted '+JSON.stringify(placement));
     }
 
     if(spec.id==='math'&&name==='ipad-landscape'){
