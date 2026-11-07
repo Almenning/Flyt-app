@@ -30,7 +30,7 @@ function startServer(){
 async function onboard(page,grade){
   await page.goto(page.__base,{waitUntil:'domcontentloaded'});
   await page.locator('#onboarding.show').waitFor();
-  await page.locator('.avatar-choice-card[data-avatar="boy"]').click();
+  await page.locator('.avatar-choice-card[data-troll="lillebror"]').click();
   await page.locator('#profile-name').fill('Testbarn');
   await page.locator(`.grade-btn[data-grade="${grade}"]`).click();
   await page.locator('#profile-next').click();
@@ -337,7 +337,7 @@ async function finishSession(page){
       await migrationPage.goto(url+'?app=laria&prompt15=migration',{waitUntil:'domcontentloaded'});
       await migrationPage.locator('#onboarding.show').waitFor();
       assert.equal(await migrationPage.locator('.grade-btn[data-grade="2"]').getAttribute('aria-pressed'),'true','existing grade was not preselected during profile migration');
-      await migrationPage.locator('.avatar-choice-card[data-avatar="girl"]').click();
+      await migrationPage.locator('.avatar-choice-card[data-troll="lillesoster"]').click();
       await migrationPage.locator('#profile-name').fill('Mira');
       await migrationPage.locator('#profile-next').click();
       await migrationPage.locator('#home-screen.active').waitFor();
