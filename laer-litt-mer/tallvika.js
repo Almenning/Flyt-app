@@ -141,19 +141,11 @@
     root.dataset.tvRenderKey = renderKey;
     root.innerHTML = `
 
-      <header class="tv-top">
-        <button type="button" data-tv="back" aria-label="Tilbake til Reisen eller Hjem">‹ <span>Tilbake</span></button>
-        <div class="tv-top-brand" aria-hidden="true"><span class="tv-top-eyebrow">LÆRIA</span><b>Tallvika</b></div>
-        <div class="tv-top-actions">
-          <button type="button" data-tv="grade" aria-label="Velg klassetrinn">${grade}. klasse</button>
-          <button type="button" data-tv="choose">Velg skogstroll</button>
-        </div>
-      </header>
       <main class="tv-main">
         <div class="tv-stage">
           <div class="tv-scene">
             <button type="button" class="tv-scene-home" data-tv="back" aria-label="Tilbake til Hjem">‹ Hjem</button>
-            <span class="tv-scene-grade" aria-hidden="true">${grade}. klasse</span>
+            <button type="button" class="tv-scene-grade" data-tv="grade" aria-label="Velg klassetrinn">${grade}. klasse</button>
             <div class="tv-world-brand" aria-hidden="true"><strong>Læria</strong><span>Tallvika</span></div>
             <button type="button" class="tv-scene-choose" data-tv="choose" aria-label="Velg ditt skogstroll">Mine troll</button>
             <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus og lek med tall.</span></div>

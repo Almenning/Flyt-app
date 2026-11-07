@@ -1,7 +1,7 @@
 'use strict';
 /*
- * Evidence gate for the pixel-locked Home sign family in Tallvika.
- * The visible wood is one transparent cutout derived from the locked Home master.
+ * Visual QA for Kinnaklova-style separate wooden activity signs inside Tallvika.
+ * Three navigable destinations, one selected troll and an unchanged approved landscape.
  * The original image is read-only; this test never changes saved progress.
  */
 const assert=require('node:assert/strict');
@@ -74,41 +74,55 @@ async function collect(page){
 
 function assertPremium(a,label){
   assert.ok(!a.error,label+' '+a.error);
-  assert.equal(a.actions.length,3,label+' missing three activity routes');
+  assert.equal(a.actions.length,3,label+' must show Gangemagi, Brøklab and Gangetabellen');
+  assert.deepEqual(a.actions.map(x=>x.key),['multiply','fraction','table'],label+' activity order');
   for(const x of a.actions){
     assert.equal(x.count,1,label+' duplicate/missing '+x.key);
     assert.ok(x.width>=44&&x.height>=44,label+' inaccessible '+x.key);
-    assert.ok(x.x>=a.scene.x-2&&x.right<=a.scene.right+2,label+' '+x.key+' outside scene');
-    assert.ok(x.x<=a.scene.x+a.scene.width*.46,label+' '+x.key+' not on left signpost');
-    assert.ok(x.y>=a.scene.y-2&&x.bottom<=a.scene.bottom+2,label+' '+x.key+' outside scene');
-    assert.ok(x.x>=-2&&x.right<=a.viewport.width+2,label+' '+x.key+' outside device width');
-    assert.ok(x.y>=-2&&x.bottom<=a.viewport.height+4,label+' '+x.key+' below the visible device');
-    assert.ok(x.width/x.height>=2.65,label+' '+x.key+' no longer has the reference plank hit-area proportion');
+    assert.ok(x.x>=a.scene.x-2&&x.right<=a.scene.right+2,
+      label+' '+x.key+' outside full-screen scene');
+    assert.ok(x.y>=a.scene.y-2&&x.bottom<=a.scene.bottom+2,
+      label+' '+x.key+' outside full-screen scene');
+    assert.ok(x.x>=-2&&x.right<=a.viewport.width+2,
+      label+' '+x.key+' outside device width');
+    assert.ok(x.y>=-2&&x.bottom<=a.viewport.height+4,
+      label+' '+x.key+' below visible device');
+    assert.ok(x.width/x.height>=1.7,label+' '+x.key+' is not an easily tappable wooden sign');
+    assert.ok(/gradient/.test(x.background),label+' '+x.key+' lacks the visual wooden sign');
   }
-  const [multiply,fraction,table]=a.actions;
-  assert.ok(multiply.y+multiply.height<=fraction.y+5,label+' Gangemagi/Brøklab overlap');
-  assert.ok(fraction.y+fraction.height<=table.y+5,label+' Brøklab/Gangetabellen overlap');
-  const minX=Math.min(...a.actions.map(x=>x.x));
-  const maxX=Math.max(...a.actions.map(x=>x.x));
-  assert.ok(maxX-minX<=a.scene.width*.11,label+' signs are not a single left-side stack');
-  assert.ok(a.lockedSign&&/tallvika-sign-home-clean-locked\.webp/.test(a.lockedSign.background),
-    label+' unified locked transparent Home sign asset is not rendered');
-  assert.ok(!/tallvika-sign-posts-locked\.webp/.test(a.lockedSign.background),
-    label+' rejected split post layer returned');
-  assert.equal(a.lockedSign.before,'none',label+' CSS-drawn left post returned over the locked asset');
-  assert.equal(a.lockedSign.after,'none',label+' CSS-drawn right post returned over the locked asset');
-  assert.ok(a.actions.every(x=>x.background==='none' || x.background==='none' || /none/.test(x.background)),
-    label+' activity buttons must stay transparent over the locked sign asset');
+  for(let i=0;i<a.actions.length;i++)for(let j=0;j<i;j++){
+    const x=a.actions[i],y=a.actions[j];
+    const overlapX=Math.min(x.right,y.right)-Math.max(x.x,y.x);
+    const overlapY=Math.min(x.bottom,y.bottom)-Math.max(x.y,y.y);
+    assert.ok(overlapX<=2||overlapY<=2,label+' overlapping activity signs '+x.key+' / '+y.key);
+  }
+  // Kinnaklova-shared subject direction: scene-native controls, not the
+  // retired stacked sign image. The locked source painting remains unchanged.
+  assert.ok(a.lockedSign,label+' missing semantic sign navigation host');
+  assert.equal(a.lockedSign.background,'none',label+' old stacked sign rack is still visible');
+  assert.equal(a.lockedSign.before,'none',label+' CSS-drawn left signpost returned');
+  assert.equal(a.lockedSign.after,'none',label+' CSS-drawn right signpost returned');
   assert.ok(a.next&&a.next.width>=44&&a.next.height>=44,label+' missing Next adventure');
   assert.ok(a.next.x>=0&&a.next.right<=a.viewport.width+2&&a.next.bottom<=a.viewport.height+4,
     label+' Next adventure is clipped');
-  assert.equal(a.selected.length,1,label+' must show only one selected living troll');
+  assert.equal(a.selected.length,1,label+' must show exactly one selected living troll');
+  assert.ok(a.selected[0].width>=44&&a.selected[0].height>=44,
+    label+' selected troll has no scene geometry');
   if(a.viewport.width>a.viewport.height && a.viewport.height<=500){
-    assert.equal(a.sceneBackgroundSize,'cover',label+' short landscape must cover entire screen without stretching');
-    assert.ok(a.scene.x<=2&&a.scene.right>=a.viewport.width-2,label+' short landscape has blank side margins');
-    assert.ok(a.selected[0].x>a.actions[2].right+6,label+' companion overlaps the signpost');
-    assert.ok(a.speech&&a.speech.x>a.actions[2].right+6,label+' companion speech blocks activity signs');
-    assert.ok(a.speech.right<a.next.x+3,label+' companion speech blocks the Next adventure sign');
+    assert.equal(a.sceneBackgroundSize,'cover',
+      label+' short landscape must cover the screen without stretching');
+    assert.ok(a.scene.x<=2&&a.scene.right>=a.viewport.width-2,
+      label+' short landscape has blank side margins');
+    const overlaps=(x,y)=>Math.min(x.right,y.right)-Math.max(x.x,y.x)>3&&
+      Math.min(x.bottom,y.bottom)-Math.max(x.y,y.y)>3;
+    assert.ok(!a.actions.some(x=>overlaps(x,a.selected[0])),
+      label+' troll blocks a learning activity');
+    if(a.speech){
+      assert.ok(!a.actions.some(x=>overlaps(x,a.speech)),
+        label+' troll speech blocks activity signs');
+      assert.ok(!overlaps(a.speech,a.next),
+        label+' troll speech blocks Next adventure');
+    }
   }
   assert.ok(a.scrollWidth<=a.clientWidth+2,label+' horizontal scrolling');
 }

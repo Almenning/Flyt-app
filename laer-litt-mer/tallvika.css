@@ -148,7 +148,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 }
 #tallvika-world .tv-scene-home{left:max(13px,env(safe-area-inset-left))}
 #tallvika-world .tv-scene-grade{
-  right:max(115px,calc(env(safe-area-inset-right) + 114px));pointer-events:none
+  right:max(115px,calc(env(safe-area-inset-right) + 114px));pointer-events:auto;cursor:pointer
 }
 #tallvika-world .tv-scene-choose{right:max(12px,env(safe-area-inset-right))}
 #tallvika-world .tv-world-brand{display:none}

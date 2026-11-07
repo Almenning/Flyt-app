@@ -237,3 +237,30 @@
   .cv-root .cv-task .cv-stamps{gap:5px}
   .cv-root .cv-task .cv-stamp{min-height:44px;padding:5px 7px}
 }
+
+/* Compact iPhone: the shared TrollActor image style must not expand the
+   original companion to the full task height. Keep the actual locked
+   companion small enough that the first geography stamp is reachable. */
+.cv-root .cv-task .cv-companion > .cv-fox.laria-premium-troll-art{
+  display:block!important;width:65px!important;height:73px!important;
+  max-width:65px!important;max-height:73px!important;
+  min-width:0!important;min-height:0!important;flex:0 0 65px!important;
+  object-fit:contain!important;
+}
+@media (max-width:360px) and (max-height:680px){
+  .cv-root .cv-task .cv-companion > .cv-fox.laria-premium-troll-art{
+    width:38px!important;height:44px!important;
+    max-width:38px!important;max-height:44px!important;
+    flex-basis:38px!important;
+  }
+  .cv-root .cv-task .cv-companion{
+    max-height:72px;min-height:46px;align-items:center;
+  }
+}
+@media (min-width:900px) and (min-height:600px) and (orientation:landscape){
+  .cv-root .cv-task .cv-companion > .cv-fox.laria-premium-troll-art{
+    width:135px!important;height:155px!important;
+    max-width:135px!important;max-height:155px!important;
+    flex-basis:135px!important;
+  }
+}

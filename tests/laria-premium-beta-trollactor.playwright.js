@@ -322,7 +322,7 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
     {id:'norwegian',root:'#eggenipa-world:visible',actor:'#eggenipa-world .eg-companion-actor[data-troll="lillesoster"]',touch:'#eggenipa-world .eg-portal:visible, #eggenipa-world .eg-scene-hit:visible'},
     {id:'math',root:'#tallvika-world:visible',actor:'#tallvika-world .tv-actor[data-troll-id="lillesoster"]',touch:'#tallvika-world .tv-sign:visible'},
     {id:'english',root:'#kinnaklova-world:visible',actor:'#kinnaklova-world .ki-companion-actor[data-troll="lillesoster"]',touch:'#kinnaklova-world .ki-painted-hit:visible, #kinnaklova-world .ki-card:visible'},
-    {id:'geography',root:'#geography-screen.active .locked-journey-map[data-journey-subject="geography"]:visible',actor:'#geography-screen.active .locked-journey-traveler[data-troll="lillesoster"]',touch:'#geography-screen.active .locked-journey-hotspot:visible'}
+    {id:'geography',root:'#laria-geography-world:visible',actor:'#laria-geography-world .gv-troll[data-troll="lillesoster"]',touch:'#laria-geography-world .gv-sign:visible'}
   ];
 
   for(const spec of worlds){
@@ -369,17 +369,30 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
         label+' Eggenipa must fill the iPad landscape scene '+JSON.stringify(hero));
       assert.equal(await page.locator('#eggenipa-world .eg-portals:visible').count(),0,
         label+' Eggenipa must not duplicate illustrated activity hotspots with cards');
+      // The Kinnaklova-derived navigation uses three scene-native signs.
+      // The older 10/51/29% positions described a retired painted layout.
       const placement=await page.locator('#eggenipa-world .eg-hero').evaluate(stage=>{
-        const r=stage.getBoundingClientRect();
-        const artHeight=r.width*941/1672, artTop=r.top+(r.height-artHeight)/2;
-        return ['words','find','reading'].map((id,i)=>{
-          const el=stage.querySelector('.eg-scene-'+id),box=el.getBoundingClientRect();
-          const topFraction=[.10,.51,.29][i];
-          return {id,delta:Math.abs(box.top-(artTop+topFraction*artHeight)),size:box.width*box.height};
+        const bounds=stage.getBoundingClientRect();
+        return [...stage.querySelectorAll('.eg-scene-hit')].map(el=>{
+          const r=el.getBoundingClientRect();
+          const centerX=r.left+r.width/2,centerY=r.top+r.height/2;
+          return {name:el.dataset.eg,x:r.x,y:r.y,right:r.right,bottom:r.bottom,
+            width:r.width,height:r.height,
+            inside:centerX>=bounds.left&&centerX<=bounds.right&&
+              centerY>=bounds.top&&centerY<=bounds.bottom};
         });
       });
-      assert.ok(placement.every(p=>p.delta<5&&p.size>44*44),
-        label+' Eggenipa painted hotspot geometry drifted '+JSON.stringify(placement));
+      assert.equal(placement.length,3,label+' Eggenipa needs three in-scene destinations');
+      assert.ok(placement.every(p=>p.inside&&p.width>=44&&p.height>=44&&
+          p.x>=-2&&p.right<=width+2&&p.y>=-2&&p.bottom<=height+2),
+        label+' Eggenipa scene sign outside visible iPad '+JSON.stringify(placement));
+      for(let i=0;i<placement.length;i++)for(let j=0;j<i;j++){
+        const a=placement[i],b=placement[j];
+        const overlapX=Math.min(a.right,b.right)-Math.max(a.x,b.x);
+        const overlapY=Math.min(a.bottom,b.bottom)-Math.max(a.y,b.y);
+        assert.ok(overlapX<=2||overlapY<=2,
+          label+' Eggenipa scene signs overlap '+JSON.stringify([a,b]));
+      }
     }
 
     if(spec.id==='math'&&name==='ipad-landscape'){
@@ -419,6 +432,16 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
       fullPage:false,
       animations:'disabled'
     });
+    if(spec.id==='geography'){
+      // The geography subject now starts at Nordlysleiren. Verify that the
+      // original five-stop journey is still genuinely reachable through it.
+      await page.locator('#laria-geography-world [data-gv="journey"]').click();
+      await page.locator('#geography-screen.active .locked-journey-map:visible')
+        .first().waitFor({state:'visible',timeout:16000});
+      await page.locator('#geography-screen.active .locked-journey-back:visible')
+        .first().click();
+      await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+    }
 
     // Leaving an illustrated journey must remove its global presentation
     // context. A stale geography body class can otherwise intercept taps in
