@@ -10,6 +10,8 @@ on:
       - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-tallvika*'
+      - 'tests/laria-ipad-premium-ui.playwright.js'
+      - 'laer-litt-mer/laria-ipad-premium-v1.css'
       - '.github/workflows/laria-tallvika.yml'
   push:
     branches: [main]
@@ -20,6 +22,8 @@ on:
       - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-tallvika*'
+      - 'tests/laria-ipad-premium-ui.playwright.js'
+      - 'laer-litt-mer/laria-ipad-premium-v1.css'
       - '.github/workflows/laria-tallvika.yml'
 
 permissions:
@@ -57,6 +61,21 @@ jobs:
         run: |
           node --check tests/laria-tallvika-premium-signs.playwright.js
           node tests/laria-tallvika-premium-signs.playwright.js
+      - name: Verify consistent iPad controls and selected TrollActor across all four subjects
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_IPAD_PREMIUM_SCREENSHOTS: /tmp/laria-ipad-standard
+        run: |
+          node --check tests/laria-ipad-premium-ui.playwright.js
+          node tests/laria-ipad-premium-ui.playwright.js
+      - name: Upload iPad-first screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-ipad-standard-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-ipad-standard
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload PR-head premium sign screenshots and gate diagnostics
         if: always()
         uses: actions/upload-artifact@v4
