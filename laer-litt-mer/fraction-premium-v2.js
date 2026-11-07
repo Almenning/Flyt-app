@@ -539,7 +539,7 @@ function pointerDown(e){
  const btn=e.target.closest('.fr2-spare[data-fr-pick],.fr2-sort-card[data-fr-sort]');
  // One pointer path for mouse, pen and touch avoids incompatible HTML5 drag events.
  if(!btn||e.pointerType==='mouse'&&e.button!==0)return;
- drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),pieceIndex:btn.hasAttribute('data-fr-pick')?Number(btn.dataset.pieceIndex):null,moved:false,ghost:null,lastX:e.clientX,lastY:e.clientY};
+ drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),pieceIndex:btn.hasAttribute('data-fr-pick')?Number(btn.dataset.pieceIndex):null,moved:false,ghost:null,dropTarget:null,lastX:e.clientX,lastY:e.clientY};
  try{btn.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
@@ -552,19 +552,19 @@ function pointerMove(e){
  if(drag.ghost){drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px'}
  const el=document.elementFromPoint(e.clientX,e.clientY)?.closest(drag.type==='build'?'.fr2-build-target':'.fr2-sort-card');
  document.querySelectorAll('.fr2-drag-over').forEach(x=>x.classList.remove('fr2-drag-over'));
- if(el)el.classList.add('fr2-drag-over');
+ if(el){drag.dropTarget=el;el.classList.add('fr2-drag-over');}
  e.preventDefault();
 }
 function pointerUp(e){
  dragDiagnostics.pointerUp++;
  if(!drag||drag.pointer!==e.pointerId)return;
- const {moved,type,from,pieceIndex,startX,lastX,lastY}=drag;
+ const {moved,type,from,pieceIndex,startX,lastX,lastY,dropTarget}=drag;
  let target=null;
  if(moved&&type==='build'){
   target=[...document.querySelectorAll('#fraction-lab-root .fr2-build-target')].find(el=>{
    const r=el.getBoundingClientRect();
    return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
-  })||null;
+  })||(dropTarget?.isConnected?dropTarget:null);
  }
  if(moved&&type==='sort'){
   const cards=[...document.querySelectorAll('#fraction-lab-root .fr2-sort-card[data-fr-sort]')];
