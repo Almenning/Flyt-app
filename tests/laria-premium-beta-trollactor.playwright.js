@@ -339,6 +339,15 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
     assert.ok(worldBox.x>=-3&&worldBox.right<=width+3,
       label+' '+spec.id+' world exceeds viewport '+JSON.stringify(worldBox));
 
+    if(spec.id==='math'&&name==='ipad-landscape'){
+      const scene=await page.locator('#tallvika-world .tv-scene').evaluate(el=>{
+        const r=el.getBoundingClientRect();
+        return {top:r.top,bottom:r.bottom,height:r.height};
+      });
+      assert.ok(scene.top<=75&&scene.bottom>=height-4,
+        label+' Tallvika must fill iPad landscape without a blank footer '+JSON.stringify(scene));
+    }
+
     const actor=page.locator(spec.actor).first();
     await actor.waitFor({state:'visible',timeout:14000});
     const actorBox=await actor.evaluate(el=>{
