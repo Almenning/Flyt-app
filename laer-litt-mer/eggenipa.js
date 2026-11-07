@@ -60,6 +60,9 @@
       '<span class="eg-top-label">LÆRIA · NORSK</span><span class="eg-grade" aria-label="Oppgaver tilpasset '+profileGrade+'. klasse">'+profileGrade+'. klasse</span></header>'+
       '<section class="eg-hero eg-art-pending" aria-label="Eggenipa og tre steder å leke">'+
       '<img class="eg-master" src="'+ART+'" width="1672" height="941" loading="eager" fetchpriority="high" decoding="async" alt="Illustrert landskap ved Eggenipa med fjord, trehytte, blomster, bro og bibliotek" draggable="false">'+
+      '<button type="button" class="eg-scene-home" data-eg="home" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button>'+
+      '<div class="eg-world-brand" aria-label="Læria, norsk ved Eggenipa"><strong>Læria</strong><span>Oppdag Eggenipa</span></div>'+
+      '<span class="eg-world-grade" aria-hidden="true">'+profileGrade+'. klasse</span>'+
       '<div class="eg-companion-actor laria-troll-host laria-troll-actor" data-troll="'+trollId+'" data-laria-troll-mood="idle" aria-label="Trollet ditt er med ved Eggenipa">'+
       '<img class="laria-premium-troll-art" src="'+safe(trollSrc)+'" alt="" aria-hidden="true" draggable="false"></div>'+
       '<button type="button" class="eg-scene-hit eg-scene-words" data-eg="words" aria-label="Åpne Ordjakt i trehytta"><span>Ordjakt</span></button>'+
