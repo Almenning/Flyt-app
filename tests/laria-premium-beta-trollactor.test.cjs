@@ -72,4 +72,29 @@ for(const id of ['storesoster','lillesoster','lillebror']){
   const asset=path.join(root,'assets','gangemagi-troll',id+'.webp');
   assert.ok(fs.statSync(asset).size>10_000,id+' premium troll asset missing or suspiciously small');
 }
+// The four subject entrances must not bake a character into a painting.
+// Norsk, Engelsk and Geografi now expose one independently tappable original TrollActor.
+for(const [world,fileName,action] of [
+  ['Bokskogen','eggenipa.js','eg'],
+  ['Kinnaklova','kinnaklova.js','ki'],
+  ['Nordlysleiren','geography-kinnaklova-scene.js','gv']
+]){
+  const source=file(fileName);
+  assert.match(source,new RegExp('data-'+action+'="troll"'),
+    world+' must provide a tappable selected character');
+  assert.match(source,/LARIA_TROLL_ACTOR\?\.mood/,
+    world+' must actually react to the tap');
+  assert.match(source,/laria-troll-host laria-troll-actor/,
+    world+' must use the shared actor system');
+}
+const eggenipa=file('eggenipa.js');
+assert.equal((eggenipa.match(/data-eg="home"/g)||[]).length,1,
+  'Bokskogen cannot show duplicate Home controls');
+for(const styleName of ['eggenipa.css','kinnaklova.css','geography-kinnaklova-scene.css']){
+  const style=file(styleName);
+  assert.match(style,/touch-action:manipulation/,
+    styleName+' must preserve touch interactions on companion');
+  assert.match(style,/:focus-visible/,
+    styleName+' must show keyboard focus on companion');
+}
 console.log('Læria premium beta TrollActor contract passed');
