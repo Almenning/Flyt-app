@@ -43,13 +43,13 @@
      '✦ Begynn ved '+escape(firstNext.title)+' →</button>':'';
    return shell('<section class="mh-intro">'+
      '<div class="mh-intro-header"><div><span class="mh-eyebrow">MATTE · KAPITTEL 2</span>'+
-     '<h1 tabindex="-1" class="mh-heading">Mønsterhagen</h1><p>Fem steder å leke. Du velger selv hvor eventyret går!</p></div></div>'+
+     '<h1 tabindex="-1" class="mh-heading">Mønsterhagen</h1><p>Fem steder å leke. Du velger selv hvor eventyret går!</p></div>'+quickStart+'</div>'+
      '<div class="mh-story-layout"><div class="mh-story-map'+(painted?' mh-map-painted':'')+'" role="group" aria-label="Illustrert eventyrkart med fem steder du kan trykke på">'+
      (painted?'<picture class="mh-art-picture"><source type="image/avif" srcset="./math-pattern-haven-painted-candidate-v2.avif">'+
        '<img class="mh-map-art" src="./math-pattern-haven-storymap-v1.svg" alt="" draggable="false" loading="eager"></picture>':
        '<img class="mh-map-art" src="./math-pattern-haven-storymap-v1.svg" alt="" draggable="false" loading="eager">')+
      '<div class="mh-places">'+stages+'</div></div>'+
-     '<aside class="mh-story-rail"><div class="mh-story-fox">'+fox()+'<p>Hvor vil du utforske i dag? Jeg blir med deg!</p></div>'+quickStart+
+     '<aside class="mh-story-rail"><div class="mh-story-fox">'+fox()+'<p>Hvor vil du utforske i dag? Jeg blir med deg!</p></div>'+
      '<div class="mh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<span>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har utforsket!':'Du kan velge fritt og besøke favorittene igjen.')+'</span>'+
      '<div class="mh-progress-track"><span style="width:'+(p.done*20)+'%"></span></div></div>'+
