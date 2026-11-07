@@ -119,7 +119,6 @@
       '<span class="ki-stage-grade" aria-hidden="true">'+grade+'. klasse</span>'+
       '<button type="button" class="ki-stage-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
       '<img class="ki-master"'+(HAS_CLEAN_MASTER?' src="'+ART+'"':'')+' alt="Kinnaklova med Kinn kyrkje, klokketårnet, sjøen og de karakteristiske tvillingtoppene" width="1672" height="941" draggable="false" decoding="async">'+
-      '<div class="ki-world-brand" aria-label="Læria, engelsk ved Kinnaklova"><strong>Læria</strong><span>Oppdag Kinnaklova</span></div>'+
       '<div class="ki-art-unavailable" hidden role="status"><strong>Den låste Kinnaklova-illustrasjonen mangler i denne utviklingsversjonen.</strong>'+
       '<span>Import av ren bakgrunn er nødvendig før visuell godkjenning og publisering.</span></div>'+
       '<div class="ki-companions" aria-label="Ditt valgte troll er med på Kinnaklova">'+
