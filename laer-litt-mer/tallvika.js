@@ -152,6 +152,9 @@
       <main class="tv-main">
         <div class="tv-stage">
           <div class="tv-scene">
+            <button type="button" class="tv-scene-home" data-tv="back" aria-label="Tilbake til Hjem">‹ Hjem</button>
+            <span class="tv-scene-grade" aria-hidden="true">${grade}. klasse</span>
+            <button type="button" class="tv-scene-choose" data-tv="choose" aria-label="Velg ditt skogstroll">Mine troll</button>
             <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus og lek med tall.</span></div>
             <nav class="tv-sign-nav" aria-label="Velg matematikkaktivitet">
               <button type="button" class="tv-sign" data-tv="multiply" aria-label="Åpne Gangemagi"><span class="tv-sign-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><g fill="currentColor"><circle cx="15" cy="16" r="4.2"/><circle cx="25" cy="16" r="4.2"/><circle cx="35" cy="16" r="4.2"/><circle cx="15" cy="31" r="4.2"/><circle cx="25" cy="31" r="4.2"/><circle cx="35" cy="31" r="4.2"/></g><path d="M9 23.5h32" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/></svg></span><span class="tv-sign-label">Gangemagi</span></button>
