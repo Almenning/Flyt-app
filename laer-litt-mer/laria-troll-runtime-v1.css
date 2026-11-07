@@ -187,6 +187,13 @@ html[data-laria-character-system="troll"] :is(
   aspect-ratio:1/2!important;pointer-events:none!important;
 }
 #session-screen.task-scene .task-fox-companion.laria-troll-host>.laria-premium-troll-art{visibility:visible!important}
+/* The retired fox-presence stylesheet deliberately hides the legacy profile image
+   inside illustrated young tasks. TrollActor reuses that DOM anchor, so its
+   premium art must explicitly win that older, more-specific selector. */
+#session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage
+  .task-fox-companion.laria-troll-host>img.laria-premium-troll-art{
+  visibility:visible!important;
+}
 
 /* Free-play modules: legacy DOM anchors remain, but no portrait-card styling survives. */
 :is(.fr2-guide,.fr2-mastery-banner,.fr4-scene-fox,.mp-avatar,.mp-mascot,.mp-art-practice,
