@@ -151,3 +151,23 @@
 @media (prefers-reduced-motion:reduce){
   #tallvika-world .tv-sign,#tallvika-world .tv-actor-touch>img.laria-premium-troll-art{animation:none!important;transition:none!important}
 }
+
+/* Retired 27 October portrait CSS hid Brøklab on the assumption that its
+   name was painted onto a house. The new art has NO buildings or sign text.
+   Override that more specific legacy rule for every child-visible state. */
+@media (orientation:portrait) and (max-width:700px){
+  #tallvika-world .tv-sign:nth-child(2){
+    left:auto!important;right:5%!important;top:52%!important;
+    width:clamp(164px,53vw,218px)!important;
+    height:clamp(49px,7dvh,59px)!important;
+    padding:6px 8px!important;
+    background:linear-gradient(172deg,#bb8753,#8c582d 36%,#693b1f 87%,#56301b)!important;
+    border:3px solid #654024!important;
+    box-shadow:inset 0 2px 0 #f6dbad9e,inset 0 -2px 0 #3b210e73,0 5px 0 #3a210f,0 12px 20px #18261988!important;
+    color:#fff3cf!important;text-shadow:0 2px 2px #302011!important;
+  }
+  #tallvika-world .tv-sign:nth-child(2) .tv-sign-icon,
+  #tallvika-world .tv-sign:nth-child(2) .tv-sign-label{
+    opacity:1!important;visibility:visible!important;pointer-events:none!important;
+  }
+}
