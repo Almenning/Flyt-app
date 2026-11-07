@@ -9,7 +9,8 @@ body:has(#geography-screen.gv-visible){background:#e8eadc!important}
 }
 .app:has(#geography-screen.gv-visible)::before,
 .app:has(#geography-screen.gv-visible)::after{display:none!important}
-#geography-screen.gv-visible{
+#geography-screen.active.gv-visible,
+#geography-screen.active.locked-journey-active.gv-visible{
   width:100%;max-width:none!important;min-height:100dvh;
   padding:0!important;margin:0!important;background:#e8eadc!important;
   overflow:hidden
