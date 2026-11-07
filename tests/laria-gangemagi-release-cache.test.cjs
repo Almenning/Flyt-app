@@ -10,11 +10,12 @@ const worker = fs.readFileSync(path.join(root, 'laer-litt-mer/sw.js'), 'utf8');
 // The Gangemagi stylesheets retain their approved visual release, while the
 // JavaScript has a newer Tallvika branding release. Test each real asset URL
 // instead of incorrectly requiring all assets to share the same cache key.
-const version = '20261023-gangemagi-release37';
+const version = '20261107-gangemagi-release38';
+const approvedVisualVersion = '20261023-gangemagi-release37';
 const suffix = '-gangemagi-premium-20261023-release37';
 const releases = Object.freeze({
   'multiplication-gangemagi-v1.css': version,
-  'gangemagi-dagens-oppdrag-v1.css': version,
+  'gangemagi-dagens-oppdrag-v1.css': approvedVisualVersion,
   'multiplication-gangemagi-v1.js': '20261025-tallvika-one-tap-return1'
 });
 const assets = Object.keys(releases);
