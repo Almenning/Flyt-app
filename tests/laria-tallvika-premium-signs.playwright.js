@@ -51,6 +51,7 @@ async function collect(page){
         postBeforeWidth:before.width,postAfterWidth:after.width};
     });
     const next=summary(document.querySelector('#tallvika-world [data-tv="next"]'));
+    const brand=summary(document.querySelector('#tallvika-world .tv-world-brand'));
     const selected=[...document.querySelectorAll('#tallvika-world .tv-actor[data-troll-id]')].map(summary);
     const nav=document.querySelector('#tallvika-world .tv-sign-nav');
     const navStyle=nav?getComputedStyle(nav):null;
@@ -68,7 +69,7 @@ async function collect(page){
       clientWidth:document.documentElement.clientWidth,
       scene:summary(scene),sceneBackground:sceneCss.backgroundImage,sceneBackgroundSize:sceneCss.backgroundSize,sceneBackgroundPosition:sceneCss.backgroundPosition,
       speech:summary(document.querySelector('#tallvika-world .tv-actor-speech')),
-      actions,next,selected,lockedSign};
+      actions,next,selected,lockedSign,brand};
   });
 }
 
@@ -88,18 +89,8 @@ function assertPremium(a,label){
     assert.ok(x.y>=-2&&x.bottom<=a.viewport.height+4,
       label+' '+x.key+' below visible device');
     assert.ok(x.width/x.height>=1.7,label+' '+x.key+' is not an easily tappable wooden sign');
-    if(a.viewport.width>a.viewport.height){
-      assert.equal(x.background,'none',
-        label+' '+x.key+' duplicates a sign already painted into Tallvika');
-    }else if(a.viewport.width<=700&&x.key==='fraction'){
-      // Only the central Brøklab house sign remains visible in the cropped
-      // portrait illustration. Its tappable hit area must not paint a duplicate.
-      assert.equal(x.background,'none',
-        label+' Brøklab repeats the already painted house sign');
-    }else{
-      assert.ok(/gradient/.test(x.background),
-        label+' '+x.key+' needs a visible control with portrait art cropping');
-    }
+    assert.ok(/gradient/.test(x.background),
+      label+' '+x.key+' must be a visible live wooden sign over clean scenery');
   }
   for(let i=0;i<a.actions.length;i++)for(let j=0;j<i;j++){
     const x=a.actions[i],y=a.actions[j];
@@ -109,6 +100,10 @@ function assertPremium(a,label){
   }
   // Kinnaklova-shared subject direction: scene-native controls, not the
   // retired stacked sign image. The locked source painting remains unchanged.
+  assert.match(a.sceneBackground,/tallvika-fjord-no-buildings-(wide|portrait)-20261107\\.webp/,
+    label+' house-free fjord illustration did not load');
+  assert.ok(a.brand&&a.brand.width>120&&a.brand.height>34,
+    label+' live Læria/Tallvika logo has missing geometry');
   assert.ok(a.lockedSign,label+' missing semantic sign navigation host');
   assert.equal(a.lockedSign.background,'none',label+' old stacked sign rack is still visible');
   assert.equal(a.lockedSign.before,'none',label+' CSS-drawn left signpost returned');

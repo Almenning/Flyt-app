@@ -22,7 +22,7 @@ async function assertScene(page,label){
   const audit=await scene.evaluate(el=>{const r=el.getBoundingClientRect();return {w:r.width,h:r.height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth,bg:getComputedStyle(el).backgroundImage};});
   assert.ok(audit.w>250&&audit.h>140,label+' has no substantial illustration');
   assert.ok(audit.scroll<=audit.client+2,label+' horizontal overflow');
-  assert.match(audit.bg,/tallvika-figure-free-20261028\.webp/,label+' wrong derived scene background');
+  assert.match(audit.bg,/tallvika-fjord-no-buildings-(wide|portrait)-20261107\.webp/,label+' wrong Tallvika house-free scene background');
   assert.equal(await page.locator('#tallvika-world .tv-next').count(),0,label+' outside illustration mission card returned');
   assert.equal(await scene.locator('.tv-next-sign[data-tv="next"]').count(),1,label+' missing illustrated mission button');
   const actor=scene.locator('.tv-actor[data-troll-id]');

@@ -5,7 +5,7 @@
   const trolls = {
     // Keep src as the locked identity reference. sceneSrc is what Tallvika
     // actually paints, so the picker and world show the exact same approved art.
-    storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/tallvika/storesoster-inworld-approved-20261026.webp',sceneTreatment:'approved-painterly-20261026'},
+    storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/gangemagi-troll/storesoster.webp',sceneTreatment:'locked-original'},
     lillesoster:{name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp',sceneSrc:'./assets/gangemagi-troll/lillesoster.webp',sceneTreatment:'locked-original'},
     lillebror:{name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp',sceneSrc:'./assets/gangemagi-troll/lillebror.webp',sceneTreatment:'locked-original'}
   };
@@ -14,7 +14,7 @@
   const greetings = [
     'Hei! Hva vil du utforske i dag?',
     'Vil du prøve Gangemagi, Brøklab eller Gangetabellen?',
-    'Se på husene! Hvor skal vi leke først?'
+    'Se på skiltene! Hvor skal vi leke først?'
   ];
   let speechIndex = 0;
   const speak = (message, readAloud = false) => {
@@ -79,7 +79,7 @@
       window.openSubject('math');
     }catch(_){
       lab.dataset.tvOrigin=action;
-      entryContext=previous;lastVisited=previousVisited;
+      entryContext=previous;
       return false;
     }
     // App navigation scrolls to the top. Restore the child's prior place
@@ -143,21 +143,19 @@
 
       <main class="tv-main">
         <div class="tv-stage">
-          <div class="tv-scene">
+          <div class="tv-scene" data-tv-art="fjord-no-buildings-v2">
             <button type="button" class="tv-scene-home" data-tv="back" aria-label="Tilbake til Hjem">‹ Hjem</button>
             <button type="button" class="tv-scene-grade" data-tv="grade" aria-label="Velg klassetrinn">${grade}. klasse</button>
             <div class="tv-world-brand" aria-hidden="true"><strong>Læria</strong><span>Tallvika</span></div>
             <button type="button" class="tv-scene-choose" data-tv="choose" aria-label="Velg ditt skogstroll">Mine troll</button>
-            <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus og lek med tall.</span></div>
+            <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Følg skiltene og lek med tall.</span></div>
             <nav class="tv-sign-nav" aria-label="Velg matematikkaktivitet">
               <button type="button" class="tv-sign" data-tv="multiply" aria-label="Åpne Gangemagi"><span class="tv-sign-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><g fill="currentColor"><circle cx="15" cy="16" r="4.2"/><circle cx="25" cy="16" r="4.2"/><circle cx="35" cy="16" r="4.2"/><circle cx="15" cy="31" r="4.2"/><circle cx="25" cy="31" r="4.2"/><circle cx="35" cy="31" r="4.2"/></g><path d="M9 23.5h32" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/></svg></span><span class="tv-sign-label">Gangemagi</span></button>
               <button type="button" class="tv-sign" data-tv="fraction" aria-label="Åpne Brøklab"><span class="tv-sign-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><circle cx="24" cy="24" r="15.5" fill="none" stroke="currentColor" stroke-width="3.2"/><path d="M24 8.5V24H39.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 24 13 35" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg></span><span class="tv-sign-label">Brøklab</span></button>
               <button type="button" class="tv-sign" data-tv="table" aria-label="Åpne Gangetabellen"><span class="tv-sign-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><rect x="8.5" y="9" width="31" height="29.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="3"/><path d="M18.8 9v29.5M29.2 9v29.5M8.5 19h31M8.5 28.7h31" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="tv-sign-label">Gangetabellen</span></button>
             </nav>
-            <div class="tv-portrait-sky" aria-hidden="true"></div>
-            <div class="tv-portrait-village" aria-hidden="true"><i></i><i></i><i></i></div>
             <div class="tv-actor" data-troll-id="${selected}">
-              <button type="button" class="tv-actor-touch" data-tv="troll" aria-label="Snakk med ${esc(troll.name)}"><img src="${esc(troll.src)}" alt="${esc(troll.name)}" draggable="false"></button>
+              <button type="button" class="tv-actor-touch laria-troll-host laria-troll-actor" data-tv="troll" data-troll="${selected}" data-laria-troll-mood="idle" aria-label="Snakk med ${esc(troll.name)}"><img class="laria-premium-troll-art" src="${esc(troll.src)}" alt="" aria-hidden="true" draggable="false"></button>
               <div class="tv-actor-speech" role="status" aria-live="polite">${esc(currentSpeech || (name ? 'Hei, '+name+'! Hva vil du utforske i dag?' : greetings[0]))}</div>
             </div>
             <button type="button" class="tv-next-sign" data-tv="next" ${n||p?.complete?'':'disabled'} aria-label="Neste eventyr: ${esc(p?.complete ? 'Bonusoppdrag' : n?.title || 'Et nytt oppdrag')}">
@@ -185,10 +183,13 @@
     if (action === 'troll') {
       speechIndex=(speechIndex+1)%greetings.length;
       speak(greetings[speechIndex], true);
+      const actor=screen.querySelector('#tallvika-world .tv-actor-touch');
+      window.LARIA_TROLL_ACTOR?.mood?.(actor,'wave',{say:false,duration:1250});
     }
     if (action === 'multiply'||action === 'fraction'||action === 'table') {
       const title=activityNames[action];
       speak('Da besøker vi '+title+'!');
+      window.LARIA_TROLL_ACTOR?.mood?.(screen.querySelector('#tallvika-world .tv-actor-touch'),'celebrate',{say:false,duration:1000});
       beginActivity(action,button);
     }
     if (action === 'next') { const {p,n,grade}=progress(); speak('Nå starter neste eventyr!'); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
