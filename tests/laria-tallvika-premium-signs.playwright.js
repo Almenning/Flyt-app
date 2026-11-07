@@ -89,7 +89,7 @@ function assertPremium(a,label){
     assert.ok(x.y>=-2&&x.bottom<=a.viewport.height+4,
       label+' '+x.key+' below visible device');
     assert.ok(x.width/x.height>=1.7,label+' '+x.key+' is not an easily tappable wooden sign');
-    assert.ok(/gradient|laria-light-arrow-sign\\.svg/.test(x.background),
+    assert.ok(/gradient|laria-light-arrow-sign/.test(x.background),
       label+' '+x.key+' must be a visible live wooden sign over clean scenery');
   }
   for(let i=0;i<a.actions.length;i++)for(let j=0;j<i;j++){
