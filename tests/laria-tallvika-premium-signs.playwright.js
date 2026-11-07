@@ -91,6 +91,11 @@ function assertPremium(a,label){
     if(a.viewport.width>a.viewport.height){
       assert.equal(x.background,'none',
         label+' '+x.key+' duplicates a sign already painted into Tallvika');
+    }else if(a.viewport.width<=700&&x.key==='fraction'){
+      // Only the central Brøklab house sign remains visible in the cropped
+      // portrait illustration. Its tappable hit area must not paint a duplicate.
+      assert.equal(x.background,'none',
+        label+' Brøklab repeats the already painted house sign');
     }else{
       assert.ok(/gradient/.test(x.background),
         label+' '+x.key+' needs a visible control with portrait art cropping');
