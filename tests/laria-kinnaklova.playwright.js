@@ -137,8 +137,10 @@ async function run(browserType,name,viewport){
       Math.abs(frame.width-viewport.width)<=2&&Math.abs(frame.height-viewport.height)<=2,
       name+' iPad/desktop must be one full-viewport Kinnaklova scene: '+JSON.stringify(frame));
     assert.equal(frame.imageFit,'cover',name+' artwork should fill scene, without deforming pixels');
-    assert.equal(await world.locator('.ki-world-brand:visible').count(),1,
-      name+' missing the common Læria crest in the illustrated world');
+    // Kinnaklova's SHA-verified artwork already paints the Læria crest.
+    // A second HTML header created an obvious double-logo visual defect.
+    assert.equal(await world.locator('.ki-world-brand:visible').count(),0,
+      name+' added a duplicate HTML crest over the original painted Læria heading');
   }else{
     assert.ok(Math.abs(art.height-art.width*941/1672)<3,name+' compact phone must retain uncropped original art');
   }
