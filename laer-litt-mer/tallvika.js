@@ -154,6 +154,7 @@
           <div class="tv-scene">
             <button type="button" class="tv-scene-home" data-tv="back" aria-label="Tilbake til Hjem">‹ Hjem</button>
             <span class="tv-scene-grade" aria-hidden="true">${grade}. klasse</span>
+            <div class="tv-world-brand" aria-hidden="true"><strong>Læria</strong><span>Tallvika</span></div>
             <button type="button" class="tv-scene-choose" data-tv="choose" aria-label="Velg ditt skogstroll">Mine troll</button>
             <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus og lek med tall.</span></div>
             <nav class="tv-sign-nav" aria-label="Velg matematikkaktivitet">
