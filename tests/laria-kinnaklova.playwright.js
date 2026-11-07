@@ -127,7 +127,21 @@ async function run(browserType,name,viewport){
       width:rect.width,height:rect.height,naturalWidth:img.naturalWidth};
   });
   assert.ok(art.width>250,name+' no stage visible');
-  assert.ok(Math.abs(art.height-art.width*941/1672)<3,name+' must not crop approved art');
+  if(viewport.width>=701&&viewport.height>=600){
+    const frame=await world.locator('.ki-stage').evaluate(stage=>{
+      const b=stage.getBoundingClientRect(),im=stage.querySelector('.ki-master');
+      return {left:b.left,top:b.top,width:b.width,height:b.height,
+        imageFit:getComputedStyle(im).objectFit,imagePosition:getComputedStyle(im).objectPosition};
+    });
+    assert.ok(Math.abs(frame.left)<=2&&Math.abs(frame.top)<=2&&
+      Math.abs(frame.width-viewport.width)<=2&&Math.abs(frame.height-viewport.height)<=2,
+      name+' iPad/desktop must be one full-viewport Kinnaklova scene: '+JSON.stringify(frame));
+    assert.equal(frame.imageFit,'cover',name+' artwork should fill scene, without deforming pixels');
+    assert.equal(await world.locator('.ki-world-brand:visible').count(),1,
+      name+' missing the common Læria crest in the illustrated world');
+  }else{
+    assert.ok(Math.abs(art.height-art.width*941/1672)<3,name+' compact phone must retain uncropped original art');
+  }
   const actor=world.locator('.ki-companion-actor[data-troll="lillesoster"]');
   assert.equal(await actor.count(),1,name+' must render one selected TrollActor');
   const actorImg=actor.locator('.ki-troll');
