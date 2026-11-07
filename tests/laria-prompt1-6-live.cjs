@@ -60,6 +60,12 @@ async function returnFromSubjectOrJourney(page,screen,back,subject){
    await page.locator('#home-screen.active').waitFor();
    return;
  }
+ if(subject==='geography' && await page.locator('#laria-geography-world:visible').count()){
+   // The old #geography-back is deliberately hidden by the scene-native hub.
+   await page.locator('#laria-geography-world [data-gv="home"]').click();
+   await page.locator('#home-screen.active').waitFor();
+   return;
+ }
  if(subject==='math' && await page.locator('#tallvika-world:visible').count()){
    await page.locator('#tallvika-world [data-tv="back"]:visible').click();
    await page.locator('#home-screen.active').waitFor();
@@ -171,7 +177,10 @@ async function existing(engine,name){
  await finish(p);
  await p.locator('#complete-home').click();await p.locator('#eggenipa-world:visible').waitFor();
  await returnFromSubjectOrJourney(p,'#subject-screen','#subject-back','norwegian');
- await openHomeSubject(p,'geography');await p.locator('#geography-screen.active').waitFor();await p.locator('#open-world').click();await p.locator('#world-screen.active').waitFor();
+ await openHomeSubject(p,'geography');
+ await p.locator('#laria-geography-world:visible').waitFor();
+ await p.locator('#laria-geography-world [data-gv="globe"]').click();
+ await p.locator('#world-screen.active').waitFor();
  await p.locator('#globe-mode [data-globe-mode="classic"]').waitFor();
  for(const m of ['explore','mine','classic']){await p.locator('#globe-mode [data-globe-mode="'+m+'"]').click();await p.waitForFunction(x=>document.getElementById('world-screen')?.dataset.premiumGlobeMode===x,m)}
  await p.locator('#random-country').click();await p.locator('.premium-country-learn').waitFor({state:'visible'});const country=(await p.locator('#globe-status strong').first().textContent()).trim();

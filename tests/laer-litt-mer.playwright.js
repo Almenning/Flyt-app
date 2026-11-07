@@ -1052,19 +1052,24 @@ async function finishSession(page){
     else await englishWorld.locator('.ki-painted-home').click();
     await page.locator('#home-screen.active').waitFor({timeout:16000});
 
-    // Geography: default Land must work on a young grade.
+    // New child-facing route: Home -> Nordlysleiren -> original Geografireisen.
+    // The old map is intentionally hidden behind the landscape entrance.
     await page.evaluate(()=>document.getElementById('open-geography').click());
     assert.equal(await page.locator('.geo-theme').count(),6);
-    assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
+    const geoEntrance=page.locator('#laria-geography-world:visible');
+    await geoEntrance.waitFor({timeout:16000});
+    assert.equal(await geoEntrance.locator('.gv-sign').count(),3,
+      'Nordlysleiren must provide three scene-native destinations');
+    await geoEntrance.locator('[data-gv="journey"]').click();
+    await page.locator('#geo-journey-map:visible').waitFor({timeout:16000});
     await page.locator('#geo-journey-map.locked-journey-map[data-journey-subject="geography"] .locked-journey-image').waitFor({timeout:16000});
     assert.equal(await page.locator('#geo-journey-map .locked-journey-image').getAttribute('src'),'./locked-journeys/nordlysleiren-locked-20261010.png');
     assert.equal(await page.locator('#geo-journey-map').getAttribute('data-journey-release'),'journey-rc1');
     assert.equal(await page.locator('#geo-journey-map .locked-journey-hotspot').count(),5);
     assert.equal(await page.locator('#geo-journey-map .locked-journey-hotspot.state-current').count(),1);
     assert.equal(await page.locator('#geo-journey-map .locked-journey-live-progress').count(),1);
-    const geoWorldTop=await page.locator('#geo-journey-map').evaluate(el=>el.getBoundingClientRect().top);
-    const geoGlobeTop=await page.locator('#open-world').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(geoWorldTop<geoGlobeTop,'Nordlysleiren must precede globe/free exploration');
+    assert.equal(await page.locator('#laria-geography-world:visible').count(),0,
+      'Geografireisen must replace the landing, not appear underneath it');
     assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false);
     await page.locator('#geo-journey-map .locked-journey-hotspot.state-current').click();
     await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary[data-locked-node]:not([disabled])').first().click();
@@ -1084,11 +1089,16 @@ async function finishSession(page){
     await page.locator('#close-session').click();
     await page.locator('#geography-screen.active').waitFor();
 
-    await page.locator('#start-geography-theme').click();
+    // Geography's old theme button is hidden beneath the new illustrated facade.
+    // Return to Nordlysleiren and use the real Land og flagg sign.
+    await page.locator('#geography-screen.active .locked-journey-back:visible').click();
+    await page.locator('#laria-geography-world:visible').waitFor({timeout:16000});
+    await page.locator('#laria-geography-world [data-gv="country"]').click();
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     await page.locator('#close-session').click();
-    await page.locator('#open-world').click();
+    await page.locator('#laria-geography-world:visible').waitFor({timeout:16000});
+    await page.locator('#laria-geography-world [data-gv="globe"]').click();
     await page.locator('#world-screen.active').waitFor();
     await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true);
     const box=await page.locator('#atlas-canvas').boundingBox();
