@@ -149,10 +149,16 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
     width:100%;max-width:none;height:calc(100dvh - 66px);
     min-height:650px;aspect-ratio:auto;
   }
-  .eg-master{object-fit:cover;object-position:center center}
+  /* Keep every pixel of the locked mountain painting and compensate the
+     hit targets for the centered 1672:941 image inside a taller 4:3 stage. */
+  .eg-hero{background:linear-gradient(180deg,#a7ccd9,#b9ccaa 76%,#9dbc83)}
+  .eg-master{object-fit:contain;object-position:center center}
   .eg-intro,.eg-portals{display:none!important}
   .eg-scene-hit{display:flex!important}
-  .eg-companion-actor{left:4%;bottom:3%;width:8%;height:27%}
+  .eg-scene-words{top:calc(50% - 22.512vw);height:36.58vw}
+  .eg-scene-find{top:calc(50% + .563vw);height:27.014vw}
+  .eg-scene-reading{top:calc(50% - 11.819vw);height:37.145vw}
+  .eg-companion-actor{left:4%;bottom:calc(50% - 28.14vw + 2vw);width:8%;height:27%}
 }
 @media(min-width:701px) and (max-width:1040px){
  .eg-portals{gap:10px}
