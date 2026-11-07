@@ -23,6 +23,16 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
 .eg-grade{font-weight:900;font-size:13px}
 .eg-hero{width:min(100%,1672px);margin:auto;position:relative;isolation:isolate;aspect-ratio:1672 / 941;overflow:hidden;background:#8aa9a2}
 .eg-master{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.eg-hero.eg-art-pending::after{
+  content:"Bokskogen åpner seg …";
+  position:absolute;z-index:8;left:50%;top:44%;transform:translate(-50%,-50%);
+  padding:12px 20px;border:2px solid rgba(250,225,169,.9);
+  border-radius:19px;background:rgba(255,248,223,.94);color:#4b553e;
+  box-shadow:0 8px 24px rgba(23,49,44,.22);
+  font:900 clamp(13px,1.6vw,20px)/1.3 ui-rounded,system-ui,sans-serif;
+  white-space:nowrap;pointer-events:none;
+}
+.eg-hero.eg-art-error::after{content:"Bokskogen kunne ikke åpnes";}
 .eg-companion-actor{
  position:absolute;z-index:1;left:4.5%;bottom:3%;width:8.5%;height:30%;
  pointer-events:none;overflow:visible!important
