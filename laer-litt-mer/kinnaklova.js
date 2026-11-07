@@ -113,8 +113,11 @@
     revokeArt();
     host.innerHTML=
       '<header class="ki-utility"><button type="button" data-ki="home" aria-label="Tilbake til Hjem">‹ Hjem</button>'+
-      '<span>ENGELSK · KINNAKLOVA</span><span class="ki-grade">'+grade+'. klasse</span></header>'+
+      '<span>ENGELSK · KINNAKLOVA</span><span class="ki-grade">'+grade+'. klasse</span>'+
+      '<button type="button" class="ki-utility-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button></header>'+
       '<div class="ki-stage" role="group" aria-label="Kinnaklova med Words, Sentences og Reading">'+
+      '<span class="ki-stage-grade" aria-hidden="true">'+grade+'. klasse</span>'+
+      '<button type="button" class="ki-stage-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
       '<img class="ki-master"'+(HAS_CLEAN_MASTER?' src="'+ART+'"':'')+' alt="Kinnaklova med Kinn kyrkje, klokketårnet, sjøen og de karakteristiske tvillingtoppene" width="1672" height="941" draggable="false" decoding="async">'+
       '<div class="ki-art-unavailable" hidden role="status"><strong>Den låste Kinnaklova-illustrasjonen mangler i denne utviklingsversjonen.</strong>'+
       '<span>Import av ren bakgrunn er nødvendig før visuell godkjenning og publisering.</span></div>'+
@@ -147,6 +150,8 @@
     const action=button.dataset.ki;
     if(action==='home'){
       if(!window.LARIA_RETURN_TO_BASECAMP?.())bridge()?.setTab?.('home');
+    }else if(action==='choose'){
+      window.LARIA_TROLL_ACTOR?.openChooser?.();
     }else if(action==='troll'){
       const actor=root?.querySelector('.ki-companion-actor');
       if(actor&&root?.dataset.kiArt==='ready')
@@ -170,6 +175,7 @@
     }
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
+  document.addEventListener('laria:troll-changed',()=>{if(isActive()){renderKey='';build();}});
   if(isActive())build();
   window.LARIA_KINNAKLOVA=Object.freeze({
     build,art:ART,

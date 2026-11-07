@@ -32,6 +32,7 @@
         '<img class="gv-landscape" src="'+ART+'" alt="Illustrert nordlyshimmel over norske fjell, fjord og eventyrleir" width="1024" height="704" draggable="false" loading="eager" decoding="async">'+
         '<button class="gv-home" type="button" data-gv="home" aria-label="Tilbake til Hjem">‹ Hjem</button>'+
         '<span class="gv-grade" aria-hidden="true">'+grade+'. klasse</span>'+
+        '<button type="button" class="gv-choose" data-gv="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
         '<div class="gv-brand" aria-label="Læria, Geografi"><strong>Læria</strong><span>Oppdag Nordlysleiren</span></div>'+
         '<button type="button" class="gv-sign gv-sign-journey" data-gv="journey" aria-label="Åpne Geografireisen">Geografireisen <span aria-hidden="true">›</span></button>'+
         '<button type="button" class="gv-sign gv-sign-globe" data-gv="globe" aria-label="Åpne Kloden">Kloden <span aria-hidden="true">›</span></button>'+
@@ -70,6 +71,8 @@
     const action=button.dataset.gv;
     if(action==='home'){
       if(!window.LARIA_RETURN_TO_BASECAMP?.())bridge()?.setTab?.('home');
+    }else if(action==='choose'){
+      window.LARIA_TROLL_ACTOR?.openChooser?.();
     }else if(action==='troll'){
       const actor=root?.querySelector('.gv-troll');
       if(actor)window.LARIA_TROLL_ACTOR?.mood?.(actor,'curious',{say:'Skal vi utforske verden sammen?'});
@@ -111,6 +114,7 @@
       if(root){root.remove();root=null;}
     }
   }).observe(screen,{attributes:true,attributeFilter:['class']});
+  document.addEventListener('laria:troll-changed',()=>{if(active()&&phase==='landing')landing();});
   if(active())landing();
   window.LARIA_GEOGRAPHY_SCENE=Object.freeze({landing,journey,art:ART});
 })();

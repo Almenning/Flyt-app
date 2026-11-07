@@ -62,6 +62,7 @@
       '<button type="button" class="eg-scene-home eg-home" data-eg="home" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button>'+
       '<div class="eg-world-brand" aria-label="Læria, norsk ved Eggenipa"><strong>Læria</strong><span>Oppdag Eggenipa</span></div>'+
       '<span class="eg-world-grade" aria-hidden="true">'+profileGrade+'. klasse</span>'+
+      '<button type="button" class="eg-scene-choose" data-eg="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
       '<button type="button" class="eg-companion-actor laria-troll-host laria-troll-actor" data-eg="troll" data-troll="'+trollId+'" data-laria-troll-mood="idle" aria-label="Snakk med det valgte trollet ved Eggenipa">'+
       '<img class="laria-premium-troll-art" src="'+safe(trollSrc)+'" alt="" aria-hidden="true" draggable="false"></button>'+
       '<button type="button" class="eg-scene-hit eg-scene-words" data-eg="words" aria-label="Åpne Ordjakt i trehytta"><span>Ordjakt</span></button>'+
@@ -99,6 +100,8 @@
     const action=button.dataset.eg;
     if(action==='home'){
       if(!window.LARIA_RETURN_TO_BASECAMP?.())bridge()?.setTab?.('home');
+    }else if(action==='choose'){
+      window.LARIA_TROLL_ACTOR?.openChooser?.();
     }else if(action==='troll'){
       const actor=root?.querySelector('.eg-companion-actor');
       if(actor)window.LARIA_TROLL_ACTOR?.mood?.(actor,'curious',{say:'Hva vil du utforske i Bokskogen?'});
@@ -124,6 +127,7 @@
     }
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
+  document.addEventListener('laria:troll-changed',()=>{if(isActive()){identity='';build();}});
   if(isActive())build();
   // Read-only compatibility for older app-back integrations. The discarded
   // journey map is never opened by the new Norsk screen.
