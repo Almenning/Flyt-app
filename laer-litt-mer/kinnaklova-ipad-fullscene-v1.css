@@ -105,6 +105,16 @@
   }
 }
 @media(min-width:701px) and (min-height:600px) and (orientation:portrait){
+  /* This uses ONLY the SHA-approved original and activates ONLY after the
+     JS integrity gate reports ready. A matching stage background prevents
+     the solid-green first frame seen on portrait WebKit/Chromium when the
+     image texture's GPU compositing lags despite a completed SHA check. */
+  #kinnaklova-world[data-ki-art="ready"] .ki-stage{
+    background-image:url("./assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp")!important;
+    background-position:48% 50%!important;
+    background-size:cover!important;
+    background-repeat:no-repeat!important;
+  }
   /* A carefully chosen portrait window retains the church and the famous
      peaks. Side coast is outside the portrait camera, but the actual original
      remains untouched and the three native routes stay on-screen. */
