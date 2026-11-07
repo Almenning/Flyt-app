@@ -57,10 +57,11 @@ async function run(browserType,engine,name,viewport){
    const root=page.locator(spec.root+':visible');
    await root.waitFor({timeout:20000});
    if(spec.id==='english')await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:20000});
-   const sign=spec.id==='english'&&viewport.width<=700?
-      root.locator('.ki-card[data-ki="words"]'):root.locator(spec.sign);
-   const board=spec.id==='english'&&viewport.width<=700?
-      root.locator('.ki-card[data-ki="words"]'):root.locator(spec.paint);
+   const sign=root.locator(spec.sign);
+   const board=root.locator(spec.paint);
+   if(spec.id==='english')
+     assert.equal(await root.locator('.ki-actions:visible').count(),0,
+       engine+' '+name+' English must not duplicate its three painted signs');
    await sign.waitFor({state:'visible',timeout:13000});
    const b=await board.evaluate(el=>{
     const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
