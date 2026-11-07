@@ -331,6 +331,17 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
     const world=page.locator(spec.root).first();
     await world.waitFor({state:'visible',timeout:22000});
 
+    if(spec.id==='norwegian'){
+      const painted=page.locator('#eggenipa-world .eg-master');
+      await painted.evaluate(async img=>{
+        if(typeof img.decode==='function')await img.decode();
+      });
+      const artwork=await painted.evaluate(img=>({loaded:img.complete&&img.naturalWidth>0,width:img.naturalWidth}));
+      assert.ok(artwork.loaded&&artwork.width>=1600,
+        label+' Eggenipa locked painting failed to decode '+JSON.stringify(artwork));
+      await page.locator('#eggenipa-world .eg-art-pending').waitFor({state:'hidden',timeout:10000});
+    }
+
     const worldBox=await world.evaluate(el=>{
       const r=el.getBoundingClientRect();
       return {x:r.x,right:r.right,w:r.width,h:r.height};
