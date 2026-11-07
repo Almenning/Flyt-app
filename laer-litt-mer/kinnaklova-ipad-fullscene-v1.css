@@ -109,7 +109,9 @@
      peaks. Side coast is outside the portrait camera, but the actual original
      remains untouched and the three native routes stay on-screen. */
   #kinnaklova-world[data-ki-art="ready"] .ki-master{
-    object-position:50% 50%!important;
+    /* A small leftward camera shift reveals more of the original Words
+       sign, while preserving the full painted Læria heading. */
+    object-position:48% 50%!important;
   }
   /* The portrait crop now centers the complete painted Læria title.
      Words/Sentences extend beyond the camera frame; native tappable planks
@@ -134,10 +136,24 @@
   #kinnaklova-world[data-ki-art="ready"] .ki-painted-words.laria-wayfinder
     .ki-plank-name{visibility:hidden!important}
   #kinnaklova-world[data-ki-art="ready"] .ki-painted-sentences.laria-wayfinder{
-    left:67%!important;top:51.8%!important;width:33%!important;
+    left:63%!important;top:51.2%!important;width:33%!important;
   }
   #kinnaklova-world[data-ki-art="ready"] .ki-painted-reading.laria-wayfinder{
     left:57%!important;top:82.5%!important;width:36%!important;
+  }
+  /* These are genuine two-post landscape signs, not floating web buttons.
+     The original Words sign already includes its own painted posts. */
+  #kinnaklova-world[data-ki-art="ready"] :is(
+    .ki-painted-sentences.laria-wayfinder,
+    .ki-painted-reading.laria-wayfinder
+  )::after{
+    content:""!important;position:absolute!important;
+    left:19%!important;top:calc(100% - 5px)!important;
+    width:60%!important;height:clamp(18px,2.4dvh,29px)!important;
+    background:
+      linear-gradient(90deg,#784c27,#c18b4c 44%,#704421) 10% 0/11px 100% no-repeat,
+      linear-gradient(90deg,#704324,#bd874b 48%,#774a27) 82% 0/11px 100% no-repeat!important;
+    pointer-events:none!important;z-index:-1!important;
   }
   #kinnaklova-world[data-ki-art="ready"] .ki-painted-hit.laria-wayfinder{
     height:clamp(58px,6.1dvh,78px)!important;
