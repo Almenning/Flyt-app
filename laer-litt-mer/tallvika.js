@@ -178,7 +178,12 @@
     if (!button || !screen.contains(button)) return;
     const action = button.dataset.tv;
     if (action === 'back') { if (!window.LARIA_RETURN_TO_BASECAMP?.()) app()?.setTab?.('home'); }
-    if (action === 'choose') document.querySelector('#tallvika-world .tv-dialog:not(.tv-grade-dialog)')?.showModal();
+    if (action === 'choose') {
+      // One chooser for all four worlds; keep the legacy local dialog only
+      // as a safe fallback if the shared TrollActor runtime is unavailable.
+      if (window.LARIA_TROLL_ACTOR?.openChooser) window.LARIA_TROLL_ACTOR.openChooser();
+      else document.querySelector('#tallvika-world .tv-dialog:not(.tv-grade-dialog)')?.showModal();
+    }
     if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
     if (action === 'troll') {
       speechIndex=(speechIndex+1)%greetings.length;
@@ -219,6 +224,9 @@
     }
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
+  document.addEventListener('laria:troll-changed',()=>{
+    if(screen.classList.contains('active')&&screen.dataset.subject==='math')build();
+  });
   if (screen.classList.contains('active') && screen.dataset.subject === 'math') build();
   window.LARIA_TALLVIKA = {build,trolls,returnFromActivity};
 })();

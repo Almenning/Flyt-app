@@ -46,14 +46,10 @@ async function run(engine,engineName,label,viewport){
    const id=await actor.getAttribute('data-troll');
    assert.equal(id,'lillesoster',label+' '+spec.id+' switched original companion');
    await chooser.click();
-   const dialog=spec.id==='math'?
-      page.locator('#tallvika-world .tv-dialog:not(.tv-grade-dialog)[open]'):
-      page.locator('#laria-premium-troll-dialog[open]');
+   const dialog=page.locator('#laria-premium-troll-dialog[open]');
    await dialog.waitFor({state:'visible',timeout:10000});
-   if(spec.id!=='math'){
-    assert.equal(await dialog.locator('[data-troll-choice]').count(),3,label+' '+spec.id+' lacks original three choices');
-    assert.equal(await dialog.locator('[data-troll-choice="lillesoster"]').getAttribute('aria-pressed'),'true',label+' '+spec.id+' chooser lost selected character');
-   }
+   assert.equal(await dialog.locator('[data-troll-choice]').count(),3,label+' '+spec.id+' lacks original three choices');
+   assert.equal(await dialog.locator('[data-troll-choice="lillesoster"]').getAttribute('aria-pressed'),'true',label+' '+spec.id+' chooser lost selected character');
    if(spec.id==='norwegian'){
     await dialog.locator('[data-troll-choice="lillebror"]').click();
     await page.waitForFunction(()=>document.querySelector('#eggenipa-world .eg-companion-actor')?.dataset.troll==='lillebror',null,{timeout:10000});
@@ -63,8 +59,7 @@ async function run(engine,engineName,label,viewport){
     await d.waitFor({timeout:8000});await d.locator('[data-troll-choice="lillesoster"]').click();
     await page.waitForFunction(()=>document.querySelector('#eggenipa-world .eg-companion-actor')?.dataset.troll==='lillesoster',null,{timeout:10000});
     await d.waitFor({state:'hidden',timeout:6000});
-   }else if(spec.id==='math')await dialog.locator('.tv-dialog-close').click();
-   else await dialog.locator('.laria-troll-dialog-close').click();
+   }else await dialog.locator('.laria-troll-dialog-close').click();
    await dialog.waitFor({state:'hidden',timeout:8000});
    await fs.promises.mkdir(OUT,{recursive:true});
    await page.screenshot({path:path.join(OUT,engineName+'-'+label+'-'+spec.id+'.png'),fullPage:false,animations:'disabled'});

@@ -49,7 +49,15 @@ async function run(browserType,label,viewport){
     await page.locator('#tallvika-world [data-tv="grade"]').click();await page.locator('.tv-grade-dialog[open]').waitFor();await page.locator('[data-tv-grade="3"]').click();
     assert.deepEqual(await page.evaluate(()=>[window.LARIA_TALLVIKA_BRIDGE.currentGrade(),window.LARIA_TALLVIKA_BRIDGE.journeyViewGrade('math')]),[2,3],label+' grade picker changed profile grade');
     // Troll choice remains persisted for existing activity runtime without changing learning data.
-    await page.locator('#tallvika-world [data-tv="choose"]').click();await page.locator('.tv-dialog[open]').waitFor();await page.locator('[data-tv-troll="lillebror"]').click();
+    await page.locator('#tallvika-world [data-tv="choose"]').click();
+    const sharedPicker=page.locator('#laria-premium-troll-dialog[open]');
+    await sharedPicker.waitFor({state:'visible',timeout:10000});
+    assert.equal(await sharedPicker.locator('[data-troll-choice]').count(),3,
+      label+' common chooser has lost one of the three approved trolls');
+    await sharedPicker.locator('[data-troll-choice="lillebror"]').click();
+    await sharedPicker.waitFor({state:'hidden',timeout:8000});
+    await page.waitForFunction(()=>document.querySelector('#tallvika-world .tv-actor')?.dataset.trollId==='lillebror',
+      null,{timeout:10000});
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),'lillebror',label+' troll selection did not persist');
     assert.equal(await page.locator('#tallvika-world .tv-actor').getAttribute('data-troll-id'),'lillebror',label+' scene failed to display selected troll');
     assert.equal(await page.locator('#tallvika-world .tv-actor img').getAttribute('src'),'./assets/gangemagi-troll/lillebror.webp',label+' scene changed original character identity');
