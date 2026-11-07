@@ -171,3 +171,23 @@
     opacity:1!important;visibility:visible!important;pointer-events:none!important;
   }
 }
+
+
+/* Respect the home-indicator and display-cutout on real iPhone devices.
+   Keep sign positions independent from the child-safe touch insets. */
+@media (max-width:700px){
+  #tallvika-world .tv-actor{
+    bottom:max(3.5%,calc(env(safe-area-inset-bottom,0px) + 6px))!important;
+  }
+  #tallvika-world .tv-next-sign{
+    bottom:max(3%,calc(env(safe-area-inset-bottom,0px) + 6px))!important;
+  }
+}
+@media (orientation:landscape) and (max-height:500px){
+  #tallvika-world .tv-actor{
+    left:max(2%,calc(env(safe-area-inset-left,0px) + 6px))!important;
+  }
+  #tallvika-world .tv-next-sign{
+    right:max(2%,calc(env(safe-area-inset-right,0px) + 6px))!important;
+  }
+}

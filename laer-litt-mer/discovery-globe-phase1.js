@@ -1539,7 +1539,13 @@ const wait=()=>{
       pendingCompanion=true;
       requestAnimationFrame(()=>{
         pendingCompanion=false;
-        enhanceDiscoveryCountryCard();
+        // A late update from the shared globe can restore the previous
+        // country card AFTER its offscreen selection has been cleared.
+        // Keep the invitation and selection in sync without repainting
+        // the globe or touching the child's saved country progress.
+        if(window.__lariaDiscoveryGlobePreview===true&&!globeSelected)
+          renderDiscoveryWelcome();
+        else enhanceDiscoveryCountryCard();
         syncSelectorPosition();
         /* WebKit may finish the shared country-card mutation before this
            passive plugin sees the pointer registry clear. The mutation is

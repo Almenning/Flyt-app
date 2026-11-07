@@ -99,9 +99,13 @@
       // screen. Preserve the journey phase so "Tilbake" returns to the same
       // painted map, not to a landing overlay hiding the restored journey.
       // Navigating elsewhere (Home, Utforsk, another subject) resets it.
-      const childLearningScreen=['session-screen','complete-screen'].some(id=>
-        document.getElementById(id)?.classList.contains('active'));
-      if(!(phase==='journey'&&childLearningScreen))phase='landing';
+      // The screen switch is not atomic across Safari/Chromium. During
+      // session -> completion -> journey there may be one microtask where
+      // neither screen is active. Never mistake that for a fresh visit.
+      // Reset only once a DIFFERENT destination is actually active.
+      const elsewhere=[...document.querySelectorAll('.screen.active')]
+        .some(node=>!['geography-screen','session-screen','complete-screen'].includes(node.id));
+      if(phase!=='journey'||elsewhere)phase='landing';
       key='';
       if(screen.classList.contains('gv-visible'))screen.classList.remove('gv-visible');
       if(root){root.remove();root=null;}

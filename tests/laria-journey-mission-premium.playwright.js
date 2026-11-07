@@ -199,8 +199,13 @@ async function run(engine,label,viewport,url){
    assert.equal(await traveler.locator(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').count(),0,
      label+' '+subject+' fox wardrobe leaked onto troll');
    // The same DOM troll must also have visible, actual illustrated art.
-   const liveArt=traveler.locator(':scope > .locked-journey-troll-art');
+   // Real selected TrollActor may be a standalone image or the retained
+   // illustrated wrapper. Require actual visible pixels and approved art.
+   const liveArt=traveler.locator(':scope > img.laria-premium-troll-art, :scope > .locked-journey-troll-art').first();
    await liveArt.waitFor({state:'visible',timeout:5000});
+   const trollSrc=await traveler.locator('img[src*="gangemagi-troll"]').first().getAttribute('src');
+   assert.ok(trollSrc?.endsWith('/storesoster.webp'),
+     label+' '+subject+' selected companion must use the locked original');
    const visibleTroll=await liveArt.evaluate(el=>{
      const box=el.getBoundingClientRect(),style=getComputedStyle(el);
      return box.width>20&&box.height>20&&style.visibility!=='hidden'&&style.display!=='none'&&Number(style.opacity)>0;

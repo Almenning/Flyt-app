@@ -148,8 +148,19 @@ async function run(engine,label,viewport){
    const utility=world.locator('.ki-utility [data-ki="home"]');
    if(await utility.isVisible())await utility.click();
    else await world.locator('.ki-painted-home').click();
+   }else if(subject==='geography'){
+   // Nordlysleiren is the actual subject landing now. Follow the child's
+   // illustrated wooden sign to the original journey and return in two steps.
+   const landing=page.locator('#laria-geography-world:visible');
+   await landing.waitFor({timeout:16000});
+   await landing.locator('[data-gv="journey"]').click();
+   const back=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"] .locked-journey-back');
+   await back.waitFor({state:'visible',timeout:16000});
+   await back.click();
+   await landing.waitFor({timeout:16000});
+   await landing.locator('[data-gv="home"]').click();
    }else{
-   // Norsk and Geografi retain their approved painted journey maps.
+   // The former Bokskogen legacy map remains tested separately.
    const journeyBack=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await journeyBack.waitFor({state:'visible',timeout:16000});
    // Return from the actual painted mission, which is below the fold on

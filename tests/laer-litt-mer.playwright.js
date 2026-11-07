@@ -707,7 +707,10 @@ async function finishSession(page){
 
     // The same reading engine still starts real questions and records a
     // completed practice round, but must NOT overwrite journey nodes.
-    await eggenipa.locator('.eg-portal[data-eg="reading"]').click();
+    { const scene=eggenipa.locator('.eg-scene-reading:visible');
+      if(await scene.count())await scene.click();
+      else await eggenipa.locator('.eg-portal[data-eg="reading"]:visible').click();
+    }
     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
     const reading=await page.evaluate(()=>({
       type:sessionScope?.type,
@@ -1118,7 +1121,9 @@ async function finishSession(page){
     await page.locator('#geography-screen.active').waitFor();
 
     // Progress.
-    await page.locator('#geo-journey-map .locked-journey-back').click();
+    const geoLanding=page.locator('#laria-geography-world:visible');
+    await geoLanding.waitFor({timeout:16000});
+    await geoLanding.locator('[data-gv="home"]').click();
     await page.evaluate(()=>setTab('progress'));
     await page.locator('#progress-screen.active').waitFor();
     assert.equal(await page.locator('#subject-progress-grid .subject-progress-card').count(),4);
@@ -1126,9 +1131,12 @@ async function finishSession(page){
     // No tiny child-facing back/theme controls.
     await page.evaluate(()=>setTab('home'));
     await page.evaluate(()=>document.getElementById('open-geography').click());
-    const themeHeights=await page.locator('.geo-theme:visible').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    const landing=page.locator('#laria-geography-world:visible');
+    await landing.waitFor({timeout:16000});
+    const themeHeights=await landing.locator('.gv-sign').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    assert.equal(themeHeights.length,3,'Nordlysleiren must show three activities');
     assert.ok(themeHeights.every(h=>h>=44),`small geography touch target: ${themeHeights}`);
-    const backHeight=await page.locator('#geo-journey-map .locked-journey-back').evaluate(e=>e.getBoundingClientRect().height);
+    const backHeight=await landing.locator('[data-gv="home"]').evaluate(e=>e.getBoundingClientRect().height);
     assert.ok(backHeight>=44,`small back target: ${backHeight}`);
 
     // Prompt 11: all four subjects must render through the same premium task scene contract.
@@ -1140,7 +1148,13 @@ async function finishSession(page){
       }else if(subject==='english'){
         // Follow the live Kinnaklova portal, not the retired mixed English
         // shortcut that still preserves legacy chapter-journey behavior.
-        await page.locator('#subject-screen.active #kinnaklova-world .ki-card[data-ki="words"]').click();
+        const english=page.locator('#subject-screen.active #kinnaklova-world');
+        await english.waitFor({timeout:16000});
+        await page.waitForFunction(()=>['ready','missing','unapproved'].includes(
+          document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+        const paintedWords=english.locator('.ki-painted-words');
+        if(await paintedWords.isVisible())await paintedWords.click();
+        else await english.locator('.ki-card[data-ki="words"]:visible').click();
       }else{
         await page.evaluate(s=>startLearningSession(s,null,SUBJECTS[s]?.mission||'Blandet'),subject);
       }
