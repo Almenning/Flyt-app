@@ -227,7 +227,9 @@
     });
     doc.querySelectorAll('[aria-label*="rev" i]').forEach(el=>{
       const value=el.getAttribute('aria-label');
-      if(value)el.setAttribute('aria-label',value.replace(/reven|rev/gi,'trollet'));
+      // Replace only the retired character words. A raw /rev/ match also
+      // corrupts ordinary labels such as "Dyrevenner" in Ordjakt.
+      if(value)el.setAttribute('aria-label',value.replace(/\b(?:reven|rev)\b/gi,'trollet'));
     });
   }
 
