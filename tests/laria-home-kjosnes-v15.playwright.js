@@ -76,7 +76,9 @@ async function returnFromLockedJourney(page,screen,subject,label){
      ['words','find','reading'],label+' Norsk has not switched to direct learning activities');
    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
      label+' retired Bokskogen map unexpectedly visible');
-   await world.locator('.eg-portal[data-eg="reading"]').click();
+   { const painted=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  const entry=(await painted.count())?painted:page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible');
+  await entry.click(); }
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
    const learning=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
      question:sessionQuestions[qIndex]?.prompt}));
