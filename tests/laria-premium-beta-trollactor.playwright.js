@@ -344,6 +344,13 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
         label+' Eggenipa locked painting failed to decode '+JSON.stringify(artwork));
       await page.locator('#eggenipa-world .eg-art-pending').waitFor({state:'hidden',timeout:10000});
     }
+    if(spec.id==='english'){
+      // Kinnaklova is deliberately fail-closed until the checked clean master
+      // has decoded. Capture the real painted world, never its short loading
+      // state, so visual QA represents what the child actually receives.
+      await page.waitForFunction(()=>window.LARIA_KINNAKLOVA?.ready?.()===true,
+        null,{timeout:20000});
+    }
 
     const worldBox=await world.evaluate(el=>{
       const r=el.getBoundingClientRect();
