@@ -554,6 +554,9 @@
 #fraction-lab-screen .fr6-piece-tray .fr2-spare{
   border-color:#FAE7C2;background:linear-gradient(#FFF1D8,#E9B988);
   box-shadow:inset 0 2px 5px #FFF9E8,0 3px 0 #B98354;
+  /* Native touch panning cancels the pointer before a dragged piece reaches
+     the cake on 320px iPhones. Let the child's deliberate drag own this hit. */
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
 }
 #fraction-lab-screen .fr6-piece-tray .fr2-spare:active{transform:translateY(2px)}
 #fraction-lab-screen .fr6-empty-tray{
