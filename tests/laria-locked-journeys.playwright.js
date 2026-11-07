@@ -84,7 +84,7 @@ async function run(engine,label,viewport){
      assert.ok(await page.evaluate(()=>journeyModel('english',2).nodes.length)>0,
        label+' legacy English progress data must still exist');
      const journeyBefore=await page.evaluate(()=>JSON.stringify(state.journey?.nodes||{}));
-     await world.locator('.ki-card[data-ki="words"]').click();
+     await world.locator('.ki-painted-hit[data-ki="words"]:visible').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      assert.deepEqual(await page.evaluate(()=>({
        type:sessionScope?.type,subject:sessionScope?.subject,module:sessionScope?.module,
