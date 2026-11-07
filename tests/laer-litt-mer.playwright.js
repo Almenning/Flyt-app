@@ -2667,12 +2667,11 @@ async function finishSession(page){
     assert.equal(progressAfterIllustrations,progressBeforeIllustrations,'Prompt 12 illustration rendering changed learning progress');
     await page.locator('#close-session').click();
 
-    // Prompt 13: subjects retaining a fox must keep avatar identity and reactions,
-    // avoid covering the question/answers, and react briefly only after a correct answer.
-    async function assertPrompt13Fox(width,height,label){
+    // Prompt 13: the selected TrollActor must keep identity and reactions,
+    // avoid covering the question/answers, and react briefly after a correct answer.
+    async function assertPrompt13Troll(width,height,label){
       await page.setViewportSize({width,height});
       await page.evaluate(()=>{
-        state.profile.avatar='girl';saveState();
         sessionQuestions=[{
           subject:'english',skill:'vocabulary',type:'learning-choice',
           prompt:'Which word matches the picture?',answer:'cat',options:['cat','dog','house'],
@@ -2680,47 +2679,45 @@ async function finishSession(page){
         }];
         qIndex=0;currentAnswered=null;showScreen('session');renderQuestion();
       });
-      const fox=page.locator('.task-fox-companion');
-      assert.equal(await page.locator('#session-screen').getAttribute('data-task-fox-release'),'fox-rc1',label+' missing Prompt 13 fox release');
-      assert.equal(await fox.getAttribute('data-avatar'),'girl',label+' TaskScene fox did not follow saved avatar state');
-      const foxIsChosen=await fox.locator('img').evaluate(img=>
-        img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
-      assert.equal(foxIsChosen,true,label+' TaskScene fox must be the saved revejente');
+      const actor=page.locator('.task-fox-companion.laria-troll-host');
+      const art=actor.locator('img.laria-premium-troll-art');
+      await art.waitFor({state:'visible',timeout:12000});
+      assert.equal(await actor.getAttribute('data-troll'),await page.evaluate(()=>window.LARIA_TROLL_ACTOR.choice()),
+        label+' TaskScene TrollActor lost selected identity');
+      const actorIsChosen=await art.evaluate(img=>
+        img.getAttribute('src')===window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()));
+      assert.equal(actorIsChosen,true,label+' TaskScene must use the selected TrollActor');
       const layout=await page.evaluate(()=>{
         const rect=s=>document.querySelector(s)?.getBoundingClientRect();
         const f=rect('.task-fox-companion'),q=rect('.question'),a=rect('.task-interaction');
         const overlap=(x,y)=>!!x&&!!y&&Math.max(0,Math.min(x.right,y.right)-Math.max(x.left,y.left))*Math.max(0,Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top));
-        return {fox:{left:f.left,right:f.right,top:f.top,bottom:f.bottom},questionOverlap:overlap(f,q),answerOverlap:overlap(f,a),scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
+        return {actor:{left:f.left,right:f.right,top:f.top,bottom:f.bottom},questionOverlap:overlap(f,q),answerOverlap:overlap(f,a),scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
       });
-      assert.equal(layout.questionOverlap,0,label+' fox overlaps question text');
-      assert.equal(layout.answerOverlap,0,label+' fox overlaps answer controls');
-      assert.ok(layout.fox.left>=-1&&layout.fox.right<=width+1,label+' fox is cropped horizontally');
-      assert.ok(layout.scrollWidth<=layout.clientWidth,label+' fox creates horizontal overflow');
-      // The single personalised fox now reacts through LARIA_FOX_PRESENCE,
-      // not the retired fox-correct CSS class. Assert the visible companion's
-      // actual mood and that it settles without duplicating its artwork.
-      await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
+      assert.equal(layout.questionOverlap,0,label+' TrollActor overlaps question text');
+      assert.equal(layout.answerOverlap,0,label+' TrollActor overlaps answer controls');
+      assert.ok(layout.actor.left>=-1&&layout.actor.right<=width+1,label+' TrollActor is cropped horizontally');
+      assert.ok(layout.scrollWidth<=layout.clientWidth,label+' TrollActor creates horizontal overflow');
       const beforeCount=await page.evaluate(()=>state.answerLog.length);
       await page.locator('.answer[data-answer="cat"]').click();
       await page.waitForFunction(()=>
-        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaFoxMood==='celebrate',
+        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaTrollMood==='celebrate',
         null,{polling:25,timeout:1500});
-      assert.equal(await fox.getAttribute('data-laria-fox-mood'),'celebrate',
-        label+' selected fox did not celebrate the correct answer');
-      assert.equal(await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').count(),1,
-        label+' correct answer created a duplicate fox pose');
+      assert.equal(await actor.getAttribute('data-laria-troll-mood'),'celebrate',
+        label+' selected TrollActor did not celebrate the correct answer');
+      assert.equal(await actor.locator('img.laria-premium-troll-art').count(),1,
+        label+' correct answer created duplicate TrollActor art');
       const answerResult=await page.evaluate(()=>({count:state.answerLog.length,last:state.answerLog[state.answerLog.length-1]}));
       assert.equal(answerResult.count,beforeCount+1,label+' correct answer should create exactly one normal progress record');
       assert.equal(answerResult.last.correct,true,label+' correct answer progress record changed');
       await page.waitForFunction(()=>
-        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaFoxMood==='idle',
+        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaTrollMood==='idle',
         null,{polling:50,timeout:3000});
-      assert.equal(await fox.getAttribute('data-laria-fox-mood'),'idle',
-        label+' fox reaction did not settle');
+      assert.equal(await actor.getAttribute('data-laria-troll-mood'),'idle',
+        label+' TrollActor reaction did not settle');
       await page.locator('#close-session').click();
     }
-    await assertPrompt13Fox(390,844,'phone');
-    await assertPrompt13Fox(820,1180,'ipad-portrait');
+    await assertPrompt13Troll(390,844,'phone');
+    await assertPrompt13Troll(820,1180,'ipad-portrait');
     await page.evaluate(()=>{state.profile.avatar='boy';saveState()});
     await page.setViewportSize({width:390,height:844});
 
