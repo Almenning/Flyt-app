@@ -420,7 +420,7 @@
       q.answerLanguage==='nb'||/på norsk\??\s*$/i.test(prompt)?'nb':'en'
     ):'';
     const questionScene=inlineFox?
-      '<div class="task-prompt-fox-stage"><div class="question">'+text(prompt)+'</div>'+fox+'</div>':
+      '<div class="task-prompt-fox-stage"><div class="question"'+(directKinnaklova?' lang="'+promptLanguage+'"':'')+'>'+text(prompt)+'</div>'+fox+'</div>':
       readingStory
         ?passage+'<div class="question ki-reading-question" lang="en">'+text(prompt)+'</div>'+visualWithFox
         :'<div class="question"'+(directKinnaklova?' lang="'+promptLanguage+'"':'')+'>'+text(prompt)+'</div>'+passage+visualWithFox;
