@@ -67,13 +67,20 @@ async function run(engine,label,viewport,url){
      const original=await page.evaluate(()=>({
        journey:JSON.stringify(state.journey),avatar:state.profile.avatar,grade:state.profile.grade
      }));
-     await eg.locator('.eg-portal[data-eg="reading"]').click();
+     // Desktop/iPad use painted in-scene hit areas; portrait iPhones use
+     // the compact illustrated sign rail. Both must open the same lesson.
+     await eg.locator('.eg-scene-reading:visible, .eg-portal[data-eg="reading"]:visible').first().click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:14000});
      assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian');
      assert.equal(await page.evaluate(()=>sessionScope?.module),'reading');
      assert.ok(await page.evaluate(()=>sessionQuestions[qIndex]?.prompt),label+' reading task missing');
-     assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-       label+' legacy Norwegian fox appears in reading activity');
+     const lessonTroll=page.locator('#session-screen.active .task-fox-companion.task-troll-companion');
+     assert.equal(await lessonTroll.count(),1,label+' selected forest troll must accompany reading');
+     assert.match(await lessonTroll.locator('img').getAttribute('src'),
+       /gangemagi-troll\/(storesoster|lillesoster|lillebror)\.webp$/,
+       label+' reading companion must use forest troll art, not the retired fox');
+     assert.equal(await page.locator('#session-screen.active .task-fox-companion:not(.task-troll-companion)').count(),0,
+       label+' retired fox companion appears in reading activity');
      assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
        label+' Norwegian hint guide missing');
      if(process.env.MISSION_QA_SCREENSHOTS&&['webkit-iphone','webkit-ipad-landscape'].includes(label)){
