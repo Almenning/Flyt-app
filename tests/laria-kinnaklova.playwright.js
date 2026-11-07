@@ -26,9 +26,13 @@ async function visitEnglish(page){
  await page.locator('#subject-screen.active #kinnaklova-world').waitFor({state:'visible',timeout:16000});
 }
 async function takeActivity(page,action,label){
- const painted=page.locator('#kinnaklova-world .ki-painted-'+action+':visible');
- if(await painted.count())await painted.click();
- else await page.locator('#kinnaklova-world .ki-card[data-ki="'+action+'"]:visible').click();
+  // Artwork is asynchronous. Let the integrity gate settle before choosing
+  // painted controls; fallback cards only exist when the asset fails closed.
+  await page.waitForFunction(()=>['ready','missing','unapproved'].includes(
+    document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+  const painted=page.locator('#kinnaklova-world .ki-painted-'+action+':visible');
+  if(await painted.count())await painted.click();
+  else await page.locator('#kinnaklova-world .ki-card[data-ki="'+action+'"]:visible').click();
  await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
  const result=await page.evaluate(()=>({
    subject:sessionScope?.subject,module:sessionScope?.module,
