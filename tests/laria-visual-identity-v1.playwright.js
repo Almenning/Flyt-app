@@ -75,6 +75,15 @@ async function run(engine,name,layout,viewport){
      assert.ok(Number(frame.opacity)>.99,'Kinnaklova artwork still transparent after ready status');
      assert.ok(frame.rect.every(v=>v>200),'Kinnaklova image not occupying the scene');
    }
+   // Same real scene component in every subject: one semantic sign group,
+   // preserving exactly the existing action buttons, not cloned hotspots.
+   const shell=world.locator('.laria-scene-shell[data-laria-scene-component="v1"]');
+   assert.equal(await shell.count(),1,spec.id+' must mount the common scene component');
+   const sharedNav=shell.locator('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
+   assert.equal(await sharedNav.count(),1,spec.id+' needs exactly one semantic activity rail');
+   assert.equal(await sharedNav.locator('.laria-wayfinder[data-laria-component="sign"]').count(),3,
+     spec.id+' must not clone or lose activity actions during common-shell enhancement');
+   assert.match(await sharedNav.getAttribute('aria-label'),/Velg aktivitet i /);
    const back=world.locator(spec.home+':visible');
    const button=await back.evaluate(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return{
      width:r.width,height:r.height,image:s.backgroundImage,top:r.top,left:r.left,role:el.getAttribute('aria-label')
