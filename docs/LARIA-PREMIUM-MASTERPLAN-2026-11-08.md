@@ -1,6 +1,6 @@
 # LÆRIA – bindende masterplan for Premium Beta
-**Dato:** 8. november 2026  
-**Status:** Arbeidsgrunnlag. **Ingen Premium-godkjenning, merge eller publisering.**  
+**Dato:** 8. november 2026
+**Status:** Arbeidsgrunnlag. **Ingen Premium-godkjenning, merge eller publisering.**
 **Utførelse:** PR #243 i `Almenning/Flyt-app`. Fortsett på eksisterende gren, ingen parallell redesign eller ny PR.
 
 ## 1. Produktets formål og ambisjon
@@ -100,3 +100,7 @@ Disse er **status ved dokumentopprettelse**, ikke bekreftet komplette eller løs
 **Premium Beta er ikke ferdig** før den godkjente Grovanova-følelsen er gjennomført på alle fem inngangsscener, iPad begge veier er godkjent, trollene er levende og låste, samtlige kritiske læringsflyter fungerer, ingen synlig rev/legacy-doblinger gjenstår, mobil og desktop er kontrollert, regresjonstester er grønne og en reell barnetest er bestått.
 
 **Hovedregel:** *Barnet skal oppleve et sammenhengende eventyrunivers, ikke en samling versjoner. Forelderen skal kunne stole på det som skjer bak illustrasjonene.*
+
+## 7. Faktiske skjermbevis 8. november 2026
+
+Se [iPad liggende, visuell QA mot faktisk WebKit-skjerm](./LARIA-IPAD-LANDSCAPE-REAL-SCREEN-AUDIT-2026-11-08.md). Rapporten dokumenterer at Norsk, Matte og Geografi deler komponentfamilie, mens Grovanova og Kinnaklova fortsatt har åpne artblokker. Ingen Premium-godkjenning.
