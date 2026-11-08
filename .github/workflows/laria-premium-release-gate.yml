@@ -1,0 +1,26 @@
+name: "Læria Premium - release readiness"
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  release-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: Verify locked art, exact-SHA devices, progression and child beta
+        env:
+          LARIA_PR_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node tools/laria_release/release_gate.cjs
+      - name: Mark draft release BLOCKED until objective and human gates pass
+        if: failure()
+        run: |
+          echo "Læria Premium is **not release-ready**. See docs/LARIA-PREMIUM-RELEASE-STATE.json." >> "$GITHUB_STEP_SUMMARY"
+          echo "Never equate green code checks with visual product approval." >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "product": "Læria Premium Beta",
+  "targetPr": 243,
+  "release": "BLOCKED",
+  "principle": "Barn har lyst til å åpne Læria, foreldre har tillit.",
+  "art": {
+    "grovanova": {
+      "locked": "laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp",
+      "lockedSha256": "246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5",
+      "clean": null,
+      "cleanSha256": null,
+      "ownerApproved": false
+    },
+    "kinnaklova": {
+      "locked": "laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
+      "lockedSha256": "d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57",
+      "clean": null,
+      "cleanSha256": null,
+      "ownerApproved": false
+    }
+  },
+  "devices": {
+    "ipadLandscape": {
+      "prHead": null,
+      "actionsRun": null,
+      "chromiumAndWebkit": false,
+      "ownerApproved": false
+    },
+    "ipadPortrait": {
+      "prHead": null,
+      "actionsRun": null,
+      "chromiumAndWebkit": false,
+      "ownerApproved": false
+    },
+    "iphonePortrait": {
+      "prHead": null,
+      "actionsRun": null,
+      "chromiumAndWebkit": false,
+      "ownerApproved": false
+    },
+    "iphoneLandscape": {
+      "prHead": null,
+      "actionsRun": null,
+      "chromiumAndWebkit": false,
+      "ownerApproved": false
+    },
+    "desktop": {
+      "prHead": null,
+      "actionsRun": null,
+      "chromiumAndWebkit": false,
+      "ownerApproved": false
+    }
+  },
+  "regression": {
+    "greenOnPrHead": null
+  },
+  "childUsabilityTest": false,
+  "permission": {
+    "merge": false,
+    "publish": false
+  }
+}
