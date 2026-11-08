@@ -36,7 +36,8 @@ async function run(engine,name,layout,viewport){
     basecamp:document.querySelector('.bc12')?.className||null,
     lockedAsset:document.querySelector('.bc12')?.dataset.bc15Asset||null
    }));
-   error.message+='\nLæria first-paint diagnostic: '+JSON.stringify({boot,errors});
+   console.error('Læria first-paint diagnostic:',JSON.stringify({boot,errors}));
+   error.message+='\nLæria first-paint diagnostic was emitted above.';
    throw error;
   }
   await fs.promises.mkdir(OUT,{recursive:true});
