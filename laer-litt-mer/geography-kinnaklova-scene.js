@@ -40,6 +40,7 @@
         '<button type="button" class="gv-troll laria-troll-host laria-troll-actor" data-gv="troll" data-troll="'+id+'" data-laria-troll-mood="idle" aria-label="Snakk med trollet ditt i Nordlysleiren">'+
         '<img class="laria-premium-troll-art" src="'+safe(src)+'" alt="" aria-hidden="true" draggable="false"></button>'+
         '</div>';
+      window.LARIA_SCENE_UI?.enhance?.(root,'geography');
       requestAnimationFrame(()=>{
         const actor=root?.querySelector('.gv-troll');
         if(actor?.isConnected)window.LARIA_TROLL_ACTOR?.mood?.(actor,'wave',{say:false,duration:1050});
