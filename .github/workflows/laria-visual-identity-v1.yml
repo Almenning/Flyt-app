@@ -4,6 +4,14 @@ on:
     branches: [main]
     paths:
       - 'laer-litt-mer/laria-visual-identity-v1.css'
+      - 'laer-litt-mer/laria-sign-rail-v2.css'
+      - 'laer-litt-mer/laria-scene-ui-v1.js'
+      - 'laer-litt-mer/laria-troll-runtime-v1.css'
+      - 'laer-litt-mer/tallvika-fjord-v2.css'
+      - 'laer-litt-mer/eggenipa.css'
+      - 'laer-litt-mer/geography-kinnaklova-scene.css'
+      - 'laer-litt-mer/home-kjosnes-v15.css'
+      - 'laer-litt-mer/kinnaklova*.css'
       - 'laer-litt-mer/assets/ui/laria-light-arrow-sign.svg'
       - 'laer-litt-mer/assets/ui/laria-home-round.svg'
       - 'laer-litt-mer/index.html'
