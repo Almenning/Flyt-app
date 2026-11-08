@@ -76,18 +76,21 @@ test('legacy young Home override no longer competes with Basecamp v12',()=>{
   assert.match(basecamp,/--ink:var\(--laria-ink-soft/);
 });
 
-test('selected profile fox is wired through every active premium scene',()=>{
+test('Home shows approved troll and old profile adapters stay compatible',()=>{
   const html=read('index.html');
+  const home=read('home-basecamp-v12.js');
+  assert.match(home,/function selectedTrollSource\(\)/,'Home must select an approved troll');
+  assert.match(home,/return trolls\[id\]\|\|trolls\.storesoster;/,'Missing choice must default to Storesøster');
+  assert.doesNotMatch(home,/return trolls\[id\]\|\|window\.LARIA_FOX\.source/,'Retired fox may not appear on Home');
   assert.match(html,/<script src="\.\/profile-avatars\.js\?v=[^"]+" data-boot-sync><\/script>/);
 
   const checks={
-    'home-basecamp-v12.js':/function selectedFoxSource\(which\)/,
     'bokskogen-world.js':/function selectedProfileFox\(\)/,
     'journey-world-premium.js':/function selectedJourneyFox\(\)/,
     'globe-v25-renderer.js':/function selectedProfileFox\(\)/,
     'laria-task-scene-v15.js':/function foxSource\(\)/
   };
-  for(const [file,re] of Object.entries(checks))assert.match(read(file),re,file+' does not use profile fox chain');
+  for(const [file,re] of Object.entries(checks))assert.match(read(file),re,file+' changed a legacy profile adapter without migration');
   const bok=read('bokskogen-world.js');
   const premiumMarker=bok.indexOf('/* Bokskogen v10 — premium world-native renderer. */');
   const premiumWorld=bok.indexOf('function worldMarkup',premiumMarker);
