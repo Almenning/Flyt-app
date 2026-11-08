@@ -16,7 +16,7 @@ const worlds=[
 
 /* The board is composed from five screenshots of the actual running app.
    It is visual review evidence, not a mockup or premium certification. */
-async function writeIpadReviewBoard(context,engine,layout,viewport,shots){
+async function writeIpadReviewBoard(context,engine,layout,viewport,shots,homeArtFit){
  const tiles=[];
  for(const shot of shots){
   const png=await fs.promises.readFile(path.join(OUT,shot.file));
@@ -48,9 +48,12 @@ async function writeIpadReviewBoard(context,engine,layout,viewport,shots){
   'git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()}catch{return null}})();
  const report={status:'VISUAL_APPROVAL_REQUIRED',approved:false,
   origin:'Five actual app screenshots; no generated concepts or mockups',
-  head,engine,layout,viewport,screenshots:shots,
-  artBlockers:['Grovanova: old navigation baked into artwork',
-               'Kinnaklova: old navigation baked into artwork']};
+  head,engine,layout,viewport,screenshots:shots,homeArtFit,
+  artBlockers:[
+   ...(homeArtFit.topUnpaintedRatio>0.025?['Grovanova: visible unpainted upper band exceeds 2.5% of iPad screen']:[]),
+   'Grovanova: old activity cards/branding baked into approved master',
+   'Kinnaklova: old logo/three scattered signs baked into approved master'
+  ]};
  await fs.promises.writeFile(path.join(OUT,engine+'-'+layout+'-review.json'),
   JSON.stringify(report,null,2));
 }
@@ -94,6 +97,18 @@ async function run(engine,name,layout,viewport){
   }
   await fs.promises.mkdir(OUT,{recursive:true});
   await page.screenshot({path:path.join(OUT,name+'-'+layout+'-home.png'),animations:'disabled'});
+  // Record the actual uncovered region rather than mistaking the deliberate
+  // gradient safety fill for a continuous scenic composition.
+  const homeArtFit=await home.evaluate(el=>{
+   const style=getComputedStyle(el),box=el.getBoundingClientRect();
+   const top=Number.parseFloat(style.getPropertyValue('--bc15-art-top'))||0;
+   const height=Number.parseFloat(style.getPropertyValue('--bc15-art-height'))||box.height;
+   return {paintedImageTopPx:Number(top.toFixed(1)),
+    paintedImageHeightPx:Number(height.toFixed(1)),
+    screenHeightPx:Number(box.height.toFixed(1)),
+    topUnpaintedRatio:Number((top/box.height).toFixed(4)),
+    assetState:el.dataset.bc15Asset||null};
+  });
   const evidence=[{id:'home',label:'Hjem · Grovanova',file:name+'-'+layout+'-home.png'}];
   let expectedBrand=null,expectedPlate=null;
   for(const spec of worlds){
@@ -195,7 +210,7 @@ async function run(engine,name,layout,viewport){
    await home.waitFor({state:'visible',timeout:14000});
   }
   assert.deepEqual(errors,[],name+' '+layout+' browser exceptions');
-  if(layout==='ipad-landscape')await writeIpadReviewBoard(context,name,layout,viewport,evidence);
+  if(layout==='ipad-landscape')await writeIpadReviewBoard(context,name,layout,viewport,evidence,homeArtFit);
   await context.close();
   console.log('PASS shared logo/plank/post/Home components in real '+name+' '+layout+' app');
  }finally{await browser.close()}
