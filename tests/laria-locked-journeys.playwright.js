@@ -330,8 +330,28 @@ async function run(engine,label,viewport){
    const launched=await page.evaluate(()=>window.__lockedLaunch);
    assert.deepEqual(launched?.args,subject==='geography'?[selectedId,2]:[subject,selectedId,2],label+' existing mission ID and grade must survive');
    await page.screenshot({path:output+'/'+label+'-'+subject+'-test-geometry.png',fullPage:true});
-   await page.locator(base+' .locked-journey-back').click();
-   await page.locator('#home-screen.active').waitFor({timeout:16000});
+   // The long 941x1672 map uses a floating back control whenever the
+   // original painted/native back target has scrolled out of view. Verify the
+   // *visible* action, then require the real Home screen, not just a click.
+   const backAction=page.locator(base+' .locked-journey-back:visible, '+base+' .locked-journey-floating-back:visible').first();
+   await backAction.click();
+   try{
+    await page.locator('#home-screen.active').waitFor({timeout:16000});
+   }catch(error){
+    const diagnosis=await page.evaluate(()=>({
+     activeScreen:document.querySelector('.screen.active')?.id||null,
+     homeScreen:document.getElementById('home-screen')?.className||null,
+     geographyScreen:document.getElementById('geography-screen')?.className||null,
+     subjectScreen:document.getElementById('subject-screen')?.className||null,
+     origin:window.LARIA_BASECAMP_RETURN_VIEW?.()||null,
+     floatingBackHidden:document.querySelector('.screen.active .locked-journey-floating-back')?.hidden??null,
+     overlayOpen:!!document.querySelector('.screen.active .locked-journey-overlay:not([hidden])'),
+     visibleText:document.querySelector('.screen.active')?.textContent?.slice(0,260)||null
+    }));
+    await page.screenshot({path:output+'/'+label+'-'+subject+'-back-navigation-failure.png',fullPage:true});
+    error.message+='\\nReal-app back-navigation diagnostic: '+JSON.stringify(diagnosis);
+    throw error;
+   }
   }
   assert.deepEqual(errors,[],label+' page errors '+JSON.stringify(errors));
   console.log('[locked geometry]',label,JSON.stringify(viewport),'three original map worlds plus Tallvika, mission routing and progress persistence OK');
