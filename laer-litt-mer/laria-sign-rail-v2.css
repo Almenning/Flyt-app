@@ -38,16 +38,17 @@
   width:var(--rail-width)!important;
   transform:none!important
 }
-/* All three signs occupy the same ordered heights on each scene. */
+/* One compact vertical left sign cluster on each subject scene.
+   The landscape must not be used for scattered navigation. */
 #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="words"],
 #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="journey"],
-#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="multiply"]{top:34%!important}
+#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="multiply"]{top:35%!important}
 #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="find"],
 #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="globe"],
-#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="fraction"]{top:47%!important}
+#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="fraction"]{top:45%!important}
 #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="reading"],
 #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="country"],
-#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="table"]{top:60%!important}
+#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="table"]{top:55%!important}
 @media(orientation:portrait) and (max-width:1100px){
   :is(#eggenipa-world .eg-hero.laria-sign-rail-v2,
       #laria-geography-world .gv-scene.laria-sign-rail-v2,
@@ -60,10 +61,10 @@
   #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="multiply"]{top:37%!important}
   #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="find"],
   #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="globe"],
-  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="fraction"]{top:49%!important}
+  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="fraction"]{top:46%!important}
   #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="reading"],
   #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="country"],
-  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="table"]{top:61%!important}
+  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="table"]{top:55%!important}
 }
 @media(max-width:700px) and (orientation:portrait){
   :is(#eggenipa-world .eg-hero.laria-sign-rail-v2,

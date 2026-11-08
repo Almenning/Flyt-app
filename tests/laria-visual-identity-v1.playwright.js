@@ -171,8 +171,13 @@ async function run(engine,name,layout,viewport){
      for(const [i,b] of railBoxes.entries()){
        assert.ok(b.w>=44&&b.h>=44&&b.right<=viewport.width+2&&b.bottom<=viewport.height+2,
          spec.id+' sign '+i+' clipped or too small: '+JSON.stringify(railBoxes));
-       if(i)assert.ok(b.y>=railBoxes[i-1].bottom+5,
-         spec.id+' rail signs touch or overlap: '+JSON.stringify(railBoxes));
+       if(i){
+         const clearGap=b.y-railBoxes[i-1].bottom;
+         assert.ok(clearGap>=5,
+           spec.id+' rail signs touch or overlap: '+JSON.stringify(railBoxes));
+         if(layout.startsWith('ipad'))assert.ok(clearGap<=viewport.height*.065,
+           name+' '+layout+' '+spec.id+' signs are scattered rather than grouped: '+JSON.stringify(railBoxes));
+       }
      }
    }
    if(spec.brand){
