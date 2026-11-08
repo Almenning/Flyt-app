@@ -73,6 +73,7 @@
       '<nav class="eg-portals" aria-label="Velg en norskaktivitet">'+actions.map(portal).join('')+'</nav>'+
       (resume?'<section class="eg-resume" aria-label="Pågående norskøkt"><p>Du har en norskøkt du kan fortsette når du vil.</p>'+
         '<button type="button" data-eg="resume">Fortsett økten ›</button></section>':'');
+    window.LARIA_SCENE_UI?.enhance?.(root,'norwegian');
     const master=root.querySelector('.eg-master');
     const hero=root.querySelector('.eg-hero');
     if(master&&hero){
