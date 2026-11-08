@@ -34,8 +34,8 @@ test('all changed Gangemagi entry assets have distinct release URLs', () => {
     assert.equal(occurrences[0][1],releases[asset],asset+' must use the explicitly approved release key');
   }
   const activeCache=worker.match(/^const CACHE='([^']+)';/)[1];
-  assert.match(activeCache,/^laria-premium-20261108-network-first/,
-    'A concise new release cache must evict old cache-first builds');
+  assert.ok(activeCache.includes('pwa-network-first-20261108'),
+    'The upgraded service worker must evict every old cache-first release');
 });
 test('activation removes old Laria caches but preserves unrelated application caches', async () => {
   const active = worker.match(/^const CACHE='([^']+)';/)[1];
