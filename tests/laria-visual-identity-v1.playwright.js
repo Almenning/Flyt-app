@@ -18,8 +18,11 @@ async function run(engine,name,layout,viewport){
  try{
   const context=await browser.newContext({viewport,hasTouch:true,serviceWorkers:'block',reducedMotion:'reduce',deviceScaleFactor:1});
   await context.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
-  const page=await context.newPage(),errors=[];
-  page.on('pageerror',e=>errors.push(e.message));
+  const page=await context.newPage(),errors=[],consoleErrors=[];
+  page.on('pageerror',e=>errors.push(e.stack||e.message));
+  page.on('console',message=>{
+   if(message.type()==='error')consoleErrors.push({text:message.text(),location:message.location()});
+  });
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
@@ -36,7 +39,7 @@ async function run(engine,name,layout,viewport){
     basecamp:document.querySelector('.bc12')?.className||null,
     lockedAsset:document.querySelector('.bc12')?.dataset.bc15Asset||null
    }));
-   console.error('Læria first-paint diagnostic:',JSON.stringify({boot,errors}));
+   console.error('Læria first-paint diagnostic:',JSON.stringify({boot,errors,consoleErrors}));
    error.message+='\nLæria first-paint diagnostic was emitted above.';
    throw error;
   }
