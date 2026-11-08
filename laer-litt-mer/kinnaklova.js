@@ -142,6 +142,7 @@
       '<nav class="ki-actions" aria-label="Velg engelskaktivitet">'+ACTIONS.map(portal).join('')+'</nav>'+
       (resume?'<aside class="ki-resume" aria-label="Pågående Engelsk-økt"><p>Du har en engelskøkt du kan fortsette.</p>'+
         '<button type="button" data-ki="resume">Fortsett økten ›</button></aside>':'');
+    window.LARIA_SCENE_UI?.enhance?.(host,'english');
     const image=host.querySelector('.ki-master');
     image.addEventListener('load',()=>onArtStatus(image),{once:true});
     image.addEventListener('error',()=>onArtStatus(image),{once:true});
