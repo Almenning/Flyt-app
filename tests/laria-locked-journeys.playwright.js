@@ -336,6 +336,13 @@ async function run(engine,label,viewport){
    const backAction=page.locator(base+' .locked-journey-back:visible, '+base+' .locked-journey-floating-back:visible').first();
    await backAction.click();
    try{
+    // Geografireisen was opened from the Geografi landing. Back returns
+    // to that real illustrated subject scene; its round Home control then
+    // returns to Basecamp. Requiring a direct jump skipped a useful level.
+    if(subject==='geography'){
+     await page.locator('#geography-screen.active #laria-geography-world .gv-brand:visible').waitFor({timeout:16000});
+     await page.locator('#geography-screen.active #laria-geography-world .gv-home:visible').click();
+    }
     await page.locator('#home-screen.active').waitFor({timeout:16000});
    }catch(error){
     const diagnosis=await page.evaluate(()=>({
