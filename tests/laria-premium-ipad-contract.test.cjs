@@ -25,7 +25,7 @@ for(const phrase of [
   'iPad liggende først',
   'iPad stående deretter',
   'Ingen merge/publisering',
-  'Ingen iPhone-/PC-design',
+  'ingen videre iPhone-/PC-design',
   'TrollActor',
   'to-stolpede',
   'motstridende gamle CSS-regler'
