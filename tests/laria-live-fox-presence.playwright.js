@@ -63,7 +63,11 @@ async function run(engine,name,viewport,legacyAvatar){
   await traveler.waitFor({state:'attached',timeout:15000});
   assert.equal(await traveler.locator('.laria-fox-wardrobe-art,.laria-fox-wardrobe-placed').count(),
     0,name+' old fox wardrobe leaked into Geografireisen');
-  const realArt=traveler.locator('.locked-journey-troll-art img');
+  // The genuine journey renders the troll as a DIRECT child img. The old
+  // .locked-journey-troll-art wrapper was removed with the retired fox scene.
+  // Require the same selected original artwork on that actual DOM node.
+  const realArt=traveler.locator(':scope > img.laria-premium-troll-art');
+  await realArt.waitFor({state:'attached',timeout:15000});
   assert.match(await realArt.getAttribute('src'),/\/storesoster\.webp$/);
   const first=map.locator('.locked-journey-hotspot.state-current').first();
   await first.click();
