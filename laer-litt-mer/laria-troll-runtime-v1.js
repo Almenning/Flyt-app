@@ -169,13 +169,14 @@
     if(parent?.dataset){
       delete parent.dataset.lariaFoxMood;
       delete parent.dataset.lariaFoxSelected;
-      parent.dataset.troll=choice();
-      parent.classList.add('laria-troll-host','laria-troll-actor');
+      if(parent.dataset.troll!==choice())parent.dataset.troll=choice();
+      if(!parent.classList.contains('laria-troll-host'))parent.classList.add('laria-troll-host');
+      if(!parent.classList.contains('laria-troll-actor'))parent.classList.add('laria-troll-actor');
       if(!parent.dataset.lariaTrollMood)parent.dataset.lariaTrollMood='idle';
     }
     if(img?.dataset){
       delete img.dataset.lariaWardrobeSignature;
-      img.dataset.troll=choice();
+      if(img.dataset.troll!==choice())img.dataset.troll=choice();
     }
   }
 
@@ -196,7 +197,7 @@
     img.removeAttribute('srcset');
     img.alt='';
     img.setAttribute('aria-hidden','true');
-    img.classList.add('laria-premium-troll-art');
+    if(!img.classList.contains('laria-premium-troll-art'))img.classList.add('laria-premium-troll-art');
     // Legacy fox styles still contain !important visibility guards. Once this
     // node has become TrollActor art, runtime ownership is explicit.
     img.style.setProperty('visibility','visible','important');
@@ -230,7 +231,7 @@
   function syncLabels(){
     const troll=selected();
     doc.querySelectorAll('.locked-fox-label').forEach(el=>{
-      el.textContent=troll.label;
+      if(el.textContent!==troll.label)el.textContent=troll.label;
       el.classList.add('laria-troll-label');
     });
     doc.querySelectorAll('[aria-label*="rev" i]').forEach(el=>{
@@ -245,8 +246,10 @@
     queued=false;
     doc.querySelectorAll(IMAGE_SELECTORS).forEach(syncImage);
     syncLabels();
-    doc.documentElement.dataset.lariaTroll=choice();
-    doc.documentElement.style.setProperty('--laria-selected-troll','url("'+selected().src+'")');
+    if(doc.documentElement.dataset.lariaTroll!==choice())doc.documentElement.dataset.lariaTroll=choice();
+    const artUrl='url("'+selected().src+'")';
+    if(doc.documentElement.style.getPropertyValue('--laria-selected-troll')!==artUrl)
+      doc.documentElement.style.setProperty('--laria-selected-troll',artUrl);
     syncLegacyHomeCopy();
   }
   function refresh(){
