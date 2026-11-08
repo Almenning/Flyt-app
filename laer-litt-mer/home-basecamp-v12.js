@@ -34,14 +34,15 @@ function wordHuntThemeProgress(){
 }
 function wordHuntRounds(){return wordHuntThemeProgress().rounds}
 const young=()=>currentGrade()<=2;
-function selectedFoxSource(which){
+function selectedTrollSource(){
  const id=state?.profile?.tallvikaTroll;
  const trolls={
   storesoster:'./assets/gangemagi-troll/storesoster.webp',
   lillesoster:'./assets/gangemagi-troll/lillesoster.webp',
   lillebror:'./assets/gangemagi-troll/lillebror.webp'
  };
- return trolls[id]||window.LARIA_FOX.source(which);
+ // A new child has no stored troll yet. Never show the retired fox.
+ return trolls[id]||trolls.storesoster;
 }
 function activitySubject(scope,last){
  if(scope?.subject==='geography'||String(scope?.type||'').startsWith('geo')||['country','collection','world','grade','geography-theme'].includes(scope?.type))return 'geography';
@@ -302,7 +303,7 @@ function markup(){return '<section class="bc12" data-release="basecamp-rc1" aria
  '<div class="bc12-journey-route" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path class="bc12-route-edge" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path><path class="bc12-route-main" pathLength="100" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path><path class="bc12-route-progress" pathLength="100" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path></svg><span class="bc12-route-bridge"></span></div>'+
  '<div class="bc12-you-are-here" aria-hidden="true"><i></i><span>Du er her</span></div>'+
  '<div class="bc12-next-beacon" aria-hidden="true"><i></i><span>Neste sted</span></div>'+
- '<div class="bc12-fox"><img src="'+selectedFoxSource(window.LARIA_FOX.choice())+'" alt="Trollet ditt venter på stien" draggable="false"></div><button type="button" class="bc12-fox-call bc14-fox-open" data-camp="wardrobe" aria-label="Åpne Mine troll" data-camp-fox-call>Mine troll · Se trollet ditt ›</button>'+
+ '<div class="bc12-fox"><img src="'+selectedTrollSource()+'" alt="Trollet ditt venter på stien" draggable="false"></div><button type="button" class="bc12-fox-call bc14-fox-open" data-camp="wardrobe" aria-label="Åpne Mine troll" data-camp-fox-call>Mine troll · Se trollet ditt ›</button>'+
  '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em data-camp-next-type>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
  '<button type="button" class="bc14-free" data-camp="open-explore"><span class="bc14-free-icon" aria-hidden="true">✧</span><span><strong>Utforsk og lek</strong><small>Prøv det du liker</small></span><b aria-hidden="true">›</b></button>'+ '<button class="bc12-quest" data-camp="quest"><span class="bc12-wax" aria-hidden="true">✦</span><span>Et brev fra trollet<small>Vil du bli med?</small></span></button>'+
  '<button class="bc12-treasure" data-camp="collection"><span>Samlingen min</span></button>'+
@@ -358,7 +359,7 @@ function render(){
  const profile=(typeof state!=='undefined'&&state?.profile)?state.profile:{};
  const playerName=typeof profile.name==='string'?profile.name.trim():'';
  const playerAvatar=profile.avatar==='girl'?'girl':'boy';
- const fox=host.querySelector('.bc12-fox');if(fox){const trollId=profile.tallvikaTroll||'storesoster';fox.dataset.troll=trollId;fox.setAttribute('aria-label','Trollet ditt er med i Læria');const img=fox.querySelector('img');if(img){img.src=selectedFoxSource(playerAvatar);img.alt='Trollet ditt venter på stien'}}
+ const fox=host.querySelector('.bc12-fox');if(fox){const trollId=profile.tallvikaTroll||'storesoster';fox.dataset.troll=trollId;fox.setAttribute('aria-label','Trollet ditt er med i Læria');const img=fox.querySelector('img');if(img){img.src=selectedTrollSource();img.alt='Trollet ditt venter på stien'}}
  host.querySelector('h1').textContent=mode==='explore'?'Hva vil du leke med?':(playerName?'Hei, '+playerName+'!':'Hei, eventyrer!');
  host.querySelector('[data-camp-intro]').textContent=mode==='explore'?'Velg et sted. Bli så lenge du vil.':'Hva har du lyst til å gjøre i dag?';
  const questCopy=host.querySelector('.bc12-quest > span:nth-child(2)');
