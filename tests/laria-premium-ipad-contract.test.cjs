@@ -48,6 +48,11 @@ const kinnaklova=read('laer-litt-mer/kinnaklova.js');
 assert.match(kinnaklova,/APPROVED_ART_SHA256/,'Kinnaklova clean artwork must preserve its integrity gate');
 assert.match(kinnaklova,/laria-troll-actor/,'Kinnaklova must use live selected TrollActor');
 assert.match(read('laer-litt-mer/tallvika.js'),/laria-troll-actor/,'Tallvika must use live selected TrollActor');
+const homeJs=read('laer-litt-mer/home-basecamp-v12.js');
+assert.match(homeJs,/return trolls\[id\]\|\|trolls\.storesoster;/,
+  'New children must see approved Storesøster, not a retired fox fallback');
+assert.doesNotMatch(homeJs,/return trolls\[id\]\|\|window\.LARIA_FOX\.source/,
+  'Never expose a fox in Home when the child has not chosen a troll');
 assert.ok(fs.statSync(path.join(root,'laer-litt-mer/assets/tallvika/laria-tallvika-premium-locked-20261027.png')).size===3503795,
   'Do not replace original locked Tallvika artwork');
 console.log('PASS Læria locked premium iPad-first safety contract (NOT visual approval).');
