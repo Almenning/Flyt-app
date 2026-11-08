@@ -1,0 +1,41 @@
+/* Læria Sign Rail v2
+ * One spatial rule for all worlds that have a clean scene: the existing
+ * `laria-wayfinder` component is arranged as a calm left-hand landmark,
+ * rather than being independently scattered over each landscape.  The visual
+ * identity (plank, two posts, shadow, focus and press feedback) remains owned
+ * by laria-visual-identity-v1.css. */
+.laria-sign-rail-v2 .laria-wayfinder{--rail-left:4%;--rail-width:clamp(168px,20%,286px);left:var(--rail-left)!important;right:auto!important;width:var(--rail-width)!important}
+
+/* Equal vertical rhythm: the three signs remain in the same visual column
+ * on the clean Eggenipa and Nordlysleiren scenes. */
+#eggenipa-world .eg-scene-hit.laria-wayfinder[data-eg="words"],
+#laria-geography-world .gv-sign.laria-wayfinder[data-gv="journey"]{top:34%!important}
+#eggenipa-world .eg-scene-hit.laria-wayfinder[data-eg="find"],
+#laria-geography-world .gv-sign.laria-wayfinder[data-gv="globe"]{top:47%!important}
+#eggenipa-world .eg-scene-hit.laria-wayfinder[data-eg="reading"],
+#laria-geography-world .gv-sign.laria-wayfinder[data-gv="country"]{top:60%!important}
+
+/* Tallvika already uses one contiguous three-plank signpost. Keep it at the
+ * same shared anchor; this only removes per-breakpoint drift. */
+#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign-nav{left:3.7%!important;top:24.5%!important}
+
+@media (orientation:portrait) and (max-width:1100px){
+ .laria-sign-rail-v2 .laria-wayfinder{--rail-left:4%;--rail-width:clamp(162px,32%,254px)}
+ #eggenipa-world .eg-scene-hit.laria-wayfinder[data-eg="words"],
+ #laria-geography-world .gv-sign.laria-wayfinder[data-gv="journey"]{top:37%!important}
+ #eggenipa-world .eg-scene-hit.laria-wayfinder[data-eg="find"],
+ #laria-geography-world .gv-sign.laria-wayfinder[data-gv="globe"]{top:49%!important}
+ #eggenipa-world .eg-scene-hit.laria-wayfinder[data-eg="reading"],
+ #laria-geography-world .gv-sign.laria-wayfinder[data-gv="country"]{top:61%!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign-nav{left:3.2%!important;top:28.5%!important}
+}
+@media (orientation:landscape) and (max-height:500px){
+ .laria-sign-rail-v2 .laria-wayfinder{--rail-left:3%;--rail-width:clamp(138px,21%,194px)}
+ #eggenipa-world .eg-scene-hit.laria-wayfinder[data-eg="words"],
+ #laria-geography-world .gv-sign.laria-wayfinder[data-gv="journey"]{top:31%!important}
+ #eggenipa-world .eg-scene-hit.laria-wayfinder[data-eg="find"],
+ #laria-geography-world .gv-sign.laria-wayfinder[data-gv="globe"]{top:46%!important}
+ #eggenipa-world .eg-scene-hit.laria-wayfinder[data-eg="reading"],
+ #laria-geography-world .gv-sign.laria-wayfinder[data-gv="country"]{top:61%!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign-nav{left:3%!important;top:14%!important}
+}

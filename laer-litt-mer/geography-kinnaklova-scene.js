@@ -28,7 +28,7 @@
     if(key!==next||!root.firstElementChild){
       key=next;
       root.innerHTML=
-        '<div class="gv-scene" role="group" aria-label="Nordlysleiren med tre veier videre">'+
+        '<div class="gv-scene laria-sign-rail-v2" role="group" aria-label="Nordlysleiren med tre veier videre">'+
         '<img class="gv-landscape" src="'+ART+'" alt="Illustrert nordlyshimmel over norske fjell, fjord og eventyrleir" width="1024" height="704" draggable="false" loading="eager" decoding="async">'+
         '<button class="gv-home" type="button" data-gv="home" aria-label="Tilbake til Hjem">‹ Hjem</button>'+
         '<span class="gv-grade" aria-hidden="true">'+grade+'. klasse</span>'+

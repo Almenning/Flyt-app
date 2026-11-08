@@ -143,7 +143,7 @@
 
       <main class="tv-main">
         <div class="tv-stage">
-          <div class="tv-scene" data-tv-art="fjord-no-buildings-v2">
+          <div class="tv-scene laria-sign-rail-v2" data-tv-art="fjord-no-buildings-v2">
             <button type="button" class="tv-scene-home" data-tv="back" aria-label="Tilbake til Hjem">‹ Hjem</button>
             <button type="button" class="tv-scene-grade" data-tv="grade" aria-label="Velg klassetrinn">${grade}. klasse</button>
             <div class="tv-world-brand" aria-hidden="true"><strong>Læria</strong><span>Tallvika</span></div>
