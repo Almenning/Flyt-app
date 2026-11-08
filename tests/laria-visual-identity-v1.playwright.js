@@ -24,7 +24,21 @@ async function run(engine,name,layout,viewport){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
   const home=page.locator('#home-screen.active .bc12.bc15-locked-home');
-  await home.waitFor({state:'visible',timeout:24000});
+  try{
+   await home.waitFor({state:'visible',timeout:24000});
+  }catch(error){
+   // This is the first real-app checkpoint. Keep the diagnostic in the
+   // failure itself so a future first-paint regression is actionable rather
+   // than producing an empty screenshot artifact.
+   const boot=await page.evaluate(()=>({
+    ready:document.readyState,
+    homeMarkup:document.querySelector('#home-screen')?.innerHTML.slice(0,600),
+    basecamp:document.querySelector('.bc12')?.className||null,
+    lockedAsset:document.querySelector('.bc12')?.dataset.bc15Asset||null
+   }));
+   error.message+='\nLæria first-paint diagnostic: '+JSON.stringify({boot,errors});
+   throw error;
+  }
   await fs.promises.mkdir(OUT,{recursive:true});
   await page.screenshot({path:path.join(OUT,name+'-'+layout+'-home.png'),animations:'disabled'});
   let expectedBrand=null,expectedPlate=null;
