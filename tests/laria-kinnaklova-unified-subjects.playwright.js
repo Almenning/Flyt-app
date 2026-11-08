@@ -110,7 +110,24 @@ async function verify(type,name,width,height,url){
   await screenshot(page,tag+'-geografi');
   await page.locator('[data-gv="journey"]').click();
   await page.locator('#geography-screen.active .locked-journey-map:visible').waitFor({timeout:14000});
-  await page.locator('#geography-screen.active .locked-journey-back:visible').click();
+  // Long, scrollable journey illustrations legitimately substitute a fixed
+  // floating back button when the painted/native back arrow is off-screen.
+  // Exercise the actual visible navigation control rather than demanding one
+  // particular DOM implementation across viewport and browser engines.
+  const backControls=page.locator('#geography-screen.active .locked-journey-back:visible, #geography-screen.active .locked-journey-floating-back:visible');
+  const back=backControls.first();
+  try{await back.waitFor({state:'visible',timeout:12000});}
+  catch(error){
+   const diagnostics=await page.evaluate(()=>({
+    active:document.querySelector('.screen.active')?.id||null,
+    journeyActive:document.querySelector('#geography-screen')?.className||null,
+    nativeBack:document.querySelector('#geography-screen .locked-journey-back')?.getBoundingClientRect().toJSON()||null,
+    floatingBack:document.querySelector('#geography-screen .locked-journey-floating-back')?.outerHTML?.slice(0,250)||null
+   }));
+   error.message+='\\nGeography back-control diagnostic: '+JSON.stringify(diagnostics);
+   throw error;
+  }
+  await back.click();
   await page.locator('#laria-geography-world .gv-brand:visible').waitFor({timeout:12000});
   await page.locator('[data-gv="globe"]').click();
   await page.locator('#world-screen.active').waitFor({timeout:16000});
