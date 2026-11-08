@@ -271,7 +271,11 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   #tallvika-world .tv-scene-home,
   #tallvika-world .tv-scene-grade,
   #tallvika-world .tv-scene-choose{top:6px}
-  #tallvika-world .tv-actor{left:3%;bottom:1%;width:70px;height:30%}
+  /* Keep the one selected original troll to the right of the left sign rail.
+     At 852x393, the former left:3% overlaps the third activity sign by 15px.
+     Moving the actor (and its speech) avoids all three controls without
+     modifying the locked scene, sign geometry, identity or learning state. */
+  #tallvika-world .tv-actor{left:33%;bottom:1%;width:70px;height:30%}
   #tallvika-world .tv-actor-speech{font-size:10px;left:90%;top:-12%}
   #tallvika-world .tv-next-sign{right:2%;bottom:4%;min-height:44px;width:160px}
 }
