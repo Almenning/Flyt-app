@@ -142,7 +142,7 @@
   #tallvika-world .tv-sign-icon svg{width:20px!important;height:20px!important}
   #tallvika-world .tv-sign .tv-sign-label,#tallvika-world .tv-sign:nth-child(3) .tv-sign-label{font-size:12px!important}
   #tallvika-world .tv-sign::after{height:15px!important;width:8px!important}
-  #tallvika-world .tv-actor{left:2%!important;bottom:1%!important;width:70px!important;height:25%!important}
+  #tallvika-world .tv-actor{left:33%!important;bottom:1%!important;width:70px!important;height:25%!important}
   #tallvika-world .tv-actor-speech{left:83%!important;top:-16%!important;width:122px!important;font-size:9px!important}
   #tallvika-world .tv-next-sign{right:2%!important;bottom:3%!important;min-height:44px!important;width:155px!important;padding:4px 7px!important}
   #tallvika-world .tv-next-sign strong{font-size:12px!important}
@@ -184,8 +184,11 @@
   }
 }
 @media (orientation:landscape) and (max-height:500px){
+  /* The shared, left-aligned three-sign rail occupies the first ~24% of the
+     short iPhone landscape scene. Keep the selected troll and speech clear
+     of every sign, including the last important override in this file. */
   #tallvika-world .tv-actor{
-    left:max(2%,calc(env(safe-area-inset-left,0px) + 6px))!important;
+    left:max(33%,calc(env(safe-area-inset-left,0px) + 6px))!important;
   }
   #tallvika-world .tv-next-sign{
     right:max(2%,calc(env(safe-area-inset-right,0px) + 6px))!important;
