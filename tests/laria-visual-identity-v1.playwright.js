@@ -85,6 +85,26 @@ async function run(engine,name,layout,viewport){
    assert.match(button.role,/Hjem/,spec.id+' Home accessibility text missing');
    const signs=world.locator(spec.sign+':visible');
    assert.equal(await signs.count(),3,spec.id+' should have exactly three navigable scene signs');
+   if(spec.id!=='english'){
+     // Real rendered positions, not string matches on stylesheet source.
+     const railBoxes=await signs.evaluateAll(elements=>elements.map(el=>{
+       const r=el.getBoundingClientRect();
+       return {x:r.left,y:r.top,w:r.width,h:r.height,right:r.right,bottom:r.bottom};
+     }));
+     assert.equal(railBoxes.length,3,spec.id+' sign rail must have three physical signs');
+     const xSpread=Math.max(...railBoxes.map(b=>b.x))-Math.min(...railBoxes.map(b=>b.x));
+     const widthSpread=Math.max(...railBoxes.map(b=>b.w))-Math.min(...railBoxes.map(b=>b.w));
+     assert.ok(xSpread<=3,spec.id+' sign rail is scattered horizontally: '+JSON.stringify(railBoxes));
+     assert.ok(widthSpread<=3,spec.id+' signs vary in width: '+JSON.stringify(railBoxes));
+     assert.ok(railBoxes[0].x>=0&&railBoxes[0].x<viewport.width*.12,
+       spec.id+' sign rail is not anchored to the left');
+     for(const [i,b] of railBoxes.entries()){
+       assert.ok(b.w>=44&&b.h>=44&&b.right<=viewport.width+2&&b.bottom<=viewport.height+2,
+         spec.id+' sign '+i+' clipped or too small: '+JSON.stringify(railBoxes));
+       if(i)assert.ok(b.y>=railBoxes[i-1].bottom+5,
+         spec.id+' rail signs touch or overlap: '+JSON.stringify(railBoxes));
+     }
+   }
    if(spec.brand){
      const brand=await world.locator(spec.brand+':visible').evaluate(el=>{
        const s=getComputedStyle(el),t=getComputedStyle(el.querySelector('strong')),sub=getComputedStyle(el.querySelector('span'));
