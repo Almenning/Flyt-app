@@ -3,6 +3,19 @@
    keep their existing painted-sign touch targets until separate clean masters
    are approved. This file controls placement only; appearance and TrollActor
    remain owned by laria-visual-identity-v1.css and their scene modules. */
+/* Shared scene-ui's semantic navigation region is intentionally STATIC:
+   all three visible sign controls retain their existing absolute coordinates
+   relative to the subject scene, not a newly positioned wrapper. */
+.laria-scene-shell > nav.laria-scene-navigation:not(.tv-sign-nav){
+  display:block!important;position:static!important;
+  inset:auto!important;width:auto!important;height:auto!important;
+  padding:0!important;margin:0!important;border:0!important;
+  background:none!important;box-shadow:none!important;
+  pointer-events:none!important;
+}
+.laria-scene-shell > nav.laria-scene-navigation > .laria-wayfinder{
+  pointer-events:auto!important;
+}
 :is(#eggenipa-world .eg-hero.laria-sign-rail-v2,
     #laria-geography-world .gv-scene.laria-sign-rail-v2,
     #tallvika-world .tv-scene.laria-sign-rail-v2){
