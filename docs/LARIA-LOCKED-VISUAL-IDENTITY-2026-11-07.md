@@ -1,6 +1,6 @@
 # Læria – LÅST visuell identitet | 7. november 2026
 
-**Status:** Brukergodkjent designretning («lås»), 7. november 2026.
+**Status:** Brukergodkjent designretning («lås»), 7. november 2026. **Bindende gjennomføringsregler utvidet og låst 8. november 2026.**
 **Referanse:** Illustrert femskjerms-design vist i Læria-samtalen umiddelbart før godkjenningen (Hjem/Grovanova, Norsk/Eggenipa, Matte/Tallvika, Engelsk/Kinnaklova, Geografi/Nordlysleiren).
 **Omfang:** Felles visuell identitet for Hjem, alle fire fagforsider og gjenbrukbar navigasjon. Referansebildet er en konseptvisualisering, ikke skjermbilder fra ferdig app.
 
@@ -16,7 +16,7 @@
 - **To stolper** under hvert skilt; samme postbredder, avstand og farger. Komponentens bredde får skalere responsivt, men ikke endre formspråk.
 - Valgfrie aktivitetsikoner fra én fast ikonfamilie (samme strektykkelse, farge og plassering). Ingen vilkårlige emoji- eller ikonstiler.
 - Samme typografi, padding, knappetilstander og fokusmarkering på alle skjermer.
-- Skilt kan stå på ulike steder i hvert landskap, men må ikke dekke viktige landemerker, andre skilt, logoen, valgte troll eller hverandre.
+- **Én felles plasseringslogikk:** Skiltene står samlet som en rolig, venstrestilt gruppe i fagene med konsekvent rekkefølge, avstand, størrelsesregler og horisontal forankring. Aldri tilfeldig spredt i hvert landskap. Responsiv justering er tillatt bare for å bevare synlighet og romfølelse, ikke endre navigasjonsprinsippet. Skiltene må ikke dekke landemerker, logoen, valgt troll eller hverandre.
 - Navigasjon skal være ekte, tilgjengelige DOM-knapper; illustrasjonen er aldri eneste trykklogikk.
 - Ingen parallelle fagkort eller skjulte gamle kort som gir dobbelt navigasjon.
 
@@ -40,7 +40,7 @@
 - Karakteren skal ha en naturlig plass i forgrunnen uten å overlappe interaktive skilt.
 
 ## 6. Responsiv godkjenning
-- iPad er hovedreferanse; stående og liggende iPad skal føles som samme produkt.
+- **iPad først og iPad låses før mobil:** iPad liggende er første godkjenningsflate (1366 × 1024), deretter iPad stående (1024 × 1366). Alle fem skjermene skal være visuelt godkjent på begge før iPhone og PC/Mac optimaliseres. Unngå parallelle mobiljusteringer mens iPad-kontrakten fortsatt er åpen.
 - Deretter kontrolleres iPhone stående/liggende og desktop (PC/Mac). Ingen beige tomrom, kuttede titler, skilt ut av skjermen, duplikerte fjell/hus eller ujevne sceneskjøter.
 - All navigasjon og alle skilt har minst 44×44 px trykkflate, synlig tastaturfokus og korrekt etikett for skjermlesere.
 - Sjekk skjermbilder fra faktisk app i Chromium og WebKit ved samme PR-head som testene.
@@ -52,8 +52,37 @@
 3. Hvert skilt har samme form, trestil og **to stolper**; ingen konkurrerende innmalte gamle skilt.
 4. Hjem har bare ett system for fagvalg. Fagskiltene åpner riktig ekte aktivitet.
 5. Én av de tre originale, valgte TrollActor-karakterene vises uten å dekke skilt.
-6. Full QA på iPad stående/liggende, iPhone stående/liggende og desktop, inkludert regresjon for progresjon, WebKit og Chromium.
+6. Første godkjenning: full QA av fem skjermer på iPad stående og liggende i WebKit og Chromium, inkludert regresjon for navigasjon, trykkflater, valgt troll og progresjon. **Ingen iPhone-/desktop-tilpasning før eksplisitt iPad-godkjenning.** Senere kreves tilsvarende QA av iPhone og desktop.
 7. Ingen merge/publisering før faktiske bilder er visuelt kontrollert og nødvendige tester er grønne.
+
+## 8. Grovanova er den visuelle fasiten – ikke bare inspirasjon (LÅST 8. november)
+- Den allerede godkjente **Grovanova/Kjøsnesfjorden-forsiden** bestemmer lys, illustrasjonskvalitet, fargebruk, treskiltmateriale, tekststil, logoens formspråk, skygger og ro i komposisjonen. Fagene skal se ut som egne steder i *samme* univers.
+- Fagforsidene skal gjenbruke de **samme felles UI-ressursene/komponentene** for Læria-logo, runde Hjem-knapp og to-stolpede treskilt. «Ser omtrent likt ut» eller nye lokale etterligninger er ikke akseptabelt.
+- Det er bare aktiviteten og underteksten som får variere mellom fagene. Skiltform, stolper, typografi, funksjonell oppførsel og plasseringslogikk skal være identisk.
+- Hjem skal ha én aktiv navigasjonsvei til Norsk, Matte, Engelsk og Geografi. Ingen ekstra nederste fagkort eller separate menybokser. **Det kan ikke låses som premium hvis gamle konkurrerende menyer fortsatt vises.**
+
+## 9. Ett presentasjonslag, ikke fire eller fem forskjellige varianter (LÅST 8. november)
+- Innfør én gjenbrukbar fagside-/scene-kontrakt for Norsk, Matte, Engelsk og Geografi: *landskap + felles toppnavigasjon + felles venstrestilt skiltgruppe + valgt levende TrollActor*.
+- **En felles kilde til designvariabler og komponentstiler.** Fagmoduler kan angi landskap, aktivitetstekst, navigasjonshandlere og eventuelle tydelig dokumenterte landskapssikre posisjonsjusteringer. De skal ikke definere hvert sitt uavhengige skilt- eller logosystem.
+- Refaktorer og fjern motstridende gamle CSS-regler/overstyringer for de aktuelle fagsidene når felles løsning tar over. Ikke legg stadig et nytt «v3/v4/v5»-stilark øverst i bunken for å skjule de gamle feilene.
+- Bevar eksisterende faktisk funksjonalitet, læringsaktiviteter, interne ruter, historikk og lagret barneprogresjon. Dette er en ombygging av *presentasjonslaget*, ikke en ny læringsapp.
+- Der fagsider har gammel DOM-navigasjon for bakoverkompatibilitet, må den være fullstendig ikke-konkurrerende og utilgjengelig for tilfeldige trykk. **Ingen dobbelt navigasjon.**
+
+## 10. Skill ren illustrasjon fra interaktive elementer (LÅST 8. november)
+- Landskap, fjell, bygninger, natur og himmel er bakgrunnskunst. **Logo, skilt, funksjonelle knapper og troll er selvstendige, reelle UI-komponenter.**
+- Dersom et godkjent bilde har logo, skilt, aktivitetskort eller gamle troll malt inn, må dette håndteres gjennom en **kontrollert ren variant** som kun fjerner UI-maling; den originalt låste filen beholdes uendret.
+- Godkjente landemerker skal ikke regenereres, flyttes eller erstattes. En slik ren variant må visuelt sammenlignes mot originalen og godkjennes før bruk.
+- **Kinnaklova og Grovanova er åpne kunstblokker** inntil vi har ekte rene godkjente varianter. Ikke aksepter overlappende logoer, oppmalte skilt eller skjulte dobbelmenyer som en snarvei. Hvis dette ikke lar seg løse uten å skade originalmotivet, stopp og merk skjermen som blokkert.
+- De tre låste trollene, deres identitet, kilder og TrollActor-interaksjoner skal bevares. Valgt troll er én levende følgesvenn i forgrunnen, aldri en del av bakgrunnsbildet.
+
+## 11. Godkjenningsport: iPad Premium (LÅST 8. november)
+1. **iPad liggende først.** Ta ett reelt skjermbilde av Hjem, Norsk, Matte, Engelsk og Geografi, og vis dem samlet side om side. Riktig fjell, riktig originaltroll, felles logo/skilt, én menyrute per aktivitet og ingen synlige duplikater er påkrevd.
+2. **iPad stående deretter.** Ta de samme fem reelle bildene. Viktige landemerker må fortsatt være synlige uten kutt, duplisering eller tomme striper. Skiltgruppen skal fortsatt være samlet og intuitiv.
+3. Test faktisk navigasjon og oppdatert progresjon, alle trykkmål minst 44×44 CSS-piksler og interaksjon med valgt troll. Bruk WebKit og Chromium mot **samme commit** som skjermbildene.
+4. Kjør automatiske tester. **Grønn kildekontroll alene er ikke visuell godkjenning.** Dersom bildebasert QA avviker, stopper godkjenningen.
+5. Dokumenter konkrete mangler i PR #243. Ingen «ferdig Premium Beta», ingen merge/publisering og ingen videre iPhone-/PC-design før iPad er eksplisitt gjennomgått og godkjent av brukeren.
+
+**Styrende prinsipp:** Hjem er designfasiten. *Landskapene skal variere, navigasjonen skal ikke variere.* Én visuell komponentarkitektur og ferdigstilt iPad før nye skjermstørrelser.
 
 ### Låst versus ikke implementert
 **Designretningen er godkjent.** Dette dokumentet er ikke en påstand om at alle nåværende skjermer allerede oppfyller den. Gjennomføringen i PR #243 skal vurderes mot kravene over; dokumentet er ikke en tillatelse til å regenerere godkjente landskap eller bytte karakterer.
