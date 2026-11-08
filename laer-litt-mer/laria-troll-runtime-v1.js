@@ -181,10 +181,18 @@
 
   function syncImage(img){
     if(!img||!img.isConnected)return;
-    if(img.closest('#home-screen .bc15-locked-home'))return;
     const troll=selected(),parent=img.parentElement;
+    // The Home master is byte-locked. Change the separate DOM companion only,
+    // never paint or overwrite anything into the original landscape.
+    if(img.closest('#home-screen .bc15-locked-home')){
+      if(img.getAttribute('src')!==troll.src)img.setAttribute('src',troll.src);
+      img.dataset.troll=troll.id;
+      return;
+    }
     cleanLegacy(parent,img);
-    img.src=troll.src;
+    // Reassigning an already identical src triggers the MutationObserver again
+    // in WebKit. Avoid unbounded redraws and unnecessary WebP decodes on iPad.
+    if(img.getAttribute('src')!==troll.src)img.setAttribute('src',troll.src);
     img.removeAttribute('srcset');
     img.alt='';
     img.setAttribute('aria-hidden','true');
