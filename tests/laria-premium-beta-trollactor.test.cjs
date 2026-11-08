@@ -37,8 +37,12 @@ assert.match(runtime,/const MOODS=new Set\(\['idle','wave','walking','think','hi
   'TrollActor reaction vocabulary changed');
 assert.match(runtime,/profile\(\)\?\.tallvikaTroll/,'Selected troll must come from the persisted profile');
 assert.match(runtime,/\.bc12-fox > img/,'Legacy Home fox must migrate outside locked Grovanova');
-assert.match(runtime,/if\(img\.closest\('#home-screen \.bc15-locked-home'\)\)return;/,
-  'Locked Grovanova must be explicitly protected from injected companions');
+assert.match(runtime,/if\(img\.closest\('#home-screen \.bc15-locked-home'\)\)/,
+  'Locked Grovanova must have an explicit DOM-only companion branch');
+assert.match(runtime,/if\(img\.getAttribute\('src'\)!==troll\.src\)img\.setAttribute\('src',troll\.src\);/,
+  'Grovanova companion may update only its separate DOM image');
+assert.match(css,/#home-screen \.bc15-locked-home \.laria-troll-host\{display:none!important\}/,
+  'Locked Grovanova must never receive a second overlaid actor before clean art approval');
 assert.match(runtime,/laria-troll-speech/,'Living companion must own contextual speech');
 assert.match(runtime,/Mine troll/,'Legacy Min rev entry must migrate to Mine troll');
 assert.match(runtime,/\\b\(\?:reven\|rev\)\\b/,'Troll migration may only replace whole legacy fox words');
