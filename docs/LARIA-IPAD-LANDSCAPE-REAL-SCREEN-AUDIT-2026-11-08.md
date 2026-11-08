@@ -25,6 +25,9 @@
 ## Teknisk rotårsak: Engelsk
 `kinnaklova-ipad-fullscene-v1.css` bruker skilt som er innmalt i en byte-låst panorama-master og transparente DOM-trefflater. De kan ikke flyttes til felles venstremeny med CSS alene uten synlige gamle skilt i landskapet. **Ikke improviser med dobbelte skilt eller tildekking.**
 
+## Kontroll av eksisterende Kinnaklova-handoff
+Den eksisterende Actions-artefakten `kinnaklova-artist-handoff` (ID 13613946368) er kontrollert. `handoff.json` beskriver en **ikke-godkjent forhåndsvisning** for lokal fjerning av feilaktige troll, med beskyttelse av de tre **innmalte** Words/Sentences/Reading-skiltene. Denne masken løser **ikke** låst krav om felles, venstrestilt to-stolpe-navigasjon. Handoff kan ikke forveksles med en ren, godkjent Kinnaklova-kunstfil. Ingen grafisk kildefil er endret.
+
 ## Godkjenningsrekkefølge
 1. **iPad liggende, fem skjermer:** Rens artfiler der det er nødvendig (uten å endre originalenes byte/hashes) og vis fem nye reelle WebKit/Chromium-bilder mot Grovanova-fasiten. Ingen «premium godkjent» før de er kontrollert av produkteier.
 2. **iPad stående:** Samme fem skjermer, deretter separat kunst-/responsivevaluering. Ingen iPhone/desktop-redesign før begge iPad-visninger er godkjent.
