@@ -68,6 +68,7 @@ async function run(engine,label,viewport,avatar){
    CHOICES,label+' chooser contains an unapproved character');
   await dialog.locator('[data-troll-choice="lillebror"]').click();
   await page.waitForFunction(()=>state.profile.tallvikaTroll==='lillebror',null,{timeout:12000});
+  await dialog.waitFor({state:'hidden',timeout:12000});
   assert.equal(await page.evaluate(()=>JSON.stringify({
    mastery:state.mastery,skillMastery:state.skillMastery,
    journey:state.journey,answerLog:state.answerLog
