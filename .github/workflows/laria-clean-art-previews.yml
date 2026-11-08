@@ -1,0 +1,40 @@
+name: "Læria clean-art candidates - review only"
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/laria_art/**"
+      - ".github/workflows/laria-clean-art-previews.yml"
+      - "docs/LARIA-CLEAN-ART-REVIEW-2026-11-08.md"
+permissions:
+  contents: read
+concurrency:
+  group: laria-art-preview-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  art-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install image comparison dependencies
+        run: python -m pip install "Pillow>=11,<13" "numpy>=2,<3" "opencv-python-headless>=4.10,<5"
+      - name: Validate source and pixel-guarded generator
+        run: |
+          python -m py_compile tools/laria_art/prepare_clean_art_previews.py
+          python tools/laria_art/prepare_clean_art_previews.py --self-test
+      - name: Generate non-approved previews from exact locked original files
+        run: python tools/laria_art/prepare_clean_art_previews.py --output-dir /tmp/laria-art-preview
+      - name: Upload image candidates and pixel-integrity report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-art-preview-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-art-preview
+          retention-days: 14
+          if-no-files-found: error
