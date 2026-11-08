@@ -35,7 +35,7 @@ async function writeIpadReviewBoard(context,engine,layout,viewport,shots,homeArt
    'figcaption{padding:7px 10px;font-size:16px;font-weight:bold}',
    'img{display:block;width:100%;height:auto}',
    'footer{font-size:14px;padding:6px 18px 12px}',
-   '</style></head><body><header>Læria · iPad liggende · '+engine+' · 1366 × 1024</header>',
+   '</style></head><body><header>Læria · iPad '+(layout==='ipad-portrait'?'stående':'liggende')+' · '+engine+' · '+viewport.width+' × '+viewport.height+'</header>',
    '<main>',tiles.join(''),'</main>',
    '<footer>Fem faktiske appskjermbilder. Krever visuell godkjenning. Ikke premiumgodkjent.</footer>',
    '</body></html>'
@@ -54,6 +54,7 @@ async function writeIpadReviewBoard(context,engine,layout,viewport,shots,homeArt
   head,engine,layout,viewport,screenshots:shots,homeArtFit,
   artBlockers:[
    ...(homeArtFit.topUnpaintedRatio>0.025?['Grovanova: visible unpainted upper band exceeds 2.5% of iPad screen']:[]),
+   ...(homeArtFit.leftUnpaintedRatio>0.025||homeArtFit.rightUnpaintedRatio>0.025?['Grovanova: visible unpainted side gutters exceed 2.5% of iPad screen']:[]),
    'Grovanova: old activity cards/branding baked into approved master',
    'Kinnaklova: old logo/three scattered signs baked into approved master'
   ]};
@@ -106,7 +107,14 @@ async function run(engine,name,layout,viewport){
    const style=getComputedStyle(el),box=el.getBoundingClientRect();
    const top=Number.parseFloat(style.getPropertyValue('--bc15-art-top'))||0;
    const height=Number.parseFloat(style.getPropertyValue('--bc15-art-height'))||box.height;
-   return {paintedImageTopPx:Number(top.toFixed(1)),
+   const left=Number.parseFloat(style.getPropertyValue('--bc15-art-left'))||0;
+   const width=Number.parseFloat(style.getPropertyValue('--bc15-art-width'))||box.width;
+   const right=Math.max(0,box.width-left-width);
+   return {paintedImageLeftPx:Number(left.toFixed(1)),
+    paintedImageRightGapPx:Number(right.toFixed(1)),
+    leftUnpaintedRatio:Number((left/box.width).toFixed(4)),
+    rightUnpaintedRatio:Number((right/box.width).toFixed(4)),
+    paintedImageTopPx:Number(top.toFixed(1)),
     paintedImageHeightPx:Number(height.toFixed(1)),
     screenHeightPx:Number(box.height.toFixed(1)),
     topUnpaintedRatio:Number((top/box.height).toFixed(4)),
@@ -218,7 +226,8 @@ async function run(engine,name,layout,viewport){
    await home.waitFor({state:'visible',timeout:14000});
   }
   assert.deepEqual(errors,[],name+' '+layout+' browser exceptions');
-  if(layout==='ipad-landscape')await writeIpadReviewBoard(context,name,layout,viewport,evidence,homeArtFit);
+  if(layout==='ipad-landscape'||layout==='ipad-portrait')
+   await writeIpadReviewBoard(context,name,layout,viewport,evidence,homeArtFit);
   await context.close();
   console.log('PASS shared logo/plank/post/Home components in real '+name+' '+layout+' app');
  }finally{await browser.close()}
