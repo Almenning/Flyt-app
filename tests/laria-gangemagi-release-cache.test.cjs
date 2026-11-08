@@ -34,14 +34,8 @@ test('all changed Gangemagi entry assets have distinct release URLs', () => {
     assert.equal(occurrences[0][1],releases[asset],asset+' must use the explicitly approved release key');
   }
   const activeCache=worker.match(/^const CACHE='([^']+)';/)[1];
-  assert.ok(activeCache.includes(suffix),'Gangemagi cache release segment must be retained');
-  // Preserve both already-published Tallvika assets and the newly approved
-  // Kinnaklova art cache revision. The previous exact-suffix assertion became
-  // stale as soon as the clean Kinnaklova master was added.
-  assert.ok(activeCache.includes('-storybookcss2-tallvika-main-sync1'),
-    'Tallvika and Kinnaklova integration cache segment must remain present');
-  assert.ok(activeCache.includes('-kinnaklova-cleanart1'),
-    'Clean Kinnaklova art cache release key must be retained when later releases are appended');
+  assert.match(activeCache,/^laria-premium-20261108-network-first/,
+    'A concise new release cache must evict old cache-first builds');
 });
 test('activation removes old Laria caches but preserves unrelated application caches', async () => {
   const active = worker.match(/^const CACHE='([^']+)';/)[1];
@@ -53,21 +47,64 @@ test('activation removes old Laria caches but preserves unrelated application ca
   await completion;
   assert.deepEqual(removed.sort(),['laer-litt-mer-old','laria-old']);
 });
-test('a stale cached stylesheet cannot satisfy the new release request', async () => {
-  const oldURL = 'https://example.test/laer-litt-mer/multiplication-gangemagi-v1.css?v=20261017-livegroups1';
-  const newURL = 'https://example.test/laer-litt-mer/multiplication-gangemagi-v1.css?v='+version;
-  const stale = {marker:'old-css'};
-  const fresh = {ok:true,marker:'new-css',clone(){return this;}};
-  const stored = new Map([[oldURL,stale]]), fetched = [];
-  const events = workerHarness({match:async req=>stored.get(req.url),
-    open:async()=>({put:async(req,response)=>{stored.set(req.url,response);}})},async req=>{fetched.push(req.url);return fresh;});
-  const request = {method:'GET',mode:'cors',url:newURL};
+test('installed Læria fetches fresh CSS even when the cache URL has NOT changed',async()=>{
+  const url='https://example.test/laer-litt-mer/tallvika-fjord-v2.css?v=20261107-fjord-clean-signs1';
+  const old={ok:true,text:'old CSS',clone(){return this;}};
+  const fresh={ok:true,text:'corrected CSS',clone(){return this;}};
+  const stored=new Map([[url,old]]);
+  let offline=false,networkCalls=0;
+  const events=workerHarness({
+    match:async req=>stored.get(req.url||req),
+    open:async()=>({put:async(req,response)=>stored.set(req.url||req,response)})
+  },async(req,opts)=>{
+    networkCalls++;
+    assert.equal(opts?.cache,'no-store','Stylesheets must bypass stale HTTP caches');
+    if(offline)throw Error('offline');
+    return fresh;
+  });
+  const request={method:'GET',mode:'cors',url};
   let response;
-  events.get('fetch')({request,respondWith:promise=>{response=promise;}});
-  assert.equal(await response,fresh);
-  assert.deepEqual(fetched,[newURL]);
-  assert.equal(stored.get(oldURL),stale);
-  events.get('fetch')({request,respondWith:promise=>{response=promise;}});
-  assert.equal(await response,fresh,'the new asset remains available from cache');
-  assert.equal(fetched.length,1,'repeat/offline reads use the new cached response');
+  events.get('fetch')({request,respondWith:p=>{response=p;}});
+  assert.equal(await response,fresh,'The network CSS must win over a stale cached copy');
+  assert.equal(stored.get(url),fresh,'Online CSS must refresh the offline cache');
+  offline=true;
+  events.get('fetch')({request,respondWith:p=>{response=p;}});
+  assert.equal(await response,fresh,'Offline must retain the last verified good CSS');
+  assert.equal(networkCalls,2,'An installed Læria must check for updates on each use');
+});
+test('scripts are network-first while immutable art remains cache-first',async()=>{
+  const script='https://example.test/laer-litt-mer/tallvika.js?v=unchanged';
+  const image='https://example.test/laer-litt-mer/assets/tallvika/locked-scene.webp';
+  const staleScript={ok:true,id:'old-script',clone(){return this;}};
+  const freshScript={ok:true,id:'new-script',clone(){return this;}};
+  const art={ok:true,id:'locked-art',clone(){return this;}};
+  const stored=new Map([[script,staleScript],[image,art]]),calls=[];
+  const events=workerHarness({
+    match:async req=>stored.get(req.url||req),
+    open:async()=>({put:async(req,res)=>stored.set(req.url||req,res)})
+  },async req=>{calls.push(req.url);return freshScript;});
+  const request=url=>({url,method:'GET',mode:'cors'});
+  let res;
+  events.get('fetch')({request:request(script),respondWith:p=>{res=p;}});
+  assert.equal(await res,freshScript);
+  events.get('fetch')({request:request(image),respondWith:p=>{res=p;}});
+  assert.equal(await res,art);
+  assert.deepEqual(calls,[script],'Locked versioned imagery must not refetch on every view');
+});
+test('navigation refreshes online and restores the last good page offline',async()=>{
+  const url='https://example.test/laer-litt-mer/?app=laria';
+  const last={ok:true,id:'new-home',clone(){return this;}};
+  const stored=new Map();
+  let offline=false;
+  const events=workerHarness({
+    match:async req=>stored.get(req.url||req),
+    open:async()=>({put:async(req,res)=>stored.set(req.url||req,res)})
+  },async req=>{if(offline)throw Error('no network');return last;});
+  let res;
+  const request={method:'GET',mode:'navigate',url};
+  events.get('fetch')({request,respondWith:p=>{res=p;}});
+  assert.equal(await res,last);
+  offline=true;
+  events.get('fetch')({request,respondWith:p=>{res=p;}});
+  assert.equal(await res,last,'Installed Læria should reopen after connection loss');
 });
