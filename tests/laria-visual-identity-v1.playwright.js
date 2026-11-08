@@ -17,6 +17,12 @@ async function run(engine,name,layout,viewport){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
   const context=await browser.newContext({viewport,hasTouch:true,serviceWorkers:'block',reducedMotion:'reduce',deviceScaleFactor:1});
+  await context.addInitScript(()=>{
+   window.__lariaBootErrors=[];
+   window.addEventListener('error',event=>window.__lariaBootErrors.push({
+    message:event.message,filename:event.filename,line:event.lineno,column:event.colno
+   }),true);
+  });
   await context.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   const page=await context.newPage(),errors=[],consoleErrors=[];
   page.on('pageerror',e=>errors.push(e.stack||e.message));
@@ -39,7 +45,8 @@ async function run(engine,name,layout,viewport){
     basecamp:document.querySelector('.bc12')?.className||null,
     lockedAsset:document.querySelector('.bc12')?.dataset.bc15Asset||null
    }));
-   console.error('Læria first-paint diagnostic:',JSON.stringify({boot,errors,consoleErrors}));
+   const browserBootErrors=await page.evaluate(()=>window.__lariaBootErrors||[]);
+   console.error('Læria first-paint diagnostic:',JSON.stringify({boot,errors,consoleErrors,browserBootErrors}));
    error.message+='\nLæria first-paint diagnostic was emitted above.';
    throw error;
   }
