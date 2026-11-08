@@ -17,21 +17,22 @@ LOCKED={
   "blob":"e7869dae62639d12d87cbdb43d79850998fb3d7d",
   "size":(1127,681),
   "ui":{
-   "logo":(4,15,287,151),
-   "top-buttons":(835,10,1126,113),
-   "left-painted-signs":(2,185,187,403),
-   "next-journey":(0,505,350,658),
-   "bottom-cards":(350,515,1126,680),
-   "decorative-trolls":(255,400,520,605),
+   "logo-and-greeting":(4,15,333,217),
+   "top-buttons":(790,7,1126,147),
+   "left-painted-signs":(0,188,248,430),
+   "next-journey":(0,505,398,661),
+   "bottom-cards":(375,457,1126,680),
+   "decorative-trolls":(230,235,635,495),
   },
-  "landmarks":{"Grovanova-fjord":(540,147,830,484)},
+  "landmarks":{"Grovanova-fjord":(690,160,960,455)},
  },
  "kinnaklova":{
   "file":"laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
   "sha256":"d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57",
   "size":(1672,941),
   "ui":{
-   "painted-logo-and-title":(20,4,770,233),
+   "painted-top-breadcrumb":(0,15,420,130),
+   "painted-logo-and-title":(525,0,1190,315),
    "words":(377,693,692,817),
    "sentences":(1037,458,1320,571),
    "reading":(1341,655,1645,759),
@@ -114,7 +115,7 @@ def comparison(original,changed,world,kind):
 
 def run(dest):
  dest.mkdir(parents=True,exist_ok=True)
- report={"status":"PREVIEW_ONLY_NOT_APPROVED","merge_or_release_approval":False,
+ report={"status":"PREVIEW_ONLY_NOT_APPROVED","merge_or_release_approval":False,"requires_human_art_review":True,
          "no_live_app_asset_changed":True,"scenes":{}}
  for world,spec in LOCKED.items():
   image,raw=source(world)
@@ -124,7 +125,7 @@ def run(dest):
   scene={"original_sha256":hashlib.sha256(raw).hexdigest(),
          "original_file":spec["file"],"size":list(spec["size"]),
          "protected_landmarks":spec["landmarks"],"ui_masks":spec["ui"],
-         "visual_approval":False,"candidates":{}}
+         "visual_approval":False,"requires_artist_retouch":True,"candidates":{}}
   for kind in ("telea","ns"):
    proposal=inpaint(image,mask,kind)
    changed=checked(image,proposal,mask)
