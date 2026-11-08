@@ -92,8 +92,16 @@ async function run(engine,name,viewport,troll){
   await launch(page,url+'&part=globe',troll);
   await page.waitForFunction(()=>typeof openGlobe==='function');
   await page.evaluate(()=>openGlobe());
+  // Exactly one approved original troll is visible in the globe scene.
+  // The retired transparent helper remains in the DOM for older globe logic,
+  // but MUST be hidden: showing it doubles the child companion.
   await expectTroll(page,'#world-screen.active .premium-globe-fox',troll,name+' globe header');
-  await expectTroll(page,'#world-screen.active .premium-globe-guide',troll,name+' globe guide');
+  const oldGlobeGuide=page.locator('#world-screen.active .premium-globe-guide');
+  await oldGlobeGuide.first().waitFor({state:'attached',timeout:17000});
+  assert.equal(await page.locator('#world-screen.active .premium-globe-guide:visible').count(),0,
+    name+' Kloden must not draw a second old transparent companion');
+  assert.equal(await page.locator('#world-screen.active .premium-globe-header img.laria-premium-troll-art:visible').count(),1,
+    name+' Kloden must have one visible selected TrollActor');
   assert.equal(await page.locator('#world-screen.active img[src*="/assets/fox/"]:visible,#world-screen.active img[src*="lia-fox"]:visible').count(),0,
     name+' Kloden reintroduced fox art');
   await page.screenshot({path:out+'/'+name+'-globe.png',fullPage:true,animations:'disabled'});
