@@ -34,6 +34,7 @@ jobs:
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_IDENTITY_SCREENSHOTS: /tmp/laria-visual-identity
+          LARIA_GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node tests/laria-visual-identity-v1.playwright.js
       - name: Upload real app screenshots for review
         if: always()

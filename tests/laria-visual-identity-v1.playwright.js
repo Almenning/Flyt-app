@@ -44,8 +44,11 @@ async function writeIpadReviewBoard(context,engine,layout,viewport,shots,homeArt
   await canvas.screenshot({path:path.join(OUT,engine+'-'+layout+'-five-screen-review.png'),
    animations:'disabled',fullPage:true});
  }finally{await canvas.close()}
- const head=(()=>{try{return require('node:child_process').execFileSync(
-  'git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()}catch{return null}})();
+ const envSha=String(process.env.LARIA_GIT_SHA||process.env.GITHUB_HEAD_SHA||'').trim();
+ const head=/^[a-f0-9]{40}$/i.test(envSha)?envSha:(()=>{
+  try{return require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()}
+  catch{return null}
+ })();
  const report={status:'VISUAL_APPROVAL_REQUIRED',approved:false,
   origin:'Five actual app screenshots; no generated concepts or mockups',
   head,engine,layout,viewport,screenshots:shots,homeArtFit,
