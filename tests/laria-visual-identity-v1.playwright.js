@@ -13,6 +13,48 @@ const worlds=[
  {id:'english',root:'#kinnaklova-world',brand:null,home:'.ki-painted-home',sign:'.ki-painted-hit.laria-wayfinder',plate:null,post:null},
  {id:'geography',root:'#laria-geography-world',brand:'.gv-brand',home:'.gv-home',sign:'.gv-sign.laria-wayfinder',plate:'.gv-sign.laria-wayfinder',post:'::after'}
 ];
+
+/* The board is composed from five screenshots of the actual running app.
+   It is visual review evidence, not a mockup or premium certification. */
+async function writeIpadReviewBoard(context,engine,layout,viewport,shots){
+ const tiles=[];
+ for(const shot of shots){
+  const png=await fs.promises.readFile(path.join(OUT,shot.file));
+  tiles.push('<figure><figcaption>'+shot.label+'</figcaption><img alt="'+shot.label+
+   '" src="data:image/png;base64,'+png.toString('base64')+'"></figure>');
+ }
+ const canvas=await context.newPage();
+ try{
+  await canvas.setViewportSize({width:2300,height:440});
+  const html=[
+   '<!doctype html><html lang="no"><head><meta charset="utf-8"><style>',
+   '*{box-sizing:border-box}html,body{margin:0;background:#f3f0e9;color:#332e27;font-family:Arial,sans-serif}',
+   'header{padding:13px 18px 8px;font-weight:700;font-size:21px}',
+   'main{display:flex;gap:10px;padding:0 16px 8px;align-items:flex-start}',
+   'figure{margin:0;width:440px;min-width:440px;background:#fff;border:1px solid #b8b3a9}',
+   'figcaption{padding:7px 10px;font-size:16px;font-weight:bold}',
+   'img{display:block;width:100%;height:auto}',
+   'footer{font-size:14px;padding:6px 18px 12px}',
+   '</style></head><body><header>Læria · iPad liggende · '+engine+' · 1366 × 1024</header>',
+   '<main>',tiles.join(''),'</main>',
+   '<footer>Fem faktiske appskjermbilder. Krever visuell godkjenning. Ikke premiumgodkjent.</footer>',
+   '</body></html>'
+  ].join('');
+  await canvas.setContent(html,{waitUntil:'load'});
+  await canvas.screenshot({path:path.join(OUT,engine+'-'+layout+'-five-screen-review.png'),
+   animations:'disabled',fullPage:true});
+ }finally{await canvas.close()}
+ const head=(()=>{try{return require('node:child_process').execFileSync(
+  'git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()}catch{return null}})();
+ const report={status:'VISUAL_APPROVAL_REQUIRED',approved:false,
+  origin:'Five actual app screenshots; no generated concepts or mockups',
+  head,engine,layout,viewport,screenshots:shots,
+  artBlockers:['Grovanova: old navigation baked into artwork',
+               'Kinnaklova: old navigation baked into artwork']};
+ await fs.promises.writeFile(path.join(OUT,engine+'-'+layout+'-review.json'),
+  JSON.stringify(report,null,2));
+}
+
 async function run(engine,name,layout,viewport){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
@@ -52,6 +94,7 @@ async function run(engine,name,layout,viewport){
   }
   await fs.promises.mkdir(OUT,{recursive:true});
   await page.screenshot({path:path.join(OUT,name+'-'+layout+'-home.png'),animations:'disabled'});
+  const evidence=[{id:'home',label:'Hjem · Grovanova',file:name+'-'+layout+'-home.png'}];
   let expectedBrand=null,expectedPlate=null;
   for(const spec of worlds){
    await home.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
@@ -140,6 +183,7 @@ async function run(engine,name,layout,viewport){
        'Kinnaklova duplicates its painted wordmark');
    }
    const screenshot=await page.screenshot({path:path.join(OUT,name+'-'+layout+'-'+spec.id+'.png'),animations:'disabled'});
+   evidence.push({id:spec.id,label:({norwegian:'Norsk · Eggenipa',math:'Matte · Tallvika',english:'Engelsk · Kinnaklova',geography:'Geografi · Nordlysleiren'})[spec.id],file:name+'-'+layout+'-'+spec.id+'.png'});
    // One scenic iPad Kinnaklova view is normally >1 MB as a PNG. A blank
    // green stage with only signs is ~110 KB, despite the old geometry tests
    // being green. This minimum catches the missing painting before sign-off.
@@ -151,6 +195,7 @@ async function run(engine,name,layout,viewport){
    await home.waitFor({state:'visible',timeout:14000});
   }
   assert.deepEqual(errors,[],name+' '+layout+' browser exceptions');
+  if(layout==='ipad-landscape')await writeIpadReviewBoard(context,name,layout,viewport,evidence);
   await context.close();
   console.log('PASS shared logo/plank/post/Home components in real '+name+' '+layout+' app');
  }finally{await browser.close()}
