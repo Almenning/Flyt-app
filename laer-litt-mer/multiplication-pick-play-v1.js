@@ -160,7 +160,13 @@ function groups(){
   return '<div class="mp-pick-vessel" data-group="'+group+'" role="group" aria-label="'+esc(prop.label)+' '+(group+1)+': '+count+' '+esc(picked.object)+'"><div class="mp-pick-vessel-art"><span class="mp-pick-vessel-shadow" aria-hidden="true"></span><span class="mp-pick-handle" aria-hidden="true"></span><span class="mp-pick-linen" aria-hidden="true"></span><span class="mp-pick-leaf-decoration" aria-hidden="true"></span><div class="mp-pick-objects" style="--pick-cols:'+gridColumns+'">'+items+'</div><span class="mp-pick-front" aria-hidden="true"></span><span class="mp-pick-number">'+count+'</span></div>'+advancedButtons+'<button type="button" class="mp-pick-zoom-open" data-mp-action="pick-play" data-pick-action="zoom" data-group="'+group+'" aria-haspopup="dialog" aria-label="Se '+esc(prop.label.toLowerCase())+' '+(group+1)+' større">'+(moreOpen?'🔍 Se større':'Se større')+'</button></div>';
  }).join('')+'</div>';
 }
-const trollSrc=()=>window.LARIA_TROLL_ACTOR?.selected?.()?.src||window.LARIA_FOX.source(window.LARIA_FOX.choice());
+// An older saved fox avatar must NEVER become visible while the selected
+ // original forest TrollActor is loading.
+const trollSrc=()=>{
+ const saved=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+ const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
+ return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
+};
 function missions(){
  return '<div class="mp-pick-mission-panel"><div class="mp-pick-mentor"><img src="'+trollSrc()+'" alt="" loading="lazy" aria-hidden="true"><span>'+ (state.success?'Du fant en løsning! Du kan alltid utforske mer.':'Prøv gjerne flere måter. Du bestemmer tempoet!')+'</span></div><div class="mp-pick-labelrow"><b>Små oppdrag</b><small>Ingen tidtaking eller feilstraff</small></div><div class="mp-pick-mission-grid" role="group" aria-label="Velg oppdrag">'+E.MISSIONS.map((m,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="mission" data-id="'+m.id+'" class="mp-pick-mission'+(state.mission===m.id?' selected':'')+'" aria-pressed="'+(state.mission===m.id)+'"><span aria-hidden="true">'+['✦','✧','★','✳'][i]+'</span>'+m.title+'</button>').join('')+'</div>'+
  (state.mission?'<div class="mp-pick-mission-detail"><div><b>'+esc(E.MISSIONS.find(x=>x.id===state.mission).title)+'</b><p>'+esc(E.MISSIONS.find(x=>x.id===state.mission).prompt)+'</p>'+(state.mission==='twoWays'?'<small>Oppdaget: '+state.found.length+' av 2 måter</small>':'')+'</div><button type="button" data-mp-action="pick-play" data-pick-action="check" class="mp-pick-check">Sjekk</button></div>':'')+'</div>';

@@ -55,8 +55,10 @@
     try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }
   function foxSource(){
-    return window.LARIA_TROLL_ACTOR?.selected?.()?.src||
-      window.LARIA_FOX.source(foxChoice());
+    const saved=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+    const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
+    return window.LARIA_TROLL_ACTOR?.source?.(id)||
+      './assets/gangemagi-troll/'+id+'.webp';
   }
   // Norsk uses a neutral helper until the separately approved TrollActor exists.
   // The shared fox-presence engine deliberately does not own this symbol, so

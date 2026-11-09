@@ -77,4 +77,17 @@ assert.doesNotMatch(multiplication,/LARIA_FOX\.source/,
 assert.match(multiplication,/assets\/gangemagi-troll\//,
   'Gangetabellen must use the approved original troll assets');
 
+// A legacy profile may still exist, but no active lesson may flash a fox
+// before the live TrollActor module finishes initializing.
+for(const file of [
+  'laer-litt-mer/multiplication-pick-play-v1.js',
+  'laer-litt-mer/globe-preview-v32-renderer.js',
+  'laer-litt-mer/laria-task-scene-v15.js'
+]){
+ const code=read(file);
+ assert.doesNotMatch(code,/LARIA_FOX\.source|lia-fox-explorer-home\.webp|revejente|revegutt/,
+   file+' still exposes a retired fox source or child-facing label');
+ assert.match(code,/assets\/gangemagi-troll\//,file+' must default to approved original trolls');
+}
+
 console.log('PASS Læria locked premium iPad-first safety contract (NOT visual approval).');
