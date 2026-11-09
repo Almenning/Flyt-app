@@ -26,3 +26,6 @@ Automatisk inpainting er bare et forslag, IKKE ferdig kunst. Særlig store områ
 - Ingen merge eller publisering før eksplisitt visuell godkjenning og grønne regresjonstester.
 
 Denne testløypen produserer bevis og skiller mekanisk retusj fra kreativ kunstgodkjenning. Den godkjenner aldri seg selv.
+
+## Ny kildefast kvalitetsport for retusjerte masterbilder (9. november 2026)
+Verktøy: `tools/laria_release/verify_clean_candidate.py`. Bruk med `--world kinnaklova --candidate <godkjenningskandidat.png>` eller `--world grovanova --candidate <iPad-4-til-3-kandidat.png> --offset-x <plassering> --offset-y <plassering>`. Verktøyet avviser endringer i alle beskyttede fjell-, kirke- og landskapspiksler utenfor de eksplisitte maskene. Grovanova må leveres som et ekte 4:3-landskapsbilde på minst 1366 × 1024; kilden kan plasseres uendret innenfor et naturlig utvidet lerret. Dette er **kun et mekanisk bevis for kildefidelitet**, ikke en kunstgodkjenning. Bilder med slør, repetisjoner, synlige skjøter, gamle skilt eller feil fjell skal fortsatt forkastes selv om masketesten blir grønn. Ingen automatisk godkjenning, produksjonsaktivering eller merge.

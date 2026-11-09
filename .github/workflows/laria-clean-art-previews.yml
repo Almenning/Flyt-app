@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - "tools/laria_art/**"
+      - "tools/laria_release/verify_clean_candidate.py"
       - ".github/workflows/laria-clean-art-previews.yml"
       - "docs/LARIA-CLEAN-ART-REVIEW-2026-11-08.md"
 permissions:
@@ -28,6 +29,8 @@ jobs:
         run: |
           python -m py_compile tools/laria_art/prepare_clean_art_previews.py
           python tools/laria_art/prepare_clean_art_previews.py --self-test
+          python -m py_compile tools/laria_release/verify_clean_candidate.py
+          python tools/laria_release/verify_clean_candidate.py --self-test
       - name: Generate non-approved previews from exact locked original files
         run: python tools/laria_art/prepare_clean_art_previews.py --output-dir /tmp/laria-art-preview
       - name: Include byte-identical source art for controlled retouch review
