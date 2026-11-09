@@ -23,9 +23,7 @@
  width:100%;height:clamp(54px,6.3vh,67px);min-width:44px;min-height:54px;
  display:flex;align-items:center;justify-content:flex-start;gap:12px;
  border:0;border-radius:0;padding:6px 15px;cursor:pointer;overflow:visible;
- background:linear-gradient(#613519a8,#613519a8),var(--laria-sign-art);
- background-position:center,center;background-size:100% 100%,100% 100%;
- background-repeat:no-repeat;
+ background:url("./assets/ui/laria-reference-dark-sign-v1.svg") center/100% 100% no-repeat;
  color:#fff5e4;text-shadow:0 1px 2px #241a0b;
  font:900 clamp(15px,1.75vw,22px)/1.08 var(--laria-ui-font,system-ui);text-align:left;
  filter:drop-shadow(0 5px 4px #261b0b9c);
