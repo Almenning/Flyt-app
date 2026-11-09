@@ -136,7 +136,9 @@ async function testEngine(engine,name,device,viewport){
   const wordHunt=page.locator('#word-hunt-overlay:not([hidden])');
   await wordHunt.waitFor({state:'visible',timeout:16000});
   assert.match(await wordHunt.getAttribute('aria-label'),/Ordjakt/);
-  await wordHunt.locator('.word-hunt-back').click();
+  // Initial Ordjakt opens the visible theme picker. Its own Back control is
+  // the child's genuine route; the exercise-shell Back is intentionally hidden.
+  await wordHunt.locator('.word-hunt-theme-picker:not([hidden]) .wh-theme-close:visible').click();
   await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1').waitFor({state:'visible',timeout:16000});
   await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:16000});
