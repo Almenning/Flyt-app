@@ -72,8 +72,14 @@ async function check(engine,label,viewport){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
      assert.equal(await tv.locator('.tv-sign').count(),3,label+' missing Math activity signs');
-     assert.match(await tv.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage),
-       /tallvika-figure-free-20261028\.webp/,label+' wrong original Math art');
+     // Tallvika's real approved landscape has separate portrait/wide masters.
+     // The retired October art must never silently replace either version.
+     const expected=viewport.width<viewport.height
+       ?'tallvika-fjord-no-buildings-portrait-20261107.webp'
+       :'tallvika-fjord-no-buildings-wide-20261107.webp';
+     const actualArt=await tv.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage);
+     assert.ok(actualArt.includes(expected),label+' wrong Tallvika orientation art: '+actualArt);
+     assert.ok(!actualArt.includes('tallvika-figure-free-20261028.webp'),label+' old Tallvika art returned');
      await tv.locator('[data-tv="back"]').click();
      await page.locator('#home-screen.active').waitFor();
      continue;
@@ -96,10 +102,13 @@ async function check(engine,label,viewport){
     }),{width:1672,height:941},label+' wrong approved Kinnaklova dimensions');
     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
       label+' old Ordlandsbyen must not appear');
-    assert.deepEqual(await world.locator('.ki-companions [data-ki-character]').evaluateAll(
-      nodes=>nodes.map(node=>node.dataset.kiCharacter)
-    ),['storesoster','lillebror','lillesoster'],
-      label+' three approved trolls are missing or reordered');
+    // One selected living TrollActor; never require a frozen trio on Kinnaklova.
+    assert.equal(await world.locator('.ki-companion-actor').count(),1,
+      label+' exactly one original English companion is required');
+    assert.equal(await world.locator('.ki-companion-actor').getAttribute('data-troll'),
+      'storesoster',label+' selected English TrollActor differs from saved default');
+    assert.match(await world.locator('.ki-companion-actor img.laria-premium-troll-art').getAttribute('src'),
+      /\/storesoster\.webp$/,label+' English scene is using a retired character');
     assert.equal(await world.locator('.ki-card').count(),3,
       label+' three direct English activities are required');
     const target=viewport.width<=700
@@ -111,6 +120,18 @@ async function check(engine,label,viewport){
     await page.locator('#home-screen.active').waitFor({timeout:16000});
     continue;
    }
+   // The five original Geography checkpoints now live BEHIND the full scenic
+   // Nordlysleiren landing. Test the public child-facing route first.
+   const landing=page.locator('#geography-screen.active #laria-geography-world');
+   await landing.waitFor({state:'visible',timeout:16000});
+   assert.deepEqual(await landing.locator('.gv-sign').evaluateAll(nodes=>nodes.map(x=>x.dataset.gv)),
+     ['journey','globe','country'],label+' Geography landing lost its three real signs');
+   assert.equal(await landing.locator('.gv-troll[data-troll="storesoster"]').count(),1,
+     label+' Geography must display one selected original TrollActor');
+   assert.match(await landing.locator('.gv-troll img').getAttribute('src'),
+     /\/storesoster\.webp$/,label+' Geography is using retired fox art');
+   await landing.screenshot({path:path.join(output,label+'-geography-landing.png')});
+   await landing.locator('[data-gv="journey"]').click();
    await page.waitForFunction(s=>{
     const host=document.querySelector('.screen.active .locked-journey-map');
     const image=host?.querySelector('.locked-journey-image');
@@ -174,7 +195,9 @@ async function check(engine,label,viewport){
    await page.locator('.locked-journey-overlay:not([hidden])').waitFor();
    await page.locator('.locked-sheet-close').click();
    await board.locator('.locked-journey-back').click();
-   await page.locator('#home-screen.active').waitFor();
+   await landing.waitFor({state:'visible',timeout:16000});
+   await landing.locator('[data-gv="home"]').click();
+   await page.locator('#home-screen.active').waitFor({timeout:16000});
   }
   assert.deepEqual(errors,[],label+' runtime errors');
   await context.close();
