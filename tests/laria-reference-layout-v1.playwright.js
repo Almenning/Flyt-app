@@ -65,6 +65,17 @@ async function testEngine(engine,name,device,viewport){
    await nav.locator('[data-laria-ref-subject="home"]').click();
    await home.waitFor({state:'visible',timeout:15000});
   }
+  // Test the new five-sign navigation itself, not only a return to Home.
+  // Clicking an inactive subject must reuse the original child routes.
+  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="math"]').click();
+  await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
+  await page.locator('#tallvika-world .laria-reference-subject-nav [data-laria-ref-subject="geography"]').click();
+  await page.locator('#laria-geography-world .gv-scene.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
+  await page.locator('#laria-geography-world .laria-reference-subject-nav [data-laria-ref-subject="norwegian"]').click();
+  await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
+  await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
+  await home.waitFor({state:'visible',timeout:17000});
   await page.locator('#home-screen .bc14-subject[data-camp="subject-english"]').click();
   const english=page.locator('#kinnaklova-world:visible');
   await english.waitFor({state:'visible',timeout:18000});
