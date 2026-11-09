@@ -8,10 +8,10 @@ const URL=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const OUT=process.env.LARIA_IDENTITY_SCREENSHOTS||'/tmp/laria-visual-identity';
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Identitet QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 const worlds=[
- {id:'norwegian',root:'#eggenipa-world',brand:'.eg-world-brand',home:'.eg-scene-home',sign:'.eg-scene-hit.laria-wayfinder',plate:'.eg-scene-hit.laria-wayfinder > span',post:'::before'},
- {id:'math',root:'#tallvika-world',brand:'.tv-world-brand',home:'.tv-scene-home',sign:'.tv-sign.laria-wayfinder',plate:'.tv-sign.laria-wayfinder',post:'::after'},
+ {id:'norwegian',root:'#eggenipa-world',brand:'.eg-world-brand',home:'.eg-scene-home',sign:'.eg-scene-hit.laria-wayfinder',plate:'.eg-scene-hit.laria-wayfinder > span',post:'::before',troll:'.eg-companion-actor[data-eg="troll"]'},
+ {id:'math',root:'#tallvika-world',brand:'.tv-world-brand',home:'.tv-scene-home',sign:'.tv-sign.laria-wayfinder',plate:'.tv-sign.laria-wayfinder',post:'::after',troll:'.tv-actor-touch[data-tv="troll"]'},
  {id:'english',root:'#kinnaklova-world',brand:null,home:'.ki-painted-home',sign:'.ki-painted-hit.laria-wayfinder',plate:null,post:null},
- {id:'geography',root:'#laria-geography-world',brand:'.gv-brand',home:'.gv-home',sign:'.gv-sign.laria-wayfinder',plate:'.gv-sign.laria-wayfinder',post:'::after'}
+ {id:'geography',root:'#laria-geography-world',brand:'.gv-brand',home:'.gv-home',sign:'.gv-sign.laria-wayfinder',plate:'.gv-sign.laria-wayfinder',post:'::after',troll:'.gv-troll[data-gv="troll"]'}
 ];
 
 /* The board is composed from five screenshots of the actual running app.
@@ -185,6 +185,34 @@ async function run(engine,name,layout,viewport){
            spec.id+' rail signs touch or overlap: '+JSON.stringify(railBoxes));
          if(layout.startsWith('ipad'))assert.ok(clearGap<=viewport.height*.065,
            name+' '+layout+' '+spec.id+' signs are scattered rather than grouped: '+JSON.stringify(railBoxes));
+       }
+     }
+     // A living companion is never part of the painted image or an invisible
+     // blocker over a child's activity. Measure the REAL iPad tap geometry.
+     if(layout.startsWith('ipad')){
+       const actor=world.locator(spec.troll+':visible');
+       assert.equal(await actor.count(),1,spec.id+' must show exactly one selected live TrollActor');
+       const placement=await actor.evaluate(element=>{
+         const bounds=element.getBoundingClientRect();
+         const art=element.querySelector('img.laria-premium-troll-art');
+         return {rect:{left:bounds.left,top:bounds.top,right:bounds.right,bottom:bounds.bottom,
+             width:bounds.width,height:bounds.height},
+           src:art?.getAttribute('src'),loaded:!!art?.complete&&!!art?.naturalWidth,
+           selected:element.getAttribute('data-troll'),
+           button:element.tagName.toLowerCase()==='button'};
+       });
+       assert.equal(placement.button,true,spec.id+' companion must remain an interactive button');
+       assert.equal(placement.selected,'lillesoster',spec.id+' replaced the selected original troll');
+       assert.match(placement.src||'',/gangemagi-troll\/lillesoster\.webp/,
+         spec.id+' uses an unapproved figure instead of the selected troll');
+       assert.ok(placement.loaded,spec.id+' companion artwork failed to decode');
+       assert.ok(placement.rect.width>=44&&placement.rect.height>=44,
+         spec.id+' companion is too small to touch: '+JSON.stringify(placement));
+       for(const sign of railBoxes){
+         const width=Math.max(0,Math.min(sign.right,placement.rect.right)-Math.max(sign.x,placement.rect.left));
+         const height=Math.max(0,Math.min(sign.bottom,placement.rect.bottom)-Math.max(sign.y,placement.rect.top));
+         assert.ok(width*height<1,
+           spec.id+' live troll physically blocks a navigation sign: '+JSON.stringify({sign,actor:placement.rect}));
        }
      }
    }
