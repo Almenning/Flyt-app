@@ -161,9 +161,13 @@ async function testEngine(engine,name,device,viewport){
         left:r.left,right:r.right,top:r.top,bottom:r.bottom};
     });
     assert.ok(bubble.font>=16,'Tallvika speech is unreadably small');
-    assert.ok(bubble.font>=16&&bubble.left>=menuBox.x+menuBox.width+6&&
-      bubble.right<plaqueBox.x&&bubble.top>=0,
-      'Tallvika speech not aligned with shared TrollActor bubble: '+JSON.stringify(bubble));
+    const speechBox={x:bubble.left,y:bubble.top,width:bubble.right-bubble.left,
+      height:bubble.bottom-bubble.top};
+    const intersection=(a,b)=>Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x))*
+      Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y));
+    assert.ok(bubble.font>=16&&bubble.top>=0&&bubble.bottom<=viewport.height+3&&
+      intersection(speechBox,menuBox)<1&&intersection(speechBox,plaqueBox)<1,
+      'Tallvika speech overlaps a sign or leaves the screen: '+JSON.stringify(bubble));
    }
    if(world.id==='geography'){
     const source=await scene.locator('img.gv-landscape').evaluate(el=>({
