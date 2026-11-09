@@ -6,7 +6,7 @@ Brukerens femskjermsbilde er layoutreferanse: Læria øverst, felles Hjem/Norsk/
 
 ## Faktisk implementert
 - Felles, tilgjengelig femskiltsnavigasjon og stor fag-/stedsplakett i rene Norsk/Eggenipa, Matte/Tallvika og Geografi/Nordlysleiren.
-- De tre eksisterende *ekte* aktivitetsskiltene flyttes visuelt som én gruppe til høyre; knapper, handlers, oppgaver og lagret progresjon beholdes.
+- De tre eksisterende *ekte* aktivitetsskiltene står bare i den samme venstre kolonnen når barnet åpner et fag. Primærmeny og aktivitetsmeny er to moduser av samme skiltkolonne, aldri to samtidige grupper. Den store fagplaketten til høyre er eneste høyre skilt. Knapper, handlers, oppgaver og lagret progresjon beholdes.
 - Originalt godkjent og valgt skogstroll forblir en separat interaktiv TrollActor, ikke en innmalt figur.
 - Testbryter på iPad: `?app=laria&lariaReferenceLayout=1`. Den ordinære appen er uendret frem til iPad-bildene er visuelt godkjent.
 - Egen GitHub Actions-jobb tar ekte appbilder i Chromium og WebKit, iPad liggende og stående, og kontrollerer trykkflater, navigasjonsgruppe og valgt troll.
@@ -33,3 +33,7 @@ Toppkontrollene føres nå mot referansen uten å finne opp funksjonalitet:
 - Den korte Tallvika-dialogen justeres for lesbarhet uten å blokkere aktivitetsskiltene.
 
 Den oppdaterte iPad-testen kontrollerer virkelig knappestørrelse, plassering uten overlapp, opprinnelig trollvalg, at kort trykk ikke åpner foreldreområdet, at langt trykk gjør det, og at spilleren kan velge de tre låste skogstrollene. Både Chromium og WebKit i begge iPad-retninger må passere på samme commit. **Teknisk grønn ≠ visuell Premium-godkjenning.**
+
+## Visuell feilretting 9. november: én venstremeny, ikke to
+
+Siste brukerreferanse har fem globale skilt på venstre side og kun stor fagplakett på høyre side. Den tidligere høyre aktivitetsgruppen var en designfeil. På fagforsiden vises fem fagknapper. Trykk på aktivt fag eller fagplaketten viser aktivitetene i **samme** venstre kolonne; «Fagene» returnerer til fagknappene. De originale aktivitetene flyttes, ikke klones. «Neste eventyr» i Tallvika tilhører også denne venstre aktivitetsgruppen. Kun en av gruppene er tilgjengelig og synlig om gangen. Utvidede Playwright-bildetester må kontrollere denne invarianten og at aktivt læringsløp og tilbakeveien fungerer. Kunstmastere, trolloriginaler, progresjon og release-flagg endres ikke.

@@ -51,6 +51,8 @@ async function testEngine(engine,name,device,viewport){
    const plaque=scene.locator('button.laria-reference-place');
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects');
    assert.equal(await activities.isVisible(),false,world.id+' duplicates signs on the right');
+   assert.equal(await scene.locator('.laria-wayfinder:visible, .tv-next-sign:visible').count(),0,
+     world.id+' has visible additional activity signs outside the primary subject rail');
    if(world.id==='math'){
     assert.equal(await scene.locator('.tv-next-sign').count(),1);
     assert.equal(await scene.locator('.tv-next-sign').isVisible(),false,
@@ -124,6 +126,14 @@ async function testEngine(engine,name,device,viewport){
    assert.equal(await plaque.getAttribute('aria-expanded'),'true');
    assert.equal(await activities.locator('.laria-wayfinder').count(),3,
      world.id+' must preserve all three live activity controls');
+   const allVisibleActions=scene.locator('.laria-wayfinder:visible, .tv-next-sign:visible');
+   assert.equal(await allVisibleActions.count(),world.id==='math'?4:3,
+     world.id+' has duplicated or missing visible activity signs');
+   const visibleXs=await allVisibleActions.evaluateAll(nodes=>nodes.map(n=>{
+     const r=n.getBoundingClientRect();return {left:r.left,right:r.right};
+   }));
+   assert.ok(visibleXs.every(b=>b.left>=0&&b.right<viewport.width*.40),
+     world.id+' has an extra activity sign outside the single left rail: '+JSON.stringify(visibleXs));
    if(world.id==='math'){
     const next=activities.locator('button.tv-next-sign.laria-reference-next');
     assert.equal(await next.count(),1,'original Next adventure route was not moved');

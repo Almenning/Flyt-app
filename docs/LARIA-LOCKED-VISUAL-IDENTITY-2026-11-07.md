@@ -86,3 +86,18 @@
 
 ### Låst versus ikke implementert
 **Designretningen er godkjent.** Dette dokumentet er ikke en påstand om at alle nåværende skjermer allerede oppfyller den. Gjennomføringen i PR #243 skal vurderes mot kravene over; dokumentet er ikke en tillatelse til å regenerere godkjente landskap eller bytte karakterer.
+
+## 12. Presisering etter sist godkjente komposisjonsskisse (9. november 2026): KUN ÉN skiltkolonne
+
+Dette er den nyeste bindende avklaringen om **plassering og navigasjonslogikk** og har forrang foran tidligere illustrasjoner av spredte aktivitetskilt eller en separat rund Hjem-knapp. De låste illustrasjonene, fjellene, skogstrollene og kvalitetsportene endres ikke.
+
+- **Fagforsiden viser fem samlet venstrestilte treskilt:** Hjem, Norsk, Matte, Engelsk og Geografi. Aktivt fag er markert. Dette er nøyaktig den primære navigasjonen i den siste skissen.
+- **På høyre side finnes bare én stor fag-/stedsplakett**, slik skissen viser. Ingen andre navneskilt eller læringsaktiviteter legges som en konkurrerende menyrad på høyre side.
+- **Barnet åpner fagets tre reelle aktiviteter ved å velge aktivt fag på venstre side eller trykke på den store fagplaketten.** Den samme skiltkolonnen til venstre bytter da innhold til «Fagene» og aktivitetene. «Fagene» går tilbake til de fem fagene. Det er aldri to synlige skiltgrupper samtidig.
+- **Matte:** Eksisterende «Neste eventyr» flyttes inn i samme venstre aktivitetskolonne, uten å endre målet eller læringsprogresjonen. Ingen ekstra Next-planke til høyre.
+- Begge menyvisningene har eksakt samme venstre kant, breddeprinsipp, to stolper, berøring og typografi. De tre **originale** aktivitetene gjenbrukes som DOM-knapper med sine eksisterende handlere, ikke kopier eller uvirksomme dekorasjoner.
+- **Læria-logo sentrert øverst**, runde «Mine troll» og voksenkontroll øverst til høyre, én valgt levende original TrollActor i scenen. Hjem-knappen er del av venstremenyen, ikke et tredje parallelt navigasjonssystem.
+- **Låste landskapsfiler beholdes urørt.** Original Grovanova og Kinnaklova krever fortsatt godkjente rene masterbilder før det samme UI kan vises der uten innmalte duplikater. Ikke utgi løsningsskisse eller grønne tester som slik kunstgodkjenning.
+- Godkjen på ekte skjermbilder av fem fagscener i WebKit og Chromium, først iPad liggende og deretter stående. Kontroller begge venstremenymoduser og at den høyre fagplaketten er eneste skilt på høyre side.
+
+**Kritisk feiltilstand:** Hvis det er aktivitetsskilt både til venstre og til høyre, er designet IKKE premiumgodkjent, uansett om funksjonstestene er grønne.
