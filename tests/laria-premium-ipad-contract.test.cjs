@@ -55,4 +55,17 @@ assert.doesNotMatch(homeJs,/return trolls\[id\]\|\|window\.LARIA_FOX\.source/,
   'Never expose a fox in Home when the child has not chosen a troll');
 assert.ok(fs.statSync(path.join(root,'laer-litt-mer/assets/tallvika/laria-tallvika-premium-locked-20261027.png')).size===3503795,
   'Do not replace original locked Tallvika artwork');
+// Legacy journey and multiplication visual adapters must never flash a fox
+// when the shared TrollActor loads after a deferred feature script.
+const journey=read('laer-litt-mer/journey-world-premium.js');
+const multiplication=read('laer-litt-mer/multiplication-premium-v2.js');
+assert.doesNotMatch(journey,/LARIA_FOX\.source|revejente|revegutt/,
+  'Journey must not render or announce retired foxes');
+assert.match(journey,/assets\/gangemagi-troll\//,
+  'Journey must fall back only to the approved original TrollActor assets');
+assert.doesNotMatch(multiplication,/LARIA_FOX\.source/,
+  'Gangetabellen must not flash a retired fox before TrollActor starts');
+assert.match(multiplication,/assets\/gangemagi-troll\//,
+  'Gangetabellen must use the approved original troll assets');
+
 console.log('PASS Læria locked premium iPad-first safety contract (NOT visual approval).');
