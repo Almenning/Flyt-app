@@ -36,7 +36,28 @@ for(const name of ['grovanova','kinnaklova']){
    errors.push(name+': independent clean image has not been supplied');continue;
  }
  const digest=actualSha(clean);
- if(digest!==a.cleanSha256||digest===a.lockedSha256)errors.push(name+': art is identical to old painted UI or SHA differs');
+ if(digest!==a.cleanSha256||digest===a.lockedSha256){
+   errors.push(name+': art is identical to old painted UI or SHA differs');
+ }else{
+   // An owner-approved artwork must also prove that unchanged parts of the
+   // original landscape are pixel-identical. This rejects pretty but WRONG
+   // replacement fjords, cliffs or churches. Never approve via SHA alone.
+   const offsets=Array.isArray(a.sourcePlacement)?a.sourcePlacement:[0,0];
+   if(offsets.length!==2||offsets.some(n=>!Number.isInteger(n)||n<0)){
+     errors.push(name+': sourcePlacement must be [x,y] integer pixels');
+   }else{
+     try{
+       execFileSync('python3',[
+         'tools/laria_release/verify_clean_candidate.py',
+         '--world',name,'--candidate',a.clean,
+         '--offset-x',String(offsets[0]),'--offset-y',String(offsets[1])
+       ],{cwd:root,encoding:'utf8',timeout:45000,stdio:['ignore','pipe','pipe']});
+     }catch(error){
+       const why=String(error?.stderr||error?.message||'failed').trim().split('\n').slice(-1)[0];
+       errors.push(name+': protected mountain/church pixels or canvas geometry changed: '+why.slice(0,200));
+     }
+   }
+ }
  if(a.ownerApproved!==true)errors.push(name+': owner has not accepted the clean illustration');
 }
 for(const name of ['ipadLandscape','ipadPortrait','iphonePortrait','iphoneLandscape','desktop']){
