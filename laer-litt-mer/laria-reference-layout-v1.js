@@ -69,7 +69,11 @@
  }
  function mount(scene,subject){
   if(!enabled||!places[subject]||!scene||scene.dataset.lariaReferenceLayout)return false;
-  if(!root.matchMedia('(min-width:768px) and (min-height:650px)').matches)return false;
+  // The same DOM components now support iPhone portrait, with a dedicated
+  // compact arrangement that preserves one left rail and the original art.
+  const ipad=root.matchMedia('(min-width:768px) and (min-height:650px)').matches;
+  const iphone=root.matchMedia('(max-width:767px) and (min-width:320px) and (min-height:600px) and (orientation:portrait)').matches;
+  if(!ipad&&!iphone)return false;
   const rail=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
   if(!rail||rail.querySelectorAll('.laria-wayfinder').length!==3)return false;
   const home=scene.querySelector('[data-laria-component="home"]');

@@ -8,6 +8,7 @@ on:
       - 'laer-litt-mer/laria-scene-ui-v1.js'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-reference-layout-v1.playwright.js'
+      - 'tests/laria-reference-mobile-v1.playwright.js'
       - '.github/workflows/laria-reference-layout-v1.yml'
 permissions:
   contents: read
@@ -30,6 +31,7 @@ jobs:
         run: |
           node --check laer-litt-mer/laria-reference-layout-v1.js
           node --check tests/laria-reference-layout-v1.playwright.js
+          node --check tests/laria-reference-mobile-v1.playwright.js
       - name: Run actual app at exact PR HEAD
         run: python3 -m http.server 8765 --directory . > /tmp/laria-ref-http.log 2>&1 &
       - name: Capture iPad in Chromium and WebKit, landscape and portrait
@@ -38,11 +40,18 @@ jobs:
           LARIA_REFERENCE_SCREENSHOTS: /tmp/laria-reference-layout
           LARIA_GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node tests/laria-reference-layout-v1.playwright.js
+      - name: Capture iPhone portrait with the same original live controls
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_REFERENCE_MOBILE_SHOTS: /tmp/laria-reference-mobile
+        run: node tests/laria-reference-mobile-v1.playwright.js
       - name: Upload real app screenshots (NOT visual approval)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: laria-reference-ipad-${{ github.event.pull_request.head.sha || github.sha }}
-          path: /tmp/laria-reference-layout
+          path: |
+            /tmp/laria-reference-layout
+            /tmp/laria-reference-mobile
           retention-days: 14
           if-no-files-found: warn
