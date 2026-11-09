@@ -32,6 +32,16 @@ async function testEngine(engine,name,device,viewport){
    await page.locator('#home-screen .bc14-subject[data-camp="subject-'+world.id+'"]').click();
    const scene=page.locator(world.root);
    await scene.waitFor({state:'visible',timeout:20000});
+   // The real selected TrollActor greets the child once on first entrance.
+   // Maths owns its existing speech component and must not duplicate it.
+   if(world.id==='norwegian'||world.id==='geography'){
+    const bubble=scene.locator('.laria-troll-speech[data-show="true"]');
+    await bubble.waitFor({state:'attached',timeout:6500});
+    const line=await bubble.textContent();
+    assert.ok(line&&line.length>10,world.id+' live greeting not present');
+    assert.equal(await scene.locator('.laria-troll-speech').count(),1,
+      world.id+' duplicated the chosen troll speech bubble');
+   }
    const nav=scene.locator('nav.laria-reference-subject-nav');
    assert.equal(await nav.locator('button').count(),5,world.id+' five destination signs');
    assert.equal(await nav.locator('button[aria-current="page"]').count(),1,world.id+' active menu');
@@ -80,6 +90,7 @@ async function testEngine(engine,name,device,viewport){
       'original three locked TrollActor choices remain available');
     await dialog.locator('.laria-troll-dialog-close').click();
     await dialog.waitFor({state:'hidden',timeout:7000});
+    await chooser.evaluate(element=>element.blur()); // screenshots without test-induced focus ring
    }
    const actor=scene.locator(world.actor).first();
    assert.equal(await actor.getAttribute('data-troll'),'lillesoster',world.id+' selected original troll');

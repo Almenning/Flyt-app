@@ -15,6 +15,8 @@
   geography:'<path d="m2 20 8-12 4 5 3-4 5 11zM7 13l3-5 3 4"/>'
  };
  const valid=Object.keys(names);
+ const greetings=Object.freeze({norwegian:'Vil du finne ord eller lese et eventyr?',geography:'Skal vi oppdage verden sammen?'});
+ const greeted=new Set();
  const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function icon(id){return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+paths[id]+'</svg>'}
  function navigate(target,current){
@@ -110,6 +112,19 @@
   scene.classList.add('laria-reference-layout-v1');
   scene.dataset.lariaReferenceLayout='v1';
   scene.dataset.lariaReferenceArt='original-preserved';
+  // A single short contextual greeting makes the approved character feel
+  // present. The existing scene-owned idle/wave callback runs first; defer
+  // this prompt two frames so it is not immediately cancelled. Mathematics
+  // already has a native speech bubble and must not get a second one.
+  const greeting=greetings[subject];
+  if(greeting&&!greeted.has(subject)){
+   greeted.add(subject);
+   root.requestAnimationFrame(()=>root.requestAnimationFrame(()=>{
+    const actor=scene.querySelector('[data-laria-component="troll"]');
+    if(scene.isConnected&&scene.closest('.screen.active')&&actor)
+     root.LARIA_TROLL_ACTOR?.mood?.(actor,'wave',{say:greeting,duration:2800});
+   }));
+  }
   return true;
  }
  root.LARIA_REFERENCE_LAYOUT=Object.freeze({enabled,mount,artBlocked:['home','english']});
