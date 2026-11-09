@@ -128,6 +128,25 @@ async function testEngine(engine,name,device,viewport){
   await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
   await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:17000});
+  // The three signs are the actual learning routes, not decorative labels.
+  // Exercise two independent activity engines through their real DOM buttons
+  // and confirm their Back actions restore the same subject artwork.
+  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-scene-hit[data-eg="words"]').click();
+  const wordHunt=page.locator('#word-hunt-overlay:not([hidden])');
+  await wordHunt.waitFor({state:'visible',timeout:16000});
+  assert.match(await wordHunt.getAttribute('aria-label'),/Ordjakt/);
+  await wordHunt.locator('.word-hunt-back').click();
+  await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1').waitFor({state:'visible',timeout:16000});
+  await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
+  await home.waitFor({state:'visible',timeout:16000});
+  await page.locator('#home-screen .bc14-subject[data-camp="subject-math"]').click();
+  await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-sign[data-tv="multiply"]').click();
+  await page.locator('#multiplication-lab-screen.active').waitFor({state:'visible',timeout:17000});
+  await page.locator('#multiplication-lab-back').click();
+  await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
+  await page.locator('#tallvika-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
+  await home.waitFor({state:'visible',timeout:16000});
   await page.locator('#home-screen .bc14-subject[data-camp="subject-english"]').click();
   const english=page.locator('#kinnaklova-world:visible');
   await english.waitFor({state:'visible',timeout:18000});
