@@ -43,6 +43,15 @@ for(const selector of [
   '#laria-geography-world .gv-scene.laria-sign-rail-v2'
 ])assert.ok(rail.includes(selector),'Missing shared place-aware rail: '+selector);
 assert.match(visual,/laria-light-arrow-sign\.svg/,'Shared sign asset must stay canonical');
+const originalBrand=read('laer-litt-mer/assets/ui/laria-logo-from-grovanova.svg');
+const carvedOak=read('laer-litt-mer/assets/ui/laria-light-arrow-sign.svg');
+assert.match(originalBrand,/original logo fra låst Grovanova-illustrasjon/,
+ 'Shared logo must derive from byte-locked Grovanova master, not generic lettering');
+assert.match(visual,/laria-logo-from-grovanova\.svg/,
+ 'Norsk, Matte and Geografi must reuse original Læria wordmark');
+assert.match(carvedOak,/håndskåret treskilt/,
+ 'All three subject worlds must use the same carved wood sign family');
+
 assert.match(visual,/laria-home-round\.svg/,'Shared round Home button must stay canonical');
 const kinnaklova=read('laer-litt-mer/kinnaklova.js');
 assert.match(kinnaklova,/APPROVED_ART_SHA256/,'Kinnaklova clean artwork must preserve its integrity gate');

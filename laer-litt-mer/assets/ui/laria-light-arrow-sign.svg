@@ -1,17 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 154" width="640" height="154" role="img" aria-label="Læria felles treskilt">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 154" width="640" height="154" role="img" aria-label="Læria premium – håndskåret treskilt">
 <defs>
- <linearGradient id="wood" x1="0" y1="0" x2=".16" y2="1">
-  <stop stop-color="#ffe6a9"/><stop offset=".2" stop-color="#f6d28c"/><stop offset=".56" stop-color="#e8b46f"/><stop offset=".84" stop-color="#e1ab63"/><stop offset="1" stop-color="#bc8144"/>
+ <linearGradient id="oak" x1="0" y1="0" x2=".12" y2="1">
+  <stop stop-color="#e8b36b"/><stop offset=".16" stop-color="#b97937"/><stop offset=".50" stop-color="#9e5c2b"/><stop offset=".82" stop-color="#ac6931"/><stop offset="1" stop-color="#72401f"/>
  </linearGradient>
- <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#956435"/><stop offset="1" stop-color="#70451f"/></linearGradient>
- <filter id="soft" x="-10%" y="-35%" width="120%" height="170%"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#38230f" flood-opacity=".32"/></filter>
+ <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+  <stop stop-color="#e0a35e"/><stop offset=".45" stop-color="#663513"/><stop offset="1" stop-color="#512e16"/>
+ </linearGradient>
+ <linearGradient id="trim" x1="0" y1="0" x2="0" y2="1">
+  <stop stop-color="#fff0c1" stop-opacity=".9"/><stop offset="1" stop-color="#8a4b25" stop-opacity=".15"/>
+ </linearGradient>
+ <filter id="depth" x="-12%" y="-40%" width="129%" height="200%"><feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#1f160c" flood-opacity=".65"/></filter>
 </defs>
-<g filter="url(#soft)">
- <path d="M40 17Q53 11 79 13L568 13Q593 13 605 28L619 46Q627 75 617 107L605 127Q596 141 568 140L80 142Q54 141 42 134L23 116Q14 78 22 45L40 17Z" fill="url(#wood)" stroke="url(#edge)" stroke-width="9" stroke-linejoin="round"/>
- <path d="M43 30Q57 21 80 24L564 24Q588 23 598 37" fill="none" stroke="#fff3cb" stroke-opacity=".85" stroke-width="6" stroke-linecap="round"/>
- <path d="M47 128Q202 138 323 129T589 124" fill="none" stroke="#985e2c" stroke-opacity=".36" stroke-width="6" stroke-linecap="round"/>
- <path d="M64 48Q159 41 270 49T536 45M55 85Q177 76 282 86T563 84M80 114Q221 105 345 114T560 112" fill="none" stroke="#ad7642" stroke-opacity=".25" stroke-width="3" stroke-linecap="round"/>
- <path d="M66 59Q181 53 273 60T535 57M66 99Q159 92 262 101T539 98" fill="none" stroke="#ffefbf" stroke-opacity=".38" stroke-width="3"/>
- <g fill="#99652f" stroke="#f8dfab" stroke-width="2"><circle cx="53" cy="46" r="4"/><circle cx="54" cy="111" r="4"/><circle cx="585" cy="46" r="4"/><circle cx="584" cy="110" r="4"/></g>
+<g filter="url(#depth)">
+ <path d="M41 18Q59 12 85 15L532 12Q549 11 560 21L621 63Q632 74 618 87L563 132Q549 142 527 139L83 141Q54 143 41 134L23 109Q15 96 18 68L22 46Z" fill="url(#oak)" stroke="url(#rim)" stroke-width="11" stroke-linejoin="round"/>
+ <path d="M36 35Q54 25 87 28L526 23Q548 25 557 34" fill="none" stroke="url(#trim)" stroke-width="5" stroke-linecap="round"/>
+ <path d="M49 125Q122 135 236 125T428 132T555 120" fill="none" stroke="#48250f" stroke-opacity=".52" stroke-width="5" stroke-linecap="round"/>
+ <path d="M82 49Q172 44 265 52T460 49M51 82Q139 73 270 84T485 78M84 109Q202 99 306 109T515 104" fill="none" stroke="#f0bf75" stroke-opacity=".22" stroke-width="3.2" stroke-linecap="round"/>
+ <path d="M71 59Q175 67 263 61T448 63M68 96Q150 91 249 96T471 93M96 118Q187 113 307 121" fill="none" stroke="#49230f" stroke-opacity=".24" stroke-width="2.7" stroke-linecap="round"/>
+ <g fill="#523016" stroke="#dfaa6c" stroke-width="2.5">
+  <circle cx="48" cy="52" r="5"/><circle cx="49" cy="111" r="5"/><circle cx="536" cy="48" r="5"/><circle cx="539" cy="113" r="5"/>
+ </g>
+ <path d="M581 67L603 76L582 94" fill="none" stroke="#ffe7af" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity=".93"/>
 </g>
 </svg>
