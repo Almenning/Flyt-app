@@ -306,10 +306,82 @@ async function testEngine(engine,name,device,viewport){
   await context.close();
  }finally{await browser.close()}
 }
+
+async function assembleRealArtReviewSheets(){
+ const screens=[
+  {id:'home-art-blocked',name:'HJEM · Grovanova',status:'KUNST BLOKKERT: innmalte knapper'},
+  {id:'norwegian',name:'NORSK · Eggenipa',status:'FELLES LAYOUT: klar for visuell vurdering'},
+  {id:'math',name:'MATTE · Tallvika',status:'FELLES LAYOUT: klar for visuell vurdering'},
+  {id:'english-art-blocked',name:'ENGELSK · Kinnaklova',status:'KUNST BLOKKERT: innmalte skilt'},
+  {id:'geography',name:'GEOGRAFI · Nordlysleiren',status:'FELLES LAYOUT: lavoppløst kunst'}
+ ];
+ const reports=[];
+ const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ try {
+  for(const device of ['ipad-landscape','ipad-portrait']){
+   const cards=[];
+   for(const item of screens){
+    const file=path.join(out,'webkit-'+device+'-'+item.id+'.png');
+    if(!fs.existsSync(file))continue;
+    const base64=await fs.promises.readFile(file,'base64');
+    cards.push('<article><div class="preview"><img alt="'+item.name+
+      '" src="data:image/png;base64,'+base64+'"></div><div class="name">'+item.name+
+      '</div><div class="status">'+item.status+'</div></article>');
+   }
+   if(!cards.length)continue;
+   const page=await browser.newPage({viewport:{width:1548,height:920},
+     deviceScaleFactor:1,reducedMotion:'reduce'});
+   const html='<!doctype html><html lang="no"><head><meta charset="utf-8">'+
+    '<style>*{box-sizing:border-box}html,body{margin:0;background:#0c2538;color:#fff;'+
+    'font-family:system-ui,-apple-system,Arial,sans-serif}.sheet{padding:38px 38px 44px}'+
+    'h1{font-size:35px;line-height:1.15;margin:0 0 9px}header p{margin:0 0 27px;'+
+    'font-size:15px;color:#d0e1e8}main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));'+
+    'gap:24px}article{min-width:0}.preview{background:#122c40;'+
+    'border:1px solid #547186;border-radius:17px;overflow:hidden;'+
+    'display:flex;align-items:center;justify-content:center}img{display:block;'+
+    'width:100%;height:auto;max-height:570px;object-fit:contain}'+
+    '.name{margin:11px 0 4px;font-size:23px;font-weight:800}'+
+    '.status{font-size:14px;color:#bcd0dc}footer{font-size:13px;'+
+    'border-top:1px solid #4c6473;margin-top:29px;padding-top:16px;color:#d5e0e8}'+
+    '</style></head><body><div class="sheet"><header><h1>Læria · faktisk iPad-test</h1>'+
+    '<p>WebKit · '+device+' · commit '+(process.env.LARIA_GIT_SHA||'local')+
+    ' · automatisk skjermbilde, IKKE konseptillustrasjon</p></header>'+
+    '<main>'+cards.join('')+'</main><footer>Kun originalkunst fra repositoriet. '+
+    'Hjem og Engelsk er IKKE premiumgodkjent. Grønn teknisk QA er ingen '+
+    'visuell godkjenning eller publiseringsbeslutning.</footer></div></body></html>';
+   await page.setContent(html,{waitUntil:'load',timeout:30000});
+   await page.locator('img').evaluateAll(async images=>Promise.all(
+    images.map(img=>img.complete?null:new Promise(resolve=>{
+      img.addEventListener('load',resolve,{once:true});
+      img.addEventListener('error',resolve,{once:true});
+    }))));
+   const filename='laria-actual-'+device+'-five-screens.png';
+   await page.screenshot({path:path.join(out,filename),fullPage:true,animations:'disabled'});
+   reports.push({file:filename,device,screenIds:cards.length,
+     sources:screens.map(s=>path.join(out,'webkit-'+device+'-'+s.id+'.png')).filter(fs.existsSync)});
+   await page.close();
+  }
+ } finally {await browser.close();}
+ await fs.promises.writeFile(path.join(out,'VISUAL-REVIEW-NOT-APPROVED.json'),
+  JSON.stringify({commit:process.env.LARIA_GIT_SHA||null,
+   generatedFrom:'actual app in Playwright WebKit iPad',
+   sourceMasterPolicy:'originals unmodified',
+   artBlocked:['Grovanova/Hjem','Kinnaklova/Engelsk'],
+   geographyResolutionBlocked:true,
+   visualApproval:false,publish:false,sheets:reports},null,2));
+ console.log('Real iPad art review sheets: '+reports.map(x=>x.file).join(', '));
+}
 (async()=>{
- for(const [device,viewport] of [
-  ['ipad-landscape',{width:1366,height:1024}],
-  ['ipad-portrait',{width:1024,height:1366}]
- ])for(const [name,engine] of [['chromium',chromium],['webkit',webkit]])
-   await testEngine(engine,name,device,viewport);
+ let failure=null;
+ try {
+  for(const [device,viewport] of [
+   ['ipad-landscape',{width:1366,height:1024}],
+   ['ipad-portrait',{width:1024,height:1366}]
+  ])for(const [name,engine] of [['chromium',chromium],['webkit',webkit]])
+    await testEngine(engine,name,device,viewport);
+ } catch(error){failure=error;}
+ try{await assembleRealArtReviewSheets();}
+ catch(error){console.error('Review sheet assembly failed:',error);
+   if(!failure)failure=error;}
+ if(failure)throw failure;
 })().catch(err=>{console.error(err);process.exitCode=1});

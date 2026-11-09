@@ -51,6 +51,10 @@
  }
  function navigate(target,current,scene){
   if(target===current){setMode(scene,'activities',true);return;}
+  // A full subject switch is a NEW visit, unlike a return from an exercise.
+  // Clear only in-memory presentation mode; never child learning progress.
+  preferredRail.delete(names[current]);
+  preferredRail.delete(names[target]);
   if(target==='home'){
    if(root.LARIA_RETURN_TO_BASECAMP?.()===true)return;
    root.document.querySelector('#bottom-nav [data-tab="home"]')?.click();
