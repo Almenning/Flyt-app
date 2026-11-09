@@ -90,4 +90,18 @@ for(const file of [
  assert.match(code,/assets\/gangemagi-troll\//,file+' must default to approved original trolls');
 }
 
+// Every *active* route must use approved TrollActor figures even before
+// the global runtime has loaded. Historical fox profile data is untouched.
+for(const path of [
+ 'laer-litt-mer/discovery-globe-phase1.js',
+ 'laer-litt-mer/norwegian-chapter-picker-v1.js',
+ 'laer-litt-mer/bokskogen-world.js'
+]){
+ const script=read(path);
+ assert.doesNotMatch(script,/lia-fox-explorer-home\.webp/,
+  path+' still falls back to a retired fox image');
+ assert.match(script,/assets\/gangemagi-troll\//,
+  path+' must use only one of the three original locked trolls');
+}
+
 console.log('PASS Læria locked premium iPad-first safety contract (NOT visual approval).');

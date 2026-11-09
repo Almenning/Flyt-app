@@ -1261,13 +1261,11 @@ const copyNodes={
   hint:screen.querySelector('.globe-hint')
 };
 for(const node of Object.values(copyNodes))if(node)node.dataset.simpleCopy=node.textContent;
+// Legacy adapter name, but artwork follows the SINGLE selected forest troll.
 function selectedFoxSource(){
-  try{
-    const avatar=state?.profile?.avatar==='girl'?'girl':'boy';
-    const source=window.LARIA_PROFILE_AVATARS?.[avatar];
-    if(typeof source==='string'&&source)return source;
-  }catch(_){}
-  return './lia-fox-explorer-home.webp';
+  const saved=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+  const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
+  return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
 }
 function scrollShortDiscovery(toCard){
   // On a short iPhone the existing globe shell scrolls to preserve the size

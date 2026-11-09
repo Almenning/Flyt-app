@@ -11,7 +11,7 @@
   const safeAvatar=src=>{
     const s=String(src||'');
     return /^(\.\/|\/|https:\/\/)/.test(s)||/^data:image\/(?:webp|png|jpeg);base64,[a-z0-9+/=]+$/i.test(s)
-      ?s:'./lia-fox-explorer-home.webp';
+      ?s:(window.LARIA_TROLL_ACTOR?.selected?.()?.src||'./assets/gangemagi-troll/storesoster.webp');
   };
   let view=null;
   function chooserModel(){
