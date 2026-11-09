@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" width="640" height="260" role="img" aria-label="Stort håndskåret skilt i lys eik">
+<defs>
+<linearGradient id="oak" x1="0" y1="0" x2=".12" y2="1"><stop stop-color="#fce0a7"/><stop offset=".22" stop-color="#efc281"/><stop offset=".52" stop-color="#e2a562"/><stop offset=".82" stop-color="#d1914e"/><stop offset="1" stop-color="#b3763d"/></linearGradient>
+<filter id="depth" x="-10%" y="-25%" width="122%" height="160%"><feDropShadow dx="0" dy="9" stdDeviation="6" flood-color="#20150e" flood-opacity=".52"/></filter>
+</defs>
+<g filter="url(#depth)">
+<path d="M63 23Q79 17 105 19L536 17Q576 17 588 29Q610 46 604 89L604 176Q611 210 585 227Q560 241 520 238L101 240Q58 242 42 226Q24 211 29 179L28 81Q26 45 43 31Q52 24 63 23Z" fill="url(#oak)" stroke="#73401e" stroke-width="13" stroke-linejoin="round"/>
+<path d="M50 55Q67 38 109 38L535 36Q573 38 590 56M48 210Q77 225 125 220L525 219Q568 221 588 205" fill="none" stroke="#ffedc2" stroke-opacity=".7" stroke-width="6" stroke-linecap="round"/>
+<path d="M82 77Q179 61 265 73T438 73T551 70M68 121Q168 108 281 124T552 118M77 164Q191 151 312 162T545 162M90 202Q190 192 310 202T545 196" fill="none" stroke="#fff0ba" stroke-opacity=".32" stroke-width="4" stroke-linecap="round"/>
+<path d="M91 99Q176 103 267 97T455 99T563 94M66 143Q191 135 302 146T545 143M101 184Q212 179 306 187T519 185" fill="none" stroke="#855028" stroke-opacity=".27" stroke-width="3" stroke-linecap="round"/>
+<g fill="#925829" stroke="#fce6b4" stroke-width="2.5"><circle cx="65" cy="59" r="6"/><circle cx="65" cy="200" r="6"/><circle cx="572" cy="58" r="6"/><circle cx="573" cy="200" r="6"/></g>
+</g>
+</svg>
