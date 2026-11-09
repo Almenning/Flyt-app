@@ -1,13 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" width="640" height="260" role="img" aria-label="Stort håndskåret skilt i lys eik">
-<defs>
-<linearGradient id="oak" x1="0" y1="0" x2=".12" y2="1"><stop stop-color="#fce0a7"/><stop offset=".22" stop-color="#efc281"/><stop offset=".52" stop-color="#e2a562"/><stop offset=".82" stop-color="#d1914e"/><stop offset="1" stop-color="#b3763d"/></linearGradient>
-<filter id="depth" x="-10%" y="-25%" width="122%" height="160%"><feDropShadow dx="0" dy="9" stdDeviation="6" flood-color="#20150e" flood-opacity=".52"/></filter>
-</defs>
-<g filter="url(#depth)">
-<path d="M63 23Q79 17 105 19L536 17Q576 17 588 29Q610 46 604 89L604 176Q611 210 585 227Q560 241 520 238L101 240Q58 242 42 226Q24 211 29 179L28 81Q26 45 43 31Q52 24 63 23Z" fill="url(#oak)" stroke="#73401e" stroke-width="13" stroke-linejoin="round"/>
-<path d="M50 55Q67 38 109 38L535 36Q573 38 590 56M48 210Q77 225 125 220L525 219Q568 221 588 205" fill="none" stroke="#ffedc2" stroke-opacity=".7" stroke-width="6" stroke-linecap="round"/>
-<path d="M82 77Q179 61 265 73T438 73T551 70M68 121Q168 108 281 124T552 118M77 164Q191 151 312 162T545 162M90 202Q190 192 310 202T545 196" fill="none" stroke="#fff0ba" stroke-opacity=".32" stroke-width="4" stroke-linecap="round"/>
-<path d="M91 99Q176 103 267 97T455 99T563 94M66 143Q191 135 302 146T545 143M101 184Q212 179 306 187T519 185" fill="none" stroke="#855028" stroke-opacity=".27" stroke-width="3" stroke-linecap="round"/>
-<g fill="#925829" stroke="#fce6b4" stroke-width="2.5"><circle cx="65" cy="59" r="6"/><circle cx="65" cy="200" r="6"/><circle cx="572" cy="58" r="6"/><circle cx="573" cy="200" r="6"/></g>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="300" viewBox="0 0 640 300" role="img" aria-label="Rounded wooden storybook sign">
+ <defs>
+  <linearGradient id="wood" x1="0.05" y1="0" x2="0.12" y2="1">
+   <stop stop-color="#ffe6af"/><stop offset=".18" stop-color="#f2ca8b"/><stop offset=".45" stop-color="#e6b16e"/><stop offset=".76" stop-color="#d59b59"/><stop offset="1" stop-color="#b67940"/>
+  </linearGradient>
+  <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff0bd"/><stop offset=".55" stop-color="#8d552e"/><stop offset="1" stop-color="#603b24"/></linearGradient>
+  <filter id="shade" x="-12%" y="-25%" width="124%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="7" flood-color="#1f1a12" flood-opacity=".45"/></filter>
+ </defs>
+ <g filter="url(#shade)">
+  <path d="M48 122 C51 103 96 89 143 67 C203 37 258 22 320 20 C383 22 440 39 493 67 C540 87 588 103 592 124 L596 249 Q595 273 568 280 Q547 285 520 283 L110 283 Q60 285 46 266 Q41 258 43 246 Z" fill="url(#wood)" stroke="#76431f" stroke-width="13" stroke-linejoin="round"/>
+  <path d="M67 114 Q161 59 268 41 Q316 30 358 37 Q469 54 571 117" fill="none" stroke="#ffedb8" stroke-opacity=".78" stroke-width="7" stroke-linecap="round"/>
+  <path d="M58 260 Q78 274 108 271 L526 271 Q568 270 580 259" fill="none" stroke="#77401e" stroke-opacity=".62" stroke-width="6" stroke-linecap="round"/>
+  <path d="M56 133 Q134 128 201 130 T342 130 T490 129 T585 131" fill="none" stroke="#a56b37" stroke-opacity=".31" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M52 196 Q146 193 242 198 T430 197 T587 195" fill="none" stroke="#97572c" stroke-opacity=".27" stroke-width="3" stroke-linecap="round"/>
+  <path d="M71 161 Q163 149 250 157 T428 159 T558 155 M78 223 Q167 214 253 225 T432 224 T564 220" fill="none" stroke="#fff0ba" stroke-opacity=".37" stroke-width="4" stroke-linecap="round"/>
+  <path d="M96 87 Q204 68 313 80 T522 90 M72 180 Q174 169 264 180 T456 174 T562 177 M91 243 Q203 235 320 245 T552 240" fill="none" stroke="#8d542e" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/>
+  <path d="M73 143 Q131 140 186 143 M460 144 Q522 139 562 143 M87 255 Q130 250 174 254 M466 255 Q513 252 553 254" fill="none" stroke="url(#rim)" stroke-opacity=".37" stroke-width="2" stroke-linecap="round"/>
+  <g fill="#8c522a" stroke="#f9dea3" stroke-width="2.5"><circle cx="70" cy="145" r="5"/><circle cx="568" cy="144" r="5"/><circle cx="71" cy="252" r="5"/><circle cx="568" cy="252" r="5"/></g>
+ </g>
 </svg>

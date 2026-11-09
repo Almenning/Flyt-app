@@ -63,6 +63,21 @@ async function testEngine(engine,name,device,viewport){
    assert.equal(await plaque.getAttribute('aria-expanded'),'false');
    assert.equal(await plaque.locator('.laria-reference-place-kicker svg').count(),1,
      world.id+' place plaque does not use the shared subject icon from the locked sketch');
+
+   const titleMetrics=await plaque.evaluate(el=>{
+     const title=el.querySelector('strong'),place=el.querySelector('small'),entry=el.querySelector('em');
+     return {height:el.getBoundingClientRect().height,
+       background:getComputedStyle(el).backgroundImage,
+       title:parseFloat(getComputedStyle(title).fontSize),
+       place:parseFloat(getComputedStyle(place).fontSize),
+       entry:parseFloat(getComputedStyle(entry).fontSize),
+       posts:parseFloat(getComputedStyle(el,'::after').height)};
+   });
+   assert.ok(titleMetrics.height>=190&&titleMetrics.title>=40&&titleMetrics.place>=19&&titleMetrics.entry>=14,
+     world.id+' arched title plaque has unreadably small content: '+JSON.stringify(titleMetrics));
+   assert.match(titleMetrics.background,/arched-plaque/,world.id+' did not use upgraded single arched wooden plaque');
+   assert.ok(titleMetrics.posts>=60,world.id+' title plaque two posts are too short');
+
    const boxes=await scene.evaluate(el=>{
     const rect=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};
     return {

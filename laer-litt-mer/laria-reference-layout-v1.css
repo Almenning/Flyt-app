@@ -71,10 +71,10 @@
  > button.laria-reference-place{
  appearance:none!important;box-sizing:border-box;position:absolute;z-index:22;
  right:var(--ref-right);left:auto;top:23%;bottom:auto;
- width:clamp(255px,30%,395px);height:clamp(155px,17vh,189px);
- padding:19px 20px 20px;margin:0;border:0!important;border-radius:0!important;
+ width:clamp(255px,30%,395px);height:clamp(190px,21vh,245px);
+ padding:25px 22px 20px;margin:0;border:0!important;border-radius:0!important;
  display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;
- background:url("./assets/ui/laria-reference-place-plaque-v1.svg") center/100% 100% no-repeat!important;
+ background:url("./assets/ui/laria-reference-place-plaque-v1.svg?v=20261109-arched-plaque") center/100% 100% no-repeat!important;
  color:#4a2b16;text-shadow:0 1px 0 #fff6d4;text-align:center;
  filter:drop-shadow(0 7px 5px #21170a8c);cursor:pointer;isolation:isolate;
  -webkit-tap-highlight-color:transparent;
@@ -86,30 +86,30 @@
  transform:translateY(2px);filter:drop-shadow(0 4px 3px #21170a8c);
 }
 .laria-reference-layout-v1 > .laria-reference-place::after{
- content:"";position:absolute;z-index:-1;top:calc(100% - 9px);
- left:24%;width:52%;height:25px;pointer-events:none;
+ content:"";position:absolute;z-index:-1;top:calc(100% - 18px);
+ left:24%;width:52%;height:clamp(60px,10vh,112px);pointer-events:none;
  background:
   linear-gradient(90deg,#754322,#cf9a65,#754322) 8% 0/13px 100% no-repeat,
   linear-gradient(90deg,#754322,#cf9a65,#754322) 91% 0/13px 100% no-repeat;
 }
 .laria-reference-layout-v1 .laria-reference-place-kicker{
  display:grid;place-items:center;flex:none;
- width:38px;height:30px;margin:0 auto 1px;
+ width:42px;height:38px;margin:0 auto 1px;
  color:#523015;text-shadow:0 1px 0 #fce7b3;
 }
 .laria-reference-layout-v1 .laria-reference-place-kicker svg{
- display:block;width:30px;height:30px;
+ display:block;width:38px;height:38px;
  stroke-width:2.4;fill:none;pointer-events:none;
 }
 .laria-reference-layout-v1 .laria-reference-place strong{
- font:950 clamp(34px,3.4vw,47px)/1.08 var(--laria-ui-font,system-ui);
+ font:950 clamp(42px,4vw,56px)/1.04 var(--laria-ui-font,system-ui);
  letter-spacing:-.035em;
 }
 .laria-reference-layout-v1 .laria-reference-place small{
- font:850 clamp(15px,1.5vw,21px)/1.05 var(--laria-ui-font,system-ui);
+ font:850 clamp(19px,1.8vw,24px)/1.06 var(--laria-ui-font,system-ui);
 }
 .laria-reference-layout-v1 .laria-reference-place-action{
- display:block;margin-top:4px;font:850 clamp(11px,1vw,14px)/1.12 var(--laria-ui-font,system-ui);
+ display:block;margin-top:7px;font:850 clamp(14px,1.4vw,18px)/1.16 var(--laria-ui-font,system-ui);
  font-style:normal;color:#573116;letter-spacing:.01em;
 }
 /* Subjects: five signs left, no activity signs anywhere else in the scene. */
@@ -224,7 +224,7 @@
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1)
- > button.laria-reference-place{top:27%;width:clamp(242px,34%,350px)}
+ > button.laria-reference-place{top:25%;width:clamp(258px,34%,355px)}
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1)
