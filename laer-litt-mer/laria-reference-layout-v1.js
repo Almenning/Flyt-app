@@ -17,6 +17,9 @@
  const valid=Object.keys(names);
  const greetings=Object.freeze({norwegian:'Vil du finne ord eller lese et eventyr?',geography:'Skal vi oppdage verden sammen?'});
  const greeted=new Set();
+ // In-memory only: a finished exercise should return to the same left rail
+ // even when the subject scene is re-rendered. Never write child progress.
+ const preferredRail=new Map();
  const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function icon(id){return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+paths[id]+'</svg>'}
  // Only ONE navigation rail may be visible. The large right plaque is a
@@ -29,6 +32,8 @@
   if(!activities||!subjects||!plaque)return;
   const activityMode=mode==='activities';
   scene.dataset.lariaReferenceMode=activityMode?'activities':'subjects';
+  if(scene.dataset.lariaReferenceSubject)
+   preferredRail.set(scene.dataset.lariaReferenceSubject,scene.dataset.lariaReferenceMode);
   activities.inert=!activityMode;
   subjects.inert=activityMode;
   activities.setAttribute('aria-hidden',String(!activityMode));
@@ -153,7 +158,7 @@
   scene.dataset.lariaReferenceLayout='v1';
   scene.dataset.lariaReferenceArt='original-preserved';
   scene.dataset.lariaReferenceSubject=names[subject];
-  setMode(scene,'subjects');
+  setMode(scene,preferredRail.get(names[subject])||'subjects');
   // A single short contextual greeting makes the approved character feel
   // present. The existing scene-owned idle/wave callback runs first; defer
   // this prompt two frames so it is not immediately cancelled. Mathematics
