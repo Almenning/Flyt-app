@@ -53,6 +53,34 @@ async function testEngine(engine,name,device,viewport){
       world.id+' right activity clipped: '+JSON.stringify(box));
     assert.ok(box.w>=44&&box.h>=44,world.id+' activity touch area');
    }
+   // Top controls are real actions: existing troll chooser, and the
+   // protected adult settings. Grade selection remains independently present.
+   const chooser=scene.locator('.laria-scene-chooser:visible');
+   const settings=scene.locator('button.laria-reference-settings:visible');
+   const grade=scene.locator('.laria-scene-grade:visible');
+   assert.equal(await chooser.count(),1,world.id+' lost the original troll chooser');
+   assert.equal(await settings.count(),1,world.id+' missing protected settings');
+   assert.equal(await grade.count(),1,world.id+' lost the grade control');
+   const toolbar=await scene.evaluate(el=>{
+    const rect=node=>{const r=node.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+    return {choose:rect(el.querySelector('.laria-scene-chooser')),
+      settings:rect(el.querySelector('.laria-reference-settings')),
+      grade:rect(el.querySelector('.laria-scene-grade'))};
+   });
+   for(const box of Object.values(toolbar))
+    assert.ok(box.width>=44&&box.height>=44&&box.left>=0&&box.right<=viewport.width+3,
+      world.id+' toolbar is clipped or too small '+JSON.stringify(toolbar));
+   assert.ok(toolbar.grade.right+4<=toolbar.choose.left&&toolbar.choose.right+4<=toolbar.settings.left,
+     world.id+' toolbar controls collide '+JSON.stringify(toolbar));
+   if(world.id==='norwegian'){
+    await chooser.click();
+    const dialog=page.locator('#laria-premium-troll-dialog[open]');
+    await dialog.waitFor({state:'visible',timeout:7000});
+    assert.equal(await dialog.locator('[data-troll-choice]').count(),3,
+      'original three locked TrollActor choices remain available');
+    await dialog.locator('.laria-troll-dialog-close').click();
+    await dialog.waitFor({state:'hidden',timeout:7000});
+   }
    const actor=scene.locator(world.actor).first();
    assert.equal(await actor.getAttribute('data-troll'),'lillesoster',world.id+' selected original troll');
    const art=await actor.locator('img').evaluate(img=>({src:img.getAttribute('src'),ok:img.complete&&img.naturalWidth>0}));
@@ -65,6 +93,19 @@ async function testEngine(engine,name,device,viewport){
    await nav.locator('[data-laria-ref-subject="home"]').click();
    await home.waitFor({state:'visible',timeout:15000});
   }
+  // A quick click must NOT open the protected parent area. The exact same
+  // deliberate long press as the original Home gate must open it on iPad.
+  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  const gate=page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-reference-settings');
+  await gate.waitFor({state:'visible',timeout:15000});
+  await gate.click();
+  assert.equal(await page.locator('#adult-screen.active').count(),0,
+    'parent settings opened on a short child tap');
+  await gate.dispatchEvent('pointerdown',{pointerType:'touch',button:0});
+  await page.waitForTimeout(1650);
+  await page.locator('#adult-screen.active').waitFor({state:'visible',timeout:7000});
+  await page.locator('#adult-back').click();
+  await home.waitFor({state:'visible',timeout:16000});
   // Test the new five-sign navigation itself, not only a return to Home.
   // Clicking an inactive subject must reuse the original child routes.
   await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();

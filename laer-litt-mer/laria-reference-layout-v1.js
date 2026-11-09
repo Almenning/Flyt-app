@@ -64,7 +64,49 @@
   plaque.setAttribute('aria-level','2');
   plaque.setAttribute('aria-label',names[subject]+', '+places[subject]);
   plaque.innerHTML='<span>Velkommen til</span><strong>'+safe(names[subject])+'</strong><small>'+safe(places[subject])+'</small>';
-  scene.appendChild(nav);scene.appendChild(plaque);
+  // Existing "Mine troll" stays the actual profile control; only its
+  // presentation changes. Adult settings use the same 1.5-second deliberate
+  // press as the pre-existing Home adult gate, never an unrestricted click.
+  const adult=root.document.createElement('button');
+  adult.type='button';
+  adult.className='laria-reference-settings';
+  adult.dataset.lariaRefSettings='1';
+  adult.setAttribute('aria-label','Hold inne for foreldreinnstillinger');
+  adult.setAttribute('title','Hold inne for foreldreinnstillinger');
+  adult.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+
+   '<path d="M10 2.5h4l.8 2.4 2 1.2 2.5-.5 2 3.5-1.8 1.9v2l1.8 1.9-2 3.5-2.5-.5-2 1.2-.8 2.4h-4l-.8-2.4-2-1.2-2.5.5-2-3.5L4.5 13v-2L2.7 9.1l2-3.5 2.5.5 2-1.2z"/><circle cx="12" cy="12" r="3"/></svg>';
+  let timer=null;
+  function cancelHold(){
+   if(timer!==null){root.clearTimeout(timer);timer=null;}
+   adult.removeAttribute('data-laria-holding');
+  }
+  function beginHold(){
+   cancelHold();
+   if(!scene.isConnected||!scene.closest('.screen.active'))return;
+   adult.dataset.lariaHolding='true';
+   timer=root.setTimeout(()=>{
+    timer=null;adult.removeAttribute('data-laria-holding');
+    if(scene.isConnected&&scene.closest('.screen.active'))
+      root.LARIA_OPEN_ADULT?.();
+   },1500);
+  }
+  adult.addEventListener('pointerdown',event=>{
+   if(event.pointerType==='mouse'&&event.button!==0)return;
+   beginHold();
+  });
+  for(const name of ['pointerup','pointercancel','pointerleave','blur'])
+   adult.addEventListener(name,cancelHold);
+  adult.addEventListener('keydown',event=>{
+   if((event.key==='Enter'||event.key===' ')&&!event.repeat){
+    event.preventDefault();beginHold();
+   }
+  });
+  adult.addEventListener('keyup',event=>{
+   if(event.key==='Enter'||event.key===' '){
+    event.preventDefault();cancelHold();
+   }
+  });
+  scene.appendChild(nav);scene.appendChild(plaque);scene.appendChild(adult);
   scene.classList.add('laria-reference-layout-v1');
   scene.dataset.lariaReferenceLayout='v1';
   scene.dataset.lariaReferenceArt='original-preserved';
