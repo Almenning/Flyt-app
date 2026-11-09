@@ -38,6 +38,16 @@ async function homeReady(page,label){
    const h=document.querySelector('.bc12.bc15-locked-home');
    return !!h && /ready$/.test(h.dataset.bc15Asset||'');
  },null,{timeout:20000});
+ const edge=await home.evaluate(el=>({
+   state:el.dataset.bc15EdgeFill,
+   sampled:el.style.getPropertyValue('--bc15-safe-fill'),
+   computed:getComputedStyle(el,'::before').backgroundImage
+ }));
+ assert.equal(edge.state,'sampled',label+' Home must match locked image edge, not guessed gradient');
+ assert.ok((edge.sampled.match(/#[0-9a-f]{6}/gi)||[]).length>=30,
+   label+' edge sample is missing real source pixel colours');
+ assert.match(edge.computed,/linear-gradient/,label+' Home edge must remain a real CSS gradient');
+ assert.doesNotMatch(edge.computed,/url\(/,label+' edge fill must not reproduce baked text/icons');
  const asset=await home.getAttribute('data-bc15-asset');
  assert.match(asset,/^(phone|tablet)-ready$/,label+' locked master did not activate');
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
