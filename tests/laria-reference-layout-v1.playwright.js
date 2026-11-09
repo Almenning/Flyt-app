@@ -179,6 +179,8 @@ async function testEngine(engine,name,device,viewport){
   // the child's genuine route; the exercise-shell Back is intentionally hidden.
   await wordHunt.locator('.word-hunt-theme-picker:not([hidden]) .wh-theme-close:visible').click();
   await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1').waitFor({state:'visible',timeout:16000});
+  assert.equal(await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1').getAttribute('data-laria-reference-mode'),'activities');
+  await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-reference-activities-back').click();
   await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:16000});
   await page.locator('#home-screen .bc14-subject[data-camp="subject-math"]').click();
@@ -187,6 +189,8 @@ async function testEngine(engine,name,device,viewport){
   await page.locator('#multiplication-lab-screen.active').waitFor({state:'visible',timeout:17000});
   await page.locator('#multiplication-lab-back').click();
   await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
+  assert.equal(await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1').getAttribute('data-laria-reference-mode'),'activities');
+  await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1 .laria-reference-activities-back').click();
   await page.locator('#tallvika-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:16000});
   await page.locator('#home-screen .bc14-subject[data-camp="subject-english"]').click();
