@@ -44,7 +44,9 @@ const read=()=>{try{const o=JSON.parse(localStorage.getItem(STORE)||'{}');return
 const progress=read();
 const fox=()=>{
  const actor=window.LARIA_TROLL_ACTOR;
- const src=actor?.source?.(actor.choice())||window.LARIA_FOX.worldSource(window.LARIA_FOX.choice());
+ const selected=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+ const id=['storesoster','lillesoster','lillebror'].includes(selected)?selected:'storesoster';
+ const src=actor?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
  return '<img src="'+src+'" alt="" class="fr2-fox laria-premium-troll-art" loading="eager" decoding="async">';
 };
 const key=(n,d)=>n+'/'+d;
