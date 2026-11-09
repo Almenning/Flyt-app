@@ -215,20 +215,25 @@ async function run(engine,label,viewport){
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
 
-   /* Mine troll must not leak into the old fox wardrobe. */
+   /* Mine troll is one live, selectable companion, not a static gallery. */
    await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
-   const trollDialog=page.locator('#bc15-troll-dialog');
-   await trollDialog.waitFor({state:'visible',timeout:8000});
+   const trollDialog=page.locator('#laria-premium-troll-dialog[open]');
+   await trollDialog.waitFor({state:'visible',timeout:10000});
    assert.equal((await trollDialog.locator('h2').innerText()).trim(),'Mine troll');
-   assert.equal((await page.locator('.bc12-nav [data-camp="wardrobe"]').innerText()).trim(),'Mine troll',
-     label+' troll navigation label must not fall back to Min rev');
-   assert.doesNotMatch((await trollDialog.innerText()).toLowerCase(),/min rev|kle på din rev/,
-     label+' Mine troll routed to fox wardrobe');
-   const trollArt=await trollDialog.locator('.bc15-troll-art').evaluate(el=>getComputedStyle(el).backgroundImage);
-   assert(trollArt.includes('laria-troll-trio-v3.webp'),
-     label+' Mine troll must use the locked standalone troll trio art: '+trollArt);
+   assert.equal((await page.locator('.bc12-nav [data-camp="wardrobe"]').innerText()).trim(),'Mine troll');
+   assert.equal(await page.locator('#bc15-troll-dialog[open],#bc12-dialog.is-wardrobe[open]').count(),0,
+     label+' legacy static gallery or fox wardrobe was opened');
+   assert.deepEqual(await trollDialog.locator('[data-troll-choice]').evaluateAll(xs=>xs.map(x=>x.dataset.trollChoice)),
+     ['storesoster','lillesoster','lillebror'],label+' original three companion choices changed');
+   assert.equal(await trollDialog.locator('[data-troll-choice][aria-pressed="true"]').getAttribute('data-troll-choice'),
+     'storesoster',label+' must initially select approved Storesøster');
    await page.screenshot({path:folder+'/'+label+'-mine-troll.png',fullPage:true});
-   await trollDialog.locator('.bc15-troll-close').click();
+   await trollDialog.locator('[data-troll-choice="lillesoster"]').click();
+   await trollDialog.waitFor({state:'hidden',timeout:9000});
+   assert.equal(await page.evaluate(()=>window.LARIA_TROLL_ACTOR.choice()),'lillesoster',
+     label+' chosen companion was not applied');
+   assert.equal(await page.evaluate(()=>state.profile.tallvikaTroll),'lillesoster',
+     label+' chosen companion was not saved');
 
    /* Every subject gateway remains functional under the locked artwork. */
    for(const [subject,screen] of [

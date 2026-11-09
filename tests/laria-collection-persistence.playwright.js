@@ -44,12 +44,13 @@ async function verify(browserType,label,viewport){
     const lockedHome=await page.locator('.bc12.bc15-locked-home').count()>0;
     if(lockedHome){
       await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
-      const trollDialog=page.locator('#bc15-troll-dialog[open]');
+      const trollDialog=page.locator('#laria-premium-troll-dialog[open]');
       await trollDialog.waitFor({state:'visible'});
-      assert.match(await trollDialog.locator('h2').innerText(),/Mine troll/);
-      assert.equal(await page.locator('#bc12-dialog[open].is-wardrobe').count(),0,
-        'Home v15 troll entry must not open the legacy fox wardrobe');
-      await trollDialog.locator('.bc15-troll-close').click();
+      assert.equal(await trollDialog.locator('[data-troll-choice]').count(),3,
+        'Home must offer the locked trio of selectable living TrollActors');
+      assert.equal(await page.locator('#bc15-troll-dialog[open],#bc12-dialog[open].is-wardrobe').count(),0,
+        'Home must not show a static gallery or retired fox wardrobe');
+      await trollDialog.locator('.laria-troll-dialog-close').click();
     }
     await page.locator('.bc12-nav [data-camp="collection"]').click();
     await page.locator('#bc12-dialog[open].is-collection .bc12-memory-grid').waitFor();
@@ -122,10 +123,11 @@ async function verify(browserType,label,viewport){
     assert.equal(await page.locator('#home-screen.active .bc12-fox [data-gear]').count(),0);
     await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
     if(await page.locator('.bc12.bc15-locked-home').count()){
-      const trollDialog=page.locator('#bc15-troll-dialog[open]');
+      const trollDialog=page.locator('#laria-premium-troll-dialog[open]');
       await trollDialog.waitFor({state:'visible'});
-      assert.match(await trollDialog.locator('h2').innerText(),/Mine troll/);
-      await trollDialog.locator('.bc15-troll-close').click();
+      assert.equal(await trollDialog.locator('[data-troll-choice]').count(),3,
+        'Saving/reloading collectibles must not remove the troll selection');
+      await trollDialog.locator('.laria-troll-dialog-close').click();
     }else{
       assert.equal(await page.locator('#bc12-dialog[open] [data-gear],#bc12-dialog[open] [data-wear]').count(),0);
       await page.locator('#bc12-dialog[open] .bc12-close').click();

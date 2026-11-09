@@ -5,32 +5,17 @@
 
 const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-premium2';
 const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1';
-const TROLL_TRIO_ART='./assets/home-v15/laria-troll-trio-v3.webp?v=20261024-locked1';
 let activeMasterSrc='';
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
 function isPortrait(){return matchMedia('(orientation:portrait)').matches}
 
+// Mine troll uses the ONE shared interactive selection of original
+// TrollActor characters; the former static art gallery is not navigation.
 function openTrollDialog(){
- let d=document.getElementById('bc15-troll-dialog');
- if(!d){
-   d=document.createElement('dialog');
-   d.id='bc15-troll-dialog';
-   d.innerHTML='<button type="button" class="bc15-troll-close" aria-label="Lukk">×</button>'+
-     '<span class="bc15-troll-eyebrow">Lærias eventyrvenner</span>'+
-     '<h2>Mine troll</h2>'+
-     '<div class="bc15-troll-art" role="img" aria-label="De tre småtrollene ved Kjøsnesfjorden"></div>'+
-     '<p>De tre småtrollene blir med deg gjennom Læria. Her er de samlet på hjemstedet sitt ved Kjøsnesfjorden.</p>'+
-     '<button type="button" class="bc15-troll-back">Tilbake til Hjem</button>';
-   document.body.append(d);
-   d.querySelector('.bc15-troll-close').addEventListener('click',()=>d.close());
-   d.querySelector('.bc15-troll-back').addEventListener('click',()=>d.close());
-   d.addEventListener('click',e=>{if(e.target===d)d.close()});
- }
- d.dataset.phone=isPhone()?'true':'false';
- const art=d.querySelector('.bc15-troll-art');
- if(art)art.style.setProperty('--bc15-troll-trio','url("'+TROLL_TRIO_ART+'")');
- if(!d.open)d.showModal();
+ const open=window.LARIA_TROLL_ACTOR?.openChooser;
+ if(typeof open==='function'){open();return true;}
+ return false;
 }
 
 function decoded(src){
