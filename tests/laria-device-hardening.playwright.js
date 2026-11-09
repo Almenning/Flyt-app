@@ -99,28 +99,23 @@ async function verifyBasecamp(page,label,width,height){
     const r=await rect(page,sel);assertInViewport(r,width,height,label+' '+sel);assertTap(r,label+' '+sel);
   }
 
-  // Grade 1-2 has the approved Kjøsnesfjorden "Mine troll" modal.
-  // Older/legacy Home keeps the actual fox wardrobe dialog. Verify the
-  // destination the child really sees rather than an obsolete modal selector.
+  // Every grade opens the ONE shared, selectable original TrollActor menu.
+  // The retired static Kjøsnesfjorden poster and fox wardrobe are not
+  // child-facing navigation, and the close target must be comfortably tappable.
   await page.locator('.bc12-nav [data-camp="wardrobe"]').tap();
-  if(navigationLabels[4]==='Mine troll'){
-    const trollDialog=page.locator('#bc15-troll-dialog[open]');
-    await trollDialog.waitFor({state:'visible',timeout:10000});
-    assert.equal(await trollDialog.locator('h2').innerText(),'Mine troll',
-      label+' character destination lost its approved title');
-    assert.ok(await trollDialog.locator('.bc15-troll-art').count()===1,
-      label+' original troll trio must be shown');
-    const trollClose=await rect(page,'#bc15-troll-dialog .bc15-troll-close');
-    assertTap(trollClose,label+' troll dialog close');
-    await page.locator('#bc15-troll-dialog .bc15-troll-close').tap();
-    await trollDialog.waitFor({state:'hidden'});
-  }else{
-    await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg').waitFor();
-    const wardrobeClose=await rect(page,'#bc12-dialog .bc12-close');
-    assertTap(wardrobeClose,label+' wardrobe close');
-    await page.locator('#bc12-dialog .bc12-close').tap();
-    await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
-  }
+  const trollDialog=page.locator('#laria-premium-troll-dialog[open]');
+  await trollDialog.waitFor({state:'visible',timeout:10000});
+  assert.equal((await trollDialog.locator('h2').innerText()).trim(),'Mine troll',
+    label+' premium companion destination lost its name');
+  assert.equal(await trollDialog.locator('[data-troll-choice]').count(),3,
+    label+' companion menu must contain the THREE approved forest trolls');
+  assert.equal(await page.locator('#bc15-troll-dialog[open],#bc12-dialog[open].is-wardrobe').count(),0,
+    label+' retired gallery/wardrobe leaked into premium navigation');
+  const trollClose=await rect(page,'#laria-premium-troll-dialog .laria-troll-dialog-close');
+  assertTap(trollClose,label+' premium companion chooser close');
+  await trollDialog.locator('.laria-troll-dialog-close').tap();
+  await trollDialog.waitFor({state:'hidden'});
+
 
   if(lockedHome){
     // Existing challenge API still exercises the same safe dialog without
