@@ -8,11 +8,13 @@
   if(!chapters)return;
   const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  const safeAvatar=src=>{
-    const s=String(src||'');
-    return /^(\.\/|\/|https:\/\/)/.test(s)||/^data:image\/(?:webp|png|jpeg);base64,[a-z0-9+/=]+$/i.test(s)
-      ?s:(window.LARIA_TROLL_ACTOR?.selected?.()?.src||'./assets/gangemagi-troll/storesoster.webp');
-  };
+  // Historical 'foxSrc' input is deliberately ignored: only a saved
+  // original forest troll may appear, even while TrollActor is loading.
+  const safeAvatar=_ignored=>(()=>{
+      const stored=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+      const id=['storesoster','lillesoster','lillebror'].includes(stored)?stored:'storesoster';
+      return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
+    })();
   let view=null;
   function chooserModel(){
     return chapters.model(view.options.state,view.options.firstProgress(),true);

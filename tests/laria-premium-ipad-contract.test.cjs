@@ -112,4 +112,20 @@ assert.doesNotMatch(fraction,/LARIA_FOX\.worldSource|LARIA_FOX\.source/,
 assert.match(fraction,/assets\/gangemagi-troll\//,
   'Brøklab must use the original selected forest troll as its fallback');
 
+// No learning preview may use the historical caller-supplied "foxSrc"
+// to show a retired fox during slow WebKit startup.
+for(const file of [
+ 'laer-litt-mer/norwegian-chapter-picker-v1.js',
+ 'laer-litt-mer/fortellingsdalen-preview-v1.js',
+ 'laer-litt-mer/english-sentence-harbor-preview-v1.js',
+ 'laer-litt-mer/geography-continent-voyage-preview-v1.js',
+ 'laer-litt-mer/math-pattern-haven-preview-v1.js'
+]){
+ const code=read(file);
+ assert.match(code,/assets\/gangemagi-troll\//,
+   file+' lacks a stable original TrollActor fallback');
+ assert.doesNotMatch(code,/t\?\.src\|\|ui\.foxSrc|selected\?\.\(\)\?\.src\|\|ui\.foxSrc/,
+   file+' can still flash historical fox imagery on initial render');
+}
+
 console.log('PASS Læria locked premium iPad-first safety contract (NOT visual approval).');

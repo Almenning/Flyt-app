@@ -6,7 +6,11 @@
   let ui=null;
   const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const mark=(n,total)=>Math.min(100,Math.round(n/Math.max(1,total)*100));
-  const safeAvatar=src=>{const actor=window.LARIA_TROLL_ACTOR,t=actor?.selected?.();if(t?.src)return t.src;const value=String(src||'');return /^(\.\/|\/|https:\/\/)/.test(value)||/^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/i.test(value)?value:'./assets/gangemagi-troll/storesoster.webp'};
+  const safeAvatar=_ignored=>(()=>{
+      const stored=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+      const id=['storesoster','lillesoster','lillebror'].includes(stored)?stored:'storesoster';
+      return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
+    })();
   function fox(){
     return '<img class="fd-fox-portrait laria-premium-troll-art" alt="Trollet ditt er med på eventyret" src="'+esc(safeAvatar(ui.foxSrc))+'">';
   }

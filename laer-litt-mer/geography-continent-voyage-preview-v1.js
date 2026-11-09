@@ -8,7 +8,11 @@
  const core=window.LARIA_GEO_CONTINENT_VOYAGE;if(!core)return;
  let ui=null;
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const fox=()=>{const a=window.LARIA_TROLL_ACTOR,t=a?.selected?.();const src=t?.src||ui.foxSrc||'./assets/gangemagi-troll/storesoster.webp';return '<img class="cv-fox laria-premium-troll-art" alt="Trollet ditt er med på reisen" src="'+esc(src)+'">';};
+ const fox=()=>{const a=window.LARIA_TROLL_ACTOR,t=a?.selected?.();const src=t?.src||(()=>{
+      const stored=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+      const id=['storesoster','lillesoster','lillebror'].includes(stored)?stored:'storesoster';
+      return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
+    })();return '<img class="cv-fox laria-premium-troll-art" alt="Trollet ditt er med på reisen" src="'+esc(src)+'">';};
  const shell=body=>'<div class="cv-shell"><header class="cv-top"><button type="button" data-cv-act="close" class="cv-quiet">← Tilbake</button>'+
    '<span class="cv-development">INTERN TEST · GEOGRAFI KAPITTEL 2</span></header>'+
    '<main class="cv-main">'+body+'</main></div>';

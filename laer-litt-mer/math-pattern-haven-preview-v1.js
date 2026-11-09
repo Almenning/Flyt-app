@@ -9,7 +9,11 @@
  let ui=null;
  const escape=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  function fox(){
-   const src=window.LARIA_TROLL_ACTOR?.selected?.()?.src||ui.foxSrc;
+   const src=window.LARIA_TROLL_ACTOR?.selected?.()?.src||(()=>{
+      const stored=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+      const id=['storesoster','lillesoster','lillebror'].includes(stored)?stored:'storesoster';
+      return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
+    })();
    return '<img class="mh-fox laria-premium-troll-art" src="'+escape(src)+'" alt="Trollet ditt er med i Mønsterhagen">';
  }
  function shell(content){

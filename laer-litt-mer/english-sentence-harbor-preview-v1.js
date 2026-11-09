@@ -7,7 +7,11 @@
  const core=window.LARIA_ENGLISH_SENTENCE_HARBOR;if(!core)return;
  let ui=null;
  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
- const fox=()=>{const a=window.LARIA_TROLL_ACTOR,t=a?.selected?.();const src=t?.src||ui.foxSrc||'./assets/gangemagi-troll/storesoster.webp';return '<img class="sh-fox laria-premium-troll-art" src="'+esc(src)+'" alt="Trollet ditt er med til Setningshavna">';};
+ const fox=()=>{const a=window.LARIA_TROLL_ACTOR,t=a?.selected?.();const src=t?.src||(()=>{
+      const stored=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+      const id=['storesoster','lillesoster','lillebror'].includes(stored)?stored:'storesoster';
+      return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
+    })();return '<img class="sh-fox laria-premium-troll-art" src="'+esc(src)+'" alt="Trollet ditt er med til Setningshavna">';};
  const shell=body=>'<div class="sh-shell"><header class="sh-top"><button type="button" data-sh-act="close" class="sh-quiet">← Tilbake</button><span class="sh-tag">INTERN TEST · ENGELSK KAPITTEL 2</span></header><main class="sh-main">'+body+'</main></div>';
  function intro(){
    const p=core.progress(ui.state),session=core.resume(ui.state);
