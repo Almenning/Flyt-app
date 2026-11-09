@@ -1,0 +1,47 @@
+name: "Læria Home v15 - locked Grovanova art and safe-area QA"
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/home-kjosnes-v15.js'
+      - 'laer-litt-mer/home-kjosnes-v15.css'
+      - 'laer-litt-mer/assets/home-v15/**'
+      - 'tests/laria-home-kjosnes-v15.playwright.js'
+      - '.github/workflows/laria-home-v15-locked-art.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: laria-home-v15-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  original-art-and-navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Verify Home renderer and test syntax
+        run: |
+          node --check laer-litt-mer/home-kjosnes-v15.js
+          node --check tests/laria-home-kjosnes-v15.playwright.js
+      - name: Serve exact PR version
+        run: python3 -m http.server 8765 --directory . > /tmp/laria-home-http.log 2>&1 &
+      - name: Test original painting SHA, edge fill, navigation and saved child progress
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          HOME_V15_SCREENSHOTS: /tmp/laria-home-v15
+        run: node tests/laria-home-kjosnes-v15.playwright.js
+      - name: Upload actual iPad and iPhone screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-v15-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-home-v15
+          retention-days: 14
+          if-no-files-found: warn
