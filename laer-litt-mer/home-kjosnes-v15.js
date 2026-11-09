@@ -126,7 +126,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   liveCopy:[.105,.152,.315,.165],
+   liveCopy:rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11],
    liveNext:[.073,.836,.235,.040]
  };
  const viewport={width:rect.width,height:rect.height};

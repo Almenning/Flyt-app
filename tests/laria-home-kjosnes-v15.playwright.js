@@ -195,6 +195,13 @@ async function run(engine,label,viewport){
      geom.liveNext.y>=geom.journey.y-2&&geom.liveNext.bottom<=geom.journey.bottom+2,
      label+' journey status escaped the painted Fortsett reisen sign '+JSON.stringify({journey:geom.journey,status:geom.liveNext}));
    assert(geom.liveCopy.width<geom.viewport*.65,label+' greeting overlay became a dashboard-sized panel '+JSON.stringify(geom.liveCopy));
+   if(!portrait){
+     const firstSign=await page.locator('.bc15-painted-subject').first().boundingBox();
+     assert.ok(firstSign&&geom.liveCopy.bottom+9<=firstSign.y,
+       label+' speech bubble or pointer physically overlaps first wooden subject sign: '+
+       JSON.stringify({bubble:geom.liveCopy,firstSign}));
+   }
+
    const speech=await page.locator('.bc15-live-copy').evaluate(el=>{
      const c=getComputedStyle(el),tail=getComputedStyle(el,'::after');
      return {radius:parseFloat(c.borderTopLeftRadius),bg:c.backgroundImage,
