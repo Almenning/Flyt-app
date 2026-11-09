@@ -352,4 +352,59 @@
  color:#4d321d!important;pointer-events:none!important;
 }
 
+/* The locked sketch never shows two navigation groups.
+ * The real Tallvika Next button joins the same left activity rail; no
+ * additional standalone board is permitted on the right. */
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.tv-next-sign.laria-reference-next{
+ box-sizing:border-box!important;position:relative!important;inset:auto!important;
+ left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+ align-self:stretch!important;display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;gap:1px!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ height:clamp(68px,7.3vh,82px)!important;min-height:64px!important;
+ padding:6px 12px 9px!important;margin:0!important;
+ border:0!important;border-radius:0!important;
+ background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+ color:#3d2715!important;filter:var(--laria-sign-shadow)!important;
+ text-align:center!important;text-shadow:0 1px 0 #fff0ca!important;
+ transform:none!important;pointer-events:auto!important;z-index:4!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1
+ > nav.laria-scene-navigation > .tv-next-sign.laria-reference-next strong{
+ font:950 clamp(16px,1.7vw,20px)/1.12 var(--laria-ui-font,system-ui)!important;
+ color:#3d2715!important;text-shadow:0 1px 0 #fff1d1!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1
+ > nav.laria-scene-navigation > .tv-next-sign.laria-reference-next .tv-next-title{
+ font:850 clamp(11px,1.15vw,14px)/1.1 var(--laria-ui-font,system-ui)!important;
+ color:#6a492a!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1
+ > nav.laria-scene-navigation > .tv-next-sign.laria-reference-next:disabled{
+ opacity:.55!important;pointer-events:none!important;
+}
+/* Eggenipa activity buttons must share the EXACT left edge and width of
+ * the five subject signs. Legacy per-scene widths were still winning. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder{
+ box-sizing:border-box!important;position:relative!important;inset:auto!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ height:clamp(57px,6.3vh,70px)!important;
+ margin:0!important;padding:0!important;align-self:stretch!important;
+ transform:none!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder > span{
+ box-sizing:border-box!important;width:100%!important;height:100%!important;
+ min-width:0!important;max-width:none!important;
+}
+/* Portrait activity rail has the same top anchor as the five subject rail. */
+@media(orientation:portrait){
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"]
+   > nav.laria-scene-navigation{top:26%!important}
+}
+
 }

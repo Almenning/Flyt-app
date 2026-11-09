@@ -51,6 +51,11 @@ async function testEngine(engine,name,device,viewport){
    const plaque=scene.locator('button.laria-reference-place');
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects');
    assert.equal(await activities.isVisible(),false,world.id+' duplicates signs on the right');
+   if(world.id==='math'){
+    assert.equal(await scene.locator('.tv-next-sign').count(),1);
+    assert.equal(await scene.locator('.tv-next-sign').isVisible(),false,
+      'Tallvika shows a second Next eventyr sign on the right');
+   }
    assert.equal(await nav.isVisible(),true);
    assert.equal(await plaque.isVisible(),true);
    assert.equal(await plaque.getAttribute('aria-expanded'),'false');
@@ -119,6 +124,14 @@ async function testEngine(engine,name,device,viewport){
    assert.equal(await plaque.getAttribute('aria-expanded'),'true');
    assert.equal(await activities.locator('.laria-wayfinder').count(),3,
      world.id+' must preserve all three live activity controls');
+   if(world.id==='math'){
+    const next=activities.locator('button.tv-next-sign.laria-reference-next');
+    assert.equal(await next.count(),1,'original Next adventure route was not moved');
+    assert.equal(await next.isVisible(),true,'Next adventure not shown in the sole rail');
+    const r=await next.boundingBox();
+    assert.ok(r&&r.x>=0&&r.x+r.width<viewport.width*.40,
+      'Next adventure button escaped left rail: '+JSON.stringify(r));
+   }
    assert.equal(await activities.locator('.laria-reference-activities-back').count(),1);
    const activityBoxes=await activities.locator('.laria-wayfinder').evaluateAll(nodes=>nodes.map(x=>{
     const r=x.getBoundingClientRect();
@@ -127,6 +140,11 @@ async function testEngine(engine,name,device,viewport){
    for(const box of activityBoxes)
     assert.ok(box.l>=0&&box.r<viewport.width*.40&&box.w>=44&&box.h>=44&&box.b<=viewport.height+3,
       world.id+' activity was placed outside sole left rail: '+JSON.stringify(box));
+   const leftEdges=activityBoxes.map(r=>r.l);
+   const subjectsLeft=boxes.menu[0].l;
+   assert.ok(leftEdges.every(left=>Math.abs(left-subjectsLeft)<=3),
+     world.id+' activity signs must share the subject sign left edge: '+
+      JSON.stringify({leftEdges,subjectsLeft}));
    await page.screenshot({path:path.join(out,name+'-'+device+'-'+world.id+'-activities.png'),animations:'disabled'});
    await activities.locator('.laria-reference-activities-back').click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects');

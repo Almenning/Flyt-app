@@ -111,6 +111,16 @@
   back.innerHTML=icon('home')+'<span>Fagene</span>';
   back.addEventListener('click',()=>setMode(scene,'subjects',true));
   rail.insertBefore(back,rail.firstChild);
+  // Tallvika's existing Next adventure button is not allowed to float on the
+  // right as a second navigation sign. Move the real node, retaining its
+  // original data-tv action and delegated child click handler.
+  if(subject==='math'){
+   const next=scene.querySelector('button.tv-next-sign[data-tv="next"]');
+   if(next){
+    next.classList.add('laria-reference-next');
+    rail.appendChild(next);
+   }
+  }
   // Existing "Mine troll" stays the actual profile control; only its
   // presentation changes. Adult settings use the same 1.5-second deliberate
   // press as the pre-existing Home adult gate, never an unrestricted click.
