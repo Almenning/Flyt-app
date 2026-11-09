@@ -138,6 +138,25 @@ async function run(engine,name,viewport){
    'device rotation modified saved learning progress');
   await rotated.locator('.laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:16000});
+  // The child must never enter parental settings with a short tap.
+  // The same protected 1.5s hold gate is enforced on a real phone viewport.
+  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  await rotated.locator('.laria-reference-subject-nav').waitFor({state:'visible',timeout:16000});
+  const adultGate=rotated.locator('button.laria-reference-settings');
+  await adultGate.click();
+  assert.equal(await page.locator('#adult-screen.active').count(),0,
+    'single tap bypassed the parental long-press gate on iPhone');
+  await adultGate.dispatchEvent('pointerdown',{pointerType:'touch',button:0});
+  await page.waitForTimeout(1650);
+  await page.locator('#adult-screen.active').waitFor({state:'visible',timeout:7000});
+  await page.locator('#adult-back').click();
+  await home.waitFor({state:'visible',timeout:16000});
+  const afterAdult=await page.evaluate(()=>localStorage.getItem('laerlittmer-v2'));
+  const beforeLearning=JSON.parse(beforeState),afterLearning=JSON.parse(afterAdult);
+  for(const key of ['mastery','skillMastery','journey','answerLog','sessionLog']){
+    assert.deepEqual(afterLearning[key],beforeLearning[key],
+      'opening parental settings mutated stored learning data: '+key);
+  }
   assert.deepEqual(errors,[],name+'-'+viewport.width+' JavaScript errors '+JSON.stringify(errors));
   await context.close();
  }finally{await browser.close();}
