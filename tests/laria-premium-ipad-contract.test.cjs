@@ -104,4 +104,12 @@ for(const path of [
   path+' must use only one of the three original locked trolls');
 }
 
+// Brøklab initializes before some deferred scripts on slower iPads. Its
+// fallback must be one of the three locked troll sprites, never old fox art.
+const fraction=read('laer-litt-mer/fraction-premium-v2.js');
+assert.doesNotMatch(fraction,/LARIA_FOX\.worldSource|LARIA_FOX\.source/,
+  'Brøklab still has a retired fox fallback');
+assert.match(fraction,/assets\/gangemagi-troll\//,
+  'Brøklab must use the original selected forest troll as its fallback');
+
 console.log('PASS Læria locked premium iPad-first safety contract (NOT visual approval).');
