@@ -19,11 +19,35 @@
  const greeted=new Set();
  const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function icon(id){return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+paths[id]+'</svg>'}
- function navigate(target,current){
-  if(target===current){
-   root.document.querySelector('.screen.active .laria-reference-layout-v1 .laria-scene-navigation .laria-wayfinder:not([disabled])')?.focus({preventScroll:true});
-   return;
+ // Only ONE navigation rail may be visible. The large right plaque is a
+ // location label and the doorway to the SAME left-hand activity rail.
+ function setMode(scene,mode,focus=false){
+  if(!scene?.isConnected)return;
+  const activities=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
+  const subjects=scene.querySelector('nav.laria-reference-subject-nav');
+  const plaque=scene.querySelector('button.laria-reference-place');
+  if(!activities||!subjects||!plaque)return;
+  const activityMode=mode==='activities';
+  scene.dataset.lariaReferenceMode=activityMode?'activities':'subjects';
+  activities.inert=!activityMode;
+  subjects.inert=activityMode;
+  activities.setAttribute('aria-hidden',String(!activityMode));
+  subjects.setAttribute('aria-hidden',String(activityMode));
+  plaque.setAttribute('aria-expanded',String(activityMode));
+  plaque.setAttribute('aria-label',(activityMode?'Vis fagmenyen fra ':'Vis aktiviteter i ')+scene.dataset.lariaReferenceSubject);
+  const heading=plaque.querySelector('.laria-reference-place-kicker');
+  if(heading)heading.textContent=activityMode?'Velg eventyr i':'Velkommen til';
+  const prompt=plaque.querySelector('.laria-reference-place-action');
+  if(prompt)prompt.textContent=activityMode?'Tilbake til fagene ‹':'Utforsk eventyrene ›';
+  if(focus){
+   const next=activityMode?
+    activities.querySelector('.laria-wayfinder:not([disabled])'):
+    subjects.querySelector('.is-current');
+   next?.focus({preventScroll:true});
   }
+ }
+ function navigate(target,current,scene){
+  if(target===current){setMode(scene,'activities',true);return;}
   if(target==='home'){
    if(root.LARIA_RETURN_TO_BASECAMP?.()===true)return;
    root.document.querySelector('#bottom-nav [data-tab="home"]')?.click();
@@ -58,14 +82,30 @@
   ).join('');
   nav.addEventListener('click',event=>{
    const button=event.target.closest('[data-laria-ref-subject]');
-   if(button&&nav.contains(button))navigate(button.dataset.lariaRefSubject,subject);
+   if(button&&nav.contains(button))navigate(button.dataset.lariaRefSubject,subject,scene);
   });
-  const plaque=root.document.createElement('div');
+  const plaque=root.document.createElement('button');
+  plaque.type='button';
   plaque.className='laria-reference-place';
-  plaque.setAttribute('role','heading');
-  plaque.setAttribute('aria-level','2');
-  plaque.setAttribute('aria-label',names[subject]+', '+places[subject]);
-  plaque.innerHTML='<span>Velkommen til</span><strong>'+safe(names[subject])+'</strong><small>'+safe(places[subject])+'</small>';
+  plaque.dataset.lariaRefOpenActivities='1';
+  plaque.setAttribute('aria-controls','laria-reference-activities-'+subject);
+  plaque.innerHTML='<span class="laria-reference-place-kicker">Velkommen til</span>'+
+    '<strong>'+safe(names[subject])+'</strong><small>'+safe(places[subject])+'</small>'+
+    '<em class="laria-reference-place-action">Utforsk eventyrene ›</em>';
+  plaque.addEventListener('click',()=>setMode(scene,
+    scene.dataset.lariaReferenceMode==='subjects'?'activities':'subjects',true));
+  // Reuse, never clone, the three REAL activity buttons. They become the
+  // left-hand signs only when the child explicitly opens this subject.
+  rail.id='laria-reference-activities-'+subject;
+  rail.setAttribute('aria-label','Velg eventyr i '+names[subject]);
+  const back=root.document.createElement('button');
+  back.type='button';
+  back.className='laria-reference-activities-back laria-reference-subject-sign';
+  back.dataset.lariaRefBackToSubjects='1';
+  back.setAttribute('aria-label','Tilbake til fagene');
+  back.innerHTML=icon('home')+'<span>Fagene</span>';
+  back.addEventListener('click',()=>setMode(scene,'subjects',true));
+  rail.insertBefore(back,rail.firstChild);
   // Existing "Mine troll" stays the actual profile control; only its
   // presentation changes. Adult settings use the same 1.5-second deliberate
   // press as the pre-existing Home adult gate, never an unrestricted click.
@@ -112,6 +152,8 @@
   scene.classList.add('laria-reference-layout-v1');
   scene.dataset.lariaReferenceLayout='v1';
   scene.dataset.lariaReferenceArt='original-preserved';
+  scene.dataset.lariaReferenceSubject=names[subject];
+  setMode(scene,'subjects');
   // A single short contextual greeting makes the approved character feel
   // present. The existing scene-owned idle/wave callback runs first; defer
   // this prompt two frames so it is not immediately cancelled. Mathematics
