@@ -154,6 +154,27 @@ async function testEngine(engine,name,device,viewport){
       world.id+' companion speech is too small to read on iPad '+JSON.stringify(speechMetrics));
    }
 
+   if(world.id==='math'){
+    const bubble=await scene.locator('.tv-actor-speech').evaluate(el=>{
+      const c=getComputedStyle(el),r=el.getBoundingClientRect();
+      return {font:parseFloat(c.fontSize),background:c.backgroundColor,
+        left:r.left,right:r.right,top:r.top,bottom:r.bottom};
+    });
+    assert.ok(bubble.font>=16,'Tallvika speech is unreadably small');
+    assert.ok(bubble.font>=16&&bubble.left>=menuBox.x+menuBox.width+6&&
+      bubble.right<plaqueBox.x&&bubble.top>=0,
+      'Tallvika speech not aligned with shared TrollActor bubble: '+JSON.stringify(bubble));
+   }
+   if(world.id==='geography'){
+    const source=await scene.locator('img.gv-landscape').evaluate(el=>({
+      src:el.getAttribute('src'),transform:getComputedStyle(el).transform,
+      loaded:el.complete&&el.naturalWidth>0
+    }));
+    assert.ok(source.loaded&&/geography-premium\.webp/.test(source.src),
+      'Nordlysleiren original low-resolution source unexpectedly replaced');
+    assert.match(source.transform,/matrix\(1\.054, 0, 0, 1\.054, 0, 0\)/,
+      'original thumbnail white sky stripe was not cropped by art-safe overscan');
+   }
    const oldHome=scene.locator('[data-laria-reference-hidden="true"]');
    assert.equal(await oldHome.count(),1,'one original legacy Home anchor');
    assert.equal(await oldHome.isVisible(),false,'no double Home control');
