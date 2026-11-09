@@ -22,48 +22,12 @@ function openTrollDialog(){
 function decoded(src){
  return new Promise((resolve,reject)=>{
    const img=new Image();
-   img.onload=()=>resolve({src,width:img.naturalWidth,height:img.naturalHeight,img});
+   img.onload=()=>resolve({src,width:img.naturalWidth,height:img.naturalHeight});
    img.onerror=()=>reject(new Error('Could not decode Læria Home master'));
    img.src=src;
  });
 }
 
-/* Preserve every pixel of the locked Kjøsnesfjorden painting. The optional
- * safe-area fill samples a thin band of ACTUAL top-edge colours instead of
- * inventing a hard-coded golden/blue strip. No new artwork or UI is drawn.
- * A tiny 48x1 sampling canvas exists only in memory, never as app content.
- */
-function matchLockedEdge(host,img,box){
- try{
-  const bounds=host.getBoundingClientRect();
-  if(!bounds.width||!img.naturalWidth||!img.naturalHeight)throw Error('no image geometry');
-  const canvas=document.createElement('canvas');
-  canvas.width=48;canvas.height=1;
-  const ctx=canvas.getContext('2d',{willReadFrequently:true});
-  if(!ctx)throw Error('no canvas context');
-  const sampleY=Math.min(16,Math.max(0,img.naturalHeight-5));
-  ctx.drawImage(img,0,sampleY,img.naturalWidth,Math.min(4,img.naturalHeight-sampleY),
-   0,0,canvas.width,1);
-  const data=ctx.getImageData(0,0,canvas.width,1).data;
-  const color=i=>{
-   const p=Math.max(0,Math.min(47,i))*4;
-   return '#'+[data[p],data[p+1],data[p+2]].map(x=>x.toString(16).padStart(2,'0')).join('');
-  };
-  const pct=x=>Math.max(0,Math.min(100,100*x/bounds.width)).toFixed(3)+'%';
-  const stops=[color(0)+' 0%'];
-  const imageLeft=box.left,imageWidth=box.width;
-  stops.push(color(0)+' '+pct(imageLeft));
-  for(let i=1;i<48;i++)stops.push(color(i)+' '+pct(imageLeft+imageWidth*i/47));
-  stops.push(color(47)+' 100%');
-  host.style.setProperty('--bc15-safe-fill','linear-gradient(90deg,'+stops.join(',')+')');
-  host.dataset.bc15EdgeFill='sampled';
- }catch(error){
-  // Safety fallback keeps the original locked art visible if canvas access
-  // is unavailable (for example due to a future cross-origin asset URL).
-  host.style.removeProperty('--bc15-safe-fill');
-  host.dataset.bc15EdgeFill='fallback';
- }
-}
 function ensureAmbient(host){
  let ambient=host.querySelector('.bc15-ambient');
  if(ambient)return ambient;
@@ -162,7 +126,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   liveCopy:[.115,.172,.225,.062],
+   liveCopy:[.105,.152,.315,.165],
    liveNext:[.073,.836,.235,.040]
  };
  const viewport={width:rect.width,height:rect.height};
@@ -248,8 +212,7 @@ function clearMappedControls(host){
  });
  host.style.removeProperty('background-size');
  host.style.removeProperty('background-position');
- ['--bc15-art-left','--bc15-art-top','--bc15-art-width','--bc15-art-height','--bc15-safe-fill'].forEach(p=>host.style.removeProperty(p));
- delete host.dataset.bc15EdgeFill;
+ ['--bc15-art-left','--bc15-art-top','--bc15-art-width','--bc15-art-height'].forEach(p=>host.style.removeProperty(p));
 }
 
 async function activate(){
@@ -292,8 +255,7 @@ async function activate(){
    host.dataset.bc15Asset=portrait?'phone-ready':'tablet-ready';
    host.dataset.bc15Master=portrait?'portrait':'landscape';
    syncLiveCopy(host);
-   const box=mapControlsToArtwork(host,image.width,image.height,portrait);
-   matchLockedEdge(host,image.img,box);
+   mapControlsToArtwork(host,image.width,image.height,portrait);
 
    const trollNav=host.querySelector('.bc12-nav [data-camp="wardrobe"]');
    if(trollNav){

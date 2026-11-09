@@ -32,7 +32,7 @@ jobs:
           node --check tests/laria-home-kjosnes-v15.playwright.js
       - name: Serve exact PR version
         run: python3 -m http.server 8765 --directory . > /tmp/laria-home-http.log 2>&1 &
-      - name: Test original painting SHA, edge fill, navigation and saved child progress
+      - name: Verify locked artwork, living greeting bubble, navigation and saved child progress
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           HOME_V15_SCREENSHOTS: /tmp/laria-home-v15

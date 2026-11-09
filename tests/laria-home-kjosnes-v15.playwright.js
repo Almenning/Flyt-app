@@ -38,16 +38,6 @@ async function homeReady(page,label){
    const h=document.querySelector('.bc12.bc15-locked-home');
    return !!h && /ready$/.test(h.dataset.bc15Asset||'');
  },null,{timeout:20000});
- const edge=await home.evaluate(el=>({
-   state:el.dataset.bc15EdgeFill,
-   sampled:el.style.getPropertyValue('--bc15-safe-fill'),
-   computed:getComputedStyle(el,'::before').backgroundImage
- }));
- assert.equal(edge.state,'sampled',label+' Home must match locked image edge, not guessed gradient');
- assert.ok((edge.sampled.match(/#[0-9a-f]{6}/gi)||[]).length>=30,
-   label+' edge sample is missing real source pixel colours');
- assert.match(edge.computed,/linear-gradient/,label+' Home edge must remain a real CSS gradient');
- assert.doesNotMatch(edge.computed,/url\(/,label+' edge fill must not reproduce baked text/icons');
  const asset=await home.getAttribute('data-bc15-asset');
  assert.match(asset,/^(phone|tablet)-ready$/,label+' locked master did not activate');
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
@@ -153,8 +143,8 @@ async function run(engine,label,viewport){
    assert.match(liveGreeting,/Testbarn/,label+' dynamic greeting must use profile name');
    assert.doesNotMatch(liveGreeting,/Aleah/,label+' locked mockup name must not leak as live child identity');
    const portrait=!label.includes('landscape');
-   assert.equal(await page.locator('.bc15-live-intro').isVisible(),portrait,
-     label+' portrait must replace the baked intro while landscape keeps the locked intro');
+   assert.equal(await page.locator('.bc15-live-intro').isVisible(),true,
+     label+' Home greeting and introduction must share one accessible speech bubble');
    const originalNext=(await page.locator('[data-camp-next]').innerText()).trim();
    assert(originalNext,label+' hidden journey state must expose a next place');
    const liveNextText=(await page.locator('.bc15-live-next').innerText()).trim();
@@ -205,6 +195,15 @@ async function run(engine,label,viewport){
      geom.liveNext.y>=geom.journey.y-2&&geom.liveNext.bottom<=geom.journey.bottom+2,
      label+' journey status escaped the painted Fortsett reisen sign '+JSON.stringify({journey:geom.journey,status:geom.liveNext}));
    assert(geom.liveCopy.width<geom.viewport*.65,label+' greeting overlay became a dashboard-sized panel '+JSON.stringify(geom.liveCopy));
+   const speech=await page.locator('.bc15-live-copy').evaluate(el=>{
+     const c=getComputedStyle(el),tail=getComputedStyle(el,'::after');
+     return {radius:parseFloat(c.borderTopLeftRadius),bg:c.backgroundImage,
+       tail:tail.content,colour:c.color,opaque:c.opacity};
+   });
+   assert.ok(speech.radius>=24,label+' Home greeting must be a rounded storybook speech bubble '+JSON.stringify(speech));
+   assert.notEqual(speech.tail,'none',label+' speech bubble pointer missing');
+   assert.match(speech.bg,/linear-gradient/,label+' storybook speech background missing');
+
    assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
      label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert.equal(geom.scenicFilter,'none',label+' Home safe-area fill must not blur the locked artwork');
@@ -217,7 +216,7 @@ async function run(engine,label,viewport){
        label+' portrait journey status must cover baked placeholder text instead of ghosting over it');
      if(label.includes('iphone')){
        assert(geom.artTop<=40,label+' phone top safe-area grew too tall: '+JSON.stringify({artTop:geom.artTop}));
-       assert.equal(geom.liveCopyShadow,'none',label+' phone greeting must read as sky, not a floating UI card');
+       assert.notEqual(geom.liveCopyShadow,'none',label+' selected speech bubble must have clear foreground separation');
        assert.equal(geom.liveNextShadow,'none',label+' phone journey copy must sit flat on the painted sign');
      }
    }
