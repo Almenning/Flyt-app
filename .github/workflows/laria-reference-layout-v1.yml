@@ -1,0 +1,48 @@
+name: "Læria reference layout - actual iPad proof"
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/laria-reference-layout-v1.js'
+      - 'laer-litt-mer/laria-reference-layout-v1.css'
+      - 'laer-litt-mer/laria-scene-ui-v1.js'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-reference-layout-v1.playwright.js'
+      - '.github/workflows/laria-reference-layout-v1.yml'
+permissions:
+  contents: read
+concurrency:
+  group: laria-reference-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  ipad-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Validate presentation code and browser test
+        run: |
+          node --check laer-litt-mer/laria-reference-layout-v1.js
+          node --check tests/laria-reference-layout-v1.playwright.js
+      - name: Run actual app at exact PR HEAD
+        run: python3 -m http.server 8765 --directory . > /tmp/laria-ref-http.log 2>&1 &
+      - name: Capture iPad in Chromium and WebKit, landscape and portrait
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_REFERENCE_SCREENSHOTS: /tmp/laria-reference-layout
+          LARIA_GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node tests/laria-reference-layout-v1.playwright.js
+      - name: Upload real app screenshots (NOT visual approval)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-reference-ipad-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-reference-layout
+          retention-days: 14
+          if-no-files-found: warn

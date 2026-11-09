@@ -81,6 +81,9 @@
    scene.classList.add('laria-scene-shell','laria-scene-'+subject);
    scene.dataset.lariaSceneComponent='v1';
    scene.dataset.lariaArtworkUi=cfg.hasPaintedUI?'painted-pending-clean':'separate';
+   // User's iPad reference is an opt-in, art-safe presentation adapter.
+   // Original scenes, existing actions and stored learning are untouched.
+   window.LARIA_REFERENCE_LAYOUT?.mount?.(scene,subject);
    // Preserve all activity action attributes, data-troll, individual landscape
    // classes and the original source image. This does not create a new logo.
    return true;
