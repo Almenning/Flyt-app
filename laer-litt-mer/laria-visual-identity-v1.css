@@ -5,7 +5,7 @@
 :root{
   --laria-brand-ink:#563019;
   --laria-brand-gold:#f8daa0;
-  --laria-sign-ink:#fff3d5;
+  --laria-sign-ink:#3d2715;
   --laria-sign-art:url("./assets/ui/laria-light-arrow-sign.svg");
   --laria-home-art:url("./assets/ui/laria-home-round.svg");
   --laria-ui-font:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",system-ui,sans-serif;
@@ -130,7 +130,7 @@
   filter:var(--laria-sign-shadow)!important;
   color:var(--laria-sign-ink)!important;
   font:950 clamp(17px,1.85vw,24px)/1.08 var(--laria-ui-font)!important;
-  text-shadow:0 2px 1px #492508!important;
+  text-shadow:0 1px 0 #fff1d1!important;
   letter-spacing:-.025em!important;
   transition:filter .13s ease,transform .13s ease!important;
   transform:none!important;
@@ -163,7 +163,7 @@
 #tallvika-world .tv-sign.laria-wayfinder:nth-child(3) .tv-sign-label{
   color:var(--laria-sign-ink)!important;
   font:950 clamp(17px,1.85vw,24px)/1.1 var(--laria-ui-font)!important;
-  text-shadow:0 2px 1px #492508!important;
+  text-shadow:0 1px 0 #fff1d1!important;
   white-space:normal!important;letter-spacing:-.025em!important
 }
 #eggenipa-world .eg-scene-hit.laria-wayfinder{
@@ -187,7 +187,7 @@
   background:var(--laria-sign-art) center/100% 100% no-repeat!important;
   border:0!important;border-radius:0!important;
   color:var(--laria-sign-ink)!important;
-  text-shadow:0 2px 1px #492508!important;
+  text-shadow:0 1px 0 #fff1d1!important;
   box-shadow:none!important;filter:var(--laria-sign-shadow)!important
 }
 #tallvika-world .tv-next-sign strong,
