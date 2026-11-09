@@ -105,6 +105,39 @@ async function run(engine,name,viewport){
    await nav.locator('[data-laria-ref-subject="home"]').click();
    await home.waitFor({state:'visible',timeout:18000});
   }
+  // A real phone rotates. With a short landscape viewport the reference
+  // adapter must cleanly restore the original DOM, not leave two menus or
+  // naked reference buttons. Returning to portrait reuses the same live
+  // subject actions without touching localStorage.
+  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  const rotated=page.locator('#eggenipa-world .eg-hero');
+  await rotated.locator('.laria-reference-subject-nav').waitFor({state:'visible',timeout:15000});
+  const beforeState=await page.evaluate(()=>localStorage.getItem('laerlittmer-v2'));
+  await page.setViewportSize({width:viewport.height,height:viewport.width});
+  await page.waitForFunction(()=>{
+    const scene=document.querySelector('#eggenipa-world .eg-hero');
+    return !!scene&&!scene.classList.contains('laria-reference-layout-v1')&&
+     !scene.querySelector(':scope > nav.laria-reference-subject-nav')&&
+     !scene.querySelector(':scope > button.laria-reference-place');
+  },null,{timeout:12000});
+  assert.equal(await rotated.locator('[data-laria-component="home"]').getAttribute('aria-hidden'),null,
+   'rotation did not restore original Home control');
+  assert.equal(await rotated.locator('nav.laria-scene-navigation').getAttribute('aria-hidden'),null,
+   'rotation left original learning buttons inaccessible');
+  await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-fallback.png'),animations:'disabled'});
+  await page.setViewportSize(viewport);
+  await page.waitForFunction(()=>{
+    const scene=document.querySelector('#eggenipa-world .eg-hero');
+    return !!scene&&scene.classList.contains('laria-reference-layout-v1')&&
+      scene.dataset.lariaReferenceMode==='subjects'&&
+      scene.querySelectorAll(':scope > nav.laria-reference-subject-nav > button').length===5;
+  },null,{timeout:12000});
+  assert.equal(await rotated.locator('.laria-reference-subject-nav').count(),1,
+   'portrait remount duplicated the five sign rail');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('laerlittmer-v2')),beforeState,
+   'device rotation modified saved learning progress');
+  await rotated.locator('.laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
+  await home.waitFor({state:'visible',timeout:16000});
   assert.deepEqual(errors,[],name+'-'+viewport.width+' JavaScript errors '+JSON.stringify(errors));
   await context.close();
  }finally{await browser.close();}

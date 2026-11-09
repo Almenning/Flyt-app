@@ -190,5 +190,63 @@
   }
   return true;
  }
+ // The iPad-first adapter is preview-only. A phone can rotate into a
+ // landscape viewport too short for these five planks. Restore the EXACT
+ // original scene components rather than leaving unstyled reference buttons
+ // scattered over the painting. Re-mount on returning to portrait.
+ function eligible(){
+  return root.matchMedia('(min-width:768px) and (min-height:650px)').matches||
+   root.matchMedia('(max-width:767px) and (min-width:320px) and (min-height:600px) and (orientation:portrait)').matches;
+ }
+ function unmount(scene){
+  if(!scene?.classList.contains('laria-reference-layout-v1'))return;
+  const rail=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
+  const home=scene.querySelector('[data-laria-component="home"]');
+  if(rail){
+   rail.inert=false;
+   rail.removeAttribute('aria-hidden');
+   rail.querySelector('.laria-reference-activities-back')?.remove();
+   // The original Tallvika button belongs to the original scene outside the
+   // adapted left rail. Keep its delegated data-tv route and enabled status.
+   const next=rail.querySelector('.tv-next-sign.laria-reference-next');
+   if(next){next.classList.remove('laria-reference-next');scene.appendChild(next);}
+  }
+  if(home){
+   delete home.dataset.lariaReferenceHidden;
+   home.removeAttribute('aria-hidden');home.removeAttribute('tabindex');
+  }
+  scene.querySelector(':scope > nav.laria-reference-subject-nav')?.remove();
+  scene.querySelector(':scope > button.laria-reference-place')?.remove();
+  scene.querySelector(':scope > button.laria-reference-settings')?.remove();
+  preferredRail.delete(scene.dataset.lariaReferenceSubject);
+  scene.classList.remove('laria-reference-layout-v1');
+  delete scene.dataset.lariaReferenceLayout;
+  delete scene.dataset.lariaReferenceArt;
+  delete scene.dataset.lariaReferenceSubject;
+  delete scene.dataset.lariaReferenceMode;
+ }
+ function refresh(){
+  if(!enabled)return;
+  for(const [selector,subject] of [
+   ['#eggenipa-world .eg-hero.laria-scene-shell','norwegian'],
+   ['#tallvika-world .tv-scene.laria-scene-shell','math'],
+   ['#laria-geography-world .gv-scene.laria-scene-shell','geography']]){
+   const scene=root.document.querySelector(selector);
+   if(!scene)continue;
+   if(eligible())mount(scene,subject);
+   else unmount(scene);
+  }
+ }
+ if(enabled){
+  let queued=false;
+  const scheduleRefresh=()=>{
+   if(queued)return;
+   queued=true;
+   root.requestAnimationFrame(()=>{queued=false;refresh();});
+  };
+  root.addEventListener('resize',scheduleRefresh,{passive:true});
+  root.matchMedia('(orientation:portrait)').addEventListener?.('change',scheduleRefresh);
+ }
+
  root.LARIA_REFERENCE_LAYOUT=Object.freeze({enabled,mount,artBlocked:['home','english']});
 })(window);
