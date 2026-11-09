@@ -203,8 +203,8 @@
 #tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor,
 #laria-geography-world .gv-scene.laria-reference-layout-v1 .gv-troll{
  left:26%!important;right:auto!important;top:auto!important;
- bottom:2%!important;width:clamp(180px,21%,285px)!important;
- height:clamp(320px,44%,500px)!important;
+ bottom:1.5%!important;width:clamp(260px,26%,375px)!important;
+ height:clamp(440px,62%,660px)!important;
  transform:none!important;z-index:15!important;
 }
 #tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor-speech{
@@ -232,7 +232,8 @@
  #eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-companion-actor,
  #tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor,
  #laria-geography-world .gv-scene.laria-reference-layout-v1 .gv-troll{
-  left:28%!important;bottom:3%!important;height:clamp(340px,42%,500px)!important;
+  left:28%!important;bottom:2%!important;
+  width:clamp(250px,30%,350px)!important;height:clamp(440px,54%,635px)!important;
  }
 }
 @media(prefers-reduced-motion:reduce){
@@ -358,6 +359,41 @@
  color:#4d321d!important;pointer-events:none!important;
 }
 
+/* Scene composition: the selected original TrollActor should be a character,
+ * not a tiny sticker. This preserves each locked character's actual sprite.
+ * Its entire interactive body remains between the single left rail and title.
+ */
+#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-troll-speech,
+#laria-geography-world .gv-scene.laria-reference-layout-v1 .laria-troll-speech{
+ box-sizing:border-box!important;
+ max-width:clamp(205px,20vw,275px)!important;
+ min-width:170px!important;
+ padding:12px 15px 13px!important;
+ border:2px solid #b38a59!important;
+ border-radius:24px!important;
+ background:#fff5da!important;
+ color:#382919!important;
+ box-shadow:0 5px 0 #a67a497a,0 10px 19px #201a145e!important;
+ font:850 clamp(16px,1.5vw,20px)/1.27 var(--laria-ui-font,system-ui)!important;
+ text-align:center!important;
+ white-space:normal!important;
+ overflow-wrap:break-word!important;
+ left:53%!important;bottom:92%!important;
+ z-index:29!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-troll-speech::after,
+#laria-geography-world .gv-scene.laria-reference-layout-v1 .laria-troll-speech::after{
+ width:14px!important;height:14px!important;
+ border-right:2px solid #b38a59!important;border-bottom:2px solid #b38a59!important;
+ bottom:-8px!important;
+}
+@media(orientation:portrait){
+ #eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-troll-speech,
+ #laria-geography-world .gv-scene.laria-reference-layout-v1 .laria-troll-speech{
+  max-width:clamp(210px,24vw,260px)!important;
+  left:55%!important;
+ }
+}
 /* The locked sketch never shows two navigation groups.
  * The real Tallvika Next button joins the same left activity rail; no
  * additional standalone board is permitted on the right. */

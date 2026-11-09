@@ -115,6 +115,30 @@ async function testEngine(engine,name,device,viewport){
    const art=await actor.locator('img').evaluate(img=>({src:img.getAttribute('src'),ok:img.complete&&img.naturalWidth>0}));
    assert.match(art.src||'',/gangemagi-troll\/lillesoster\.webp/);
    assert.ok(art.ok,world.id+' original troll image missing');
+
+   // Composition gate: the living, selected ORIGINAL character must be visible
+   // at storybook scale in the middle, never as a tiny sticker or over a sign.
+   const actorBox=await actor.boundingBox();
+   const plaqueBox=await plaque.boundingBox();
+   const menuBox=await nav.boundingBox();
+   assert.ok(actorBox&&plaqueBox&&menuBox,world.id+' scene geometry unavailable');
+   assert.ok(actorBox.width>=240&&actorBox.height>=420,
+     world.id+' original TrollActor is too small for the locked reference: '+JSON.stringify(actorBox));
+   assert.ok(actorBox.x>menuBox.x+menuBox.width+8,
+     world.id+' original TrollActor overlaps the left navigation');
+   assert.ok(actorBox.x+actorBox.width+8<plaqueBox.x,
+     world.id+' original TrollActor overlaps the title plaque');
+   assert.ok(actorBox.y>=0&&actorBox.y+actorBox.height<=viewport.height+4,
+     world.id+' original TrollActor is clipped');
+   if(world.id!=='math'){
+    const speechMetrics=await scene.locator('.laria-troll-speech').evaluate(el=>{
+     const styles=getComputedStyle(el);
+     return {fontSize:parseFloat(styles.fontSize),maxWidth:parseFloat(styles.maxWidth)};
+    });
+    assert.ok(speechMetrics.fontSize>=16&&speechMetrics.maxWidth>=190,
+      world.id+' companion speech is too small to read on iPad '+JSON.stringify(speechMetrics));
+   }
+
    const oldHome=scene.locator('[data-laria-reference-hidden="true"]');
    assert.equal(await oldHome.count(),1,'one original legacy Home anchor');
    assert.equal(await oldHome.isVisible(),false,'no double Home control');
