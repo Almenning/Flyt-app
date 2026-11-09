@@ -40,8 +40,6 @@
   subjects.setAttribute('aria-hidden',String(activityMode));
   plaque.setAttribute('aria-expanded',String(activityMode));
   plaque.setAttribute('aria-label',(activityMode?'Vis fagmenyen fra ':'Vis aktiviteter i ')+scene.dataset.lariaReferenceSubject);
-  const heading=plaque.querySelector('.laria-reference-place-kicker');
-  if(heading)heading.textContent=activityMode?'Velg eventyr i':'Velkommen til';
   const prompt=plaque.querySelector('.laria-reference-place-action');
   if(prompt)prompt.textContent=activityMode?'Tilbake til fagene ‹':'Utforsk eventyrene ›';
   if(focus){
@@ -94,9 +92,9 @@
   plaque.className='laria-reference-place';
   plaque.dataset.lariaRefOpenActivities='1';
   plaque.setAttribute('aria-controls','laria-reference-activities-'+subject);
-  plaque.innerHTML='<span class="laria-reference-place-kicker">Velkommen til</span>'+
+  plaque.innerHTML='<span class="laria-reference-place-kicker" aria-hidden="true">'+icon(subject)+'</span>'+
     '<strong>'+safe(names[subject])+'</strong><small>'+safe(places[subject])+'</small>'+
-    '<em class="laria-reference-place-action">Utforsk eventyrene ›</em>';
+    '<em class="laria-reference-place-action">Utforsk ›</em>';
   plaque.addEventListener('click',()=>setMode(scene,
     scene.dataset.lariaReferenceMode==='subjects'?'activities':'subjects',true));
   // Reuse, never clone, the three REAL activity buttons. They become the

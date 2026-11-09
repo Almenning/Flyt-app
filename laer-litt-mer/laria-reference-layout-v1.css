@@ -93,10 +93,16 @@
   linear-gradient(90deg,#754322,#cf9a65,#754322) 91% 0/13px 100% no-repeat;
 }
 .laria-reference-layout-v1 .laria-reference-place-kicker{
- font:850 clamp(13px,1.4vw,18px)/1.08 var(--laria-ui-font,system-ui);
+ display:grid;place-items:center;flex:none;
+ width:38px;height:30px;margin:0 auto 1px;
+ color:#523015;text-shadow:0 1px 0 #fce7b3;
+}
+.laria-reference-layout-v1 .laria-reference-place-kicker svg{
+ display:block;width:30px;height:30px;
+ stroke-width:2.4;fill:none;pointer-events:none;
 }
 .laria-reference-layout-v1 .laria-reference-place strong{
- font:950 clamp(35px,3.8vw,51px)/1.08 var(--laria-ui-font,system-ui);
+ font:950 clamp(34px,3.4vw,47px)/1.08 var(--laria-ui-font,system-ui);
  letter-spacing:-.035em;
 }
 .laria-reference-layout-v1 .laria-reference-place small{

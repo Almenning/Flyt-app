@@ -61,6 +61,8 @@ async function testEngine(engine,name,device,viewport){
    assert.equal(await nav.isVisible(),true);
    assert.equal(await plaque.isVisible(),true);
    assert.equal(await plaque.getAttribute('aria-expanded'),'false');
+   assert.equal(await plaque.locator('.laria-reference-place-kicker svg').count(),1,
+     world.id+' place plaque does not use the shared subject icon from the locked sketch');
    const boxes=await scene.evaluate(el=>{
     const rect=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};
     return {
