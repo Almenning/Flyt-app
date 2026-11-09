@@ -18,7 +18,15 @@ def model(path):
 def canvas(world):
  original,raw=source(world)
  mask=make_mask(world)
- if world=='kinnaklova':return original,mask,(0,0),raw
+ if world=='kinnaklova':
+  # Narrow only the former title/breadcrumb masks: they conceal plain sky,
+  # not the protected Kinnaklova peaks or the intact church.
+  mask=Image.new('L',original.size,0)
+  draw=ImageDraw.Draw(mask)
+  for box in ((8,10,420,125),(535,0,1180,250),(377,693,692,817),
+              (1037,458,1320,571),(1341,655,1645,759)):
+   draw.rectangle(box,fill=255)
+  return original,mask,(0,0),raw
  w,h=1366,1024
  x,y=(w-original.width)//2,(h-original.height)//2
  img=Image.new('RGB',(w,h),(89,151,199));img.paste(original,(x,y))
@@ -41,10 +49,10 @@ def inpaint(m,img,mask,max_side=1152):
   result=prediction.clamp(0,1)[0].permute(1,2,0).cpu().numpy()
  generated=Image.fromarray(np.uint8(result*255)).resize((w,h),Image.Resampling.LANCZOS)
  return Image.composite(generated,img,mask)
-def run(out,checkpoint,max_side):
+def run(out,checkpoint,max_side,worlds):
  out.mkdir(parents=True,exist_ok=True);m=model(checkpoint)
  report={'status':'REVIEW_ONLY_NOT_APPROVED','activated':False,'approved':False,'scenes':{}}
- for world in ('grovanova','kinnaklova'):
+ for world in worlds:
   src,mask,offset,raw=canvas(world)
   result=inpaint(m,src,mask,max_side)
   changed=checked(src,result,mask)
@@ -70,6 +78,7 @@ if __name__=='__main__':
  p.add_argument('--out',type=Path,default=Path('/tmp/laria-lama-review'))
  p.add_argument('--model',type=Path,default=Path('/tmp/big-lama.pt'))
  p.add_argument('--max-side',type=int,default=1152)
+ p.add_argument('--world',choices=['grovanova','kinnaklova'],action='append')
  a=p.parse_args()
  if a.self_test:self_test()
- else:run(a.out,a.model,a.max_side)
+ else:run(a.out,a.model,a.max_side,a.world or ['grovanova','kinnaklova'])
