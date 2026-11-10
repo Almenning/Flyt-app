@@ -60,6 +60,41 @@ for(const name of ['grovanova','kinnaklova']){
  }
  if(a.ownerApproved!==true)errors.push(name+': owner has not accepted the clean illustration');
 }
+// Nordlysleiren is a separate release-critical art requirement: the locked
+// 1024x704 facade is visibly low-res on iPad. The old 941x1672 journey has
+// baked navigation and is not a substitute for a clean, wide subject scene.
+const geo=s.art?.nordlysleiren;
+if(!geo){
+ errors.push('nordlysleiren: missing independent high-resolution art contract');
+}else{
+ const locked=file(geo.locked);
+ if(!locked||!fs.existsSync(locked)||actualSha(locked)!==geo.lockedSha256)
+  errors.push('nordlysleiren: original facade lock/hash changed');
+ if(!Array.isArray(geo.lockedDimensions)||geo.lockedDimensions.join('x')!=='1024x704')
+  errors.push('nordlysleiren: locked original dimensions contract changed');
+ const clean=file(geo.clean);
+ if(!clean||!fs.existsSync(clean)||!sha64(geo.cleanSha256)){
+  errors.push('nordlysleiren: independent clean high-resolution background has not been supplied');
+ }else{
+  const digest=actualSha(clean);
+  if(digest!==geo.cleanSha256||digest===geo.lockedSha256)
+   errors.push('nordlysleiren: clean image hash differs or is identical to the compressed original');
+  try{
+   const result=execFileSync('python3',['-c',
+    'from PIL import Image; import sys; im=Image.open(sys.argv[1]); print(im.width,im.height)',
+    clean],{cwd:root,encoding:'utf8',timeout:12000,stdio:['ignore','pipe','pipe']}).trim();
+   const [w,h]=result.split(/\s+/).map(Number);
+   if(!Number.isFinite(w)||!Number.isFinite(h)||w<1600||h<900||
+      geo.minWidth!==1600||geo.minHeight!==900)
+    errors.push('nordlysleiren: clean wide artwork below minimum 1600x900 quality gate');
+  }catch(error){
+   errors.push('nordlysleiren: unable to decode clean art image');
+  }
+ }
+ if(geo.ownerApproved!==true)
+  errors.push('nordlysleiren: owner has not visually accepted the clean high-resolution illustration');
+}
+
 for(const name of ['ipadLandscape','ipadPortrait','iphonePortrait','iphoneLandscape','desktop']){
  const d=s.devices?.[name];
  if(!d){errors.push(name+': missing device report');continue}

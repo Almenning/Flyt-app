@@ -18,6 +18,19 @@
       "clean": null,
       "cleanSha256": null,
       "ownerApproved": false
+    },
+    "nordlysleiren": {
+      "locked": "laer-litt-mer/assets/cards/reisen/geography-premium.webp",
+      "lockedSha256": "83bd9d687957c178401dddd419718cabbbe06b4c422358c01b258a2aea95f14f",
+      "lockedDimensions": [
+        1024,
+        704
+      ],
+      "clean": null,
+      "cleanSha256": null,
+      "minWidth": 1600,
+      "minHeight": 900,
+      "ownerApproved": false
     }
   },
   "devices": {
@@ -60,5 +73,5 @@
     "merge": false,
     "publish": false
   },
-  "evidenceNote": "Verified on exact app+test source tree c8ae248ec90a98e00bde3b5c868396a6e4866275: GitHub Actions reference-layout run 42775701373 (success, WebKit+Chromium iPad landscape/portrait, iPhone portrait, iPhone landscape rotation fallback, desktop; screenshot artifact 13744036782) plus Læria QA 42775701552, Continuous smoke checks 42775701370, iOS build 42775701655 and other non-release workflows successful. iPhone landscape is an ORIGINAL-UI FALLBACK, not an approved reference layout. Screenshots are NOT visually owner-approved. Home/Grovanova and English/Kinnaklova clean masters remain missing. No child usability test. Release remains BLOCKED; no merge/publish permission."
+  "evidenceNote": "Verified on exact app+test source tree c8ae248ec90a98e00bde3b5c868396a6e4866275: GitHub Actions reference-layout run 42775701373 (success, WebKit+Chromium iPad landscape/portrait, iPhone portrait, iPhone landscape rotation fallback, desktop; screenshot artifact 13744036782) plus Læria QA 42775701552, Continuous smoke checks 42775701370, iOS build 42775701655 and other non-release workflows successful. iPhone landscape is an ORIGINAL-UI FALLBACK, not an approved reference layout. Screenshots are NOT visually owner-approved. Home/Grovanova and English/Kinnaklova clean masters remain missing. No child usability test. Release remains BLOCKED; no merge/publish permission. Nordlysleiren's current facade is only 1024x704; a distinct original-faithful, owner-approved >=1600x900 clean premium background is REQUIRED before release. The larger locked vertical journey is UI-embedded and cannot be substituted."
 }
