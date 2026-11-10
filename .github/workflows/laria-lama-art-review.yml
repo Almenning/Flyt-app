@@ -53,7 +53,7 @@ jobs:
           python tools/laria_release/verify_clean_candidate.py --world kinnaklova --candidate /tmp/laria-lama-review/kinnaklova-lama-NOT-APPROVED.png --report /tmp/laria-lama-review/kinnaklova-pixel-integrity.json
           printf '%s\n' 'DRAFT ART CANDIDATES - NOT PREMIUM APPROVED' 'Do not activate in Læria or remove release gates.' 'Compare EVERY native-pixel before/after detail sheet.' 'Reject any visible smearing, repeated sky, changed landforms or altered church.' > /tmp/laria-lama-review/ARTIST-REVIEW-REQUIRED.txt
       - name: Upload review images, masks, checksums and comparisons
-        if: steps.should-run.outputs.run == 'yes'
+        if: always() && steps.should-run.outputs.run == 'yes'
         uses: actions/upload-artifact@v4
         with:
           name: laria-lama-REVIEW-ONLY-${{ github.event.pull_request.head.sha || github.sha }}

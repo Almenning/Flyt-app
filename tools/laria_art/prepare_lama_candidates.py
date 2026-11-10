@@ -3,7 +3,7 @@
 import argparse,hashlib,json,os,urllib.request
 from pathlib import Path
 import numpy as np
-from PIL import Image,ImageDraw
+from PIL import Image,ImageDraw,ImageChops
 from prepare_clean_art_previews import source,make_mask,checked,comparison,LOCKED
 URL='https://github.com/Sanster/models/releases/download/add_big_lama/big-lama.pt'
 MD5='e3aa4aaa15225a33ec84f9f4bc47e500'
@@ -23,13 +23,17 @@ def canvas(world):
   # not the protected Kinnaklova peaks or the intact church.
   mask=Image.new('L',original.size,0)
   draw=ImageDraw.Draw(mask)
-  for box in ((8,10,420,125),(535,0,1180,250),(377,693,692,817),
+  for box in ((8,15,420,125),(535,0,1180,250),(377,693,692,817),
               (1037,458,1320,571),(1341,655,1645,759)):
    draw.rectangle(box,fill=255)
   # Upper Kinnaklova peaks and the original church are inviolable.
   # A UI mask is NEVER permission to smooth protected landmark pixels.
   for box in LOCKED[world]['landmarks'].values():
    draw.rectangle(box,fill=0)
+  # Never let a learned clean-art pass change pixels the canonical locked
+  # UI whitelist does not explicitly authorize, even by one pixel.
+  if ImageChops.multiply(mask,ImageChops.invert(make_mask(world))).getbbox():
+   raise AssertionError('Kinnaklova retouch mask extends outside canonical UI whitelist')
   return original,mask,(0,0),raw
  w,h=1366,1024
  x,y=(w-original.width)//2,(h-original.height)//2
