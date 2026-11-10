@@ -219,6 +219,11 @@ async function activate(){
  const epoch=++activationEpoch;
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return false;
+ // Historic landscape can load perfectly, yet its painted characters and
+ // activity cards disqualify it as the CLEAN November premium master.
+ // A successful decode is not art approval. Preserve original Home until
+ // the replacement passes independent pixel + visual review.
+ host.dataset.bc15PremiumArt='blocked';
  const youngBand=!!document.querySelector('.grade-band-young');
  if(!youngBand){
    host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');

@@ -40,6 +40,8 @@ async function homeReady(page,label){
  },null,{timeout:20000});
  const asset=await home.getAttribute('data-bc15-asset');
  assert.match(asset,/^(phone|tablet)-ready$/,label+' locked master did not activate');
+ assert.equal(await home.getAttribute('data-bc15-premium-art'),'blocked',
+   label+' historical Grovanova art was incorrectly marked clean and premium-approved');
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
  const portrait=label.includes('iphone')||(label.includes('ipad')&&!label.includes('landscape'));
  const expected=portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp';
