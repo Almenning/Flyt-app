@@ -40,6 +40,35 @@ jobs:
           cp laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp /tmp/laria-art-preview/locked-source/KINNAKLOVA-original-locked.webp
           sha256sum /tmp/laria-art-preview/locked-source/*.webp > /tmp/laria-art-preview/locked-source/SOURCE-SHA256.txt
           echo "REVIEW ONLY: these are unchanged historical originals; not UI-free premium art." > /tmp/laria-art-preview/locked-source/READ-ME.txt
+      - name: Collect locked Nordlysleiren source candidates (read-only resolution review)
+        run: |
+          mkdir -p /tmp/laria-art-preview/geography-source
+          cp laer-litt-mer/locked-journeys/nordlysleiren-locked-20261010.png /tmp/laria-art-preview/geography-source/
+          cp laer-litt-mer/locked-journeys/nordlysleiren-fox-free-20261011.webp /tmp/laria-art-preview/geography-source/
+          cp laer-litt-mer/assets/cards/reisen/geography-premium.webp /tmp/laria-art-preview/geography-source/current-geography-premium.webp
+          cp laer-litt-mer/globe-storyscape-v36-landscape.webp /tmp/laria-art-preview/geography-source/
+          python - <<'PY'
+          from PIL import Image,ImageOps,ImageDraw
+          import pathlib,json,hashlib
+          root=pathlib.Path('/tmp/laria-art-preview/geography-source')
+          files=sorted([p for p in root.iterdir() if p.suffix.lower() in ('.png','.webp')])
+          data=[];cards=[];tile_w=680;tile_h=430
+          for p in files:
+           im=Image.open(p).convert('RGB')
+           data.append(dict(file=p.name,width=im.width,height=im.height,bytes=p.stat().st_size,
+               sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
+           fitted=ImageOps.contain(im,(tile_w-20,tile_h-74))
+           tile=Image.new('RGB',(tile_w,tile_h),'#172b3a')
+           tile.paste(fitted,((tile_w-fitted.width)//2,8))
+           d=ImageDraw.Draw(tile)
+           d.text((14,tile_h-59),p.name,fill='white')
+           d.text((14,tile_h-36),f'{im.width} x {im.height} | {p.stat().st_size//1024} KiB',fill='#c8e9ed')
+           cards.append(tile)
+          sheet=Image.new('RGB',(tile_w*2,tile_h*2),'#172b3a')
+          for i,t in enumerate(cards):sheet.paste(t,((i%2)*tile_w,(i//2)*tile_h))
+          sheet.save(root/'geography-source-review-NOT-APPROVED.png',optimize=True)
+          (root/'SOURCE-INVENTORY.json').write_text(json.dumps({'release_approved':False,'source_integrity':'read-only','candidates':data},indent=2))
+          PY
       - name: Upload image candidates and pixel-integrity report
         if: always()
         uses: actions/upload-artifact@v4
