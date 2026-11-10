@@ -1,0 +1,54 @@
+name: Læria – låst felles visuell identitet
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/laria-visual-identity-v1.css'
+      - 'laer-litt-mer/laria-sign-rail-v2.css'
+      - 'laer-litt-mer/laria-scene-ui-v1.js'
+      - 'laer-litt-mer/laria-troll-runtime-v1.css'
+      - 'laer-litt-mer/tallvika-fjord-v2.css'
+      - 'laer-litt-mer/eggenipa.css'
+      - 'laer-litt-mer/geography-kinnaklova-scene.css'
+      - 'laer-litt-mer/home-kjosnes-v15.css'
+      - 'laer-litt-mer/kinnaklova*.css'
+      - 'laer-litt-mer/assets/ui/laria-light-arrow-sign.svg'
+      - 'laer-litt-mer/assets/ui/laria-home-round.svg'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-visual-identity-v1.playwright.js'
+      - '.github/workflows/laria-visual-identity-v1.yml'
+permissions:
+  contents: read
+concurrency:
+  group: laria-identity-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  real-device-style:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Verify identity test source
+        run: node --check tests/laria-visual-identity-v1.playwright.js
+      - name: Serve exact PR head
+        run: python3 -m http.server 8765 --directory . > /tmp/laria-identity-http.log 2>&1 &
+      - name: Verify actual iPad/iPhone visual component system in Chromium/WebKit
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_IDENTITY_SCREENSHOTS: /tmp/laria-visual-identity
+          LARIA_GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node tests/laria-visual-identity-v1.playwright.js
+      - name: Upload real app screenshots for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-visual-identity-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-visual-identity
+          if-no-files-found: warn
+          retention-days: 14

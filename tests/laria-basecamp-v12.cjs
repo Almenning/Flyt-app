@@ -17,7 +17,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     await page.route('https://raw.githubusercontent.com/**',async route=>{await new Promise(r=>setTimeout(r,5000));await route.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'});});
     await page.route('https://api.worldbank.org/**',async route=>{await new Promise(r=>setTimeout(r,5000));await route.fulfill({status:200,contentType:'application/json',body:'[{},[]]'});});
   }
-  const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+  const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:2,tallvikaTroll:'storesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   // The interaction suite must exercise the exact checked-out PR code in both engines.
   // Published-runtime coverage runs separately in test:laria-live; using it here can
@@ -197,7 +197,12 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert.deepEqual(eggenipaPortals,['words','find','reading'],name+' direct Norsk activities missing');
   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
     name+' old Norsk map leaked into the child journey');
-  await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').tap();
+  // On an illustrated landscape the painted portal is the real child-facing
+  // target. Portrait retains the accessible card while the stage is letterboxed.
+  const paintedReading=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  const readingEntry=(await paintedReading.count())?paintedReading:
+    page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible');
+  await readingEntry.tap();
   await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
   const reading=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
     prompt:sessionQuestions[qIndex]?.prompt,grade:sessionScope?.grade}));
@@ -213,16 +218,23 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.getByRole('heading',{name:'Lærias magiske samlebok'}).waitFor();
   assert.equal(await page.locator('#bc12-dialog [data-collection-tab],#bc12-dialog .bc12-equipment-card').count(),0,name+' must hide unpublished equipment');
   await page.locator('#bc12-dialog [data-wardrobe-open]').tap();
-  assert.equal(await page.locator('#bc12-dialog.is-wardrobe .bc12-wardrobe-preview svg').count(),1,name+' must retain selected fox');
-  assert.equal(await page.locator('#bc12-dialog.is-wardrobe [data-wear],#bc12-dialog.is-wardrobe [data-gear]').count(),0,name+' must hide unfinished wearable visuals');
+  const trollDialog=page.locator('#laria-premium-troll-dialog[open]');
+  await trollDialog.waitFor({state:'visible',timeout:6000});
+  assert.equal(await trollDialog.locator('.laria-troll-choice').count(),3,name+' must offer three premium trolls');
+  assert.equal(await trollDialog.locator('[data-troll-choice="storesoster"]').getAttribute('aria-pressed'),'true',name+' must retain selected troll');
+  assert.equal(await page.locator('#bc12-dialog.is-wardrobe [data-wear],#bc12-dialog.is-wardrobe [data-gear]').count(),0,name+' must hide retired fox wardrobe visuals');
+  await trollDialog.locator('.laria-troll-dialog-close').tap();
   await page.locator('#bc12-dialog .bc12-close').tap();
   await page.locator('.bc12-nav [data-camp="explore"]').tap();
   await page.locator('.bc13-panel:not([hidden])').waitFor({state:'visible',timeout:10000});
   assert.equal(await page.locator('.bc12.bc15-locked-home').count(),0,name+' Explore must use the existing Basecamp surface until its redesign pass');
   await page.locator('.bc12-nav [data-camp="wardrobe"]').tap();
-  assert.equal(await page.locator('#bc12-dialog.is-wardrobe .bc12-wardrobe-preview svg').count(),1,name+' legacy Explore must retain selected fox until that surface is redesigned');
-  assert.equal(await page.locator('#bc12-dialog.is-wardrobe [data-wear],#bc12-dialog.is-wardrobe [data-gear]').count(),0,name+' legacy Explore must not expose unfinished outfits');
-  await page.locator('#bc12-dialog .bc12-close').tap();
+  const exploreTrollDialog=page.locator('#laria-premium-troll-dialog[open]');
+  await exploreTrollDialog.waitFor({state:'visible',timeout:6000});
+  assert.equal(await exploreTrollDialog.locator('.laria-troll-choice').count(),3,name+' legacy Explore must route to Mine troll');
+  assert.equal(await exploreTrollDialog.locator('[data-troll-choice="storesoster"]').getAttribute('aria-pressed'),'true',name+' legacy Explore lost selected troll');
+  assert.equal(await page.locator('#bc12-dialog.is-wardrobe [data-wear],#bc12-dialog.is-wardrobe [data-gear]').count(),0,name+' legacy Explore must not expose retired outfits');
+  await exploreTrollDialog.locator('.laria-troll-dialog-close').tap();
   await page.locator('.bc12-nav [data-camp="home"]').tap();
   await page.locator('.bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
   const rcTouch=await page.locator('.bc12-nav button').evaluateAll(els=>els

@@ -76,7 +76,7 @@ async function run(engine,label){
     await page.locator('.bc14-subject[data-camp="subject-math"]').click();
     const tv=page.locator('#subject-screen.active #tallvika-world');
     await tv.waitFor({state:'visible',timeout:16000});
-    assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' Math houses missing');
+    assert.equal(await tv.locator('.tv-sign').count(),3,label+' Math activity signs missing');
     const before=await page.evaluate(()=>JSON.stringify(state.journey.nodes));
     await tv.locator('[data-tv="fraction"]:visible').first().click();
     await page.locator('#fraction-lab-screen.active .fr6-workshop').waitFor({timeout:12000});

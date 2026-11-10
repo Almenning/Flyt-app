@@ -40,6 +40,8 @@ async function homeReady(page,label){
  },null,{timeout:20000});
  const asset=await home.getAttribute('data-bc15-asset');
  assert.match(asset,/^(phone|tablet)-ready$/,label+' locked master did not activate');
+ assert.equal(await home.getAttribute('data-bc15-premium-art'),'blocked',
+   label+' historical Grovanova art was incorrectly marked clean and premium-approved');
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
  const portrait=label.includes('iphone')||(label.includes('ipad')&&!label.includes('landscape'));
  const expected=portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp';
@@ -76,7 +78,9 @@ async function returnFromLockedJourney(page,screen,subject,label){
      ['words','find','reading'],label+' Norsk has not switched to direct learning activities');
    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
      label+' retired Bokskogen map unexpectedly visible');
-   await world.locator('.eg-portal[data-eg="reading"]').click();
+   { const painted=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  const entry=(await painted.count())?painted:page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible');
+  await entry.click(); }
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
    const learning=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
      question:sessionQuestions[qIndex]?.prompt}));
@@ -101,6 +105,12 @@ async function returnFromLockedJourney(page,screen,subject,label){
    const utility=world.locator('.ki-utility [data-ki="home"]');
    if(await utility.isVisible())await utility.click();
    else await world.locator('.ki-painted-home').click();
+ }else if(subject==='geography'){
+   // Geography now has a proper Nordlysleiren scene in front of the old map.
+   // The Home sign goes straight back without opening an unrelated lesson.
+   const world=page.locator('#laria-geography-world:visible');
+   await world.waitFor({timeout:16000});
+   await world.locator('[data-gv="home"]').click();
  }else{
    const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});
@@ -135,8 +145,8 @@ async function run(engine,label,viewport){
    assert.match(liveGreeting,/Testbarn/,label+' dynamic greeting must use profile name');
    assert.doesNotMatch(liveGreeting,/Aleah/,label+' locked mockup name must not leak as live child identity');
    const portrait=!label.includes('landscape');
-   assert.equal(await page.locator('.bc15-live-intro').isVisible(),portrait,
-     label+' portrait must replace the baked intro while landscape keeps the locked intro');
+   assert.equal(await page.locator('.bc15-live-intro').isVisible(),true,
+     label+' Home greeting and introduction must share one accessible speech bubble');
    const originalNext=(await page.locator('[data-camp-next]').innerText()).trim();
    assert(originalNext,label+' hidden journey state must expose a next place');
    const liveNextText=(await page.locator('.bc15-live-next').innerText()).trim();
@@ -187,6 +197,22 @@ async function run(engine,label,viewport){
      geom.liveNext.y>=geom.journey.y-2&&geom.liveNext.bottom<=geom.journey.bottom+2,
      label+' journey status escaped the painted Fortsett reisen sign '+JSON.stringify({journey:geom.journey,status:geom.liveNext}));
    assert(geom.liveCopy.width<geom.viewport*.65,label+' greeting overlay became a dashboard-sized panel '+JSON.stringify(geom.liveCopy));
+   if(!portrait){
+     const firstSign=await page.locator('.bc15-painted-subject').first().boundingBox();
+     assert.ok(firstSign&&geom.liveCopy.bottom+9<=firstSign.y,
+       label+' speech bubble or pointer physically overlaps first wooden subject sign: '+
+       JSON.stringify({bubble:geom.liveCopy,firstSign}));
+   }
+
+   const speech=await page.locator('.bc15-live-copy').evaluate(el=>{
+     const c=getComputedStyle(el),tail=getComputedStyle(el,'::after');
+     return {radius:parseFloat(c.borderTopLeftRadius),bg:c.backgroundImage,
+       tail:tail.content,colour:c.color,opaque:c.opacity};
+   });
+   assert.ok(speech.radius>=24,label+' Home greeting must be a rounded storybook speech bubble '+JSON.stringify(speech));
+   assert.notEqual(speech.tail,'none',label+' speech bubble pointer missing');
+   assert.match(speech.bg,/linear-gradient/,label+' storybook speech background missing');
+
    assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
      label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert.equal(geom.scenicFilter,'none',label+' Home safe-area fill must not blur the locked artwork');
@@ -199,7 +225,7 @@ async function run(engine,label,viewport){
        label+' portrait journey status must cover baked placeholder text instead of ghosting over it');
      if(label.includes('iphone')){
        assert(geom.artTop<=40,label+' phone top safe-area grew too tall: '+JSON.stringify({artTop:geom.artTop}));
-       assert.equal(geom.liveCopyShadow,'none',label+' phone greeting must read as sky, not a floating UI card');
+       assert.notEqual(geom.liveCopyShadow,'none',label+' selected speech bubble must have clear foreground separation');
        assert.equal(geom.liveNextShadow,'none',label+' phone journey copy must sit flat on the painted sign');
      }
    }
@@ -207,20 +233,25 @@ async function run(engine,label,viewport){
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
 
-   /* Mine troll must not leak into the old fox wardrobe. */
+   /* Mine troll is one live, selectable companion, not a static gallery. */
    await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
-   const trollDialog=page.locator('#bc15-troll-dialog');
-   await trollDialog.waitFor({state:'visible',timeout:8000});
+   const trollDialog=page.locator('#laria-premium-troll-dialog[open]');
+   await trollDialog.waitFor({state:'visible',timeout:10000});
    assert.equal((await trollDialog.locator('h2').innerText()).trim(),'Mine troll');
-   assert.equal((await page.locator('.bc12-nav [data-camp="wardrobe"]').innerText()).trim(),'Mine troll',
-     label+' troll navigation label must not fall back to Min rev');
-   assert.doesNotMatch((await trollDialog.innerText()).toLowerCase(),/min rev|kle på din rev/,
-     label+' Mine troll routed to fox wardrobe');
-   const trollArt=await trollDialog.locator('.bc15-troll-art').evaluate(el=>getComputedStyle(el).backgroundImage);
-   assert(trollArt.includes('laria-troll-trio-v3.webp'),
-     label+' Mine troll must use the locked standalone troll trio art: '+trollArt);
+   assert.equal((await page.locator('.bc12-nav [data-camp="wardrobe"]').innerText()).trim(),'Mine troll');
+   assert.equal(await page.locator('#bc15-troll-dialog[open],#bc12-dialog.is-wardrobe[open]').count(),0,
+     label+' legacy static gallery or fox wardrobe was opened');
+   assert.deepEqual(await trollDialog.locator('[data-troll-choice]').evaluateAll(xs=>xs.map(x=>x.dataset.trollChoice)),
+     ['storesoster','lillesoster','lillebror'],label+' original three companion choices changed');
+   assert.equal(await trollDialog.locator('[data-troll-choice][aria-pressed="true"]').getAttribute('data-troll-choice'),
+     'storesoster',label+' must initially select approved Storesøster');
    await page.screenshot({path:folder+'/'+label+'-mine-troll.png',fullPage:true});
-   await trollDialog.locator('.bc15-troll-close').click();
+   await trollDialog.locator('[data-troll-choice="lillesoster"]').click();
+   await trollDialog.waitFor({state:'hidden',timeout:9000});
+   assert.equal(await page.evaluate(()=>window.LARIA_TROLL_ACTOR.choice()),'lillesoster',
+     label+' chosen companion was not applied');
+   assert.equal(await page.evaluate(()=>state.profile.tallvikaTroll),'lillesoster',
+     label+' chosen companion was not saved');
 
    /* Every subject gateway remains functional under the locked artwork. */
    for(const [subject,screen] of [

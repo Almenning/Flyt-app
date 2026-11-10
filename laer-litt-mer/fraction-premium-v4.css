@@ -554,6 +554,9 @@
 #fraction-lab-screen .fr6-piece-tray .fr2-spare{
   border-color:#FAE7C2;background:linear-gradient(#FFF1D8,#E9B988);
   box-shadow:inset 0 2px 5px #FFF9E8,0 3px 0 #B98354;
+  /* Native touch panning cancels the pointer before a dragged piece reaches
+     the cake on 320px iPhones. Let the child's deliberate drag own this hit. */
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
 }
 #fraction-lab-screen .fr6-piece-tray .fr2-spare:active{transform:translateY(2px)}
 #fraction-lab-screen .fr6-empty-tray{
@@ -972,5 +975,154 @@
       inset 0 3px 7px rgba(255,255,255,.82),
       0 5px 0 rgba(184,145,103,.62),
       0 10px 15px rgba(84,51,31,.12);
+  }
+}
+
+/* Premium beta release: in narrow touch viewports the number controls must
+   be available before the optional loose-piece tray. Keep the real cake and
+   selected TrollActor; this changes visual order, not progress or handlers. */
+@media (max-width:699px) and (orientation:portrait){
+  #fraction-lab-screen .fr6-workshop{
+    display:grid;grid-template-columns:minmax(0,1.42fr) minmax(0,1fr);
+    grid-auto-rows:min-content;align-content:start;gap:5px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-lab-intro{
+    grid-column:1/-1;grid-row:1;margin:3px 0;padding:6px 9px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage{display:contents}
+  #fraction-lab-screen .fr6-workshop .fr5-build-target{
+    grid-column:1;grid-row:2;min-height:0;padding:3px 2px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-build-aside{
+    grid-column:2;grid-row:2;min-width:0;gap:3px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-build-aside .fr5-fox-mentor{
+    min-height:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-controls{
+    grid-column:1/-1;grid-row:3;margin:2px 0;gap:5px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-piece-tray{
+    grid-column:1/-1;grid-row:4;min-width:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr7-mobile-discovery{
+    grid-column:1/-1;grid-row:5;
+  }
+  #fraction-lab-screen .fr6-workshop .fr2-actions{
+    grid-column:1/-1;grid-row:6;
+  }
+}
+@media (min-width:700px) and (max-width:999px) and (orientation:portrait){
+  #fraction-lab-screen .fr6-workshop .fr5-build-aside{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:min-content min-content;
+    gap:5px;align-content:center;align-items:center;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-live-result{
+    grid-column:1;grid-row:1/3;align-self:stretch;min-height:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr7-tablet-equivalents{
+    grid-column:2;grid-row:1;min-height:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-fox-mentor{
+    grid-column:2;grid-row:2;min-height:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-fox-mentor>.fr2-fox{
+    width:92px;height:103px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-build-target{
+    min-height:0;
+  }
+}
+@media (orientation:landscape) and (min-width:700px) and (max-height:500px){
+  #fraction-lab-screen .fr6-workshop{
+    display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+    grid-auto-rows:min-content;gap:3px;align-content:start;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-lab-intro{display:none}
+  #fraction-lab-screen .fr6-workshop .fr6-stage{display:contents}
+  #fraction-lab-screen .fr6-workshop .fr5-build-target{
+    grid-column:1;grid-row:1;min-height:0;padding:2px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-build-aside{
+    grid-column:2;grid-row:1;min-height:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-controls{
+    grid-column:1/-1;grid-row:2;margin:0;gap:4px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-piece-tray{
+    grid-column:1/-1;grid-row:3;min-height:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr7-mobile-discovery{
+    grid-column:1/-1;grid-row:4;
+  }
+  #fraction-lab-screen .fr6-workshop .fr2-actions{
+    grid-column:1/-1;grid-row:5;
+  }
+  #fraction-lab-screen .fr6-nav .fr2-nav-item{
+    min-height:44px;
+  }
+}
+
+/* Short-device release gate: preserve 44px controls and the visible fraction.
+   Reduce decorative overhead rather than hiding a learning interaction. */
+@media (max-width:400px) and (max-height:710px) and (orientation:portrait){
+  #fraction-lab-screen .fr6-nav .fr2-nav-item{min-height:44px;padding-block:1px}
+  #fraction-lab-screen .fr2-top.fr4-top{min-height:44px;margin-bottom:3px}
+  #fraction-lab-screen .fr6-workshop .fr5-lab-intro{margin:0;padding:3px 7px}
+  #fraction-lab-screen .fr6-workshop .fr5-lab-intro p{display:none}
+  #fraction-lab-screen .fr6-workshop .fr5-lab-intro h1{font-size:20px}
+  #fraction-lab-screen .fr6-workshop .fr5-build-target{padding:1px}
+  #fraction-lab-screen .fr6-workshop .fr2-pie-builder{width:min(100%,148px)!important}
+  #fraction-lab-screen .fr6-workshop .fr6-controls{margin:0;gap:4px}
+}
+@media (max-width:350px) and (max-height:620px) and (orientation:portrait){
+  #fraction-lab-screen .fr6-workshop .fr2-pie-builder{width:min(100%,125px)!important}
+}
+@media (min-width:1000px) and (max-height:900px) and (orientation:landscape){
+  #fraction-lab-screen .fr6-workshop .fr5-lab-intro{margin:2px 0 5px;padding:5px 12px}
+  #fraction-lab-screen .fr6-workshop .fr5-build-stage{gap:7px;padding:7px 9px}
+  #fraction-lab-screen .fr6-workshop .fr5-build-stage .fr5-build-target{
+    min-height:0;padding:6px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-build-stage .fr2-pie-builder{
+    width:min(100%,235px);
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-fox-mentor>.fr2-fox{
+    width:105px;height:115px;margin-left:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-fox-bubble{
+    min-height:25px;margin:0;padding:4px 6px;font-size:12px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr5-controls{margin:4px 0;gap:6px}
+}
+
+/* First interaction must never fall below the fold. These are deliberately
+   small layout corrections for short phones and landscape iPads: the optional
+   piece tray follows the controls, so it may continue below the first view. */
+@media (max-width:400px) and (max-height:710px) and (orientation:portrait){
+  #fraction-lab-screen .fr6-workshop .fr6-controls{
+    position:relative;z-index:2;transform:translateY(-20px);margin-bottom:-20px;
+  }
+}
+@media (min-width:700px) and (max-width:1400px) and (max-height:900px) and (orientation:landscape){
+  #fraction-lab-screen .fr6-workshop .fr6-controls{
+    position:relative;z-index:2;transform:translateY(-48px);margin-bottom:-48px;
+  }
+}
+
+/* Tiny iPhone TrollActor must not stretch the whole workbench.
+   The shared actor runtime sets image width/height to 100% !important;
+   scope this override to the fractional workshop's 320px portrait layout.
+   This keeps the locked original character while leaving both cake and loose
+   pieces in the same reachable child-sized first screen. */
+@media (max-width:350px) and (max-height:620px) and (orientation:portrait){
+  #fraction-lab-screen .fr6-workshop .fr5-build-aside
+  .fr5-fox-mentor > .fr2-fox.laria-premium-troll-art{
+    display:block!important;
+    width:57px!important;height:61px!important;
+    max-width:57px!important;max-height:61px!important;
+    min-width:0!important;min-height:0!important;
+    flex:0 0 61px!important;object-fit:contain!important;
   }
 }

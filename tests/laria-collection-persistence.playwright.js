@@ -44,12 +44,13 @@ async function verify(browserType,label,viewport){
     const lockedHome=await page.locator('.bc12.bc15-locked-home').count()>0;
     if(lockedHome){
       await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
-      const trollDialog=page.locator('#bc15-troll-dialog[open]');
+      const trollDialog=page.locator('#laria-premium-troll-dialog[open]');
       await trollDialog.waitFor({state:'visible'});
-      assert.match(await trollDialog.locator('h2').innerText(),/Mine troll/);
-      assert.equal(await page.locator('#bc12-dialog[open].is-wardrobe').count(),0,
-        'Home v15 troll entry must not open the legacy fox wardrobe');
-      await trollDialog.locator('.bc15-troll-close').click();
+      assert.equal(await trollDialog.locator('[data-troll-choice]').count(),3,
+        'Home must offer the locked trio of selectable living TrollActors');
+      assert.equal(await page.locator('#bc15-troll-dialog[open],#bc12-dialog[open].is-wardrobe').count(),0,
+        'Home must not show a static gallery or retired fox wardrobe');
+      await trollDialog.locator('.laria-troll-dialog-close').click();
     }
     await page.locator('.bc12-nav [data-camp="collection"]').click();
     await page.locator('#bc12-dialog[open].is-collection .bc12-memory-grid').waitFor();
@@ -60,29 +61,20 @@ async function verify(browserType,label,viewport){
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-intro b').innerText(),'1 av 4 minner funnet');
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-collection-tabs,#bc12-dialog[open] .bc12-equipment-card').count(),0);
     assert.equal(await page.locator('#bc12-dialog[open] [data-wardrobe-open]').count(),1);
-    // The collection book still provides the deliberate route to the existing
-    // personal fox preview. Home v15 itself is troll-led.
+    // The collection's character link must lead to the THREE approved
+    // living trolls, never an obsolete fox SVG or unfinished clothing UI.
     await page.locator('#bc12-dialog[open] [data-wardrobe-open]').click();
-    const foxPreview=page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg[data-avatar="boy"]');
-    await foxPreview.waitFor();
-    assert.equal(await page.locator('#bc12-dialog[open] [data-wear],#bc12-dialog[open] [data-gear],#bc12-dialog[open] .bc12-wardrobe-grid').count(),0,'Unfinished clothing UI leaked');
-    const portrait=await foxPreview.evaluate(svg=>({
-      viewBox:svg.getAttribute('viewBox'),mask:svg.querySelector('image')?.getAttribute('mask'),
-      hardCrop:svg.querySelectorAll('clipPath').length,imageHeight:svg.querySelector('image')?.getAttribute('height')
-    }));
-    assert.equal(portrait.viewBox,'0 0 200 300','Min rev must retain original full-body composition');
-    assert.equal(portrait.imageHeight,'300');
-    assert.equal(portrait.mask,null);
-    assert.equal(portrait.hardCrop,0);
-    const legacy=await page.evaluate(()=>{
-      const svg=new DOMParser().parseFromString(
-        window.LARIA_FOX_WARDROBE.render('boy',window.LARIA_COLLECTION_STORE.snapshot(),'portrait'),
-        'image/svg+xml').documentElement;
-      return {viewBox:svg.getAttribute('viewBox'),mask:svg.querySelector('image')?.getAttribute('mask')};
-    });
-    assert.equal(legacy.viewBox,'0 0 200 272');
-    assert.match(legacy.mask||'',/^url\(#laria-wd-/);
-    await page.screenshot({path:path.join(evidence,label+'-min-rev-uten-utstyr.png'),animations:'disabled'});
+    const trollChooser=page.locator('#laria-premium-troll-dialog[open]');
+    await trollChooser.waitFor({state:'visible',timeout:12000});
+    assert.deepEqual(await trollChooser.locator('[data-troll-choice]').evaluateAll(nodes=>
+      nodes.map(el=>el.dataset.trollChoice)),['storesoster','lillesoster','lillebror']);
+    assert.equal(await trollChooser.locator('[data-troll-choice][aria-pressed="true"]').getAttribute('data-troll-choice'),
+      'storesoster','A legacy avatar must not replace the saved approved troll');
+    assert.equal(await page.locator('#bc12-dialog [data-wear],#bc12-dialog [data-gear],#bc12-dialog .bc12-wardrobe-grid').count(),
+      0,'Unfinished clothing UI leaked into the collection');
+    await page.screenshot({path:path.join(evidence,label+'-valgte-troll-uten-utstyr.png'),animations:'disabled'});
+    await trollChooser.locator('.laria-troll-dialog-close').click();
+    await trollChooser.waitFor({state:'hidden',timeout:12000});
     await page.locator('#bc12-dialog[open] .bc12-close').click();
     await page.locator('.bc12-nav [data-camp="collection"]').click();
     const layout=await page.locator('#bc12-dialog[open]').evaluate(el=>{
@@ -117,24 +109,25 @@ async function verify(browserType,label,viewport){
     const persisted=await page.evaluate(()=>({
       profile:state.profile,
       source:document.querySelector('.bc12-fox img')?.getAttribute('src'),
-      expected:window.LARIA_FOX.source('girl'),
+      expected:window.LARIA_TROLL_ACTOR.source(state.profile.tallvikaTroll||'storesoster'),
       collection:window.LARIA_COLLECTION_STORE.snapshot(),
       answers:state.answerLog.length,
       nodes:state.journey.nodes
     }));
     assert.equal(persisted.profile.avatar,'girl','avatar overwritten by collection migration');
-    assert.equal(persisted.source,persisted.expected,'chosen fox missing after save');
+    assert.equal(persisted.source,persisted.expected,'Selected original troll changed after saving legacy profile');
     assert.equal(persisted.collection.equipped.head,'oppdagerhatt');
-    // Existing saves still remember equipped items. The unpublished
-    // accessory graphics must remain absent even after reload.
-    await page.locator('#home-screen.active .bc12-fox svg.laria-fox-wardrobe-placed').waitFor({state:'attached',timeout:12000});
+    // Existing saves retain items without drawing legacy fox wardrobe
+    // graphics over the locked Home or adding unapproved accessories.
+    assert.equal(await page.locator('#home-screen.active .bc12-fox svg.laria-fox-wardrobe-placed:visible').count(),0);
     assert.equal(await page.locator('#home-screen.active .bc12-fox [data-gear]').count(),0);
     await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
     if(await page.locator('.bc12.bc15-locked-home').count()){
-      const trollDialog=page.locator('#bc15-troll-dialog[open]');
+      const trollDialog=page.locator('#laria-premium-troll-dialog[open]');
       await trollDialog.waitFor({state:'visible'});
-      assert.match(await trollDialog.locator('h2').innerText(),/Mine troll/);
-      await trollDialog.locator('.bc15-troll-close').click();
+      assert.equal(await trollDialog.locator('[data-troll-choice]').count(),3,
+        'Saving/reloading collectibles must not remove the troll selection');
+      await trollDialog.locator('.laria-troll-dialog-close').click();
     }else{
       assert.equal(await page.locator('#bc12-dialog[open] [data-gear],#bc12-dialog[open] [data-wear]').count(),0);
       await page.locator('#bc12-dialog[open] .bc12-close').click();
@@ -162,32 +155,35 @@ async function verify(browserType,label,viewport){
     assert.equal(safe.equipped.head,null);
     assert.ok(safe.ownedIds.includes('oppdagerhatt'),
       'previous owned item must be reconstructed from still-present learning');
-    // The locked Home v15 is troll-led and deliberately hides the legacy
-    // .bc12-fox, so an invisible SVG is not a child-visible release contract.
-    // Verify the selected girl in the actual Min rev preview reached from
-    // the collection book after invalid inventory was repaired and reloaded.
+    // A repaired historical inventory must not change either the legacy
+    // profile field or the ONE selected, living TrollActor.
     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:18000});
     assert.equal(await page.evaluate(()=>state.profile.avatar),'girl',
-      'invalid inventory recovery must not change the chosen girl fox');
+      'invalid inventory recovery must preserve historical profile avatar data');
+    assert.equal(await page.evaluate(()=>window.LARIA_TROLL_ACTOR.choice()),'storesoster',
+      'invalid inventory recovery must not change the selected approved troll');
     if(lockedHome){
       await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({timeout:18000});
       await page.locator('#home-screen.active .bc12-nav [data-camp="collection"]').click();
       await page.locator('#bc12-dialog[open].is-collection [data-wardrobe-open]').click();
-      const visibleFox=page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg[data-avatar="girl"]');
-      await visibleFox.waitFor({state:'visible',timeout:12000});
-      assert.equal(await visibleFox.count(),1,
-        'collection must show exactly one selected girl fox after invalid save recovery');
-      assert.equal(await page.locator('#bc12-dialog[open].is-wardrobe [data-gear],#bc12-dialog[open].is-wardrobe [data-wear]').count(),0,
-        'unreleased wardrobe accessories must stay hidden after recovery');
+      const restoredChooser=page.locator('#laria-premium-troll-dialog[open]');
+      await restoredChooser.waitFor({state:'visible',timeout:12000});
+      assert.equal(await restoredChooser.locator('[data-troll-choice][aria-pressed="true"]').getAttribute('data-troll-choice'),
+        'storesoster','Saved approved troll must remain selected after corrupt inventory recovery');
+      assert.equal(await restoredChooser.locator('[data-troll-choice]').count(),3,
+        'Recovery must preserve exactly three approved companions');
+      assert.equal(await page.locator('#bc12-dialog [data-gear],#bc12-dialog [data-wear]').count(),0,
+        'Unreleased wardrobe accessories must stay hidden after recovery');
+      await restoredChooser.locator('.laria-troll-dialog-close').click();
       await page.locator('#bc12-dialog[open] .bc12-close').click();
     }else{
-      // Older Home is still fox-led; retain the exact composited art contract.
-      const homeFox=page.locator('#home-screen.active .bc12-fox');
-      const art=homeFox.locator(':scope > svg.laria-fox-wardrobe-placed');
-      await art.waitFor({state:'attached',timeout:12000});
-      assert.equal(await art.count(),1,'legacy Home must keep one composited fox');
-      assert.equal(await art.getAttribute('data-avatar'),'girl',
-        'legacy Home must preserve the selected girl fox');
+      // Even the fallback Home must honor the original TrollActor, not the
+      // historical avatar or a composited fox.
+      const homeTroll=page.locator('#home-screen.active .bc12-fox > img');
+      await homeTroll.waitFor({state:'attached',timeout:12000});
+      assert.equal(await homeTroll.getAttribute('src'),
+        await page.evaluate(()=>window.LARIA_TROLL_ACTOR.source('storesoster')),
+        'Fallback Home must keep the one approved selected troll');
     }
     await context.close();
     console.log('Collection inventory persistent',label,viewport);

@@ -50,6 +50,12 @@ async function run(engine,label,viewport){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:16000});
+   if(subject==='geography'){
+     const entry=page.locator('#laria-geography-world:visible');
+     await entry.waitFor({timeout:16000});
+     await entry.locator('[data-gv="journey"]').click();
+     await page.locator('#geo-journey-map:visible').waitFor({timeout:16000});
+   }
    if(subject==='norwegian'){
      const world=page.locator('#eggenipa-world:visible');
      await world.waitFor({timeout:16000});
@@ -78,7 +84,7 @@ async function run(engine,label,viewport){
      assert.ok(await page.evaluate(()=>journeyModel('english',2).nodes.length)>0,
        label+' legacy English progress data must still exist');
      const journeyBefore=await page.evaluate(()=>JSON.stringify(state.journey?.nodes||{}));
-     await world.locator('.ki-card[data-ki="words"]').click();
+     await world.locator('.ki-painted-hit[data-ki="words"]:visible').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      assert.deepEqual(await page.evaluate(()=>({
        type:sessionScope?.type,subject:sessionScope?.subject,module:sessionScope?.module,
@@ -105,7 +111,7 @@ async function run(engine,label,viewport){
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' Tallvika houses missing');
+     assert.equal(await tv.locator('.tv-sign').count(),3,label+' Tallvika activity signs missing');
      assert.ok(await page.evaluate(()=>journeyModel('math',2).nodes.length)>=7,label+' original Math node IDs removed');
      await tv.locator('[data-tv="back"]').click();
      await page.locator('#home-screen.active').waitFor({timeout:12000});
@@ -135,6 +141,10 @@ async function run(engine,label,viewport){
        await page.locator('.bc14-subject[data-camp="subject-geography"]').waitFor({timeout:16000});
        await page.locator('.bc14-subject[data-camp="subject-geography"]').click();
        await page.locator('#geography-screen.active').waitFor({timeout:16000});
+       const landing=page.locator('#laria-geography-world:visible');
+       await landing.waitFor({timeout:16000});
+       await landing.locator('[data-gv="journey"]').click();
+       await page.locator('#geo-journey-map:visible').waitFor({timeout:16000});
        await companion.waitFor({state:'attached',timeout:16000});
        assert.equal(await companion.getAttribute('data-troll'),choice,
          label+' Geografi did not reuse selected original troll '+choice);
@@ -144,7 +154,7 @@ async function run(engine,label,viewport){
        await traveler.waitFor({state:'attached',timeout:20000});
        assert.equal(await traveler.getAttribute('data-troll'),choice,
          label+' Nordlysleiren map did not reuse selected troll '+choice);
-       assert.ok((await traveler.locator('.locked-journey-troll-art img').getAttribute('src')).endsWith('/'+choice+'.webp'),
+       assert.ok((await traveler.locator(':scope > img').getAttribute('src')).endsWith('/'+choice+'.webp'),
          label+' Nordlysleiren map rendered wrong troll asset for '+choice);
        assert.equal(await traveler.locator(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').count(),0,
          label+' fox wardrobe was layered over Nordlysleiren troll '+choice);
@@ -320,8 +330,35 @@ async function run(engine,label,viewport){
    const launched=await page.evaluate(()=>window.__lockedLaunch);
    assert.deepEqual(launched?.args,subject==='geography'?[selectedId,2]:[subject,selectedId,2],label+' existing mission ID and grade must survive');
    await page.screenshot({path:output+'/'+label+'-'+subject+'-test-geometry.png',fullPage:true});
-   await page.locator(base+' .locked-journey-back').click();
-   await page.locator('#home-screen.active').waitFor({timeout:16000});
+   // The long 941x1672 map uses a floating back control whenever the
+   // original painted/native back target has scrolled out of view. Verify the
+   // *visible* action, then require the real Home screen, not just a click.
+   const backAction=page.locator(base+' .locked-journey-back:visible, '+base+' .locked-journey-floating-back:visible').first();
+   await backAction.click();
+   try{
+    // Geografireisen was opened from the Geografi landing. Back returns
+    // to that real illustrated subject scene; its round Home control then
+    // returns to Basecamp. Requiring a direct jump skipped a useful level.
+    if(subject==='geography'){
+     await page.locator('#geography-screen.active #laria-geography-world .gv-brand:visible').waitFor({timeout:16000});
+     await page.locator('#geography-screen.active #laria-geography-world .gv-home:visible').click();
+    }
+    await page.locator('#home-screen.active').waitFor({timeout:16000});
+   }catch(error){
+    const diagnosis=await page.evaluate(()=>({
+     activeScreen:document.querySelector('.screen.active')?.id||null,
+     homeScreen:document.getElementById('home-screen')?.className||null,
+     geographyScreen:document.getElementById('geography-screen')?.className||null,
+     subjectScreen:document.getElementById('subject-screen')?.className||null,
+     origin:window.LARIA_BASECAMP_RETURN_VIEW?.()||null,
+     floatingBackHidden:document.querySelector('.screen.active .locked-journey-floating-back')?.hidden??null,
+     overlayOpen:!!document.querySelector('.screen.active .locked-journey-overlay:not([hidden])'),
+     visibleText:document.querySelector('.screen.active')?.textContent?.slice(0,260)||null
+    }));
+    await page.screenshot({path:output+'/'+label+'-'+subject+'-back-navigation-failure.png',fullPage:true});
+    error.message+='\\nReal-app back-navigation diagnostic: '+JSON.stringify(diagnosis);
+    throw error;
+   }
   }
   assert.deepEqual(errors,[],label+' page errors '+JSON.stringify(errors));
   console.log('[locked geometry]',label,JSON.stringify(viewport),'three original map worlds plus Tallvika, mission routing and progress persistence OK');

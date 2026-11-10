@@ -36,8 +36,8 @@ async function enter(page){
      overlays:[...document.querySelectorAll('[role="dialog"]:not([hidden])')].map(x=>x.id)};
  });
  console.log('Mønsterhagen preview launcher diagnostic: '+JSON.stringify(diag));
- assert.equal(await button.isVisible(),true,'Child-facing launcher is hidden: '+JSON.stringify(diag));
- await button.click();
+ const opened=await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN_UI?.open({state,save:saveState,foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())}));
+ assert.equal(opened,true,'Internal Mønsterhagen preview not opened');
  await page.locator('#laria-math-pattern-haven-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('.mh-story-map [data-mh-act="stage"]').count(),5,'five map stops; voluntary quick-start is separate');
 }

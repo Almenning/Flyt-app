@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="300" viewBox="0 0 640 300" role="img" aria-label="Rounded wooden storybook sign">
+ <defs>
+  <linearGradient id="wood" x1="0.05" y1="0" x2="0.12" y2="1">
+   <stop stop-color="#ffe6af"/><stop offset=".18" stop-color="#f2ca8b"/><stop offset=".45" stop-color="#e6b16e"/><stop offset=".76" stop-color="#d59b59"/><stop offset="1" stop-color="#b67940"/>
+  </linearGradient>
+  <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff0bd"/><stop offset=".55" stop-color="#8d552e"/><stop offset="1" stop-color="#603b24"/></linearGradient>
+  <filter id="shade" x="-12%" y="-25%" width="124%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="7" flood-color="#1f1a12" flood-opacity=".45"/></filter>
+ </defs>
+ <g filter="url(#shade)">
+  <path d="M48 122 C51 103 96 89 143 67 C203 37 258 22 320 20 C383 22 440 39 493 67 C540 87 588 103 592 124 L596 249 Q595 273 568 280 Q547 285 520 283 L110 283 Q60 285 46 266 Q41 258 43 246 Z" fill="url(#wood)" stroke="#76431f" stroke-width="13" stroke-linejoin="round"/>
+  <path d="M67 114 Q161 59 268 41 Q316 30 358 37 Q469 54 571 117" fill="none" stroke="#ffedb8" stroke-opacity=".78" stroke-width="7" stroke-linecap="round"/>
+  <path d="M58 260 Q78 274 108 271 L526 271 Q568 270 580 259" fill="none" stroke="#77401e" stroke-opacity=".62" stroke-width="6" stroke-linecap="round"/>
+  <path d="M56 133 Q134 128 201 130 T342 130 T490 129 T585 131" fill="none" stroke="#a56b37" stroke-opacity=".31" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M52 196 Q146 193 242 198 T430 197 T587 195" fill="none" stroke="#97572c" stroke-opacity=".27" stroke-width="3" stroke-linecap="round"/>
+  <path d="M71 161 Q163 149 250 157 T428 159 T558 155 M78 223 Q167 214 253 225 T432 224 T564 220" fill="none" stroke="#fff0ba" stroke-opacity=".37" stroke-width="4" stroke-linecap="round"/>
+  <path d="M96 87 Q204 68 313 80 T522 90 M72 180 Q174 169 264 180 T456 174 T562 177 M91 243 Q203 235 320 245 T552 240" fill="none" stroke="#8d542e" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/>
+  <path d="M73 143 Q131 140 186 143 M460 144 Q522 139 562 143 M87 255 Q130 250 174 254 M466 255 Q513 252 553 254" fill="none" stroke="url(#rim)" stroke-opacity=".37" stroke-width="2" stroke-linecap="round"/>
+  <g fill="#8c522a" stroke="#f9dea3" stroke-width="2.5"><circle cx="70" cy="145" r="5"/><circle cx="568" cy="144" r="5"/><circle cx="71" cy="252" r="5"/><circle cx="568" cy="252" r="5"/></g>
+ </g>
+</svg>

@@ -1,0 +1,272 @@
+'use strict';
+/* The approved unified Læria design system, measured in the REAL application.
+   Never substitute mockups for device screenshots or alter learning progress. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const {chromium,webkit}=require('playwright');
+const URL=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
+const OUT=process.env.LARIA_IDENTITY_SCREENSHOTS||'/tmp/laria-visual-identity';
+const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Identitet QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+const worlds=[
+ {id:'norwegian',root:'#eggenipa-world',brand:'.eg-world-brand',home:'.eg-scene-home',sign:'.eg-scene-hit.laria-wayfinder',plate:'.eg-scene-hit.laria-wayfinder > span',post:'::before',troll:'.eg-companion-actor[data-eg="troll"]'},
+ {id:'math',root:'#tallvika-world',brand:'.tv-world-brand',home:'.tv-scene-home',sign:'.tv-sign.laria-wayfinder',plate:'.tv-sign.laria-wayfinder',post:'::after',troll:'.tv-actor-touch[data-tv="troll"]'},
+ {id:'english',root:'#kinnaklova-world',brand:null,home:'.ki-painted-home',sign:'.ki-painted-hit.laria-wayfinder',plate:null,post:null},
+ {id:'geography',root:'#laria-geography-world',brand:'.gv-brand',home:'.gv-home',sign:'.gv-sign.laria-wayfinder',plate:'.gv-sign.laria-wayfinder',post:'::after',troll:'.gv-troll[data-gv="troll"]'}
+];
+
+/* The board is composed from five screenshots of the actual running app.
+   It is visual review evidence, not a mockup or premium certification. */
+async function writeIpadReviewBoard(context,engine,layout,viewport,shots,homeArtFit){
+ const tiles=[];
+ for(const shot of shots){
+  const png=await fs.promises.readFile(path.join(OUT,shot.file));
+  tiles.push('<figure><figcaption>'+shot.label+'</figcaption><img alt="'+shot.label+
+   '" src="data:image/png;base64,'+png.toString('base64')+'"></figure>');
+ }
+ const canvas=await context.newPage();
+ try{
+  await canvas.setViewportSize({width:2300,height:440});
+  const html=[
+   '<!doctype html><html lang="no"><head><meta charset="utf-8"><style>',
+   '*{box-sizing:border-box}html,body{margin:0;background:#f3f0e9;color:#332e27;font-family:Arial,sans-serif}',
+   'header{padding:13px 18px 8px;font-weight:700;font-size:21px}',
+   'main{display:flex;gap:10px;padding:0 16px 8px;align-items:flex-start}',
+   'figure{margin:0;width:440px;min-width:440px;background:#fff;border:1px solid #b8b3a9}',
+   'figcaption{padding:7px 10px;font-size:16px;font-weight:bold}',
+   'img{display:block;width:100%;height:auto}',
+   'footer{font-size:14px;padding:6px 18px 12px}',
+   '</style></head><body><header>Læria · iPad '+(layout==='ipad-portrait'?'stående':'liggende')+' · '+engine+' · '+viewport.width+' × '+viewport.height+'</header>',
+   '<main>',tiles.join(''),'</main>',
+   '<footer>Fem faktiske appskjermbilder. Krever visuell godkjenning. Ikke premiumgodkjent.</footer>',
+   '</body></html>'
+  ].join('');
+  await canvas.setContent(html,{waitUntil:'load'});
+  await canvas.screenshot({path:path.join(OUT,engine+'-'+layout+'-five-screen-review.png'),
+   animations:'disabled',fullPage:true});
+ }finally{await canvas.close()}
+ const envSha=String(process.env.LARIA_GIT_SHA||process.env.GITHUB_HEAD_SHA||'').trim();
+ const head=/^[a-f0-9]{40}$/i.test(envSha)?envSha:(()=>{
+  try{return require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()}
+  catch{return null}
+ })();
+ const report={status:'VISUAL_APPROVAL_REQUIRED',approved:false,
+  origin:'Five actual app screenshots; no generated concepts or mockups',
+  head,engine,layout,viewport,screenshots:shots,homeArtFit,
+  artBlockers:[
+   ...(homeArtFit.topUnpaintedRatio>0.025?['Grovanova: visible unpainted upper band exceeds 2.5% of iPad screen']:[]),
+   ...(homeArtFit.leftUnpaintedRatio>0.025||homeArtFit.rightUnpaintedRatio>0.025?['Grovanova: visible unpainted side gutters exceed 2.5% of iPad screen']:[]),
+   'Grovanova: old activity cards/branding baked into approved master',
+   'Kinnaklova: old logo/three scattered signs baked into approved master'
+  ]};
+ await fs.promises.writeFile(path.join(OUT,engine+'-'+layout+'-review.json'),
+  JSON.stringify(report,null,2));
+}
+
+async function run(engine,name,layout,viewport){
+ const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+ try{
+  const context=await browser.newContext({viewport,hasTouch:true,serviceWorkers:'block',reducedMotion:'reduce',deviceScaleFactor:1});
+  await context.addInitScript(()=>{
+   window.__lariaBootErrors=[];
+   window.addEventListener('error',event=>window.__lariaBootErrors.push({
+    message:event.message,filename:event.filename,line:event.lineno,column:event.colno
+   }),true);
+  });
+  await context.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+  const page=await context.newPage(),errors=[],consoleErrors=[];
+  page.on('pageerror',e=>errors.push(e.stack||e.message));
+  page.on('console',message=>{
+   if(message.type()==='error')consoleErrors.push({text:message.text(),location:message.location()});
+  });
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
+  const home=page.locator('#home-screen.active .bc12.bc15-locked-home');
+  try{
+   await home.waitFor({state:'visible',timeout:24000});
+  }catch(error){
+   // This is the first real-app checkpoint. Keep the diagnostic in the
+   // failure itself so a future first-paint regression is actionable rather
+   // than producing an empty screenshot artifact.
+   const boot=await page.evaluate(()=>({
+    ready:document.readyState,
+    homeMarkup:document.querySelector('#home-screen')?.innerHTML.slice(0,600),
+    basecamp:document.querySelector('.bc12')?.className||null,
+    lockedAsset:document.querySelector('.bc12')?.dataset.bc15Asset||null
+   }));
+   const browserBootErrors=await page.evaluate(()=>window.__lariaBootErrors||[]);
+   console.error('Læria first-paint diagnostic:',JSON.stringify({boot,errors,consoleErrors,browserBootErrors}));
+   error.message+='\nLæria first-paint diagnostic was emitted above.';
+   throw error;
+  }
+  await fs.promises.mkdir(OUT,{recursive:true});
+  await page.screenshot({path:path.join(OUT,name+'-'+layout+'-home.png'),animations:'disabled'});
+  // Record the actual uncovered region rather than mistaking the deliberate
+  // gradient safety fill for a continuous scenic composition.
+  const homeArtFit=await home.evaluate(el=>{
+   const style=getComputedStyle(el),box=el.getBoundingClientRect();
+   const top=Number.parseFloat(style.getPropertyValue('--bc15-art-top'))||0;
+   const height=Number.parseFloat(style.getPropertyValue('--bc15-art-height'))||box.height;
+   const left=Number.parseFloat(style.getPropertyValue('--bc15-art-left'))||0;
+   const width=Number.parseFloat(style.getPropertyValue('--bc15-art-width'))||box.width;
+   const right=Math.max(0,box.width-left-width);
+   return {paintedImageLeftPx:Number(left.toFixed(1)),
+    paintedImageRightGapPx:Number(right.toFixed(1)),
+    leftUnpaintedRatio:Number((left/box.width).toFixed(4)),
+    rightUnpaintedRatio:Number((right/box.width).toFixed(4)),
+    paintedImageTopPx:Number(top.toFixed(1)),
+    paintedImageHeightPx:Number(height.toFixed(1)),
+    screenHeightPx:Number(box.height.toFixed(1)),
+    topUnpaintedRatio:Number((top/box.height).toFixed(4)),
+    assetState:el.dataset.bc15Asset||null};
+  });
+  const evidence=[{id:'home',label:'Hjem · Grovanova',file:name+'-'+layout+'-home.png'}];
+  let expectedBrand=null,expectedPlate=null;
+  for(const spec of worlds){
+   await home.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
+   const world=page.locator(spec.root+':visible');
+   await world.waitFor({state:'visible',timeout:18000});
+   if(spec.id==='english'){
+     await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:20000});
+     const frame=await world.locator('.ki-master').evaluate(async image=>{
+       await image.decode();
+       // A verified image must survive WebKit's next two composite frames,
+       // not just become 'ready' in data attributes while still visually blank.
+       await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+       const s=getComputedStyle(image),b=image.getBoundingClientRect();
+       return {loaded:image.complete,size:[image.naturalWidth,image.naturalHeight],
+         visibility:s.visibility,opacity:s.opacity,display:s.display,
+         rect:[b.width,b.height],fit:s.objectFit};
+     });
+     assert.equal(frame.loaded,true,'Kinnaklova artwork not loaded');
+     assert.deepEqual(frame.size,[1672,941],'Locked Kinnaklova original not decoded');
+     assert.equal(frame.visibility,'visible','Kinnaklova artwork hidden after SHA approval');
+     assert.ok(Number(frame.opacity)>.99,'Kinnaklova artwork still transparent after ready status');
+     assert.ok(frame.rect.every(v=>v>200),'Kinnaklova image not occupying the scene');
+   }
+   // Same real scene component in every subject: one semantic sign group,
+   // preserving exactly the existing action buttons, not cloned hotspots.
+   const shell=world.locator('.laria-scene-shell[data-laria-scene-component="v1"]');
+   assert.equal(await shell.count(),1,spec.id+' must mount the common scene component');
+   const sharedNav=shell.locator('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
+   assert.equal(await sharedNav.count(),1,spec.id+' needs exactly one semantic activity rail');
+   assert.equal(await sharedNav.locator('.laria-wayfinder[data-laria-component="sign"]').count(),3,
+     spec.id+' must not clone or lose activity actions during common-shell enhancement');
+   assert.match(await sharedNav.getAttribute('aria-label'),/Velg aktivitet i /);
+   const back=world.locator(spec.home+':visible');
+   const button=await back.evaluate(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return{
+     width:r.width,height:r.height,image:s.backgroundImage,top:r.top,left:r.left,role:el.getAttribute('aria-label')
+   }});
+   assert.ok(button.width>=44&&button.height>=44&&button.left>=0&&button.top>=0,
+     name+' '+layout+' '+spec.id+' Home control is not tappable: '+JSON.stringify(button));
+   assert.match(button.image,/laria-home-round\.svg/,spec.id+' has a different Home control');
+   assert.match(button.role,/Hjem/,spec.id+' Home accessibility text missing');
+   const signs=world.locator(spec.sign+':visible');
+   assert.equal(await signs.count(),3,spec.id+' should have exactly three navigable scene signs');
+   if(spec.id!=='english'){
+     // Real rendered positions, not string matches on stylesheet source.
+     const railBoxes=await signs.evaluateAll(elements=>elements.map(el=>{
+       const r=el.getBoundingClientRect();
+       return {x:r.left,y:r.top,w:r.width,h:r.height,right:r.right,bottom:r.bottom};
+     }));
+     assert.equal(railBoxes.length,3,spec.id+' sign rail must have three physical signs');
+     const xSpread=Math.max(...railBoxes.map(b=>b.x))-Math.min(...railBoxes.map(b=>b.x));
+     const widthSpread=Math.max(...railBoxes.map(b=>b.w))-Math.min(...railBoxes.map(b=>b.w));
+     assert.ok(xSpread<=3,spec.id+' sign rail is scattered horizontally: '+JSON.stringify(railBoxes));
+     assert.ok(widthSpread<=3,spec.id+' signs vary in width: '+JSON.stringify(railBoxes));
+     assert.ok(railBoxes[0].x>=0&&railBoxes[0].x<viewport.width*.12,
+       spec.id+' sign rail is not anchored to the left');
+     for(const [i,b] of railBoxes.entries()){
+       assert.ok(b.w>=44&&b.h>=44&&b.right<=viewport.width+2&&b.bottom<=viewport.height+2,
+         spec.id+' sign '+i+' clipped or too small: '+JSON.stringify(railBoxes));
+       if(i){
+         const clearGap=b.y-railBoxes[i-1].bottom;
+         assert.ok(clearGap>=5,
+           spec.id+' rail signs touch or overlap: '+JSON.stringify(railBoxes));
+         if(layout.startsWith('ipad'))assert.ok(clearGap<=viewport.height*.065,
+           name+' '+layout+' '+spec.id+' signs are scattered rather than grouped: '+JSON.stringify(railBoxes));
+       }
+     }
+     // A living companion is never part of the painted image or an invisible
+     // blocker over a child's activity. Measure the REAL iPad tap geometry.
+     if(layout.startsWith('ipad')){
+       const actor=world.locator(spec.troll+':visible');
+       assert.equal(await actor.count(),1,spec.id+' must show exactly one selected live TrollActor');
+       const placement=await actor.evaluate(element=>{
+         const bounds=element.getBoundingClientRect();
+         const art=element.querySelector('img.laria-premium-troll-art');
+         return {rect:{left:bounds.left,top:bounds.top,right:bounds.right,bottom:bounds.bottom,
+             width:bounds.width,height:bounds.height},
+           src:art?.getAttribute('src'),loaded:!!art?.complete&&!!art?.naturalWidth,
+           selected:element.getAttribute('data-troll'),
+           button:element.tagName.toLowerCase()==='button'};
+       });
+       assert.equal(placement.button,true,spec.id+' companion must remain an interactive button');
+       assert.equal(placement.selected,'lillesoster',spec.id+' replaced the selected original troll');
+       assert.match(placement.src||'',/gangemagi-troll\/lillesoster\.webp/,
+         spec.id+' uses an unapproved figure instead of the selected troll');
+       assert.ok(placement.loaded,spec.id+' companion artwork failed to decode');
+       assert.ok(placement.rect.width>=44&&placement.rect.height>=44,
+         spec.id+' companion is too small to touch: '+JSON.stringify(placement));
+       for(const sign of railBoxes){
+         const width=Math.max(0,Math.min(sign.right,placement.rect.right)-Math.max(sign.x,placement.rect.left));
+         const height=Math.max(0,Math.min(sign.bottom,placement.rect.bottom)-Math.max(sign.y,placement.rect.top));
+         assert.ok(width*height<1,
+           spec.id+' live troll physically blocks a navigation sign: '+JSON.stringify({sign,actor:placement.rect}));
+       }
+     }
+   }
+   if(spec.brand){
+     const brand=await world.locator(spec.brand+':visible').evaluate(el=>{
+       const s=getComputedStyle(el),t=getComputedStyle(el.querySelector('strong')),sub=getComputedStyle(el.querySelector('span'));
+       return {wood:s.backgroundImage,border:s.borderTopColor,type:t.fontFamily,ink:t.color,subtitle:sub.fontFamily};
+     });
+     if(!expectedBrand)expectedBrand=brand;
+     else assert.deepEqual(brand,expectedBrand,'Different Læria logo family on '+spec.id);
+     const plate=await world.locator(spec.plate).first().evaluate((el,post)=>{
+       const r=el.getBoundingClientRect(),s=getComputedStyle(el),pole=getComputedStyle(el,post);
+       return {width:r.width,height:r.height,background:s.backgroundImage,postContent:pole.content,postBackground:pole.backgroundImage,
+         font:s.fontFamily,ink:s.color};
+     },spec.post);
+     assert.ok(plate.width>=44&&plate.height>=44,spec.id+' sign too small');
+     assert.match(plate.background,/laria-light-arrow-sign\.svg/,spec.id+' has a nonstandard plank graphic');
+     assert.notEqual(plate.postContent,'none',spec.id+' sign has no posts');
+     assert.notEqual(plate.postBackground,'none',spec.id+' sign posts have no wood');
+     const style={background:plate.background,font:plate.font,ink:plate.ink};
+     if(!expectedPlate)expectedPlate=style;
+     else assert.deepEqual(style,expectedPlate,'Sign style diverged for '+spec.id);
+   }else{
+     // English's SHA-locked scene still includes baked title/sign artwork.
+     // Adding DOM duplicates is prohibited. This remains a separate art gate.
+     assert.equal(await world.locator('.ki-world-brand:visible').count(),0,
+       'Kinnaklova duplicates its painted wordmark');
+   }
+   const screenshot=await page.screenshot({path:path.join(OUT,name+'-'+layout+'-'+spec.id+'.png'),animations:'disabled'});
+   evidence.push({id:spec.id,label:({norwegian:'Norsk · Eggenipa',math:'Matte · Tallvika',english:'Engelsk · Kinnaklova',geography:'Geografi · Nordlysleiren'})[spec.id],file:name+'-'+layout+'-'+spec.id+'.png'});
+   // One scenic iPad Kinnaklova view is normally >1 MB as a PNG. A blank
+   // green stage with only signs is ~110 KB, despite the old geometry tests
+   // being green. This minimum catches the missing painting before sign-off.
+   if(spec.id==='english'&&layout.startsWith('ipad')){
+     assert.ok(screenshot.byteLength>450000,
+       name+' '+layout+' English background did not paint; PNG '+screenshot.byteLength+' bytes');
+   }
+   await back.click();
+   await home.waitFor({state:'visible',timeout:14000});
+  }
+  assert.deepEqual(errors,[],name+' '+layout+' browser exceptions');
+  if(layout==='ipad-landscape'||layout==='ipad-portrait')
+   await writeIpadReviewBoard(context,name,layout,viewport,evidence,homeArtFit);
+  await context.close();
+  console.log('PASS shared logo/plank/post/Home components in real '+name+' '+layout+' app');
+ }finally{await browser.close()}
+}
+(async()=>{
+ for(const [label,viewport] of [
+  ['ipad-landscape',{width:1366,height:1024}],
+  ['ipad-portrait',{width:1024,height:1366}],
+  ['iphone-portrait',{width:390,height:844}],
+  ['iphone-landscape',{width:852,height:393}]
+ ])for(const [name,engine] of [['chromium',chromium],['webkit',webkit]]){
+   await run(engine,name,label,viewport);
+ }
+})().catch(e=>{console.error(e);process.exitCode=1;});

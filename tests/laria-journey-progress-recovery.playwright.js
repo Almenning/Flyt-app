@@ -117,6 +117,11 @@ async function returnFromJourney(page,root,label,subject){
  const floating=root.locator('.locked-journey-floating-back');
  const useFloating=await floating.isVisible();
  await (useFloating?floating:native).click();
+ if(subject==='geography'){
+   const landing=page.locator('#laria-geography-world:visible');
+   await landing.waitFor({timeout:16000});
+   await landing.locator('[data-gv="home"]').click();
+ }
  try{await page.locator('#home-screen.active').waitFor({timeout:16000});}
  catch(error){
   const evidence=await page.evaluate(()=>{
@@ -144,7 +149,10 @@ async function recoverEnglishDirect(page,label,before){
  await world.waitFor({state:'visible',timeout:18000});
  assert.equal(await world.locator('.ki-card').count(),3,label+' missing English learning places');
  const previousNodes=await page.evaluate(()=>JSON.stringify(state.journey?.nodes||{}));
- await world.locator('.ki-card[data-ki="words"]').click();
+  await page.waitForFunction(()=>['ready','missing','unapproved'].includes(document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+  const paintedWords=world.locator('.ki-painted-words');
+  if(await paintedWords.isVisible())await paintedWords.click();
+  else await world.locator('.ki-card[data-ki="words"]:visible').click();
  await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
  const started=await activeSnapshot(page);
  assert.equal(started.scope,'subject',label+' English uses direct skill learning');
@@ -254,7 +262,9 @@ async function run(engine,label,viewport){
        label+' Norsk direct learning routes are missing');
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' legacy Bokskogen map leaked into Norsk');
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     { const painted=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  const entry=(await painted.count())?painted:page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible');
+  await entry.click(); }
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',
        label+' Lesekroken opened the wrong module');
@@ -327,6 +337,11 @@ async function run(engine,label,viewport){
      // missions and node IDs are reachable through the Bokskogen portal.
      await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
+   if(subject==='geography'){
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:16000});
+     await landing.locator('[data-gv="journey"]').click();
    }
    const isTallvika=subject==='math';
    const base=isTallvika?'#subject-screen.active #tallvika-world':
@@ -427,7 +442,7 @@ async function run(engine,label,viewport){
    if(isTallvika){
      const nextTitle=await page.evaluate(()=>journeyRecommendedNode('math',2)?.title||'');
      assert.ok(nextTitle,label+' next math mission missing after completion');
-     assert.match((await root.locator('.tv-next').innerText()),new RegExp(nextTitle),
+     assert.match((await root.locator('.tv-next-sign[data-tv="next"]').innerText()),new RegExp(nextTitle),
        label+' Tallvika did not show the newly unlocked next mission');
      await root.locator('[data-tv="back"]').click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});

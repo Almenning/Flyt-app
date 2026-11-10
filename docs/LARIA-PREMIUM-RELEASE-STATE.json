@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "product": "Læria Premium Beta",
+  "targetPr": 243,
+  "release": "BLOCKED",
+  "principle": "Barn har lyst til å åpne Læria, foreldre har tillit.",
+  "art": {
+    "grovanova": {
+      "locked": "laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp",
+      "lockedSha256": "246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5",
+      "clean": null,
+      "cleanSha256": null,
+      "ownerApproved": false
+    },
+    "kinnaklova": {
+      "locked": "laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
+      "lockedSha256": "d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57",
+      "clean": null,
+      "cleanSha256": null,
+      "ownerApproved": false
+    },
+    "nordlysleiren": {
+      "locked": "laer-litt-mer/assets/cards/reisen/geography-premium.webp",
+      "lockedSha256": "83bd9d687957c178401dddd419718cabbbe06b4c422358c01b258a2aea95f14f",
+      "lockedDimensions": [
+        1024,
+        704
+      ],
+      "clean": null,
+      "cleanSha256": null,
+      "minWidth": 1600,
+      "minHeight": 900,
+      "ownerApproved": false
+    }
+  },
+  "devices": {
+    "ipadLandscape": {
+      "prHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
+      "actionsRun": 42905103792,
+      "chromiumAndWebkit": true,
+      "ownerApproved": false,
+      "screenshotArtifactId": 13804922819
+    },
+    "ipadPortrait": {
+      "prHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
+      "actionsRun": 42905103792,
+      "chromiumAndWebkit": true,
+      "ownerApproved": false,
+      "screenshotArtifactId": 13804922819
+    },
+    "iphonePortrait": {
+      "prHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
+      "actionsRun": 42905103792,
+      "chromiumAndWebkit": true,
+      "ownerApproved": false,
+      "screenshotArtifactId": 13804922819
+    },
+    "iphoneLandscape": {
+      "prHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
+      "actionsRun": 42905103792,
+      "chromiumAndWebkit": true,
+      "ownerApproved": false,
+      "screenshotArtifactId": 13804922819
+    },
+    "desktop": {
+      "prHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
+      "actionsRun": 42905103792,
+      "chromiumAndWebkit": true,
+      "ownerApproved": false,
+      "screenshotArtifactId": 13804922819
+    }
+  },
+  "regression": {
+    "greenOnPrHead": "b46b386c3c2831544a9c27d2df847f29908c82ad"
+  },
+  "childUsabilityTest": false,
+  "permission": {
+    "merge": false,
+    "publish": false
+  },
+  "evidenceNote": "Actual app + tests verified on product/tree b46b386c3c2831544a9c27d2df847f29908c82ad by GitHub Actions 42905103792, successful Chromium and WebKit for iPad landscape/portrait, iPhone portrait/landscape and desktop. Screenshot artifact 13804922819. This documents engineering function only: no visual owner approval, no child usability test. Grovanova and Kinnaklova need UI-free pixel-faithful masters; Nordlysleiren needs a genuinely sharp wide approved illustration (current 1024x704). Existing original art locked. No merge/publish permission."
+}

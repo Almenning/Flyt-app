@@ -67,13 +67,20 @@ async function run(engine,label,viewport,url){
      const original=await page.evaluate(()=>({
        journey:JSON.stringify(state.journey),avatar:state.profile.avatar,grade:state.profile.grade
      }));
-     await eg.locator('.eg-portal[data-eg="reading"]').click();
+     // Desktop/iPad use painted in-scene hit areas; portrait iPhones use
+     // the compact illustrated sign rail. Both must open the same lesson.
+     await eg.locator('.eg-scene-reading:visible, .eg-portal[data-eg="reading"]:visible').first().click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:14000});
      assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian');
      assert.equal(await page.evaluate(()=>sessionScope?.module),'reading');
      assert.ok(await page.evaluate(()=>sessionQuestions[qIndex]?.prompt),label+' reading task missing');
-     assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-       label+' legacy Norwegian fox appears in reading activity');
+     const lessonTroll=page.locator('#session-screen.active .task-fox-companion.task-troll-companion');
+     assert.equal(await lessonTroll.count(),1,label+' selected forest troll must accompany reading');
+     assert.match(await lessonTroll.locator('img').getAttribute('src'),
+       /gangemagi-troll\/(storesoster|lillesoster|lillebror)\.webp$/,
+       label+' reading companion must use forest troll art, not the retired fox');
+     assert.equal(await page.locator('#session-screen.active .task-fox-companion:not(.task-troll-companion)').count(),0,
+       label+' retired fox companion appears in reading activity');
      assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
        label+' Norwegian hint guide missing');
      if(process.env.MISSION_QA_SCREENSHOTS&&['webkit-iphone','webkit-ipad-landscape'].includes(label)){
@@ -120,7 +127,11 @@ async function run(engine,label,viewport,url){
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' English unexpectedly reopened the retired map');
      const before=await page.evaluate(()=>JSON.stringify(state.journey));
-     await world.locator('.ki-card[data-ki="sentences"]').click();
+     await page.waitForFunction(()=>['ready','missing','unapproved'].includes(
+       document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+     const painted=world.locator('.ki-painted-sentences');
+     if(await painted.isVisible())await painted.click();
+     else await world.locator('.ki-card[data-ki="sentences"]:visible').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const session=await page.evaluate(()=>({
        subject:sessionScope?.subject,module:sessionScope?.module,
@@ -147,6 +158,11 @@ async function run(engine,label,viewport,url){
      else await world.locator('.ki-painted-home').click();
      await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:16000});
      continue;
+   }
+   if(subject==='geography'){
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:16000});
+     await landing.locator('[data-gv="journey"]').click();
    }
    const map=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await map.waitFor({timeout:14000});
@@ -183,8 +199,13 @@ async function run(engine,label,viewport,url){
    assert.equal(await traveler.locator(':scope > .laria-fox-wardrobe-art, :scope > .laria-fox-wardrobe-placed').count(),0,
      label+' '+subject+' fox wardrobe leaked onto troll');
    // The same DOM troll must also have visible, actual illustrated art.
-   const liveArt=traveler.locator(':scope > .locked-journey-troll-art');
+   // Real selected TrollActor may be a standalone image or the retained
+   // illustrated wrapper. Require actual visible pixels and approved art.
+   const liveArt=traveler.locator(':scope > img.laria-premium-troll-art, :scope > .locked-journey-troll-art').first();
    await liveArt.waitFor({state:'visible',timeout:5000});
+   const trollSrc=await traveler.locator('img[src*="gangemagi-troll"]').first().getAttribute('src');
+   assert.ok(trollSrc?.endsWith('/storesoster.webp'),
+     label+' '+subject+' selected companion must use the locked original');
    const visibleTroll=await liveArt.evaluate(el=>{
      const box=el.getBoundingClientRect(),style=getComputedStyle(el);
      return box.width>20&&box.height>20&&style.visibility!=='hidden'&&style.display!=='none'&&Number(style.opacity)>0;
@@ -246,6 +267,11 @@ async function run(engine,label,viewport,url){
    await page.reload({waitUntil:'domcontentloaded'});
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:20000});
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='geography'){
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:16000});
+     await landing.locator('[data-gv="journey"]').click();
+   }
    const afterReload=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await afterReload.waitFor({timeout:14000});
    await afterReload.locator('.locked-journey-hotspot').first().click();
@@ -279,6 +305,11 @@ async function run(engine,label,viewport,url){
    assert.equal(await afterReload.locator('.locked-journey-board > .locked-journey-traveler').count(),1,
       label+' '+subject+' troll was not returned to the illustrated map');
    await afterReload.locator('.locked-journey-back').click();
+   if(subject==='geography'){
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:12000});
+     await landing.locator('[data-gv="home"]').click();
+   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');

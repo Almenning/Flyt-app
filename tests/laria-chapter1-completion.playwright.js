@@ -79,7 +79,7 @@ async function run(engine,label){
     assert.equal(chapter.complete,true,label+' Math chapter incomplete');
     assert.equal(chapter.grade,2,label+' profile grade changed');
     assert.equal(chapter.title,'Tallvika');
-    assert.match(await tv.locator('.tv-next').innerText(),/Bonusoppdraget venter/,label+' no voluntary replay');
+    assert.match(await tv.locator('.tv-next-sign[data-tv="next"]').innerText(),/Bonusoppdrag/,label+' the illustrated Next adventure sign must offer voluntary replay');
 
     await page.evaluate(()=>{renderGeographyContinue();showScreen('geography')});
     await page.locator('#geography-screen.active').waitFor({timeout:10000});
@@ -87,8 +87,14 @@ async function run(engine,label){
     assert.match(await page.locator('#geography-continue-title').innerText(),/Nordlysleiren fullført/);
     assert.doesNotMatch(await page.locator('#geography-continue-title').innerText(),/2\. klasse fullført/i);
 
+    // The geography landing is the public entry point to the finished
+    // chapter. Opening the map via its live, two-post journey sign respects
+    // the new approved navigation hierarchy without fabricating progress.
+    const landing=page.locator('#geography-screen.active #laria-geography-world');
+    await landing.waitFor({state:'visible',timeout:12000});
+    await landing.locator('[data-gv="journey"]').click();
     const geoMap=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
-    await geoMap.waitFor({timeout:14000});
+    await geoMap.waitFor({state:'visible',timeout:14000});
     await geoMap.locator('[data-locked-place="4"]').click();
     const geoSheet=page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet.is-mission');
     await geoSheet.waitFor({timeout:8000});

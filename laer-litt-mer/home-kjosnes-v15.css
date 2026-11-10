@@ -17,17 +17,11 @@
 .grade-band-young .bc12.bc15-locked-home::before{
   z-index:-2;
   inset:0;
-  /* Intentional scenic safe-area fill. Never repeat and blur the navigation icons. */
-  /* Match the real upper edge of the locked master: warm canopy at left, clear fjord sky at right. */
+  /* Real iPad review rejected the sampled colour-strip as too visible.
+     This remains a temporary fallback until CLEAN approved Grovanova art. */
   background:linear-gradient(90deg,
-    #3e3516 0%,
-    #543c10 12.5%,
-    #6d5a25 25%,
-    #b09450 37.5%,
-    #64a6e9 50%,
-    #59a1e7 62.5%,
-    #5399de 75%,
-    #4c95de 100%);
+    #3e3516 0%,#543c10 12.5%,#6d5a25 25%,#b09450 37.5%,
+    #64a6e9 50%,#59a1e7 62.5%,#5399de 75%,#4c95de 100%);
   box-shadow:inset 0 -18px 24px -22px #244f5d;
   filter:none;
   transform:none;
@@ -297,24 +291,46 @@
  }
 }
 
+/* Small portrait phones still use the painted navigation chrome, but every
+   invisible hit target must retain a real 44px touch box in WebKit. */
+@media(orientation:portrait) and (max-width:700px){
+ .grade-band-young .bc12.bc15-locked-home .bc12-nav{
+   display:grid!important;visibility:visible!important;min-height:52px!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home .bc12-nav button{
+   display:flex!important;visibility:visible!important;
+   min-width:44px!important;min-height:44px!important;
+   align-items:center!important;justify-content:center!important;
+ }
+}
+
 
 /* Dynamic copy over the locked artwork.
    Polish 2 uses the same illustrated wood language as the painted Home controls. */
 .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
  position:absolute;z-index:17;box-sizing:border-box;
- display:flex;align-items:center;
- padding:6px 15px 7px 17px;border-radius:10px 14px 12px 10px;
- background:linear-gradient(180deg,#ddb878 0%,#c99555 54%,#b77d42 100%);
- border:1px solid #8f5b2e;border-left:4px solid #74451f;
- color:#3f2917;text-align:left;pointer-events:none;
- text-shadow:0 1px 0 rgba(255,244,211,.62);
- box-shadow:0 6px 14px rgba(53,35,18,.22),inset 0 1px 0 rgba(255,246,218,.58),inset 0 -1px 0 rgba(103,62,29,.24);
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+ padding:11px 23px 14px 24px;border-radius:35px 40px 36px 40px;
+ background:linear-gradient(165deg,#fffcf0 0%,#fff3dc 60%,#f9e8c3 100%);
+ border:2px solid #ae8a5e;color:#3e2b18;text-align:left;pointer-events:none;
+ text-shadow:0 1px 0 #fffaf0;
+ box-shadow:0 4px 0 #ae8a5e85,0 9px 19px #30220e55;
+}
+
+.grade-band-young .bc12.bc15-locked-home .bc15-live-copy::after{
+ content:"";position:absolute;z-index:-1;width:18px;height:18px;
+ left:67%;bottom:-10px;top:auto;right:auto;
+ background:#f9e8c3;border-right:2px solid #ae8a5e;border-bottom:2px solid #ae8a5e;
+ transform:rotate(45deg);pointer-events:none;
 }
 .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
  font-family:var(--laria-font-rounded,ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif);
  font-size:clamp(20px,1.85vw,32px);font-weight:950;line-height:1.02;letter-spacing:-.03em;
 }
-.grade-band-young .bc12.bc15-locked-home .bc15-live-intro{display:none!important}
+.grade-band-young .bc12.bc15-locked-home .bc15-live-intro{
+ display:block!important;margin-top:6px;color:#5e4430;
+ font:800 clamp(14px,1.24vw,18px)/1.14 var(--laria-font-rounded,ui-rounded,system-ui);
+}
 .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
  position:absolute;z-index:17;box-sizing:border-box;
  display:flex;align-items:center;justify-content:center;
@@ -334,15 +350,17 @@
 @media(max-width:700px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
    display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
-   padding:8px 14px 9px 17px;border:0;border-radius:0;
-   /* Replace the baked child name with painted sky, not another UI card. */
-   background:linear-gradient(96deg,#3f86c6 0%,#5198d2 58%,#63a9df 100%);
-   color:#fff;text-shadow:0 2px 4px rgba(19,56,91,.62);
-   box-shadow:none;
- }
+   padding:8px 15px 10px 17px;border:2px solid #ae8a5e;
+   border-radius:24px 26px 24px 28px;
+   background:linear-gradient(165deg,#fffcf0 0%,#fff3dc 60%,#f9e8c3 100%);
+   color:#3e2b18;text-shadow:0 1px 0 #fffaf0;
+   box-shadow:0 4px 0 #ae8a5e85,0 8px 14px #30220e50;
+}
  .grade-band-young .bc12.bc15-locked-home .bc15-live-copy::after{
-   content:"";position:absolute;left:100%;top:0;bottom:0;width:58px;pointer-events:none;
-   background:linear-gradient(90deg,#63a9df 0%,rgba(99,169,223,.72) 34%,rgba(99,169,223,0) 100%);
+   content:"";position:absolute;z-index:-1;
+   left:67%;bottom:-9px;top:auto;right:auto;width:16px;height:16px;
+   background:#f9e8c3;border-right:2px solid #ae8a5e;border-bottom:2px solid #ae8a5e;
+   transform:rotate(45deg);pointer-events:none;
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
    font-size:clamp(22px,6.15vw,28px);line-height:1;letter-spacing:-.025em;
@@ -350,7 +368,7 @@
  .grade-band-young .bc12.bc15-locked-home .bc15-live-intro{
    display:block!important;
    margin-top:5px;font-size:clamp(12px,3.35vw,14.5px);font-weight:800;line-height:1.08;
-   color:#fff7df;text-shadow:0 1px 3px rgba(20,59,94,.66);
+   color:#5e4430;text-shadow:0 1px 0 #fffaf0;
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
    padding:0 4px;border:0;border-radius:1px;
@@ -401,14 +419,13 @@
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
    display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
-   padding:9px 14px 10px 17px;border-radius:10px 18px 18px 10px;
-   background:linear-gradient(102deg,#234b45 0%,#2f5a4c 72%,#386451 100%);
-   border:1px solid #5f806d;border-left:3px solid #d9bd79;
-   color:#fff;text-shadow:0 2px 5px #17372f;
-   box-shadow:0 7px 18px #17352d,inset 0 1px 0 #6e8c7b;
- }
+   padding:11px 17px 13px 19px;border-radius:32px 37px 34px 38px;
+   background:linear-gradient(165deg,#fffcf0 0%,#fff3dc 60%,#f9e8c3 100%);
+   border:2px solid #ae8a5e;color:#3e2b18;text-shadow:0 1px 0 #fffaf0;
+   box-shadow:0 4px 0 #ae8a5e85,0 9px 19px #30220e55;
+}
  .grade-band-young .bc12.bc15-locked-home .bc15-live-intro{
-   display:block!important;margin-top:5px;color:#f6ead0;font-size:clamp(12px,1.8vw,17px);font-weight:800;
+   display:block!important;margin-top:6px;color:#5e4430;font-size:clamp(14px,1.8vw,18px);font-weight:800;
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
    border:0;border-radius:3px;

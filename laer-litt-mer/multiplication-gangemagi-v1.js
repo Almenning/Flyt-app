@@ -21,13 +21,11 @@
  const berrySourceArt=Array.from({length:5},(_,i)=>'<span class="gm-source-berry gm-source-berry-'+i+'">'+berrySvg+'</span>').join('');
  function load(){try{return E.normalize(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(_){return E.initial();}}
  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(_){}}
- function selectedFox(){
-   const which=window.LARIA_FOX?.choice?.()==='girl'?'girl':'boy';
-   const wardrobe=window.LARIA_FOX_WARDROBE;
-   if(typeof wardrobe?.render==='function')
-     return wardrobe.render(which,wardrobe.inventory?.()||{equipped:{}},'world');
-   const path=window.LARIA_FOX?.worldSource?.(which)||window.LARIA_FOX?.source?.(which);
-   return path?'<img src="'+esc(path)+'" alt="" aria-hidden="true">':'';
+ function selectedCompanion(){
+   const actor=window.LARIA_TROLL_ACTOR||window.LARIA_TROLL;
+   const id=actor?.choice?.()||'storesoster';
+   const path=actor?.source?.(id)||('./assets/gangemagi-troll/'+id+'.webp');
+   return '<img class="gm-troll-art laria-premium-troll-art" data-troll="'+esc(id)+'" src="'+esc(path)+'" alt="" aria-hidden="true">';
  }
  function message(){
    const amount=E.total(state),left=E.target(state)-amount;
@@ -148,9 +146,9 @@
        (free?'<header class="gm-story"><div class="gm-story-main"><span class="gm-story-kicker">DU BESTEMMER</span><h2>'+esc(storyTitle())+'</h2><p>'+esc(challengeText())+'</p></div>'+
        '<span class="gm-story-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span></header>':questBoard(sum,goal))+
        '<div class="gm-scene"><div class="gm-fox" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
-         '<div class="gm-fox-art" aria-hidden="true">'+selectedFox()+'</div>'+
-         '<div class="gm-fox-bubble"><span class="gm-fox-bubble-label">Din rev sier:</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
-         '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp det reven sier">◖))</button></div>'+
+         '<div class="gm-fox-art laria-troll-host laria-troll-actor" data-laria-troll-mood="'+(complete?'celebrate':hintStep?'hint':foxMood==='cheer'?'celebrate':foxMood==='think'?'think':'curious')+'" aria-hidden="true">'+selectedCompanion()+'</div>'+
+         '<div class="gm-fox-bubble"><span class="gm-fox-bubble-label">Trollet ditt sier:</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
+         '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp det trollet sier">◖))</button></div>'+
        '</div>'+
        '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallvikas hage <span class="gm-sign-leaf">✿</span></div>'+
        '<div class="gm-crates" style="--gm-groups:'+state.groups+';--gm-cols:'+(state.each<=5?state.each:Math.ceil(state.each/2))+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
@@ -217,7 +215,7 @@
      '<button type="button" class="gm-book-back" data-gm-action="book" aria-label="Tilbake til Gangemagi"><span aria-hidden="true">‹</span> Tilbake til Gangemagi</button>'+
      '<div class="gm-book-v2-world"><div class="gm-book-v2-inner">'+
        '<header class="gm-book-intro">'+
-         '<div class="gm-book-fox-art" aria-hidden="true">'+selectedFox()+'</div>'+
+         '<div class="gm-book-fox-art laria-troll-host laria-troll-actor" data-laria-troll-mood="idle" aria-hidden="true">'+selectedCompanion()+'</div>'+
          '<div class="gm-book-intro-copy"><span class="gm-book-overline">✦ EVENTYRBOK FRA TALLVIKA ✦</span>'+
          '<h2>Min markedsbok</h2><p>Her kan du velge et eventyr og spille det så mange ganger du vil. Jeg blir med deg!</p></div>'+
          '<div class="gm-book-trophy" role="img" aria-label="'+n+' av '+total+' magiske blomster samlet">'+
@@ -226,7 +224,7 @@
        '</header>'+
        '<div class="gm-book-fox-line"><span class="gm-book-fox-sparkle" aria-hidden="true">✦</span>'+
          '<span>'+esc(bookFoxMessage())+'</span>'+
-         '<button type="button" data-gm-action="book-read" aria-label="Hør hva reven sier" title="Hør reven">◖))</button></div>'+
+         '<button type="button" data-gm-action="book-read" aria-label="Hør hva trollet sier" title="Hør trollet">◖))</button></div>'+
        '<div class="gm-book-pages" id="gm-book-pages">'+
          '<p class="gm-book-invite">Trykk på et oppdrag for å gå til kurvene. Blomstene du samler er dine for alltid.</p>'+
          '<div class="gm-book-grid">'+cards+'</div>'+

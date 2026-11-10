@@ -30,7 +30,7 @@ function startServer(){
 async function onboard(page,grade){
   await page.goto(page.__base,{waitUntil:'domcontentloaded'});
   await page.locator('#onboarding.show').waitFor();
-  await page.locator('.avatar-choice-card[data-avatar="boy"]').click();
+  await page.locator('.avatar-choice-card[data-troll="lillebror"]').click();
   await page.locator('#profile-name').fill('Testbarn');
   await page.locator(`.grade-btn[data-grade="${grade}"]`).click();
   await page.locator('#profile-next').click();
@@ -156,8 +156,8 @@ async function finishSession(page){
     // Prompt 15: profile, one-screen onboarding, grade adaptation and parent trust.
     {
       const profileCases=[
-        {label:'phone',viewport:{width:390,height:844},avatar:'girl',name:'Mina',grade:2,band:'grade-band-young'},
-        {label:'ipad',viewport:{width:820,height:1180},avatar:'boy',name:'Noah',grade:7,band:'grade-band-older'}
+        {label:'phone',viewport:{width:390,height:844},troll:'lillesoster',legacyAvatar:'girl',name:'Mina',grade:2,band:'grade-band-young'},
+        {label:'ipad',viewport:{width:820,height:1180},troll:'lillebror',legacyAvatar:'boy',name:'Noah',grade:7,band:'grade-band-older'}
       ];
       for(const cfg of profileCases){
         const ctx=await browser.newContext({viewport:cfg.viewport,isMobile:cfg.label==='phone',hasTouch:true,serviceWorkers:'block'});
@@ -168,7 +168,7 @@ async function finishSession(page){
         await p.locator('#onboarding.show').waitFor();
         assert.equal(await p.locator('#onboarding').getAttribute('data-profile-release'),'profile-rc1',cfg.label+' onboarding release drifted');
         assert.equal(await p.locator('.onboard-step').count(),1,cfg.label+' onboarding must remain one deliberate setup screen');
-        assert.equal(await p.locator('.avatar-choice-card').count(),2,cfg.label+' must offer revegutt and revejente');
+        assert.equal(await p.locator('.avatar-choice-card[data-troll]').count(),3,cfg.label+' must offer all three premium trolls');
         assert.equal(await p.locator('.grade-btn').count(),10,cfg.label+' must offer grades 1-10');
         const fit=await p.evaluate(()=>{
           const card=document.querySelector('.onboarding-card').getBoundingClientRect();
@@ -179,7 +179,7 @@ async function finishSession(page){
         const gradeTargets=await p.locator('.grade-btn').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
         assert.ok(gradeTargets.every(h=>h>=44),cfg.label+' onboarding has undersized grade target: '+gradeTargets.join(','));
 
-        await p.locator('.avatar-choice-card[data-avatar="'+cfg.avatar+'"]').click();
+        await p.locator('.avatar-choice-card[data-troll="'+cfg.troll+'"]').click();
         await p.locator('#profile-name').fill(cfg.name);
         await p.locator('.grade-btn[data-grade="'+cfg.grade+'"]').click();
         await p.locator('#profile-next').click();
@@ -188,22 +188,23 @@ async function finishSession(page){
           profile:state.profile,
           appClass:document.querySelector('.app').className,
           greeting:document.getElementById('home-greeting')?.textContent||'',
-          avatar:document.querySelector('.avatar')?.dataset.profileAvatar||null,
+          troll:document.querySelector('.avatar')?.dataset.troll||null,
           gradeLabel:document.getElementById('home-grade-label')?.textContent||''
         }));
         assert.equal(profile.profile.name,cfg.name,cfg.label+' profile name did not persist');
-        assert.equal(profile.profile.avatar,cfg.avatar,cfg.label+' profile avatar did not persist');
+        assert.equal(profile.profile.tallvikaTroll,cfg.troll,cfg.label+' selected troll did not persist');
+        assert.equal(profile.profile.avatar,cfg.legacyAvatar,cfg.label+' legacy avatar migration metadata drifted');
         assert.equal(Number(profile.profile.grade),cfg.grade,cfg.label+' profile grade did not persist');
         assert.equal(profile.profile.setupVersion,2,cfg.label+' profile setup version changed unexpectedly');
         assert.ok(profile.appClass.includes(cfg.band),cfg.label+' wrong grade design band: '+profile.appClass);
         assert.match(profile.greeting,new RegExp(cfg.name),cfg.label+' Home does not reuse profile name');
-        assert.equal(profile.avatar,cfg.avatar,cfg.label+' Home does not reuse selected fox');
+        assert.equal(profile.troll,cfg.troll,cfg.label+' Home does not reuse selected troll');
         assert.equal(profile.gradeLabel,cfg.grade+'. klasse',cfg.label+' Home grade label drifted');
 
         await p.reload({waitUntil:'domcontentloaded'});
         await p.locator('#home-screen.active').waitFor();
         assert.equal(await p.locator('#onboarding').isVisible(),false,cfg.label+' repeated onboarding after completed profile');
-        assert.equal(await p.locator('.avatar').getAttribute('data-profile-avatar'),cfg.avatar,cfg.label+' avatar changed after reload');
+        assert.equal(await p.locator('.avatar').getAttribute('data-troll'),cfg.troll,cfg.label+' troll changed after reload');
         assert.match(await p.locator('#home-greeting').textContent(),new RegExp(cfg.name),cfg.label+' name changed after reload');
 
         if(cfg.label==='phone'){
@@ -229,18 +230,19 @@ async function finishSession(page){
           assert.doesNotMatch(pwa.visibleText,/\bFlyt\b|Lære litt mer/i,'old product name remains visible in Læria');
 
           await p.locator('.bc12').waitFor();
-          const homeFox=p.locator('.bc12-fox');
-          assert.equal(await homeFox.getAttribute('data-avatar'),'girl','Basecamp fox did not follow saved revejente choice');
-          assert.ok((await homeFox.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Basecamp revejente has no visible profile marker');
+          assert.equal(await p.evaluate(()=>window.LARIA_TROLL_ACTOR?.choice()),cfg.troll,
+            'selected TrollActor identity drifted on Home');
+          assert.equal(await p.locator('#home-screen .bc15-locked-home .laria-premium-troll-art:visible').count(),0,
+            'locked Grovanova must not receive a second injected TrollActor');
 
           await p.evaluate(()=>openGlobe('explore'));
           await p.locator('#world-screen.active').waitFor();
           const globeHeader=p.locator('.premium-globe-header');
-          const globeFox=p.locator('.premium-globe-fox');
-          await globeFox.waitFor();
-          assert.equal(await globeHeader.getAttribute('data-avatar'),'girl','Kloden header did not follow saved revejente choice');
-          assert.equal(await globeFox.getAttribute('data-avatar'),'girl','Kloden fox did not follow saved revejente choice');
-          assert.ok((await globeHeader.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Kloden revejente has no visible profile marker');
+          const globeTroll=p.locator('.premium-globe-header .laria-premium-troll-art');
+          await globeTroll.waitFor({state:'visible',timeout:12000});
+          assert.equal(await globeHeader.getAttribute('data-troll'),cfg.troll,'Kloden lost selected TrollActor');
+          assert.match(await globeTroll.getAttribute('src'),new RegExp('assets/gangemagi-troll/'+cfg.troll+'\\.webp$'),
+            'Kloden rendered wrong TrollActor art');
 
           await p.evaluate(()=>setTab('home'));
           await p.locator('#home-screen.active .bc12').waitFor();
@@ -253,7 +255,10 @@ async function finishSession(page){
             'Retired Bokskogen map still visible');
           assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
             'Stored avatar preference changed when removing old Norwegian fox');
-          await p.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+          { const scene=p.locator('#eggenipa-world .eg-scene-reading:visible');
+            if(await scene.count())await scene.click();
+            else await p.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible').click();
+          }
           await p.locator('#session-screen.active .laria-task-card').waitFor();
           assert.equal(await p.evaluate(()=>sessionScope?.module),'reading','Norsk reading module changed');
           await p.locator('#close-session').click();
@@ -266,12 +271,13 @@ async function finishSession(page){
             showScreen('session');renderQuestion();
           });
           await p.locator('#session-screen.active').waitFor();
-          assert.equal(await p.locator('#session-screen.active .task-fox-companion').count(),0,
-            'Old fox should be absent from Norsk task scene');
+          const norskActor=p.locator('#session-screen.active .task-fox-companion.laria-troll-host .laria-premium-troll-art');
+          await norskActor.waitFor({state:'visible',timeout:12000});
+          assert.equal(await norskActor.count(),1,'Norsk must render exactly one selected TrollActor');
           assert.equal(await p.locator('#session-screen.active .task-norsk-guide').count(),1,
             'Norsk must display one accessible neutral hint guide');
           assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
-            'Removing the Norwegian visual fox must not alter profile data');
+            'TrollActor migration must not alter legacy profile migration metadata');
           await p.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
           await p.locator('#home-screen.active .bc12').waitFor();
         }
@@ -280,7 +286,8 @@ async function finishSession(page){
         await p.locator('#adult-screen.active').waitFor();
         assert.equal(await p.locator('#adult-screen').getAttribute('data-parent-trust-release'),'parent-trust-rc1');
         assert.equal((await p.locator('#adult-profile-name').textContent()).trim(),cfg.name);
-        assert.equal((await p.locator('#adult-profile-avatar').textContent()).trim(),cfg.avatar==='girl'?'Revejente':'Revegutt');
+        assert.equal((await p.locator('#adult-profile-avatar').textContent()).trim(),
+          ({storesoster:'Storesøster',lillesoster:'Lillesøster',lillebror:'Lillebror'})[cfg.troll]);
         assert.doesNotMatch(await p.locator('#adult-screen').innerText(),/tidlig test|vennetest/i,'parent area still exposes prototype language');
         await p.locator('#open-parent-info').click();
         await p.locator('#parent-info-screen.active').waitFor();
@@ -333,7 +340,7 @@ async function finishSession(page){
       await migrationPage.goto(url+'?app=laria&prompt15=migration',{waitUntil:'domcontentloaded'});
       await migrationPage.locator('#onboarding.show').waitFor();
       assert.equal(await migrationPage.locator('.grade-btn[data-grade="2"]').getAttribute('aria-pressed'),'true','existing grade was not preselected during profile migration');
-      await migrationPage.locator('.avatar-choice-card[data-avatar="girl"]').click();
+      await migrationPage.locator('.avatar-choice-card[data-troll="lillesoster"]').click();
       await migrationPage.locator('#profile-name').fill('Mira');
       await migrationPage.locator('#profile-next').click();
       await migrationPage.locator('#home-screen.active').waitFor();
@@ -674,7 +681,7 @@ async function finishSession(page){
     assert.equal(await page.locator('.bc12-nav button').count(),5);
     assert.equal(await page.locator('.bc12-nav button[data-camp="explore"]').isVisible(),true);
     assert.equal(await page.locator('#learn-screen').count(),0);
-    assert.match(await page.locator('.onboard-step[data-step="0"] .hero-copy').textContent(),/Velg reven din, skriv navnet ditt og start reisen/i);
+    assert.match(await page.locator('.onboard-step[data-step="0"] .hero-copy').textContent(),/Velg trollet som skal følge deg gjennom Læria, skriv navnet ditt og start reisen/i);
     assert.equal(await page.locator('.onboard-step[data-step="0"] .grade-question').count(),1,'grade choice must remain on the same onboarding screen');
 
     // Norsk 1.–2.: three direct activities. Bokskogen is retired from the
@@ -700,7 +707,10 @@ async function finishSession(page){
 
     // The same reading engine still starts real questions and records a
     // completed practice round, but must NOT overwrite journey nodes.
-    await eggenipa.locator('.eg-portal[data-eg="reading"]').click();
+    { const scene=eggenipa.locator('.eg-scene-reading:visible');
+      if(await scene.count())await scene.click();
+      else await eggenipa.locator('.eg-portal[data-eg="reading"]:visible').click();
+    }
     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
     const reading=await page.evaluate(()=>({
       type:sessionScope?.type,
@@ -712,8 +722,9 @@ async function finishSession(page){
     assert.equal(reading.subject,'norwegian');
     assert.equal(reading.module,'reading');
     assert.ok(reading.question,'Lesekroken must contain a real reading question');
-    assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-      'the retired fox must not appear in Norwegian reading tasks');
+    const readingActor=page.locator('#session-screen.active .task-fox-companion.laria-troll-host .laria-premium-troll-art');
+    await readingActor.waitFor({state:'visible',timeout:12000});
+    assert.equal(await readingActor.count(),1,'Norwegian reading must render exactly one selected TrollActor');
     await finishSession(page);
     await page.locator('#complete-screen.active').waitFor();
     await page.locator('#complete-home').click();
@@ -800,7 +811,7 @@ async function finishSession(page){
     await page.evaluate(()=>document.getElementById('open-math').click());
     const tallvika=page.locator('#subject-screen.active #tallvika-world');
     await tallvika.waitFor({state:'visible',timeout:16000});
-    assert.equal(await tallvika.locator('.tv-hotspot').count(),3,'Tallvika must show all three direct-play houses');
+    assert.equal(await tallvika.locator('.tv-sign').count(),3,'Tallvika must show all three direct-play wooden signs');
     assert.equal(await page.locator('#journey-map').isVisible(),false,'the retired Math journey artwork must stay hidden');
     const mathNextId=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
     assert.ok(mathNextId,'Tallvika must preserve the existing recommended Math mission');
@@ -1041,19 +1052,24 @@ async function finishSession(page){
     else await englishWorld.locator('.ki-painted-home').click();
     await page.locator('#home-screen.active').waitFor({timeout:16000});
 
-    // Geography: default Land must work on a young grade.
+    // New child-facing route: Home -> Nordlysleiren -> original Geografireisen.
+    // The old map is intentionally hidden behind the landscape entrance.
     await page.evaluate(()=>document.getElementById('open-geography').click());
     assert.equal(await page.locator('.geo-theme').count(),6);
-    assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
+    const geoEntrance=page.locator('#laria-geography-world:visible');
+    await geoEntrance.waitFor({timeout:16000});
+    assert.equal(await geoEntrance.locator('.gv-sign').count(),3,
+      'Nordlysleiren must provide three scene-native destinations');
+    await geoEntrance.locator('[data-gv="journey"]').click();
+    await page.locator('#geo-journey-map:visible').waitFor({timeout:16000});
     await page.locator('#geo-journey-map.locked-journey-map[data-journey-subject="geography"] .locked-journey-image').waitFor({timeout:16000});
     assert.equal(await page.locator('#geo-journey-map .locked-journey-image').getAttribute('src'),'./locked-journeys/nordlysleiren-locked-20261010.png');
     assert.equal(await page.locator('#geo-journey-map').getAttribute('data-journey-release'),'journey-rc1');
     assert.equal(await page.locator('#geo-journey-map .locked-journey-hotspot').count(),5);
     assert.equal(await page.locator('#geo-journey-map .locked-journey-hotspot.state-current').count(),1);
     assert.equal(await page.locator('#geo-journey-map .locked-journey-live-progress').count(),1);
-    const geoWorldTop=await page.locator('#geo-journey-map').evaluate(el=>el.getBoundingClientRect().top);
-    const geoGlobeTop=await page.locator('#open-world').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(geoWorldTop<geoGlobeTop,'Nordlysleiren must precede globe/free exploration');
+    assert.equal(await page.locator('#laria-geography-world:visible').count(),0,
+      'Geografireisen must replace the landing, not appear underneath it');
     assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false);
     await page.locator('#geo-journey-map .locked-journey-hotspot.state-current').click();
     await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary[data-locked-node]:not([disabled])').first().click();
@@ -1073,11 +1089,16 @@ async function finishSession(page){
     await page.locator('#close-session').click();
     await page.locator('#geography-screen.active').waitFor();
 
-    await page.locator('#start-geography-theme').click();
+    // Geography's old theme button is hidden beneath the new illustrated facade.
+    // Return to Nordlysleiren and use the real Land og flagg sign.
+    await page.locator('#geography-screen.active .locked-journey-back:visible').click();
+    await page.locator('#laria-geography-world:visible').waitFor({timeout:16000});
+    await page.locator('#laria-geography-world [data-gv="country"]').click();
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     await page.locator('#close-session').click();
-    await page.locator('#open-world').click();
+    await page.locator('#laria-geography-world:visible').waitFor({timeout:16000});
+    await page.locator('#laria-geography-world [data-gv="globe"]').click();
     await page.locator('#world-screen.active').waitFor();
     await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true);
     const box=await page.locator('#atlas-canvas').boundingBox();
@@ -1110,7 +1131,9 @@ async function finishSession(page){
     await page.locator('#geography-screen.active').waitFor();
 
     // Progress.
-    await page.locator('#geo-journey-map .locked-journey-back').click();
+    const geoLanding=page.locator('#laria-geography-world:visible');
+    await geoLanding.waitFor({timeout:16000});
+    await geoLanding.locator('[data-gv="home"]').click();
     await page.evaluate(()=>setTab('progress'));
     await page.locator('#progress-screen.active').waitFor();
     assert.equal(await page.locator('#subject-progress-grid .subject-progress-card').count(),4);
@@ -1118,9 +1141,12 @@ async function finishSession(page){
     // No tiny child-facing back/theme controls.
     await page.evaluate(()=>setTab('home'));
     await page.evaluate(()=>document.getElementById('open-geography').click());
-    const themeHeights=await page.locator('.geo-theme:visible').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    const landing=page.locator('#laria-geography-world:visible');
+    await landing.waitFor({timeout:16000});
+    const themeHeights=await landing.locator('.gv-sign').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    assert.equal(themeHeights.length,3,'Nordlysleiren must show three activities');
     assert.ok(themeHeights.every(h=>h>=44),`small geography touch target: ${themeHeights}`);
-    const backHeight=await page.locator('#geo-journey-map .locked-journey-back').evaluate(e=>e.getBoundingClientRect().height);
+    const backHeight=await landing.locator('[data-gv="home"]').evaluate(e=>e.getBoundingClientRect().height);
     assert.ok(backHeight>=44,`small back target: ${backHeight}`);
 
     // Prompt 11: all four subjects must render through the same premium task scene contract.
@@ -1132,7 +1158,13 @@ async function finishSession(page){
       }else if(subject==='english'){
         // Follow the live Kinnaklova portal, not the retired mixed English
         // shortcut that still preserves legacy chapter-journey behavior.
-        await page.locator('#subject-screen.active #kinnaklova-world .ki-card[data-ki="words"]').click();
+        const english=page.locator('#subject-screen.active #kinnaklova-world');
+        await english.waitFor({timeout:16000});
+        await page.waitForFunction(()=>['ready','missing','unapproved'].includes(
+          document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+        const paintedWords=english.locator('.ki-painted-words');
+        if(await paintedWords.isVisible())await paintedWords.click();
+        else await english.locator('.ki-card[data-ki="words"]:visible').click();
       }else{
         await page.evaluate(s=>startLearningSession(s,null,SUBJECTS[s]?.mission||'Blandet'),subject);
       }
@@ -1141,25 +1173,21 @@ async function finishSession(page){
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-subject'),subject,subject+' wrong task-scene subject');
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-band'),'young',subject+' grade 2 should use young task specialization');
       assert.equal(await page.locator('.laria-task-card').count(),1,subject+' should render exactly one premium task card');
+      const taskActor=page.locator('#session-screen.active .task-fox-companion.laria-troll-host .laria-premium-troll-art');
+      await taskActor.waitFor({state:'visible',timeout:12000});
+      assert.equal(await taskActor.count(),1,subject+' must render exactly one selected TrollActor');
+      const actorMatches=await taskActor.evaluate(img=>
+        img.getAttribute('src')===window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()));
+      assert.equal(actorMatches,true,subject+' must use the selected persistent TrollActor');
       if(subject==='norwegian'){
-        assert.equal(await page.locator('.task-fox-companion img').count(),0,
-          'Norsk must not render the retired fox');
         const guide=page.locator('#session-screen.active .task-norsk-guide');
         await guide.waitFor({state:'visible',timeout:12000});
         const bounds=await guide.boundingBox();
         assert.ok(bounds&&bounds.width>=44&&bounds.height>=44,
           'Norsk lost its visible, child-friendly help indicator');
       }else if(subject==='english'){
-        assert.equal(await page.locator('.task-fox-companion').count(),0,'Kinnaklova must not show retired fox');
         assert.equal((await page.locator('#session-screen.active .task-world-chip').innerText()).trim(),'Kinnaklova');
         assert.equal(await page.evaluate(()=>sessionScope?.module),'words','English opened wrong module');
-      }else{
-        // Existing profile actor remains in other subjects.
-        assert.equal(await page.locator('.task-fox-companion img').count(),1,
-          subject+' needs one in-world fox companion');
-        const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
-          img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
-        assert.equal(personalFox,true,subject+' must use the selected persistent fox');
       }
       assert.ok((await page.locator('.answer,.letter-tile,.word-tile,.sequence-tile,#math-input,#quiz-map-canvas').count())>0,subject+' task scene has no active interaction');
       await page.locator('#close-session').click();
@@ -1217,12 +1245,11 @@ async function finishSession(page){
     assert.equal(progressAfterIllustrations,progressBeforeIllustrations,'Prompt 12 illustration rendering changed learning progress');
     await page.locator('#close-session').click();
 
-    // Prompt 13: subjects retaining a fox must keep avatar identity and reactions,
-    // avoid covering the question/answers, and react briefly only after a correct answer.
-    async function assertPrompt13Fox(width,height,label){
+    // Prompt 13: the selected TrollActor must keep identity and reactions,
+    // avoid covering the question/answers, and react briefly after a correct answer.
+    async function assertPrompt13Troll(width,height,label){
       await page.setViewportSize({width,height});
       await page.evaluate(()=>{
-        state.profile.avatar='girl';saveState();
         sessionQuestions=[{
           subject:'english',skill:'vocabulary',type:'learning-choice',
           prompt:'Which word matches the picture?',answer:'cat',options:['cat','dog','house'],
@@ -1230,47 +1257,45 @@ async function finishSession(page){
         }];
         qIndex=0;currentAnswered=null;showScreen('session');renderQuestion();
       });
-      const fox=page.locator('.task-fox-companion');
-      assert.equal(await page.locator('#session-screen').getAttribute('data-task-fox-release'),'fox-rc1',label+' missing Prompt 13 fox release');
-      assert.equal(await fox.getAttribute('data-avatar'),'girl',label+' TaskScene fox did not follow saved avatar state');
-      const foxIsChosen=await fox.locator('img').evaluate(img=>
-        img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
-      assert.equal(foxIsChosen,true,label+' TaskScene fox must be the saved revejente');
+      const actor=page.locator('.task-fox-companion.laria-troll-host');
+      const art=actor.locator('img.laria-premium-troll-art');
+      await art.waitFor({state:'visible',timeout:12000});
+      assert.equal(await actor.getAttribute('data-troll'),await page.evaluate(()=>window.LARIA_TROLL_ACTOR.choice()),
+        label+' TaskScene TrollActor lost selected identity');
+      const actorIsChosen=await art.evaluate(img=>
+        img.getAttribute('src')===window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()));
+      assert.equal(actorIsChosen,true,label+' TaskScene must use the selected TrollActor');
       const layout=await page.evaluate(()=>{
         const rect=s=>document.querySelector(s)?.getBoundingClientRect();
         const f=rect('.task-fox-companion'),q=rect('.question'),a=rect('.task-interaction');
         const overlap=(x,y)=>!!x&&!!y&&Math.max(0,Math.min(x.right,y.right)-Math.max(x.left,y.left))*Math.max(0,Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top));
-        return {fox:{left:f.left,right:f.right,top:f.top,bottom:f.bottom},questionOverlap:overlap(f,q),answerOverlap:overlap(f,a),scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
+        return {actor:{left:f.left,right:f.right,top:f.top,bottom:f.bottom},questionOverlap:overlap(f,q),answerOverlap:overlap(f,a),scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
       });
-      assert.equal(layout.questionOverlap,0,label+' fox overlaps question text');
-      assert.equal(layout.answerOverlap,0,label+' fox overlaps answer controls');
-      assert.ok(layout.fox.left>=-1&&layout.fox.right<=width+1,label+' fox is cropped horizontally');
-      assert.ok(layout.scrollWidth<=layout.clientWidth,label+' fox creates horizontal overflow');
-      // The single personalised fox now reacts through LARIA_FOX_PRESENCE,
-      // not the retired fox-correct CSS class. Assert the visible companion's
-      // actual mood and that it settles without duplicating its artwork.
-      await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
+      assert.equal(layout.questionOverlap,0,label+' TrollActor overlaps question text');
+      assert.equal(layout.answerOverlap,0,label+' TrollActor overlaps answer controls');
+      assert.ok(layout.actor.left>=-1&&layout.actor.right<=width+1,label+' TrollActor is cropped horizontally');
+      assert.ok(layout.scrollWidth<=layout.clientWidth,label+' TrollActor creates horizontal overflow');
       const beforeCount=await page.evaluate(()=>state.answerLog.length);
       await page.locator('.answer[data-answer="cat"]').click();
       await page.waitForFunction(()=>
-        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaFoxMood==='celebrate',
+        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaTrollMood==='celebrate',
         null,{polling:25,timeout:1500});
-      assert.equal(await fox.getAttribute('data-laria-fox-mood'),'celebrate',
-        label+' selected fox did not celebrate the correct answer');
-      assert.equal(await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').count(),1,
-        label+' correct answer created a duplicate fox pose');
+      assert.equal(await actor.getAttribute('data-laria-troll-mood'),'celebrate',
+        label+' selected TrollActor did not celebrate the correct answer');
+      assert.equal(await actor.locator('img.laria-premium-troll-art').count(),1,
+        label+' correct answer created duplicate TrollActor art');
       const answerResult=await page.evaluate(()=>({count:state.answerLog.length,last:state.answerLog[state.answerLog.length-1]}));
       assert.equal(answerResult.count,beforeCount+1,label+' correct answer should create exactly one normal progress record');
       assert.equal(answerResult.last.correct,true,label+' correct answer progress record changed');
       await page.waitForFunction(()=>
-        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaFoxMood==='idle',
+        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaTrollMood==='idle',
         null,{polling:50,timeout:3000});
-      assert.equal(await fox.getAttribute('data-laria-fox-mood'),'idle',
-        label+' fox reaction did not settle');
+      assert.equal(await actor.getAttribute('data-laria-troll-mood'),'idle',
+        label+' TrollActor reaction did not settle');
       await page.locator('#close-session').click();
     }
-    await assertPrompt13Fox(390,844,'phone');
-    await assertPrompt13Fox(820,1180,'ipad-portrait');
+    await assertPrompt13Troll(390,844,'phone');
+    await assertPrompt13Troll(820,1180,'ipad-portrait');
     await page.evaluate(()=>{state.profile.avatar='boy';saveState()});
     await page.setViewportSize({width:390,height:844});
 
@@ -1444,11 +1469,11 @@ async function finishSession(page){
     await p1.evaluate(()=>document.getElementById('open-geography').click());
     await p1.locator('#geography-screen.active').waitFor();
     assert.equal(await p1.locator('.geo-theme[data-geo-theme="capital"]').isVisible(),false);
-    // Explicitly choose Land and wait for the geographic view before starting.
-    // An earlier test clicked the theme button during the screen transition.
-    await p1.locator('.geo-theme[data-geo-theme="country"]').click();
+    // The approved Nordlysleiren entry replaces the hidden old theme row.
+    // Test the child-facing Land og flagg sign instead of invisible legacy UI.
+    await p1.locator('#laria-geography-world:visible').waitFor({timeout:16000});
     assert.match(await p1.locator('#start-geography-theme').innerText(),/Start Land/);
-    await p1.locator('#start-geography-theme').click();
+    await p1.locator('#laria-geography-world [data-gv="country"]').click();
     const gradeOneStarted=await p1.locator('#session-screen.active').waitFor({timeout:12000}).then(()=>true).catch(()=>false);
     if(!gradeOneStarted){
       const diagnosis=await p1.evaluate(()=>({

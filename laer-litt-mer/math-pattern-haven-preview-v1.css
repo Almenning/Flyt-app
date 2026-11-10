@@ -240,3 +240,13 @@
 }
 .mh-root .mh-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #ad7c4b}
 .mh-root .mh-quick-start:focus-visible{outline:3px solid #4b6e5e;outline-offset:3px}
+
+
+/* The explicitly gated chapter start belongs beside the title, not below the
+   tall portrait art. Keeps the first action discoverable on iPad landscape. */
+.mh-root .mh-intro-header:has(.mh-quick-start){align-items:center;gap:15px}
+.mh-root .mh-intro-header .mh-quick-start{width:auto;flex:0 0 clamp(190px,27%,280px);margin:0}
+@media(max-width:720px){
+  .mh-root .mh-intro-header:has(.mh-quick-start){flex-direction:column;align-items:stretch}
+  .mh-root .mh-intro-header .mh-quick-start{width:100%;flex-basis:auto}
+}

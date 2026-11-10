@@ -1,0 +1,43 @@
+name: "Læria – source workbench for real app QA"
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/**'
+      - 'tools/**'
+      - 'docs/LARIA-**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/laria-source-workbench.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-workbench:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Package actual Læria source without dependencies, Git metadata or secrets
+        run: |
+          test -f laer-litt-mer/index.html
+          test -f package.json
+          mkdir -p /tmp/laria-source
+          tar -czf /tmp/laria-source/laria-source.tar.gz \
+            --exclude='node_modules' \
+            --exclude='*.env' \
+            --exclude='.git' \
+            laer-litt-mer tests tools docs package.json package-lock.json
+          sha256sum /tmp/laria-source/laria-source.tar.gz | tee /tmp/laria-source/SHA256.txt
+          git rev-parse HEAD > /tmp/laria-source/SOURCE_HEAD.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: laria-source-workbench-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-source
+          retention-days: 1
+          if-no-files-found: error

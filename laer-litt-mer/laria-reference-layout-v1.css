@@ -1,0 +1,864 @@
+/* LÆRIA: five-screen reference adapted to locked clean scenes, iPad review.
+ * This sheet only applies when JS explicitly sets .laria-reference-layout-v1.
+ * No painted old UI is hidden by an image overlay. */
+@media(min-width:320px) and (min-height:320px){
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1){
+ --ref-left:3%;--ref-right:4%;--ref-menu-width:clamp(176px,21%,268px);
+ isolation:isolate;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ > nav.laria-reference-subject-nav{
+ box-sizing:border-box;position:absolute;z-index:26;
+ left:var(--ref-left);right:auto;top:24%;bottom:auto;
+ width:var(--ref-menu-width);margin:0;padding:0;border:0;
+ background:none;display:flex;flex-direction:column;gap:11px;
+ pointer-events:auto;
+}
+.laria-reference-layout-v1 .laria-reference-subject-sign{
+ position:relative;isolation:isolate;box-sizing:border-box;
+ width:100%;height:clamp(54px,6.3vh,67px);min-width:44px;min-height:54px;
+ display:flex;align-items:center;justify-content:flex-start;gap:12px;
+ border:0;border-radius:0;padding:6px 15px;cursor:pointer;overflow:visible;
+ background:url("./assets/ui/laria-reference-dark-sign-v1.svg") center/100% 100% no-repeat;
+ color:#fff5e4;text-shadow:0 1px 2px #241a0b;
+ font:900 clamp(15px,1.75vw,22px)/1.08 var(--laria-ui-font,system-ui);text-align:left;
+ filter:drop-shadow(0 5px 4px #261b0b9c);
+ transform:none;transition:transform .12s ease,filter .12s ease;
+ -webkit-tap-highlight-color:transparent;
+}
+.laria-reference-layout-v1 .laria-reference-subject-sign::after{
+ content:"";position:absolute;z-index:-1;top:calc(100% - 7px);left:23%;
+ width:54%;height:19px;pointer-events:none;
+ background:
+  linear-gradient(90deg,#754221,#c18c53,#74411e) 8% 0/12px 100% no-repeat,
+  linear-gradient(90deg,#754221,#c18c53,#74411e) 91% 0/12px 100% no-repeat;
+}
+.laria-reference-layout-v1 .laria-reference-subject-sign svg{
+ width:25px;height:25px;flex:none;display:block;pointer-events:none;
+}
+.laria-reference-layout-v1 .laria-reference-subject-sign span{
+ flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.laria-reference-layout-v1 .laria-reference-subject-sign.is-current{
+ background:var(--laria-sign-art) center/100% 100% no-repeat;
+ color:#3d2715;text-shadow:0 1px 0 #fff3d8;
+ filter:drop-shadow(0 6px 4px #24170aa8);
+}
+.laria-reference-layout-v1 .laria-reference-subject-sign:focus-visible{
+ outline:4px solid #fff6b4;outline-offset:2px;
+}
+.laria-reference-layout-v1 .laria-reference-subject-sign:active{transform:translateY(2px)}
+@media(hover:hover){
+ .laria-reference-layout-v1 .laria-reference-subject-sign:hover{
+  filter:brightness(.90) drop-shadow(0 5px 4px #24170aa8);
+ }
+ .laria-reference-layout-v1 .laria-reference-subject-sign.is-current:hover{
+  filter:brightness(1.06) drop-shadow(0 6px 4px #24170aa8);
+ }
+}
+/* The reference has exactly ONE navigation column. The right-hand carved
+ * wood is a title/entry plaque, not a second rail of activity buttons. The
+ * original three child activity buttons live in the SAME left position, but
+ * only after entering the subject. Both rails can never be visible together.
+ */
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ > button.laria-reference-place{
+ appearance:none!important;box-sizing:border-box;position:absolute;z-index:22;
+ right:var(--ref-right);left:auto;top:23%;bottom:auto;
+ width:clamp(255px,30%,395px);height:clamp(190px,21vh,245px);
+ padding:25px 22px 20px;margin:0;border:0!important;border-radius:0!important;
+ display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;
+ background:url("./assets/ui/laria-reference-place-plaque-v1.svg?v=20261109-arched-plaque") center/100% 100% no-repeat!important;
+ color:#4a2b16;text-shadow:0 1px 0 #fff6d4;text-align:center;
+ filter:drop-shadow(0 7px 5px #21170a8c);cursor:pointer;isolation:isolate;
+ -webkit-tap-highlight-color:transparent;
+}
+.laria-reference-layout-v1 > button.laria-reference-place:focus-visible{
+ outline:4px solid #fff4bc!important;outline-offset:4px!important;
+}
+.laria-reference-layout-v1 > button.laria-reference-place:active{
+ transform:translateY(2px);filter:drop-shadow(0 4px 3px #21170a8c);
+}
+.laria-reference-layout-v1 > .laria-reference-place::after{
+ content:"";position:absolute;z-index:-1;top:calc(100% - 18px);
+ left:24%;width:52%;height:clamp(60px,10vh,112px);pointer-events:none;
+ background:
+  linear-gradient(90deg,#754322,#cf9a65,#754322) 8% 0/13px 100% no-repeat,
+  linear-gradient(90deg,#754322,#cf9a65,#754322) 91% 0/13px 100% no-repeat;
+}
+.laria-reference-layout-v1 .laria-reference-place-kicker{
+ display:grid;place-items:center;flex:none;
+ width:42px;height:38px;margin:0 auto 1px;
+ color:#523015;text-shadow:0 1px 0 #fce7b3;
+}
+.laria-reference-layout-v1 .laria-reference-place-kicker svg{
+ display:block;width:38px;height:38px;
+ stroke-width:2.4;fill:none;pointer-events:none;
+}
+.laria-reference-layout-v1 .laria-reference-place strong{
+ font:950 clamp(42px,4vw,56px)/1.04 var(--laria-ui-font,system-ui);
+ letter-spacing:-.035em;
+}
+.laria-reference-layout-v1 .laria-reference-place small{
+ font:850 clamp(19px,1.8vw,24px)/1.06 var(--laria-ui-font,system-ui);
+}
+.laria-reference-layout-v1 .laria-reference-place-action{
+ display:block;margin-top:7px;font:850 clamp(14px,1.4vw,18px)/1.16 var(--laria-ui-font,system-ui);
+ font-style:normal;color:#573116;letter-spacing:.01em;
+}
+/* Subjects: five signs left, no activity signs anywhere else in the scene. */
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ [data-laria-component="home"][data-laria-reference-hidden="true"]{
+ display:none!important;pointer-events:none!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="subjects"]
+ > nav.laria-scene-navigation{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"]
+ > nav.laria-reference-subject-nav{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+/* Activities: the ORIGINAL three buttons, plus a single return sign, occupy
+ * the left rail. They are never cloned and their click handlers stay intact.
+ */
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation{
+ box-sizing:border-box!important;position:absolute!important;inset:auto!important;
+ top:24%!important;left:var(--ref-left)!important;right:auto!important;bottom:auto!important;
+ width:var(--ref-menu-width)!important;height:auto!important;min-height:0!important;
+ max-height:none!important;aspect-ratio:auto!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ justify-content:flex-start!important;gap:14px!important;
+ margin:0!important;padding:0!important;border:0!important;
+ background:none!important;filter:none!important;box-shadow:none!important;
+ transform:none!important;opacity:1!important;visibility:visible!important;
+ isolation:isolate!important;z-index:26!important;pointer-events:auto!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > .laria-wayfinder{
+ box-sizing:border-box!important;position:relative!important;inset:auto!important;
+ left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+ width:100%!important;height:clamp(57px,6.3vh,70px)!important;
+ min-height:54px!important;min-width:0!important;max-width:none!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ border:0!important;border-radius:0!important;margin:0!important;padding:7px 14px!important;
+ background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+ color:#3d2715!important;filter:var(--laria-sign-shadow)!important;
+ font:950 clamp(16px,1.6vw,21px)/1.1 var(--laria-ui-font,system-ui)!important;
+ text-shadow:0 1px 0 #fff2d2!important;text-align:center!important;
+ transform:none!important;visibility:visible!important;opacity:1!important;
+ pointer-events:auto!important;
+}
+/* Eggenipa's approved plank is the inner span, never a doubled plank. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > .eg-scene-hit.laria-wayfinder{
+ background:none!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > .eg-scene-hit.laria-wayfinder > span{
+ width:100%!important;height:100%!important;padding:5px 10px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ font:950 clamp(16px,1.6vw,21px)/1.1 var(--laria-ui-font,system-ui)!important;
+ color:#3d2715!important;text-shadow:0 1px 0 #fff2d2!important;
+}
+/* Return to the five subject destinations within the exact same rail. */
+.laria-reference-layout-v1 > nav.laria-scene-navigation
+ > .laria-reference-activities-back.laria-reference-subject-sign{
+ box-sizing:border-box!important;display:flex!important;align-items:center!important;
+ position:relative!important;inset:auto!important;
+ width:100%!important;height:clamp(57px,6.3vh,70px)!important;
+ min-height:54px!important;min-width:0!important;
+ border:0!important;margin:0!important;padding:6px 15px!important;
+ background:url("./assets/ui/laria-reference-dark-sign-v1.svg") center/100% 100% no-repeat!important;
+ color:#fff4df!important;text-shadow:0 1px 2px #21170b!important;
+ font:900 clamp(16px,1.7vw,21px)/1.06 var(--laria-ui-font,system-ui)!important;
+ filter:drop-shadow(0 5px 4px #261b0b9c)!important;cursor:pointer;
+}
+.laria-reference-layout-v1 > nav.laria-scene-navigation
+ > .laria-reference-activities-back:focus-visible,
+.laria-reference-layout-v1 > nav.laria-scene-navigation
+ > .laria-wayfinder:focus-visible{
+ outline:4px solid #fff6bb!important;outline-offset:3px!important;
+}
+/* Original selected companion remains a separate button and is given room
+ * between the menu and activity signs, without importing concept trolls. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-companion-actor,
+#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor,
+#laria-geography-world .gv-scene.laria-reference-layout-v1 .gv-troll{
+ left:26%!important;right:auto!important;top:auto!important;
+ bottom:1.5%!important;width:clamp(260px,26%,375px)!important;
+ height:clamp(440px,62%,660px)!important;
+ transform:none!important;z-index:15!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor-speech{
+ width:clamp(120px,16vw,200px)!important;left:87%!important;
+}
+@media(orientation:portrait){
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1){
+  --ref-left:2.5%;--ref-right:3%;--ref-menu-width:clamp(172px,23%,238px);
+ }
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ > nav.laria-reference-subject-nav{top:26%;gap:13px}
+ .laria-reference-layout-v1 .laria-reference-subject-sign{height:clamp(57px,5.5vh,70px)}
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ > button.laria-reference-place{top:25%;width:clamp(258px,34%,355px)}
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ > nav.laria-scene-navigation{top:26%!important;width:var(--ref-menu-width)!important;left:var(--ref-left)!important;right:auto!important}
+ #eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-companion-actor,
+ #tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor,
+ #laria-geography-world .gv-scene.laria-reference-layout-v1 .gv-troll{
+  left:28%!important;bottom:2%!important;
+  width:clamp(250px,30%,350px)!important;height:clamp(440px,54%,635px)!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .laria-reference-layout-v1 .laria-reference-subject-sign{transition:none!important}
+}
+/* Logo uses the original Grovanova-derived white wordmark, now freed from
+ * an unrelated dark-brown block in this review-only composition. */
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand{
+ top:2%!important;left:50%!important;transform:translateX(-50%)!important;
+ width:max-content!important;max-width:48%!important;min-width:0!important;
+ height:auto!important;padding:0!important;gap:0!important;
+ background:none!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;filter:drop-shadow(0 5px 4px #17251a80)!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand strong{
+ width:clamp(240px,25vw,340px)!important;height:clamp(88px,9vw,124px)!important;
+ background:url("./assets/ui/laria-logo-from-grovanova.svg") center/contain no-repeat!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand span,
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand::before{display:none!important}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand::after{
+ content:"Premium"!important;display:grid!important;place-items:center!important;
+ position:absolute!important;top:auto!important;left:50%!important;right:auto!important;
+ bottom:-12px!important;transform:translateX(-50%) rotate(-2deg)!important;
+ width:110px!important;height:31px!important;
+ border:2px solid #75421e!important;border-radius:9px!important;
+ background:linear-gradient(#f4cd90,#d79248)!important;
+ box-shadow:0 3px 0 #70401c,0 6px 9px #26180c71!important;
+ font:900 15px/1 var(--laria-ui-font,system-ui)!important;
+ color:#3d2715!important;text-shadow:0 1px 0 #fff2d5!important;
+}
+
+/* Functional toolbar from the reference, without fake buttons. The original
+ * TrollActor chooser remains its own real click target. The new gear opens
+ * the original parental settings only after the existing 1.5s hold gate. */
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-chooser,
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) > .laria-reference-settings{
+ appearance:none!important;box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;position:absolute!important;
+ top:max(12px,env(safe-area-inset-top))!important;
+ right:calc(76px + env(safe-area-inset-right,0px))!important;
+ left:auto!important;bottom:auto!important;transform:none!important;
+ width:54px!important;height:54px!important;min-width:54px!important;min-height:54px!important;
+ padding:0!important;margin:0!important;border:3px solid #654020!important;
+ border-radius:50%!important;
+ background:linear-gradient(160deg,#ac764c 0%,#79502e 60%,#4c2f1c 100%)!important;
+ box-shadow:inset 0 2px 0 #f3ce91,0 5px 0 #402918,0 7px 12px #20170d80!important;
+ color:#f9e9bd!important;text-shadow:none!important;font-size:0!important;
+ cursor:pointer!important;z-index:35!important;
+ touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) > .laria-reference-settings{
+ right:calc(12px + env(safe-area-inset-right,0px))!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-chooser::before{
+ content:""!important;display:block!important;position:absolute!important;
+ inset:7px!important;width:auto!important;height:auto!important;
+ background:url("./assets/ui/laria-profile-silhouette-v1.svg") center/contain no-repeat!important;
+ opacity:1!important;transform:none!important;pointer-events:none!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-chooser::after{content:none!important}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) > .laria-reference-settings svg{
+ display:block!important;width:29px;height:29px;stroke:#f9e9bd;pointer-events:none;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-chooser:focus-visible,
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) > .laria-reference-settings:focus-visible{
+ outline:4px solid #fff6b9!important;outline-offset:3px!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) > .laria-reference-settings[data-laria-holding="true"]{
+ filter:brightness(1.15)!important;box-shadow:inset 0 2px 0 #f7d89c,0 2px 0 #402918!important;
+ transform:translateY(3px)!important;
+}
+/* The child's current grade remains readable, and Mathematics' original
+ * grade-selection handler remains available; nothing is disabled or moved
+ * into a hidden inaccessible UI. */
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+    #tallvika-world .tv-scene.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-grade{
+ position:absolute!important;top:max(17px,env(safe-area-inset-top))!important;
+ right:calc(146px + env(safe-area-inset-right,0px))!important;
+ left:auto!important;bottom:auto!important;transform:none!important;
+ min-width:76px!important;max-width:137px!important;
+ width:max-content!important;height:44px!important;min-height:44px!important;
+ margin:0!important;padding:8px 13px!important;
+ display:grid!important;place-items:center!important;z-index:35!important;
+ font:850 14px/1.1 var(--laria-ui-font,system-ui)!important;
+ white-space:nowrap!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor-speech{
+ left:75%!important;top:-6%!important;
+ width:clamp(176px,18vw,220px)!important;
+ min-width:176px!important;min-height:0!important;
+ padding:9px 12px!important;
+ font:850 clamp(14px,1.45vw,17px)/1.24 var(--laria-ui-font,system-ui)!important;
+ color:#4d321d!important;pointer-events:none!important;
+}
+
+/* Remove the original card thumbnail's baked-in white top pixels without
+ * changing the locked image. A tiny overscan is safer than a new fake sky
+ * strip, and its crop is identical in landscape and portrait iPad modes. */
+#laria-geography-world .gv-scene.laria-reference-layout-v1 > img.gv-landscape{
+ transform:scale(1.054)!important;
+ transform-origin:center center!important;
+}
+/* Tallvika used a small angular bubble anchored at the character's shoulder.
+ * Use the SAME accessible ivory speech treatment as Norsk and Geografi. */
+#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor-speech{
+ box-sizing:border-box!important;
+ top:auto!important;right:auto!important;bottom:92%!important;left:53%!important;
+ width:clamp(215px,20vw,275px)!important;
+ max-width:min(275px,30vw)!important;min-width:190px!important;
+ padding:12px 15px 13px!important;
+ border:2px solid #b38a59!important;border-radius:24px!important;
+ background:#fff5da!important;color:#382919!important;
+ box-shadow:0 5px 0 #a67a497a,0 10px 19px #201a145e!important;
+ font:850 clamp(16px,1.5vw,20px)/1.27 var(--laria-ui-font,system-ui)!important;
+ text-align:center!important;white-space:normal!important;
+ overflow-wrap:break-word!important;pointer-events:none!important;z-index:29!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor-speech::after{
+ content:""!important;left:50%!important;top:auto!important;bottom:-8px!important;
+ width:14px!important;height:14px!important;transform:translateX(-50%) rotate(45deg)!important;
+ border-top:0!important;border-left:0!important;
+ border-right:2px solid #b38a59!important;border-bottom:2px solid #b38a59!important;
+ background:#fff5da!important;
+}
+@media(orientation:portrait){
+ #tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor-speech{
+  max-width:clamp(210px,25vw,265px)!important;left:55%!important;
+ }
+}
+/* Scene composition: the selected original TrollActor should be a character,
+ * not a tiny sticker. This preserves each locked character's actual sprite.
+ * Its entire interactive body remains between the single left rail and title.
+ */
+#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-troll-speech,
+#laria-geography-world .gv-scene.laria-reference-layout-v1 .laria-troll-speech{
+ box-sizing:border-box!important;
+ max-width:clamp(205px,20vw,275px)!important;
+ min-width:170px!important;
+ padding:12px 15px 13px!important;
+ border:2px solid #b38a59!important;
+ border-radius:24px!important;
+ background:#fff5da!important;
+ color:#382919!important;
+ box-shadow:0 5px 0 #a67a497a,0 10px 19px #201a145e!important;
+ font:850 clamp(16px,1.5vw,20px)/1.27 var(--laria-ui-font,system-ui)!important;
+ text-align:center!important;
+ white-space:normal!important;
+ overflow-wrap:break-word!important;
+ left:53%!important;bottom:92%!important;
+ z-index:29!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-troll-speech::after,
+#laria-geography-world .gv-scene.laria-reference-layout-v1 .laria-troll-speech::after{
+ width:14px!important;height:14px!important;
+ border-right:2px solid #b38a59!important;border-bottom:2px solid #b38a59!important;
+ bottom:-8px!important;
+}
+@media(orientation:portrait){
+ #eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-troll-speech,
+ #laria-geography-world .gv-scene.laria-reference-layout-v1 .laria-troll-speech{
+  max-width:clamp(210px,24vw,260px)!important;
+  left:55%!important;
+ }
+}
+/* The locked sketch never shows two navigation groups.
+ * The real Tallvika Next button joins the same left activity rail; no
+ * additional standalone board is permitted on the right. */
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.tv-next-sign.laria-reference-next{
+ box-sizing:border-box!important;position:relative!important;inset:auto!important;
+ left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+ align-self:stretch!important;display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;gap:1px!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ height:clamp(68px,7.3vh,82px)!important;min-height:64px!important;
+ padding:6px 12px 9px!important;margin:0!important;
+ border:0!important;border-radius:0!important;
+ background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+ color:#3d2715!important;filter:var(--laria-sign-shadow)!important;
+ text-align:center!important;text-shadow:0 1px 0 #fff0ca!important;
+ transform:none!important;pointer-events:auto!important;z-index:4!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1
+ > nav.laria-scene-navigation > .tv-next-sign.laria-reference-next strong{
+ font:950 clamp(16px,1.7vw,20px)/1.12 var(--laria-ui-font,system-ui)!important;
+ color:#3d2715!important;text-shadow:0 1px 0 #fff1d1!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1
+ > nav.laria-scene-navigation > .tv-next-sign.laria-reference-next .tv-next-title{
+ font:850 clamp(11px,1.15vw,14px)/1.1 var(--laria-ui-font,system-ui)!important;
+ color:#6a492a!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1
+ > nav.laria-scene-navigation > .tv-next-sign.laria-reference-next:disabled{
+ opacity:.55!important;pointer-events:none!important;
+}
+/* Eggenipa activity buttons must share the EXACT left edge and width of
+ * the five subject signs. Legacy per-scene widths were still winning. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder{
+ box-sizing:border-box!important;position:relative!important;inset:auto!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ height:clamp(57px,6.3vh,70px)!important;
+ margin:0!important;padding:0!important;align-self:stretch!important;
+ transform:none!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder > span{
+ box-sizing:border-box!important;width:100%!important;height:100%!important;
+ min-width:0!important;max-width:none!important;
+}
+/* Portrait activity rail has the same top anchor as the five subject rail. */
+@media(orientation:portrait){
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"]
+   > nav.laria-scene-navigation{top:26%!important}
+}
+
+/* Phone portrait (review-only): reuse the same REAL sign components, not a
+ * second mobile tab bar. Paintings are immutable; crop scenic edges only.
+ * Home and English with baked-in UI remain explicitly blocked. */
+@media(max-width:767px) and (orientation:portrait){
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1){
+  --ref-left:2.2%;--ref-right:2.2%;--ref-menu-width:clamp(108px,29%,138px);
+  width:100%!important;height:100dvh!important;min-height:600px!important;
+  max-height:none!important;aspect-ratio:auto!important;
+  padding:0!important;margin:0!important;border:0!important;
+  border-radius:0!important;overflow:hidden!important;
+  background-color:#305c69!important;
+ }
+ #eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-master{
+  width:100%!important;height:100%!important;
+  object-fit:cover!important;object-position:center center!important;
+ }
+ #eggenipa-world .eg-hero.laria-reference-layout-v1 ~ :is(.eg-intro,.eg-portals){
+  display:none!important;
+ }
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ > nav.laria-reference-subject-nav{
+  top:25.5%!important;left:var(--ref-left)!important;right:auto!important;
+  bottom:auto!important;width:var(--ref-menu-width)!important;
+  gap:6px!important;z-index:26!important;
+ }
+ .laria-reference-layout-v1 nav.laria-reference-subject-nav
+ > button.laria-reference-subject-sign{
+  width:100%!important;height:clamp(48px,6vh,53px)!important;
+  min-height:48px!important;min-width:0!important;
+  padding:5px 7px!important;gap:6px!important;
+  font:900 clamp(12px,3.5vw,14px)/1.03 var(--laria-ui-font,system-ui)!important;
+  letter-spacing:-.02em;
+ }
+ .laria-reference-layout-v1 nav.laria-reference-subject-nav
+ > button.laria-reference-subject-sign svg{
+  width:18px!important;height:18px!important;flex:none!important;
+ }
+ .laria-reference-layout-v1 .laria-reference-subject-sign::after{
+  top:calc(100% - 7px)!important;height:13px!important;
+  background:
+   linear-gradient(90deg,#754221,#c18c53,#74411e) 8% 0/8px 100% no-repeat,
+   linear-gradient(90deg,#754221,#c18c53,#74411e) 91% 0/8px 100% no-repeat!important;
+ }
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ > button.laria-reference-place{
+  top:24%!important;right:var(--ref-right)!important;left:auto!important;
+  width:clamp(132px,39%,171px)!important;height:clamp(132px,17.5vh,158px)!important;
+  min-height:132px!important;max-height:158px!important;
+  padding:17px 12px 13px!important;gap:0!important;
+  overflow:visible!important;
+ }
+ .laria-reference-layout-v1 .laria-reference-place::after{
+  top:calc(100% - 10px)!important;height:55px!important;
+ }
+ .laria-reference-layout-v1 .laria-reference-place-kicker{
+  width:25px!important;height:24px!important;margin:0 auto 1px!important;
+ }
+ .laria-reference-layout-v1 .laria-reference-place-kicker svg{
+  width:23px!important;height:23px!important;
+ }
+ .laria-reference-layout-v1 > .laria-reference-place strong{
+  font:950 clamp(23px,6.3vw,29px)/1 var(--laria-ui-font,system-ui)!important;
+ }
+ .laria-reference-layout-v1 > .laria-reference-place small{
+  font:850 clamp(12px,3.3vw,15px)/1.08 var(--laria-ui-font,system-ui)!important;
+ }
+ .laria-reference-layout-v1 > .laria-reference-place .laria-reference-place-action{
+  margin-top:4px!important;
+  font:850 clamp(10px,2.8vw,12px)/1.1 var(--laria-ui-font,system-ui)!important;
+ }
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation{
+  top:25.5%!important;left:var(--ref-left)!important;right:auto!important;
+  width:var(--ref-menu-width)!important;gap:6px!important;
+ }
+ .laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation
+ > :is(.laria-wayfinder,.laria-reference-activities-back){
+  width:100%!important;height:clamp(48px,6vh,53px)!important;
+  min-height:48px!important;max-width:none!important;
+  padding:5px 7px!important;
+  font:900 clamp(12px,3.2vw,14px)/1.04 var(--laria-ui-font,system-ui)!important;
+ }
+ #tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.tv-next-sign.laria-reference-next{
+  width:100%!important;height:59px!important;min-height:59px!important;
+  padding:5px 6px!important;
+ }
+ #eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder,
+ #eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder > span{
+  width:100%!important;height:clamp(48px,6vh,53px)!important;
+  min-height:48px!important;
+  padding:0 5px!important;
+  font:900 clamp(12px,3.2vw,14px)/1.02 var(--laria-ui-font,system-ui)!important;
+ }
+ #eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-companion-actor,
+ #tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor,
+ #laria-geography-world .gv-scene.laria-reference-layout-v1 .gv-troll{
+  left:calc(var(--ref-left) + var(--ref-menu-width) + 3%)!important;
+  right:auto!important;top:auto!important;bottom:1%!important;
+  width:clamp(125px,36%,164px)!important;
+  height:clamp(277px,41%,370px)!important;
+  transform:none!important;
+  z-index:15!important;
+ }
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand{
+  top:10.5%!important;left:50%!important;right:auto!important;
+  width:max-content!important;max-width:55%!important;
+  transform:translateX(-50%)!important;
+ }
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand strong{
+  width:clamp(153px,45vw,190px)!important;
+  height:66px!important;min-height:0!important;
+ }
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand::after{
+  bottom:-8px!important;width:78px!important;height:24px!important;
+  font-size:11px!important;
+ }
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ .laria-scene-chooser,
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ > .laria-reference-settings{
+  top:max(10px,env(safe-area-inset-top))!important;
+  width:46px!important;height:46px!important;
+  min-width:46px!important;min-height:46px!important;
+  border-width:2px!important;
+ }
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ .laria-scene-chooser{right:calc(64px + env(safe-area-inset-right,0px))!important}
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ > .laria-reference-settings{right:calc(10px + env(safe-area-inset-right,0px))!important}
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)
+ .laria-scene-grade{
+  top:max(12px,env(safe-area-inset-top))!important;
+  right:calc(119px + env(safe-area-inset-right,0px))!important;
+  width:73px!important;max-width:73px!important;min-width:73px!important;
+  height:42px!important;min-height:42px!important;
+  padding:5px 7px!important;
+  font-size:11px!important;
+ }
+ #tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor-speech,
+ #eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-troll-speech,
+ #laria-geography-world .gv-scene.laria-reference-layout-v1 .laria-troll-speech{
+  min-width:0!important;max-width:155px!important;width:155px!important;
+  left:20%!important;bottom:95%!important;
+  padding:8px 10px!important;
+  font:850 12px/1.2 var(--laria-ui-font,system-ui)!important;
+  border-width:1.5px!important;border-radius:16px!important;
+ }
+}
+
+/* Preview-only iPhone landscape: SAME selected TrollActor, two-post oak signs,
+ * single left rail and one right plaque. Never fall back to inconsistent
+ * old menus on common 844x390 / 932x430 phone rotations. Unsupported very
+ * short devices still use the untouched original scene via JS eligibility. */
+@media (min-width:740px) and (max-width:1050px) and (min-height:320px)
+       and (max-height:600px) and (orientation:landscape){
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1){
+ --ref-left:max(11px,env(safe-area-inset-left,0px));
+ --ref-right:max(11px,env(safe-area-inset-right,0px));
+ --ref-menu-width:clamp(138px,19.5vw,177px);
+ box-sizing:border-box!important;
+ width:100%!important;height:100dvh!important;min-height:320px!important;
+ max-height:none!important;aspect-ratio:auto!important;
+ margin:0!important;padding:0!important;border:0!important;
+ border-radius:0!important;overflow:hidden!important;isolation:isolate!important;
+ background-color:#305c69!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-master{
+ width:100%!important;height:100%!important;
+ object-fit:cover!important;object-position:center center!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) > nav.laria-reference-subject-nav{
+ box-sizing:border-box!important;top:18%!important;left:var(--ref-left)!important;
+ right:auto!important;bottom:auto!important;width:var(--ref-menu-width)!important;
+ max-height:none!important;gap:4px!important;padding:0!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) nav.laria-reference-subject-nav > button.laria-reference-subject-sign{
+ box-sizing:border-box!important;
+ height:44px!important;min-height:44px!important;max-height:44px!important;
+ min-width:44px!important;width:100%!important;margin:0!important;
+ padding:4px 10px!important;gap:7px!important;
+ font:900 clamp(12px,1.65vw,15px)/1.04 var(--laria-ui-font,system-ui)!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) nav.laria-reference-subject-nav .laria-reference-subject-sign svg{
+ flex:none!important;width:19px!important;height:19px!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-reference-subject-sign::after{
+ top:calc(100% - 5px)!important;height:12px!important;
+ background:
+  linear-gradient(90deg,#754221,#c18c53,#74411e) 8% 0/8px 100% no-repeat,
+  linear-gradient(90deg,#754221,#c18c53,#74411e) 91% 0/8px 100% no-repeat!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) > button.laria-reference-place{
+ position:absolute!important;top:20%!important;
+ right:var(--ref-right)!important;left:auto!important;bottom:auto!important;
+ box-sizing:border-box!important;
+ width:clamp(160px,22vw,205px)!important;
+ height:clamp(140px,40vh,170px)!important;min-height:140px!important;
+ padding:19px 12px 12px!important;gap:1px!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) > button.laria-reference-place::after{
+ top:calc(100% - 9px)!important;height:38px!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-reference-place-kicker{
+ width:25px!important;height:24px!important;margin:0 auto 1px!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-reference-place-kicker svg{
+ width:23px!important;height:23px!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) > button.laria-reference-place strong{
+ font:950 clamp(22px,2.8vw,29px)/1 var(--laria-ui-font,system-ui)!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) > button.laria-reference-place small{
+ font:850 clamp(12px,1.7vw,15px)/1.05 var(--laria-ui-font,system-ui)!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) > button.laria-reference-place .laria-reference-place-action{
+ margin-top:4px!important;
+ font:850 clamp(10px,1.3vw,12px)/1.06 var(--laria-ui-font,system-ui)!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"] > nav.laria-scene-navigation{
+ box-sizing:border-box!important;position:absolute!important;
+ top:18%!important;left:var(--ref-left)!important;right:auto!important;bottom:auto!important;
+ width:var(--ref-menu-width)!important;max-height:none!important;
+ padding:0!important;margin:0!important;gap:4px!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"] > nav.laria-scene-navigation
+ > :is(.laria-wayfinder,.laria-reference-activities-back){
+ box-sizing:border-box!important;position:relative!important;
+ width:100%!important;min-width:44px!important;max-width:none!important;
+ height:44px!important;min-height:44px!important;max-height:44px!important;
+ padding:3px 8px!important;margin:0!important;
+ font:900 clamp(12px,1.55vw,15px)/1.05 var(--laria-ui-font,system-ui)!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder,
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder > span{
+ width:100%!important;height:44px!important;min-height:44px!important;
+ padding:0 5px!important;font-size:clamp(12px,1.55vw,15px)!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.tv-next-sign.laria-reference-next{
+ box-sizing:border-box!important;position:relative!important;
+ width:100%!important;height:49px!important;min-height:49px!important;
+ max-height:49px!important;margin:0!important;padding:3px 8px!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1
+ > nav.laria-scene-navigation > .tv-next-sign.laria-reference-next strong{
+ font-size:clamp(12px,1.5vw,15px)!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1
+ > nav.laria-scene-navigation > .tv-next-sign.laria-reference-next .tv-next-title{
+ font-size:clamp(10px,1.2vw,12px)!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand{
+ position:absolute!important;top:1%!important;left:50%!important;
+ right:auto!important;transform:translateX(-50%)!important;
+ width:max-content!important;max-width:45%!important;
+ padding:0!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand strong{
+ width:clamp(160px,23vw,205px)!important;
+ height:clamp(60px,16vh,75px)!important;min-height:0!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand::after{
+ width:76px!important;height:23px!important;bottom:-8px!important;
+ font-size:11px!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) :is(.eg-companion-actor,.tv-actor,.gv-troll){
+ position:absolute!important;left:calc(var(--ref-left) + var(--ref-menu-width) + 7%)!important;
+ right:auto!important;top:auto!important;bottom:0!important;
+ width:clamp(150px,22vw,207px)!important;
+ height:clamp(210px,61vh,284px)!important;
+ min-height:210px!important;max-height:none!important;
+ transform:none!important;z-index:15!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) :is(.laria-troll-speech,.tv-actor-speech){
+ top:auto!important;bottom:29%!important;left:30%!important;right:auto!important;
+ width:clamp(135px,18vw,170px)!important;min-width:0!important;
+ max-width:170px!important;padding:7px 9px!important;
+ font:850 12px/1.18 var(--laria-ui-font,system-ui)!important;
+ border-radius:17px!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) :is(.laria-scene-chooser,.laria-reference-settings){
+ box-sizing:border-box!important;
+ top:max(6px,env(safe-area-inset-top,0px))!important;
+ width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
+ border-width:2px!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-chooser{
+ right:calc(var(--ref-right) + 52px)!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) > .laria-reference-settings{
+ right:var(--ref-right)!important;
+}
+:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-grade{
+ top:max(7px,env(safe-area-inset-top,0px))!important;
+ right:calc(var(--ref-right) + 104px)!important;
+ width:65px!important;min-width:65px!important;max-width:65px!important;
+ height:41px!important;min-height:41px!important;padding:4px 6px!important;
+ font-size:11px!important;
+}
+}
+
+}

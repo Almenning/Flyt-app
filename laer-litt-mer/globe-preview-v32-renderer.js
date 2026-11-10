@@ -82,13 +82,12 @@ function paintCountryScene(canvas,c){
 function selectedProfileAvatar(){
   try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
 }
+// Kept under the historical function name for globe module compatibility.
+ // Its actual art source is ALWAYS the child's selected original forest troll.
 function selectedProfileFox(){
-  const avatar=selectedProfileAvatar();
-  try{
-    const src=window.LARIA_PROFILE_AVATARS?.[avatar];
-    if(typeof src==='string'&&src.startsWith('data:image/'))return src;
-  }catch(_){}
-  return './lia-fox-explorer-home.webp';
+  const saved=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+  const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
+  return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
 }
 
 function ensurePremiumShell(){
@@ -103,12 +102,12 @@ function ensurePremiumShell(){
 
   const avatar=selectedProfileAvatar();
   header.dataset.avatar=avatar;
-  const fox=screen.querySelector('.premium-globe-fox');if(fox){fox.src=selectedProfileFox();fox.dataset.avatar=avatar;fox.setAttribute('aria-label',avatar==='girl'?'Din valgte revejente':'Din valgte revegutt')}
+  const fox=screen.querySelector('.premium-globe-fox');if(fox){fox.src=selectedProfileFox();fox.dataset.avatar=avatar;fox.setAttribute('aria-label','Ditt valgte skogstroll')}
   let guide=screen.querySelector('.premium-globe-guide');
   if(!guide){
     guide=document.createElement('img');
     guide.className='premium-globe-guide';
-    guide.src='./lia-fox-explorer-home.webp';
+    guide.src=selectedProfileFox();
     guide.alt='';
     guide.setAttribute('aria-hidden','true');
     screen.appendChild(guide);

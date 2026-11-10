@@ -5,32 +5,18 @@
 
 const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-premium2';
 const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1';
-const TROLL_TRIO_ART='./assets/home-v15/laria-troll-trio-v3.webp?v=20261024-locked1';
 let activeMasterSrc='';
+let activationEpoch=0;
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
 function isPortrait(){return matchMedia('(orientation:portrait)').matches}
 
+// Mine troll uses the ONE shared interactive selection of original
+// TrollActor characters; the former static art gallery is not navigation.
 function openTrollDialog(){
- let d=document.getElementById('bc15-troll-dialog');
- if(!d){
-   d=document.createElement('dialog');
-   d.id='bc15-troll-dialog';
-   d.innerHTML='<button type="button" class="bc15-troll-close" aria-label="Lukk">×</button>'+
-     '<span class="bc15-troll-eyebrow">Lærias eventyrvenner</span>'+
-     '<h2>Mine troll</h2>'+
-     '<div class="bc15-troll-art" role="img" aria-label="De tre småtrollene ved Kjøsnesfjorden"></div>'+
-     '<p>De tre småtrollene blir med deg gjennom Læria. Her er de samlet på hjemstedet sitt ved Kjøsnesfjorden.</p>'+
-     '<button type="button" class="bc15-troll-back">Tilbake til Hjem</button>';
-   document.body.append(d);
-   d.querySelector('.bc15-troll-close').addEventListener('click',()=>d.close());
-   d.querySelector('.bc15-troll-back').addEventListener('click',()=>d.close());
-   d.addEventListener('click',e=>{if(e.target===d)d.close()});
- }
- d.dataset.phone=isPhone()?'true':'false';
- const art=d.querySelector('.bc15-troll-art');
- if(art)art.style.setProperty('--bc15-troll-trio','url("'+TROLL_TRIO_ART+'")');
- if(!d.open)d.showModal();
+ const open=window.LARIA_TROLL_ACTOR?.openChooser;
+ if(typeof open==='function'){open();return true;}
+ return false;
 }
 
 function decoded(src){
@@ -74,6 +60,35 @@ function place(el,box,part,viewport){
  el.style.setProperty('bottom','auto','important');
 }
 
+// The four light arrow signs on the approved Grovanova LANDSCAPE master
+// are painted artwork. Add only invisible and accessible hit areas, and
+// forward clicks to existing subject buttons to preserve app navigation.
+const HOME_SIGN_SUBJECTS=[['norwegian','Norsk'],['math','Matte'],['english','Engelsk'],['geography','Geografi']];
+function ensureHomeSignHits(host){
+ let nav=host.querySelector('.bc15-subject-signs');
+ if(nav)return nav;
+ nav=document.createElement('nav');
+ nav.className='bc15-subject-signs';
+ nav.setAttribute('aria-label','Fag på de malte treskiltene');
+ for(const [id,label] of HOME_SIGN_SUBJECTS){
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='bc15-painted-subject';
+  button.dataset.bc15Subject=id;
+  button.setAttribute('aria-label','Åpne '+label+' fra treskiltet');
+  button.addEventListener('click',event=>{
+   event.preventDefault();
+   if(!host.classList.contains('bc15-locked-home')||
+       host.dataset.bc15Master!=='landscape')return;
+   // Exactly the same handler as the approved bottom-row subject card.
+   host.querySelector('.bc14-subject[data-camp="subject-'+id+'"]')?.click();
+  });
+  nav.appendChild(button);
+ }
+ host.appendChild(nav);
+ return nav;
+}
+
 function mapControlsToArtwork(host,imgW,imgH,portrait){
  const rect=host.getBoundingClientRect();
  const artAspect=imgW/imgH;
@@ -111,10 +126,25 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   liveCopy:[.115,.172,.225,.062],
+   liveCopy:rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11],
    liveNext:[.073,.836,.235,.040]
  };
  const viewport={width:rect.width,height:rect.height};
+ // Map four separately tappable signboards onto the APPROVED master.
+ // Coordinates are relative to the underlying image, not fixed pixels.
+ const signs=ensureHomeSignHits(host);
+ signs.hidden=portrait;
+ if(!portrait){
+  const signBoxes=[
+   [.012,.314,.170,.074], // Norsk
+   [.012,.394,.170,.074], // Matte
+   [.012,.473,.170,.074], // Engelsk
+   [.012,.552,.170,.074]  // Geografi
+  ];
+  signs.querySelectorAll('.bc15-painted-subject').forEach((button,index)=>{
+   place(button,box,signBoxes[index],viewport);
+  });
+ }
  place(host.querySelector('.bc14-subjects'),box,layout.subjects,viewport);
  place(host.querySelector('.bc12-journey'),box,layout.journey,viewport);
  place(host.querySelector('.bc12-nav'),box,layout.nav,viewport);
@@ -138,6 +168,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  host.style.setProperty('--bc15-art-top',box.top+'px');
  host.style.setProperty('--bc15-art-width',box.width+'px');
  host.style.setProperty('--bc15-art-height',box.height+'px');
+ return box;
 }
 
 function syncLiveCopy(host){
@@ -176,19 +207,29 @@ function clearMappedControls(host){
    const el=host.querySelector(sel);if(!el)return;
    ['left','top','width','height','right','bottom'].forEach(p=>el.style.removeProperty(p));
  });
+ host.querySelectorAll('.bc15-painted-subject').forEach(button=>{
+  ['left','top','width','height','right','bottom'].forEach(prop=>button.style.removeProperty(prop));
+ });
  host.style.removeProperty('background-size');
  host.style.removeProperty('background-position');
  ['--bc15-art-left','--bc15-art-top','--bc15-art-width','--bc15-art-height'].forEach(p=>host.style.removeProperty(p));
 }
 
 async function activate(){
+ const epoch=++activationEpoch;
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return false;
+ // Historic landscape can load perfectly, yet its painted characters and
+ // activity cards disqualify it as the CLEAN November premium master.
+ // A successful decode is not art approval. Preserve original Home until
+ // the replacement passes independent pixel + visual review.
+ host.dataset.bc15PremiumArt='blocked';
  const youngBand=!!document.querySelector('.grade-band-young');
  if(!youngBand){
    host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
+   host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='ineligible';
    host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    return false;
@@ -199,6 +240,7 @@ async function activate(){
    host.classList.remove('bc15-locked-home','bc15-pending');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
+   host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='inactive';
    host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    return false;
@@ -209,6 +251,8 @@ async function activate(){
  host.dataset.bc15Asset='loading';
  try{
    const image=await decoded(master);
+   if(epoch!==activationEpoch || !host.isConnected ||
+      host!==document.querySelector('#home-screen .bc12') || portrait!==isPortrait())return false;
    activeMasterSrc=image.src;
    host.style.setProperty('--bc15-home-art','url("'+image.src+'")');
    host.classList.add('bc15-locked-home');
@@ -236,10 +280,12 @@ async function activate(){
    if(adult)adult.setAttribute('aria-label','Hold inne for voksenområdet');
    return true;
  }catch(err){
+   if(epoch!==activationEpoch)return false;
    host.classList.remove('bc15-locked-home','bc15-pending');
    host.classList.add('bc15-fallback');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
+   host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='missing';
    host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    console.warn('[Læria Home v15] Locked master not activated.',err);

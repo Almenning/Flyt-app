@@ -1,0 +1,46 @@
+name: Læria Grovanova treskilt – ekte navigasjon og QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/home-kjosnes-v15.js'
+      - 'laer-litt-mer/tallvika.js'
+      - 'laer-litt-mer/eggenipa.js'
+      - 'laer-litt-mer/kinnaklova.js'
+      - 'laer-litt-mer/geography-kinnaklova-scene.js'
+      - 'laer-litt-mer/laria-wayfinder-v1.css'
+      - 'laer-litt-mer/assets/ui/laria-light-arrow-sign.svg'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-wayfinder.playwright.js'
+      - '.github/workflows/laria-wayfinder.yml'
+permissions:
+  contents: read
+jobs:
+  wayfinder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Check Playwright source
+        run: node --check tests/laria-wayfinder.playwright.js
+      - name: Serve exact PR head
+        run: python3 -m http.server 8765 --directory . >/tmp/laria-wood-sign-http.log 2>&1 &
+      - name: Verify the four Grovanova sign hotspots and all real learning routes
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_WAYFINDER_SHOTS: /tmp/laria-wayfinder
+        run: node tests/laria-wayfinder.playwright.js
+      - name: Upload actual iPad and iPhone screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-grovanova-wayfinding-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-wayfinder
+          retention-days: 14
+          if-no-files-found: warn

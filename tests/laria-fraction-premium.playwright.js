@@ -46,13 +46,27 @@ async function run(browser,engine,label,viewport,url){
       fractionVisible:!!value&&value.height>65&&value.top>=0&&value.bottom<=innerHeight,
       controlsVisible:!!controls&&controls.top>=0&&controls.bottom<=innerHeight,
       fractionAboveControls:!!value&&!!controls&&value.bottom<controls.top,
-      correctFox:!!fox&&fox.getAttribute('src')===window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())&&fox.complete&&fox.naturalWidth>0,
+      correctFox:!!fox&&fox.getAttribute('src')===window.LARIA_TROLL_ACTOR?.source(window.LARIA_TROLL_ACTOR.choice())&&fox.complete&&fox.naturalWidth>0,
       equivalentsBesideCake:innerWidth<700||(!!equivalents&&equivalents.top>=0&&equivalents.bottom<=innerHeight&&equivalents.left>cake.right-3),
       controlsHeight:controls?.height,
       viewportHeight:innerHeight,cakeBottom:Math.round(cake?.bottom||0),fractionBottom:Math.round(value?.bottom||0),controlsTop:Math.round(controls?.top||0),controlsBottom:Math.round(controls?.bottom||0),
       noOverflow:document.documentElement.scrollWidth<=innerWidth+3
     };
   });
+  if(viewport.width<=350&&viewport.height<=620){
+    // The selected original TrollActor is a separate living layer, but must
+    // never expand to the entire scene and push tactile pieces off a tiny phone.
+    const tiny=await page.evaluate(()=>{
+      const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();
+        return r?{top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null;};
+      return {actor:rect('.fr5-fox-mentor .laria-premium-troll-art'),
+        tray:rect('.fr6-piece-tray'),cake:rect('.fr2-build-target')};
+    });
+    assert.ok(tiny.actor&&tiny.actor.height<=72,
+      label+' selected troll stretched the tiny workshop: '+JSON.stringify(tiny));
+    assert.ok(tiny.tray&&tiny.tray.top>=0&&tiny.tray.bottom<=viewport.height,
+      label+' physical loose pieces should be reachable without auto-scroll: '+JSON.stringify(tiny));
+  }
   if(label.includes('tiny'))await photo(page,label+'-00-first-fold-diagnostic');
   assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.equivalentsBesideCake&&firstFold.noOverflow,
     label+' first viewport must show cake, 1/4, both controls and personal fox: '+JSON.stringify(firstFold));
@@ -108,8 +122,17 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="reset"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[]);
   assert.equal(await page.locator('.fr6-piece-tray .fr2-spare').count(),4);
-  await page.locator('.fr6-piece-tray [data-piece-index="3"]').dragTo(page.locator('.fr2-build-target'));
-  assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[3],'dragging piece 4 must not fill piece 1: '+JSON.stringify(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.dragDiagnostics())));
+  // On compact phones (up to 430px), the tray and cake are separated by
+  // native scroll. Tap-to-place is the child-facing gesture; direct drag
+  // remains tested on larger surfaces where both targets are visible.
+  // The real child-facing action is tap-to-place; dragging across a scroll
+  // boundary is not a valid one-gesture interaction. Keep drag QA on larger
+  // screens where both targets can be reached.
+  const fourthPiece=page.locator('.fr6-piece-tray [data-piece-index="3"]');
+  if(viewport.width<=430)await fourthPiece.tap();
+  else await fourthPiece.dragTo(page.locator('.fr2-build-target'));
+  assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[3],
+    'placing piece 4 must fill its actual sector, not piece 1: '+JSON.stringify(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.dragDiagnostics())));
   // A denominator change may reshape the cake, but must not erase the
   // filled piece merely because its prior sector index is out of range.
   await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
