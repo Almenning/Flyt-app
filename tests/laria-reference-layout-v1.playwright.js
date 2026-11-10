@@ -376,7 +376,11 @@ async function assembleRealArtReviewSheets(){
  try {
   for(const [device,viewport] of [
    ['ipad-landscape',{width:1366,height:1024}],
-   ['ipad-portrait',{width:1024,height:1366}]
+   ['ipad-portrait',{width:1024,height:1366}],
+   // Desktop was previously outside actual device QA. Capture the SAME app,
+   // chosen TrollActor, five-sign navigation and child activities on PC/Mac.
+   // This is engineering evidence, NOT a product-owner visual sign-off.
+   ['desktop',{width:1440,height:900}]
   ])for(const [name,engine] of [['chromium',chromium],['webkit',webkit]])
     await testEngine(engine,name,device,viewport);
  } catch(error){failure=error;}

@@ -1,4 +1,4 @@
-name: "Læria reference layout - actual iPad proof"
+name: "Læria reference layout - real device proof"
 on:
   pull_request:
     branches: [main]
@@ -34,7 +34,7 @@ jobs:
           node --check tests/laria-reference-mobile-v1.playwright.js
       - name: Run actual app at exact PR HEAD
         run: python3 -m http.server 8765 --directory . > /tmp/laria-ref-http.log 2>&1 &
-      - name: Capture iPad in Chromium and WebKit, landscape and portrait
+      - name: Capture iPad portrait/landscape and desktop in Chromium and WebKit
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_REFERENCE_SCREENSHOTS: /tmp/laria-reference-layout
@@ -49,7 +49,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: laria-reference-ipad-${{ github.event.pull_request.head.sha || github.sha }}
+          name: laria-reference-devices-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             /tmp/laria-reference-layout
             /tmp/laria-reference-mobile
