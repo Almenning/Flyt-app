@@ -292,6 +292,12 @@ async function testEngine(engine,name,device,viewport){
   await english.waitFor({state:'visible',timeout:18000});
   assert.equal(await english.locator('.laria-reference-subject-nav').count(),0);
   await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:22000});
+  // Historical art may decode successfully, but its baked-in title/signs
+  // can NEVER satisfy the November premium clean-master gate.
+  assert.equal(await english.getAttribute('data-ki-premium-art'),'blocked',
+    'historical Kinnaklova image was incorrectly marked premium-ready');
+  assert.equal(await page.evaluate(()=>window.LARIA_KINNAKLOVA?.premiumReady?.()),false,
+    'legacy painted UI must not grant clean-art approval');
   await page.screenshot({path:path.join(out,name+'-'+device+'-english-art-blocked.png'),animations:'disabled'});
   assert.deepEqual(errors,[],name+'/'+device+' browser exceptions');
   const st=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));

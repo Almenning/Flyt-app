@@ -8,7 +8,11 @@
   'use strict';
   const screen=document.getElementById('subject-screen');
   if(!screen)return;
+  // The October image is SHA-verified and may render, but its painted
+  // title/Words/Sentences/Reading signs make it INVALID as November's clean
+  // premium scene. Rendering readiness is not visual-art approval.
   const ART='./assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp';
+  const PREMIUM_CLEAN_ART_APPROVED=false;
   // Show only after a pixel-locked clean master and device QA have been approved.
   // A 1672x941 file that still contains the rejected characters is NOT valid.
   const APPROVED_ART_SHA256='d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57';
@@ -113,6 +117,10 @@
     const selectedSrc=window.LARIA_TROLL_ACTOR?.source?.(selectedId)||selected.src;
     const key=JSON.stringify([grade,name,resume,selectedId]);
     const host=ensureRoot();
+    // "ready" below means the historical image decoded and matched its SHA,
+    // not that a clean master was approved. Never export a premium-ready
+    // status while the locked release manifest has clean=null.
+    host.dataset.kiPremiumArt=PREMIUM_CLEAN_ART_APPROVED?'approved':'blocked';
     if(renderKey===key&&host.firstElementChild){
       if(!screen.classList.contains('kinnaklova-active'))screen.classList.add('kinnaklova-active');
       return;
@@ -190,6 +198,7 @@
     build,art:ART,
     characters:CHARACTERS.map(({id})=>id),
     actions:ACTIONS.map(({id})=>id),
-    ready:()=>root?.dataset.kiArt==='ready'
+    ready:()=>root?.dataset.kiArt==='ready',
+    premiumReady:()=>root?.dataset.kiPremiumArt==='approved'
   });
 })();
