@@ -210,6 +210,71 @@ async function run(engine,name,viewport){
     assert.deepEqual(afterLearning[key],beforeLearning[key],
       'opening parental settings mutated stored learning data: '+key);
   }
+  // Test the SAME landscape layout in the other two clean worlds.
+  // One successful Norwegian frame is not enough to sign off responsive QA.
+  for(const other of [
+    {id:'math',world:'#tallvika-world .tv-scene'},
+    {id:'geography',world:'#laria-geography-world .gv-scene'}
+  ]){
+    await page.locator('#home-screen .bc14-subject[data-camp="subject-'+other.id+'"]').click();
+    const scene=page.locator(other.world);
+    await scene.waitFor({state:'visible',timeout:23000});
+    await page.setViewportSize({width:viewport.height,height:viewport.width});
+    await page.waitForFunction(selector=>{
+      const el=document.querySelector(selector);
+      return !!el&&el.classList.contains('laria-reference-layout-v1')&&
+        el.dataset.lariaReferenceMode==='subjects'&&
+        el.querySelectorAll(':scope > nav.laria-reference-subject-nav > button').length===5;
+    },other.world,{timeout:12000});
+    const dims=await scene.evaluate(el=>{
+      const rect=node=>{const r=node.getBoundingClientRect();return{
+        left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
+      const rail=el.querySelector(':scope > nav.laria-reference-subject-nav');
+      return {rail:rect(rail),signs:[...rail.querySelectorAll('button')].map(rect),
+        title:rect(el.querySelector(':scope > button.laria-reference-place')),
+        troll:rect(el.querySelector('[data-laria-component="troll"]')),
+        logo:rect(el.querySelector('.laria-scene-brand')),
+        activityVisible:getComputedStyle(el.querySelector('nav.laria-scene-navigation')).display!=='none',
+        pageWidth:document.documentElement.scrollWidth};
+    });
+    assert.equal(dims.activityVisible,false,other.id+' showed both sign groups');
+    assert.ok(dims.pageWidth<=viewport.height+2,other.id+' landscape scrolls sideways');
+    assert.ok(dims.rail.right+6<=dims.title.left&&dims.rail.right+6<=dims.troll.left,
+      other.id+' landscape navigation overlaps content: '+JSON.stringify(dims));
+    assert.equal(intersects(dims.title,dims.troll),0,
+      other.id+' landscape original TrollActor overlaps title');
+    assert.equal(intersects(dims.title,dims.logo),0,
+      other.id+' landscape logo overlaps title');
+    assert.ok(dims.troll.height>=210&&dims.troll.bottom<=viewport.width+2,
+      other.id+' landscape original TrollActor is clipped or tiny');
+    for(const sign of dims.signs)
+      assert.ok(sign.width>=44&&sign.height>=44&&sign.left>=0&&
+        sign.right<=viewport.height+2&&sign.bottom<=viewport.width+2,
+        other.id+' landscape sign is clipped or too small: '+JSON.stringify(sign));
+    await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-'+other.id+'-subjects.png'),
+      animations:'disabled'});
+    await scene.locator('button.laria-reference-place').click();
+    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
+    assert.equal(await scene.locator('nav.laria-reference-subject-nav').isVisible(),false);
+    const rail=scene.locator('nav.laria-scene-navigation');
+    assert.equal(await rail.locator('.laria-wayfinder:visible').count(),3);
+    if(other.id==='math'){
+      assert.equal(await rail.locator('button.tv-next-sign.laria-reference-next').count(),1);
+      assert.ok(await rail.locator('button.tv-next-sign.laria-reference-next').isVisible(),
+        'Next eventyr must share the single left rail on landscape Matte');
+    }
+    await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-'+other.id+'-activities.png'),
+      animations:'disabled'});
+    await rail.locator('.laria-reference-activities-back').click();
+    await page.setViewportSize(viewport);
+    await page.waitForFunction(selector=>{
+      const scene=document.querySelector(selector);
+      return !!scene&&scene.classList.contains('laria-reference-layout-v1')&&
+        scene.dataset.lariaReferenceMode==='subjects';
+    },other.world,{timeout:12000});
+    await scene.locator('.laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
+    await home.waitFor({state:'visible',timeout:18000});
+  }
   assert.deepEqual(errors,[],name+'-'+viewport.width+' JavaScript errors '+JSON.stringify(errors));
   await context.close();
  }finally{await browser.close();}
