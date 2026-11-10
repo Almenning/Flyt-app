@@ -12,7 +12,7 @@ permissions:
 jobs:
   inpaint-review:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,16 +40,23 @@ jobs:
       - name: Verify original locks and iPad canvas before inference
         if: steps.should-run.outputs.run == 'yes'
         run: |
+          python -m py_compile tools/laria_art/prepare_lama_candidates.py tools/laria_release/verify_clean_candidate.py
           python tools/laria_art/prepare_clean_art_previews.py --self-test
           python tools/laria_art/prepare_lama_candidates.py --self-test
-      - name: Generate high-resolution Kinnaklova review candidate only
+      - name: Generate high-resolution Grovanova + Kinnaklova art proposals (never activated)
         if: steps.should-run.outputs.run == 'yes'
-        run: python tools/laria_art/prepare_lama_candidates.py --out /tmp/laria-lama-review --world kinnaklova --max-side 1792
+        run: python tools/laria_art/prepare_lama_candidates.py --out /tmp/laria-lama-review --world grovanova --world kinnaklova --max-side 1792
+      - name: Verify original landscape pixels are UNCHANGED outside strict UI masks
+        if: steps.should-run.outputs.run == 'yes'
+        run: |
+          python tools/laria_release/verify_clean_candidate.py --world grovanova --candidate /tmp/laria-lama-review/grovanova-lama-NOT-APPROVED.png --offset-x 119 --offset-y 171 --report /tmp/laria-lama-review/grovanova-pixel-integrity.json
+          python tools/laria_release/verify_clean_candidate.py --world kinnaklova --candidate /tmp/laria-lama-review/kinnaklova-lama-NOT-APPROVED.png --report /tmp/laria-lama-review/kinnaklova-pixel-integrity.json
+          printf '%s\n' 'DRAFT ART CANDIDATES - NOT PREMIUM APPROVED' 'Do not activate in Læria or remove release gates.' 'Compare EVERY native-pixel before/after detail sheet.' 'Reject any visible smearing, repeated sky, changed landforms or altered church.' > /tmp/laria-lama-review/ARTIST-REVIEW-REQUIRED.txt
       - name: Upload review images, masks, checksums and comparisons
         if: steps.should-run.outputs.run == 'yes'
         uses: actions/upload-artifact@v4
         with:
           name: laria-lama-REVIEW-ONLY-${{ github.event.pull_request.head.sha || github.sha }}
           path: /tmp/laria-lama-review
-          retention-days: 7
+          retention-days: 14
           if-no-files-found: warn

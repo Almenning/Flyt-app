@@ -26,6 +26,10 @@ def canvas(world):
   for box in ((8,10,420,125),(535,0,1180,250),(377,693,692,817),
               (1037,458,1320,571),(1341,655,1645,759)):
    draw.rectangle(box,fill=255)
+  # Upper Kinnaklova peaks and the original church are inviolable.
+  # A UI mask is NEVER permission to smooth protected landmark pixels.
+  for box in LOCKED[world]['landmarks'].values():
+   draw.rectangle(box,fill=0)
   return original,mask,(0,0),raw
  w,h=1366,1024
  x,y=(w-original.width)//2,(h-original.height)//2
@@ -49,6 +53,29 @@ def inpaint(m,img,mask,max_side=1152):
   result=prediction.clamp(0,1)[0].permute(1,2,0).cpu().numpy()
  generated=Image.fromarray(np.uint8(result*255)).resize((w,h),Image.Resampling.LANCZOS)
  return Image.composite(generated,img,mask)
+def detail_review(source,candidate,world,offset,out):
+ """Native-pixel before/after crops for EVERY UI mask, no downscaled inspection."""
+ from PIL import ImageDraw
+ original_x,original_y=offset
+ paths=[]
+ for label,(x0,y0,x1,y1) in LOCKED[world]['ui'].items():
+  pad=30
+  bounds=(max(0,original_x+x0-pad),max(0,original_y+y0-pad),
+          min(source.width,original_x+x1+pad+1),
+          min(source.height,original_y+y1+pad+1))
+  crop1=source.crop(bounds);crop2=candidate.crop(bounds)
+  w,h=crop1.size
+  panel=Image.new('RGB',(w*2+16,h+52),(245,242,234))
+  panel.paste(crop1,(0,52));panel.paste(crop2,(w+16,52))
+  pen=ImageDraw.Draw(panel)
+  pen.text((8,9),world.upper()+' / '+label,fill=(49,42,36))
+  pen.text((8,29),'LOCKED ORIGINAL',fill=(49,42,36))
+  pen.text((w+24,29),'INPAINT CANDIDATE - NOT APPROVED',fill=(159,30,30))
+  name=world+'-'+label+'-detail-NOT-APPROVED.png'
+  panel.save(out/name,optimize=True)
+  paths.append(name)
+ return paths
+
 def run(out,checkpoint,max_side,worlds):
  out.mkdir(parents=True,exist_ok=True);m=model(checkpoint)
  report={'status':'REVIEW_ONLY_NOT_APPROVED','activated':False,'approved':False,'scenes':{}}
@@ -59,9 +86,12 @@ def run(out,checkpoint,max_side,worlds):
   name=world+'-lama-NOT-APPROVED.png'
   result.save(out/name,optimize=True);mask.save(out/(world+'-lama-mask.png'))
   comparison(src,result,world,'LaMa').save(out/(world+'-lama-comparison.png'))
+  details=detail_review(src,result,world,offset,out)
   report['scenes'][world]={'file':name,'size':list(result.size),'source_sha256':hashlib.sha256(raw).hexdigest(),
    'original_placement':offset,'protected_pixel_changes':0,'changed_inside_mask':changed,
-   'candidate_sha256':hashlib.sha256((out/name).read_bytes()).hexdigest(),'approved':False}
+   'candidate_sha256':hashlib.sha256((out/name).read_bytes()).hexdigest(),'detail_review_files':details,
+   'review_warning':'Must manually reject blurred mountain, sky, grass or art seams, even inside UI mask',
+   'approved':False}
  (out/'REPORT-NOT-APPROVED.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
  print('CANDIDATES ONLY: all original files and active app remain unchanged')
 def self_test():
@@ -71,7 +101,11 @@ def self_test():
   assert hashlib.sha256(raw).hexdigest()==hashlib.sha256((root/LOCKED[world]['file']).read_bytes()).hexdigest()
   assert im.size==mask.size and mask.getbbox()
   if world=='grovanova':assert im.size==(1366,1024)
- print('PASS locked original source and real 4:3 iPad canvas')
+  if world=='kinnaklova':
+   # No model may edit the explicitly protected twin peaks or church.
+   for box in LOCKED[world]['landmarks'].values():
+    assert mask.crop(box).getbbox() is None, 'Protected Kinnaklova landmark in edit mask'
+ print('PASS locked original, protected Kinnaklova landmarks and real 4:3 iPad canvas')
 if __name__=='__main__':
  p=argparse.ArgumentParser()
  p.add_argument('--self-test',action='store_true')

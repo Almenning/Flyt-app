@@ -29,3 +29,20 @@ Denne testløypen produserer bevis og skiller mekanisk retusj fra kreativ kunstg
 
 ## Ny kildefast kvalitetsport for retusjerte masterbilder (9. november 2026)
 Verktøy: `tools/laria_release/verify_clean_candidate.py`. Bruk med `--world kinnaklova --candidate <godkjenningskandidat.png>` eller `--world grovanova --candidate <iPad-4-til-3-kandidat.png> --offset-x <plassering> --offset-y <plassering>`. Verktøyet avviser endringer i alle beskyttede fjell-, kirke- og landskapspiksler utenfor de eksplisitte maskene. Grovanova må leveres som et ekte 4:3-landskapsbilde på minst 1366 × 1024; kilden kan plasseres uendret innenfor et naturlig utvidet lerret. Dette er **kun et mekanisk bevis for kildefidelitet**, ikke en kunstgodkjenning. Bilder med slør, repetisjoner, synlige skjøter, gamle skilt eller feil fjell skal fortsatt forkastes selv om masketesten blir grønn. Ingen automatisk godkjenning, produksjonsaktivering eller merge.
+
+## Oppgradert kunstløype 10. november 2026: to masterkandidater med native detalj-QA
+
+De tidligere OpenCV-utkastene fra `laria-art-preview` fjernet skiltområder, men ga store smurte/fargestrekte regioner ved himmel, fjord og gress. Disse utkastene **forkastes for aktivering** og må ikke omtales som premiumkunst.
+
+`.github/workflows/laria-lama-art-review.yml` er nå satt til å generere **separate, ikke-godkjente** Big-LaMa-kandidater for både **Grovanova** og **Kinnaklova** fra eksisterende byte-låste originale WebP-filer.
+
+Kontrollen skal produsere:
+- Originalens eksakte SHA-256, modellutkastets SHA-256, redigeringsmaske og en samlet før/etter-oversikt.
+- **Et før/etter-bilde i native oppløsning for hvert UI-område**, slik at smøring, skygger, feil himmel og skadet gress kan vurderes uten nedskalering.
+- Masker som unntar beskyttede fjell-/kirkeregioner fra endring, og en uavhengig, kjørbar kontroll med `tools/laria_release/verify_clean_candidate.py`.
+- For Grovanova et eget 1366 × 1024-lerret (4:3). Den historiske originalen plasseres på x=119, y=171; piksler innen originalen kan bare endres inne i eksplisitt tillatte UI-masker. Det nye lerretsområdet utenfor originalen krever særskilt kontroll for naturlig utvidet landskap.
+- For Kinnaklova beholdes originalens 1672 × 941 og det verifiseres at de tidligere låste fjelltoppene og Kinn kyrkje ikke endres.
+
+**Godkjenningsregel:** En grønn bildekontroll beviser bare kildeintegritet. Det må i tillegg ikke finnes synlige gjentakelser, artifakter, utsmurt tekst, falske fjell, kunstige gradientstriper, gamle skilt, eller sømmer. Kvaliteten skal sammenlignes med låst Grovanova-fasit og femskjermsskissen. Brukeren skal uttrykkelig godkjenne et konkret bilde før appen kan bytte kildefil.
+
+**Stopp:** Inntil begge bildevarianter er godkjent forblir `art.grovanova.clean` og `art.kinnaklova.clean` i release-manifestet `null`, og merge/publisering er blokkert. Ingen innmalt gammel UI skal skjules med nye oppåklistrende skilt.
