@@ -105,10 +105,8 @@ async function run(engine,name,viewport){
    await nav.locator('[data-laria-ref-subject="home"]').click();
    await home.waitFor({state:'visible',timeout:18000});
   }
-  // A real phone rotates. With a short landscape viewport the reference
-  // adapter must cleanly restore the original DOM, not leave two menus or
-  // naked reference buttons. Returning to portrait reuses the same live
-  // subject actions without touching localStorage.
+  // A real iPhone rotates. The approved layout skeleton must stay the SAME
+  // single rail at 844x390 / 932x430, not jump to the old scattered menu.
   await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
   const rotated=page.locator('#eggenipa-world .eg-hero');
   await rotated.locator('.laria-reference-subject-nav').waitFor({state:'visible',timeout:15000});
@@ -116,15 +114,70 @@ async function run(engine,name,viewport){
   await page.setViewportSize({width:viewport.height,height:viewport.width});
   await page.waitForFunction(()=>{
     const scene=document.querySelector('#eggenipa-world .eg-hero');
+    return !!scene&&scene.classList.contains('laria-reference-layout-v1')&&
+      scene.dataset.lariaReferenceMode==='subjects'&&
+      scene.querySelectorAll(':scope > nav.laria-reference-subject-nav > button').length===5;
+  },null,{timeout:12000});
+  const landscape=await rotated.evaluate(el=>{
+    const box=e=>{const r=e.getBoundingClientRect();return{
+      left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+      width:r.width,height:r.height};};
+    const nav=el.querySelector(':scope > nav.laria-reference-subject-nav');
+    return {
+      scene:box(el),nav:box(nav),signs:[...nav.querySelectorAll('button')].map(box),
+      title:box(el.querySelector(':scope > button.laria-reference-place')),
+      troll:box(el.querySelector('[data-laria-component="troll"]')),
+      logo:box(el.querySelector('.laria-scene-brand')),
+      settings:box(el.querySelector(':scope > button.laria-reference-settings')),
+      actionsVisible:getComputedStyle(el.querySelector('nav.laria-scene-navigation')).display!=='none'
+    };
+  });
+  assert.equal(landscape.actionsVisible,false,'iPhone landscape has TWO visible navigation groups');
+  assert.ok(landscape.nav.right+8<=landscape.title.left,
+    'landscape subject signs overlap right title: '+JSON.stringify(landscape));
+  assert.ok(landscape.nav.right+6<=landscape.troll.left,
+    'landscape selected troll covers the left signs: '+JSON.stringify(landscape));
+  assert.equal(intersects(landscape.title,landscape.troll),0,
+    'landscape right title covers the original live troll');
+  assert.equal(intersects(landscape.logo,landscape.title),0,
+    'landscape logo covers right title');
+  assert.ok(landscape.troll.height>=210&&landscape.troll.bottom<=viewport.width+3,
+    'landscape selected original troll is too small or clipped: '+JSON.stringify(landscape));
+  for(const sign of landscape.signs){
+    assert.ok(sign.width>=44&&sign.height>=44&&sign.left>=0&&
+      sign.right<=viewport.height+2&&sign.bottom<=viewport.width+2,
+      'landscape sign too small or off-screen: '+JSON.stringify(sign));
+  }
+  assert.ok(landscape.settings.width>=44&&landscape.settings.height>=44,
+    'landscape parent-settings touch target below 44px');
+  await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-reference.png'),
+    animations:'disabled'});
+  await rotated.locator('button.laria-reference-place').click();
+  assert.equal(await rotated.getAttribute('data-laria-reference-mode'),'activities');
+  assert.equal(await rotated.locator('nav.laria-reference-subject-nav').isVisible(),false);
+  const activityRail=rotated.locator('nav.laria-scene-navigation');
+  assert.ok(await activityRail.isVisible(),'landscape activity menu failed to open');
+  const learningButtons=await activityRail.locator('.laria-wayfinder').evaluateAll(nodes=>
+    nodes.map(n=>{const r=n.getBoundingClientRect();return{
+      left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};}));
+  assert.equal(learningButtons.length,3,'original learning buttons lost on landscape');
+  for(const rect of learningButtons){
+    assert.ok(rect.width>=44&&rect.height>=44&&rect.right<=landscape.nav.right+3&&
+      rect.bottom<=viewport.width+3,'landscape activity sign out of sole left rail: '+JSON.stringify(rect));
+  }
+  await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-activities.png'),
+    animations:'disabled'});
+  await activityRail.locator('.laria-reference-activities-back').click();
+  assert.equal(await rotated.getAttribute('data-laria-reference-mode'),'subjects');
+  // Unsupported ultra-short landscape retains the original safe fallback.
+  await page.setViewportSize({width:viewport.height,height:300});
+  await page.waitForFunction(()=>{
+    const scene=document.querySelector('#eggenipa-world .eg-hero');
     return !!scene&&!scene.classList.contains('laria-reference-layout-v1')&&
-     !scene.querySelector(':scope > nav.laria-reference-subject-nav')&&
-     !scene.querySelector(':scope > button.laria-reference-place');
+      !scene.querySelector(':scope > nav.laria-reference-subject-nav');
   },null,{timeout:12000});
   assert.equal(await rotated.locator('[data-laria-component="home"]').getAttribute('aria-hidden'),null,
-   'rotation did not restore original Home control');
-  assert.equal(await rotated.locator('nav.laria-scene-navigation').getAttribute('aria-hidden'),null,
-   'rotation left original learning buttons inaccessible');
-  await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-fallback.png'),animations:'disabled'});
+    'ultra-short fallback failed to restore original home control');
   await page.setViewportSize(viewport);
   await page.waitForFunction(()=>{
     const scene=document.querySelector('#eggenipa-world .eg-hero');
@@ -133,7 +186,7 @@ async function run(engine,name,viewport){
       scene.querySelectorAll(':scope > nav.laria-reference-subject-nav > button').length===5;
   },null,{timeout:12000});
   assert.equal(await rotated.locator('.laria-reference-subject-nav').count(),1,
-   'portrait remount duplicated the five sign rail');
+    'portrait remount duplicated the five sign rail');
   assert.equal(await page.evaluate(()=>localStorage.getItem('laerlittmer-v2')),beforeState,
    'device rotation modified saved learning progress');
   await rotated.locator('.laria-reference-subject-nav [data-laria-ref-subject="home"]').click();

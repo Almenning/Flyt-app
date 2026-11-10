@@ -72,8 +72,9 @@
   // The same DOM components now support iPhone portrait, with a dedicated
   // compact arrangement that preserves one left rail and the original art.
   const ipad=root.matchMedia('(min-width:768px) and (min-height:650px)').matches;
-  const iphone=root.matchMedia('(max-width:767px) and (min-width:320px) and (min-height:600px) and (orientation:portrait)').matches;
-  if(!ipad&&!iphone)return false;
+  const iphonePortrait=root.matchMedia('(max-width:767px) and (min-width:320px) and (min-height:600px) and (orientation:portrait)').matches;
+  const iphoneLandscape=root.matchMedia('(min-width:740px) and (max-width:1050px) and (min-height:320px) and (max-height:600px) and (orientation:landscape)').matches;
+  if(!ipad&&!iphonePortrait&&!iphoneLandscape)return false;
   const rail=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
   if(!rail||rail.querySelectorAll('.laria-wayfinder').length!==3)return false;
   const home=scene.querySelector('[data-laria-component="home"]');
@@ -190,13 +191,13 @@
   }
   return true;
  }
- // The iPad-first adapter is preview-only. A phone can rotate into a
- // landscape viewport too short for these five planks. Restore the EXACT
- // original scene components rather than leaving unstyled reference buttons
- // scattered over the painting. Re-mount on returning to portrait.
+ // Common iPhone landscape sizes now reuse the real live single-rail
+ // controls. Tiny unsupported viewports safely restore the original scene,
+ // never displaying unstyled reference buttons.
  function eligible(){
   return root.matchMedia('(min-width:768px) and (min-height:650px)').matches||
-   root.matchMedia('(max-width:767px) and (min-width:320px) and (min-height:600px) and (orientation:portrait)').matches;
+   root.matchMedia('(max-width:767px) and (min-width:320px) and (min-height:600px) and (orientation:portrait)').matches||
+   root.matchMedia('(min-width:740px) and (max-width:1050px) and (min-height:320px) and (max-height:600px) and (orientation:landscape)').matches;
  }
  function unmount(scene){
   if(!scene?.classList.contains('laria-reference-layout-v1'))return;

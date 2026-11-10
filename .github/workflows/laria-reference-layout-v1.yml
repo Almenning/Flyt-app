@@ -40,7 +40,7 @@ jobs:
           LARIA_REFERENCE_SCREENSHOTS: /tmp/laria-reference-layout
           LARIA_GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node tests/laria-reference-layout-v1.playwright.js
-      - name: Capture iPhone portrait with the same original live controls
+      - name: Verify iPhone portrait and landscape single-rail navigation, rotation and parent gate
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_REFERENCE_MOBILE_SHOTS: /tmp/laria-reference-mobile
