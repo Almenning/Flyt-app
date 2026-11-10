@@ -22,43 +22,43 @@
   },
   "devices": {
     "ipadLandscape": {
-      "prHead": "465d7456a2a1d8fe5433bd25272d680ff4c1a379",
-      "actionsRun": 42585768132,
+      "prHead": "c8ae248ec90a98e00bde3b5c868396a6e4866275",
+      "actionsRun": 42775701373,
       "chromiumAndWebkit": true,
       "ownerApproved": false
     },
     "ipadPortrait": {
-      "prHead": "465d7456a2a1d8fe5433bd25272d680ff4c1a379",
-      "actionsRun": 42585768132,
+      "prHead": "c8ae248ec90a98e00bde3b5c868396a6e4866275",
+      "actionsRun": 42775701373,
       "chromiumAndWebkit": true,
       "ownerApproved": false
     },
     "iphonePortrait": {
-      "prHead": "465d7456a2a1d8fe5433bd25272d680ff4c1a379",
-      "actionsRun": 42585768132,
+      "prHead": "c8ae248ec90a98e00bde3b5c868396a6e4866275",
+      "actionsRun": 42775701373,
       "chromiumAndWebkit": true,
       "ownerApproved": false
     },
     "iphoneLandscape": {
-      "prHead": "465d7456a2a1d8fe5433bd25272d680ff4c1a379",
-      "actionsRun": 42585768132,
+      "prHead": "c8ae248ec90a98e00bde3b5c868396a6e4866275",
+      "actionsRun": 42775701373,
       "chromiumAndWebkit": true,
       "ownerApproved": false
     },
     "desktop": {
-      "prHead": null,
-      "actionsRun": null,
-      "chromiumAndWebkit": false,
+      "prHead": "c8ae248ec90a98e00bde3b5c868396a6e4866275",
+      "actionsRun": 42775701373,
+      "chromiumAndWebkit": true,
       "ownerApproved": false
     }
   },
   "regression": {
-    "greenOnPrHead": null
+    "greenOnPrHead": "c8ae248ec90a98e00bde3b5c868396a6e4866275"
   },
   "childUsabilityTest": false,
   "permission": {
     "merge": false,
     "publish": false
   },
-  "evidenceNote": "Actual app PNGs in BOTH Chromium and WebKit verified from run 42585768132: 4 viewport/orientation groups x 5 screens. Screenshots are captured, NOT visually approved; art blocks remain."
+  "evidenceNote": "Verified on exact app+test source tree c8ae248ec90a98e00bde3b5c868396a6e4866275: GitHub Actions reference-layout run 42775701373 (success, WebKit+Chromium iPad landscape/portrait, iPhone portrait, iPhone landscape rotation fallback, desktop; screenshot artifact 13744036782) plus Læria QA 42775701552, Continuous smoke checks 42775701370, iOS build 42775701655 and other non-release workflows successful. iPhone landscape is an ORIGINAL-UI FALLBACK, not an approved reference layout. Screenshots are NOT visually owner-approved. Home/Grovanova and English/Kinnaklova clean masters remain missing. No child usability test. Release remains BLOCKED; no merge/publish permission."
 }
