@@ -23,8 +23,8 @@
  width:100%;height:clamp(54px,6.3vh,67px);min-width:44px;min-height:54px;
  display:flex;align-items:center;justify-content:flex-start;gap:12px;
  border:0;border-radius:0;padding:6px 15px;cursor:pointer;overflow:visible;
- background:url("./assets/ui/laria-reference-dark-sign-v1.svg") center/100% 100% no-repeat;
- color:#fff5e4;text-shadow:0 1px 2px #241a0b;
+ background:var(--laria-sign-art) center/100% 100% no-repeat;
+ color:var(--laria-sign-ink);text-shadow:0 1px 0 #fff2d2;
  font:900 clamp(15px,1.75vw,22px)/1.08 var(--laria-ui-font,system-ui);text-align:left;
  filter:drop-shadow(0 5px 4px #261b0b9c);
  transform:none;transition:transform .12s ease,filter .12s ease;
@@ -46,7 +46,7 @@
 .laria-reference-layout-v1 .laria-reference-subject-sign.is-current{
  background:var(--laria-sign-art) center/100% 100% no-repeat;
  color:#3d2715;text-shadow:0 1px 0 #fff3d8;
- filter:drop-shadow(0 6px 4px #24170aa8);
+ filter:brightness(1.10) drop-shadow(0 6px 4px #24170aa8);
 }
 .laria-reference-layout-v1 .laria-reference-subject-sign:focus-visible{
  outline:4px solid #fff6b4;outline-offset:2px;
@@ -186,8 +186,8 @@
  width:100%!important;height:clamp(57px,6.3vh,70px)!important;
  min-height:54px!important;min-width:0!important;
  border:0!important;margin:0!important;padding:6px 15px!important;
- background:url("./assets/ui/laria-reference-dark-sign-v1.svg") center/100% 100% no-repeat!important;
- color:#fff4df!important;text-shadow:0 1px 2px #21170b!important;
+ background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+ color:var(--laria-sign-ink)!important;text-shadow:0 1px 0 #fff2d2!important;
  font:900 clamp(16px,1.7vw,21px)/1.06 var(--laria-ui-font,system-ui)!important;
  filter:drop-shadow(0 5px 4px #261b0b9c)!important;cursor:pointer;
 }
@@ -264,17 +264,7 @@
     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand::before{display:none!important}
 :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
     #tallvika-world .tv-scene.laria-reference-layout-v1,
-    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand::after{
- content:"Premium"!important;display:grid!important;place-items:center!important;
- position:absolute!important;top:auto!important;left:50%!important;right:auto!important;
- bottom:-12px!important;transform:translateX(-50%) rotate(-2deg)!important;
- width:110px!important;height:31px!important;
- border:2px solid #75421e!important;border-radius:9px!important;
- background:linear-gradient(#f4cd90,#d79248)!important;
- box-shadow:0 3px 0 #70401c,0 6px 9px #26180c71!important;
- font:900 15px/1 var(--laria-ui-font,system-ui)!important;
- color:#3d2715!important;text-shadow:0 1px 0 #fff2d5!important;
-}
+    #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand::after{content:none!important;display:none!important;}
 
 /* Functional toolbar from the reference, without fake buttons. The original
  * TrollActor chooser remains its own real click target. The new gear opens
@@ -611,12 +601,7 @@
   width:clamp(153px,45vw,190px)!important;
   height:66px!important;min-height:0!important;
  }
- :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
-     #tallvika-world .tv-scene.laria-reference-layout-v1,
-     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand::after{
-  bottom:-8px!important;width:78px!important;height:24px!important;
-  font-size:11px!important;
- }
+ 
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1)
@@ -807,12 +792,7 @@
  width:clamp(160px,23vw,205px)!important;
  height:clamp(60px,16vh,75px)!important;min-height:0!important;
 }
-:is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
-     #tallvika-world .tv-scene.laria-reference-layout-v1,
-     #laria-geography-world .gv-scene.laria-reference-layout-v1) .laria-scene-brand::after{
- width:76px!important;height:23px!important;bottom:-8px!important;
- font-size:11px!important;
-}
+
 :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1) :is(.eg-companion-actor,.tv-actor,.gv-troll){
