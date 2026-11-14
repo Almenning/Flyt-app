@@ -601,7 +601,7 @@
   width:clamp(153px,45vw,190px)!important;
   height:66px!important;min-height:0!important;
  }
- 
+
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1)
