@@ -46,6 +46,23 @@ async function testEngine(engine,name,device,viewport){
    assert.equal(await nav.locator('button').count(),5,world.id+' five destination signs');
    assert.equal(await nav.locator('button[aria-current="page"]').count(),1,world.id+' active menu');
    assert.equal(await nav.locator('button[aria-current="page"]').getAttribute('data-laria-ref-subject'),world.id);
+   // Visual identity must be the SAME shared light-oak component in both
+   // menu states. Dark prototype signs and added Premium-logo stickers do
+   // not meet the owner's locked reference, even if navigation works.
+   const signArt=await nav.locator(':scope > button').evaluateAll(buttons=>buttons.map(button=>{
+     const css=getComputedStyle(button);
+     return {art:css.backgroundImage,ink:css.color};
+   }));
+   for(const sign of signArt){
+     assert.match(sign.art,/laria-light-arrow-sign\.svg/,
+       world.id+' destination sign deviates from shared light oak: '+JSON.stringify(sign));
+     assert.equal(sign.ink,'rgb(61, 39, 21)',
+       world.id+' destination sign does not use the shared dark ink');
+   }
+   const badge=await scene.locator('.laria-scene-brand').evaluate(el=>
+     getComputedStyle(el,'::after').display);
+   assert.equal(badge,'none',
+     world.id+' shows a duplicate Premium sticker beneath the locked logo');
    // One visible navigation rail, as in the user's locked composition.
    const activities=scene.locator('nav.laria-scene-navigation');
    const plaque=scene.locator('button.laria-reference-place');
@@ -209,6 +226,10 @@ async function testEngine(engine,name,device,viewport){
       'Next adventure button escaped left rail: '+JSON.stringify(r));
    }
    assert.equal(await activities.locator('.laria-reference-activities-back').count(),1);
+   const returnSignArt=await activities.locator('.laria-reference-activities-back').evaluate(el=>
+     getComputedStyle(el).backgroundImage);
+   assert.match(returnSignArt,/laria-light-arrow-sign\.svg/,
+     world.id+' activity return sign must use the same light oak as subjects');
    const activityBoxes=await activities.locator('.laria-wayfinder').evaluateAll(nodes=>nodes.map(x=>{
     const r=x.getBoundingClientRect();
     return {l:r.left,r:r.right,t:r.top,b:r.bottom,w:r.width,h:r.height};
