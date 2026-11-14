@@ -243,6 +243,24 @@ async function testEngine(engine,name,device,viewport){
      world.id+' activity signs must share the subject sign left edge: '+
       JSON.stringify({leftEdges,subjectsLeft}));
    await page.screenshot({path:path.join(out,name+'-'+device+'-'+world.id+'-activities.png'),animations:'disabled'});
+   // An external iPad keyboard returns to the SAME five-sign menu.
+   // Focus goes to the active subject, not an invisible activity button.
+   await activities.locator('.laria-wayfinder').first().focus();
+   await page.keyboard.press('Escape');
+   assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects',
+     world.id+' Escape did not return to the subject menu');
+   assert.equal(await nav.isVisible(),true,world.id+' subject menu hidden after Escape');
+   assert.equal(await activities.isVisible(),false,world.id+' activity menu still visible after Escape');
+   assert.equal(await plaque.getAttribute('aria-expanded'),'false',
+     world.id+' plaque incorrectly remains expanded after Escape');
+   const currentSubject=nav.locator('button[aria-current="page"]');
+   assert.equal(await currentSubject.evaluate(el=>document.activeElement===el),true,
+     world.id+' Escape did not restore focus to the current subject');
+   await page.keyboard.press('Escape');
+   assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects',
+     world.id+' Escape from subject menu must not toggle a second rail');
+   await plaque.click();
+   assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
    await activities.locator('.laria-reference-activities-back').click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects');
    assert.equal(await nav.isVisible(),true);

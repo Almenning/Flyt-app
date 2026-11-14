@@ -20,6 +20,8 @@
  // In-memory only: a finished exercise should return to the same left rail
  // even when the subject scene is re-rendered. Never write child progress.
  const preferredRail=new Map();
+ // Remove keyboard listeners on responsive unmount to avoid duplicate Escape actions.
+ const escapeHandlers=new WeakMap();
  const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function icon(id){return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+paths[id]+'</svg>'}
  // Only ONE navigation rail may be visible. The large right plaque is a
@@ -176,6 +178,20 @@
   scene.dataset.lariaReferenceArt='original-preserved';
   scene.dataset.lariaReferenceSubject=names[subject];
   setMode(scene,preferredRail.get(names[subject])||'subjects');
+  // External iPad keyboards: Escape returns from activities to the same
+  // subject sign rail. Restrict it to menu controls, not the live troll,
+  // settings or an activity that owns its own keyboard behavior.
+  const handleEscape=event=>{
+   if(event.key!=='Escape'||event.defaultPrevented||
+      scene.dataset.lariaReferenceMode!=='activities'||
+      !scene.closest('.screen.active'))return;
+   if(!event.target.closest?.('nav.laria-scene-navigation, button.laria-reference-place'))return;
+   event.preventDefault();
+   event.stopPropagation();
+   setMode(scene,'subjects',true);
+  };
+  escapeHandlers.set(scene,handleEscape);
+  scene.addEventListener('keydown',handleEscape);
   // A single short contextual greeting makes the approved character feel
   // present. The existing scene-owned idle/wave callback runs first; defer
   // this prompt two frames so it is not immediately cancelled. Mathematics
@@ -201,6 +217,11 @@
  }
  function unmount(scene){
   if(!scene?.classList.contains('laria-reference-layout-v1'))return;
+  const handleEscape=escapeHandlers.get(scene);
+  if(handleEscape){
+   scene.removeEventListener('keydown',handleEscape);
+   escapeHandlers.delete(scene);
+  }
   const rail=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
   const home=scene.querySelector('[data-laria-component="home"]');
   if(rail){
