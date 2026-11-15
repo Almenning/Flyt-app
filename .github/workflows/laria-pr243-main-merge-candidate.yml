@@ -37,9 +37,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          echo "working-directory: $PWD"
+          test -d .git
+          git status --short
           git config user.name 'Læria test merger'
           git config user.email 'laria-merge-candidate@invalid.example'
-          git fetch origin main
+          # checkout fetch-depth=0 already fetched origin/main, and
+          # persist-credentials=false deliberately forbids additional fetches.
+          git rev-parse --verify refs/remotes/origin/main
           set +e
           git merge --no-commit --no-ff origin/main > /tmp/laria-main-merge-result.txt 2>&1
           state=$?
