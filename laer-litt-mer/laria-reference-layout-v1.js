@@ -1,10 +1,14 @@
-/* Læria Premium: user-approved reference layout for iPad review.
- * The original paintings and progress are immutable. Clean scenes only.
- * Preview requires ?lariaReferenceLayout=1 until visual approval.
+/* Læria Premium: user-approved reference layout, iPad first.
+ * Clean subject scenes use the locked heading and sign rail by default on iPad.
+ * Other devices remain preview-only until the iPad art review is accepted.
+ * ?lariaReferenceLayout=1 forces preview; =0 restores the legacy presentation.
+ * Original artwork and child progress are unchanged. Release remains gated.
  */
 (function(root){
  'use strict';
- const enabled=new URLSearchParams(root.location.search).get('lariaReferenceLayout')==='1';
+ const previewMode=new URLSearchParams(root.location.search).get('lariaReferenceLayout');
+ const enabled=previewMode==='1'||(previewMode!=='0'&&
+   root.matchMedia('(min-width:768px) and (min-height:650px)').matches);
  const names={home:'Hjem',norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'};
  const places={norwegian:'Eggenipa',math:'Tallvika',geography:'Nordlysleiren'};
  const paths={
