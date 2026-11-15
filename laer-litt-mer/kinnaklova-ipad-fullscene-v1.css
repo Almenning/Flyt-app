@@ -106,11 +106,13 @@
 }
 @media(min-width:701px) and (min-height:600px) and (orientation:portrait){
   /* This uses ONLY the SHA-approved original and activates ONLY after the
-     JS integrity gate reports ready. A matching stage background prevents
+     JS integrity gate reports ready. Use the SAME clean scene for the stage
+     fallback: the locked original contains painted signs and must NEVER bleed
+     through behind the clean art. The matching stage background prevents
      the solid-green first frame seen on portrait WebKit/Chromium when the
      image texture's GPU compositing lags despite a completed SHA check. */
   #kinnaklova-world[data-ki-art="ready"] .ki-stage{
-    background-image:url("./assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp")!important;
+    background-image:url("./assets/kinnaklova/kinnaklova-ui-free-approved.webp")!important;
     background-position:48% 50%!important;
     background-size:cover!important;
     background-repeat:no-repeat!important;
