@@ -112,10 +112,16 @@ async function check(engine,label,viewport){
       /\/storesoster\.webp$/,label+' English scene is using a retired character');
     assert.equal(await world.locator('.ki-card').count(),3,
       label+' three direct English activities are required');
-    const target=viewport.width<=700
-      ? world.locator('.ki-utility [data-ki="home"]')
-      : world.locator('.ki-painted-home');
+    // The premium scene hides the retired utility header after the clean art
+    // passes integrity. Click the child's actual round Home button instead.
+    const target=world.locator('.ki-painted-home');
     await target.waitFor({state:'visible',timeout:16000});
+    const hit=await target.evaluate(el=>{
+      const b=el.getBoundingClientRect(),s=getComputedStyle(el);
+      return {width:b.width,height:b.height,visibility:s.visibility,pointerEvents:s.pointerEvents};
+    });
+    assert.ok(hit.width>=44&&hit.height>=44&&hit.visibility==='visible'&&hit.pointerEvents!=='none',
+      label+' Kinnaklova must expose a real accessible Home action: '+JSON.stringify(hit));
     await world.screenshot({path:path.join(output,label+'-english-kinnaklova-live.png')});
     await target.click();
     await page.locator('#home-screen.active').waitFor({timeout:16000});
