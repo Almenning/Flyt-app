@@ -9,11 +9,11 @@ const subjects=[
  {id:'math',home:'subject-math',root:'#tallvika-world',scene:'.tv-scene',attr:'data-tv',signs:['multiply','fraction','table'],title:'Matte'},
  {id:'geography',home:'subject-geography',root:'#laria-geography-world',scene:'.gv-scene',attr:'data-gv',signs:['journey','globe','country'],title:'Geografi'}
 ];
-async function enter(page,s){
+async function enter(page,s,ipad){
  await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
  const entry=page.locator('#home-screen .bc14-subject[data-camp="'+s.home+'"]');
  await entry.waitFor({state:'visible',timeout:26000});await entry.click();
- await page.locator(s.root).waitFor({state:'visible',timeout:22000});
+ await page.locator(s.id==='geography'&&!ipad?'#geography-screen.active':s.root).waitFor({state:'visible',timeout:22000});
 }
 async function run(engine,name,device,viewport,s,ipad){
  const browser=await engine.launch({headless:true,args:name==='chromium'?['--no-sandbox']:[]});
@@ -23,7 +23,7 @@ async function run(engine,name,device,viewport,s,ipad){
   const page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   try{
-   await enter(page,s);
+   await enter(page,s,ipad);
    assert.equal(await page.evaluate(()=>window.LARIA_IPAD_RAILS?.enabled()),ipad,'Tablet breakpoint');
    const stage=page.locator(s.root+' '+s.scene);
    const rail=stage.locator('> nav.laria-ipad-left-rail');
