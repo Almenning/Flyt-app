@@ -5,12 +5,16 @@
 
 const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-premium2';
 const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1';
+// Separate iPad-only previews. The two original SHA-locked masters above
+// remain intact and continue to serve as the safe fallback.
+const CLEAN_TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet-no-bottom-cards.webp?v=20261115-four-cards-clean1';
+const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards.webp?v=20261115-four-cards-clean1';
 let activeMasterSrc='';
 let activationEpoch=0;
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
 function isPortrait(){return matchMedia('(orientation:portrait)').matches}
-function isIpadHome(){return matchMedia('(min-width:768px) and (min-height:650px)').matches}
+function isIpadHome(){return matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches}
 
 // Mine troll uses the ONE shared interactive selection of original
 // TrollActor characters; the former static art gallery is not navigation.
@@ -260,7 +264,10 @@ async function activate(){
  // activity cards disqualify it as the CLEAN November premium master.
  // A successful decode is not art approval. Preserve original Home until
  // the replacement passes independent pixel + visual review.
- host.dataset.bc15PremiumArt='blocked';
+ host.dataset.bc15PremiumArt='blocked'; // candidate art is not owner-signoff
+ host.dataset.bc15CardArt='locked-original';
+ host.querySelector('.bc14-subjects')?.removeAttribute('aria-hidden');
+ if(host.querySelector('.bc14-subjects'))host.querySelector('.bc14-subjects').inert=false;
  host.classList.remove('bc15-ipad-fagmenu');
  const youngBand=!!document.querySelector('.grade-band-young');
  if(!youngBand){
@@ -284,11 +291,20 @@ async function activate(){
    return false;
  }
  const portrait=isPortrait();
- const master=portrait?PHONE_MASTER:TABLET_MASTER;
+ const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
+ const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
+ const wantsClean=isIpadHome();
  host.classList.add('bc15-pending');
  host.dataset.bc15Asset='loading';
  try{
-   const image=await decoded(master);
+   // If the clean candidate cannot decode, retain the fully functional
+   // locked original. Never turn a missing asset into an empty Home stage.
+   let cleanLoaded=false;
+   let image;
+   if(wantsClean){
+    try{image=await decoded(cleanMaster);cleanLoaded=true;}
+    catch(_){image=await decoded(originalMaster);}
+   }else image=await decoded(originalMaster);
    if(epoch!==activationEpoch || !host.isConnected ||
       host!==document.querySelector('#home-screen .bc12') || portrait!==isPortrait())return false;
    activeMasterSrc=image.src;
@@ -297,6 +313,13 @@ async function activate(){
    host.classList.remove('bc15-pending','bc15-fallback');
    host.dataset.bc15Asset=portrait?'phone-ready':'tablet-ready';
    host.dataset.bc15Master=portrait?'portrait':'landscape';
+   host.dataset.bc15CardArt=cleanLoaded?'clean-candidate':'locked-original';
+   const oldRow=host.querySelector('.bc14-subjects');
+   if(oldRow){
+    oldRow.inert=cleanLoaded;
+    if(cleanLoaded)oldRow.setAttribute('aria-hidden','true');
+    else oldRow.removeAttribute('aria-hidden');
+   }
    syncLiveCopy(host);
    mapControlsToArtwork(host,image.width,image.height,portrait);
 
