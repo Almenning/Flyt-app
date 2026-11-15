@@ -20,7 +20,7 @@ LOCKS={
            'sha':'0d804d147dc38d259c13757522907f953488f0b40dea298a8efc06055427c8f7',
            'size':(340,641),'out':'kjosnes-home-phone-no-bottom-cards.webp'},
 }
-DONOR_SHA='7b1a1b755bac8eb5de6cd428a1ea403f7401905ad7d31076bbd7a506357366d3'
+DONOR_SHA='57d5979069efb6c19d5569a7f5e2ea93ad6f275eee1ab9c13fcaed6cd0bdaefc'
 
 def sha(raw: bytes)->str:return hashlib.sha256(raw).hexdigest()
 
