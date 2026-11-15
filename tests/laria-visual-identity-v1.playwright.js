@@ -253,9 +253,10 @@ async function run(engine,name,layout,viewport){
      else assert.deepEqual(style,expectedPlate,'Sign style diverged for '+spec.id);
    }else{
      // English's SHA-locked scene still includes baked title/sign artwork.
-     // Adding DOM duplicates is prohibited. This remains a separate art gate.
-     assert.equal(await world.locator('.ki-world-brand:visible').count(),0,
-       'Kinnaklova duplicates its painted wordmark');
+     // Kinnaklova now has separate real DOM branding only on clean art.
+     const isCleanKinn=(await world.getAttribute('data-ki-premium-art'))==='approved';
+     assert.equal(await world.locator('.ki-world-brand:visible').count(),isCleanKinn?1:0,
+       'English must have exactly one logo without duplication');
    }
    const screenshot=await page.screenshot({path:path.join(OUT,name+'-'+layout+'-'+spec.id+'.png'),animations:'disabled'});
    evidence.push({id:spec.id,label:({norwegian:'Norsk · Eggenipa',math:'Matte · Tallvika',english:'Engelsk · Kinnaklova',geography:'Geografi · Nordlysleiren'})[spec.id],file:name+'-'+layout+'-'+spec.id+'.png'});
