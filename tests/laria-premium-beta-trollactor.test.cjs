@@ -93,6 +93,28 @@ assert.match(runtime,/\.country-story-fox/,'Country stories must be included in 
 assert.match(runtime,/\.fd-chapter-fox > img/,'Norwegian chapter picker must be included in TrollActor migration');
 assert.match(runtime,/\.mh-story-fox > img/,'Math preview companion must be included in TrollActor migration');
 assert.match(home,/kjosnes-home-tablet\.webp/,'Grovanova tablet master must remain intact');
+const kinnaklova=file('kinnaklova.js');
+const refLayout=file('laria-reference-layout-v1.js');
+const kinnStyle=file('laria-kinnaklova-unified-v1.css');
+assert.match(kinnaklova,/const LOCKED_ART='\.\/assets\/kinnaklova\/kinnaklova-scene-clean-approved-20261026\.webp'/,
+ 'English must retain the exact locked Kinnaklova landscape');
+assert.match(kinnaklova,/const UI_FREE_ART_VISUAL_SIGNOFF=false/,
+ 'An unreviewed sign removal must not become production art');
+assert.match(kinnaklova,/const UI_FREE_ART_SHA256=''/,
+ 'Do not invent an approved checksum for a nonexistent cleaned source');
+assert.match(kinnaklova,/PREMIUM_CLEAN_ART_APPROVED\?UI_FREE_ART:LOCKED_ART/,
+ 'Unapproved English must keep its original landscape');
+assert.match(refLayout,/english:'Kinnaklova'/,
+ 'Engelsk must share the same reference heading as Norsk and Matte');
+assert.match(refLayout,/english:\{words:'words',sentences:'sentences',reading:'reading'\}/,
+ 'Engelsk must keep all three actual learning destinations');
+assert.match(refLayout,/scene\.closest\('#kinnaklova-world'\)\?\.dataset\.kiPremiumArt!=='approved'/,
+ 'Kinnaklova cannot gain duplicate signs while its painting contains signs');
+assert.match(kinnStyle,/--ref-menu-width:/,
+ 'Engelsk must use the same left rail dimensions');
+assert.match(kinnStyle,/laria-grovanova-signposts\.svg/,
+ 'Engelsk must use the same two continuous posts');
+
 assert.match(home,/kjosnes-home-phone\.webp/,'Grovanova phone master must remain intact');
 
 for(const id of ['storesoster','lillesoster','lillebror']){

@@ -457,7 +457,20 @@ async function testEngine(engine,name,device,viewport){
   await page.locator('#home-screen .bc14-subject[data-camp="subject-english"]').click();
   const english=page.locator('#kinnaklova-world:visible');
   await english.waitFor({state:'visible',timeout:18000});
-  assert.equal(await english.locator('.laria-reference-subject-nav').count(),0);
+  const cleanArtApproved=(await english.getAttribute('data-ki-premium-art'))==='approved';
+  if(cleanArtApproved){
+    const stage=english.locator('.ki-stage.laria-reference-layout-v1');
+    await stage.waitFor({state:'visible',timeout:18000});
+    assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit.laria-wayfinder').count(),3,
+      'Clean Engelsk must have the same three real left-hand signs');
+    assert.equal(await stage.locator('.ki-world-brand').count(),1,
+      'Clean Engelsk must use one shared Læria wordmark');
+  }else{
+    assert.equal(await english.locator('.laria-reference-subject-nav').count(),0,
+      'Locked painted English art cannot receive duplicate live planks');
+    assert.equal(await english.locator('.ki-world-brand').count(),0,
+      'Do not overlay the logo baked into the locked October image');
+  }
   await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:22000});
   // Historical art may decode successfully, but its baked-in title/signs
   // can NEVER satisfy the November premium clean-master gate.
