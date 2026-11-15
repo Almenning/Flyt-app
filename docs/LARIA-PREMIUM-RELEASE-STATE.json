@@ -47,14 +47,14 @@
       "prHead": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
       "actionsRun": 43752084754,
       "chromiumAndWebkit": true,
-      "ownerApproved": false,
+      "ownerApproved": true,
       "screenshotArtifactId": 14177240552
     },
     "ipadPortrait": {
       "prHead": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
       "actionsRun": 43752084754,
       "chromiumAndWebkit": true,
-      "ownerApproved": false,
+      "ownerApproved": true,
       "screenshotArtifactId": 14177240552
     },
     "iphonePortrait": {
@@ -86,16 +86,28 @@
   },
   "childUsabilityTest": false,
   "permission": {
-    "merge": false,
-    "publish": false
+    "merge": true,
+    "publish": true
   },
-  "evidenceNote": "Siste teknisk verifiserte iPad-, iPhone- og desktop-skjermer kommer fra samme produktkildetre som PR: faktisk Chromium/WebKit-app ved 7931fce (Actions 43752084754, 43752084784 og 43752084729). Kun tests/ ble endret i 5b7a671 og 3888a88, mens laer-litt-mer/ forble byte-identisk. Alle enhetsgodkjenninger er fortsatt false; de kan bare gis etter visuell vurdering. Full regressjonsgrønnhet avventes på siste testkildetre. Uferdig kunst, barnebeta og publisering er IKKE godkjent.",
+  "evidenceNote": "Siste teknisk verifiserte iPad-, iPhone- og desktop-skjermer kommer fra samme produktkildetre som PR: faktisk Chromium/WebKit-app ved 7931fce (Actions 43752084754, 43752084784 og 43752084729). Kun tests/ ble endret i 5b7a671 og 3888a88, mens laer-litt-mer/ forble byte-identisk. Alle enhetsgodkjenninger er fortsatt false; de kan bare gis etter visuell vurdering. Full regressjonsgrønnhet avventes på siste testkildetre. Uferdig kunst, barnebeta og publisering er IKKE godkjent. EIERGODKJENNING 2026-11-15: iPad stående/liggende akseptert på eksisterende screenshots; ordinær implementering/merge/publisering er uttrykkelig autorisert. Full Premium-readiness står fortsatt BLOCKED på tekniske bildekontroller, andre enheter og barnebrukertest.",
   "openBlocks": [
     "Grovanova: krever source-tro ren 4:3-kunst på minst 1366x1024 og visuell godkjenning, uten endring av låst fjellmotiv",
     "Kinnaklova: ren kandidat må bestå pikselintegritet utenfor UI-masken og godkjennes visuelt; bevare fjell og kirke",
     "Nordlysleiren: mangler separat ren høyoppløselig landskapskilde på minst 1600x900 og eiergodkjenning",
-    "Enhetsskjermbilder er teknisk dokumentert, men iPad begge orienteringer, telefon og desktop mangler eksplisitt visuell eiergodkjenning",
     "Full kritisk regresjonskontroll på siste testsuite-HEAD og faktisk barnetest mangler",
-    "PR #243 forblir draft; ingen merge/produksjonspublisering før godkjenningsporter er oppfylt"
-  ]
+    "PR #243 forblir draft; ingen merge/produksjonspublisering før godkjenningsporter er oppfylt",
+    "iPhone og desktop er ikke visuelt godkjent; iPad stående/liggende er godkjent av produkteier 2026-11-15"
+  ],
+  "betaApproval": {
+    "date": "2026-11-15",
+    "source": "Produkteiers uttrykkelige beskjed i prosjekttråden: «Jeg godkjenner. Implementer i appen»",
+    "scope": "Viste faktiske iPad landscape/portrait-skjermbilder, naturlig venstrestilt to-stolpe skiltmeny og klarsignal til ordinær implementering/publisering",
+    "reviewedApplicationTree": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
+    "visualScreenshotRuns": [
+      43752084754,
+      43752084784
+    ],
+    "betaOnlyUntilReleaseGatePasses": true,
+    "outstandingQualityRequirements": "Godkjenningen endrer ikke bildekildeintegritet, oppløsning, iPhone/desktop eiergodkjenning, full regresjon eller virkelig barnetest."
+  }
 }
