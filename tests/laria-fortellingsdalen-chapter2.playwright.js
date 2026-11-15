@@ -15,7 +15,12 @@ const seed={
   answerLog:[],sessionLog:[],activeSession:null
 };
 async function openChooser(page){
-  await openHomeSubject(page,'norwegian');
+  // The opening visit uses the visible child sign. During the internal
+  // chapter picker test, the child may still be inside Norsk after closing
+  // the picker; reenter the already active subject without targeting Home.
+  if(await page.locator('#home-screen.active .bc12.bc15-locked-home').isVisible())
+    await openHomeSubject(page,'norwegian');
+  else await page.evaluate(()=>openSubject('norwegian'));
   const launcher=page.locator('[data-laria-chapter2-preview="1"]');
   await launcher.waitFor({state:'attached',timeout:12000});
   const opened=await page.evaluate(()=>window.LARIA_NORWEGIAN_CHAPTER_PICKER?.open({
