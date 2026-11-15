@@ -38,7 +38,8 @@ jobs:
         run: |
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
-          # checkout added safe.directory only to its temporary HOME. The\n          # following root-owned container shell needs its OWN Git safe entry.\n          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          # Checkout's safe-directory entry is temporary; this container needs its own.
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           echo "working-directory: $PWD"
           test -d .git
           git status --short
