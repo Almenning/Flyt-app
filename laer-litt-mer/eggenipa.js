@@ -67,6 +67,7 @@
         '<button type="button" data-eg="resume">Fortsett økten ›</button></section>':'');
     if(!screen.classList.contains('eggenipa-active'))screen.classList.add('eggenipa-active');
     root.hidden=false;
+    window.LARIA_IPAD_RAILS?.mount?.(root,'norwegian');
   }
   screen.addEventListener('click',event=>{
     const button=event.target.closest?.('#eggenipa-world [data-eg]');

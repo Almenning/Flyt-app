@@ -56,7 +56,9 @@ async function verify(engine,label,viewport){
      const saved=await page.evaluate(key=>state.journey.nodes[key],marked.norwegian.key);
      assert.equal(saved?.passed,true,label+' Norwegian historical checkpoint was lost');
      assert.equal(saved?.best,5,label+' Norwegian checkpoint evidence changed');
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     const oak=page.locator('#eggenipa-world nav.laria-ipad-left-rail [data-eg="reading"]');
+     if(await oak.count())await oak.click();
+     else await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
      await page.locator('#session-screen.active').waitFor({timeout:16000});
      await page.locator('#close-session').click();
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
@@ -142,6 +144,10 @@ async function verify(engine,label,viewport){
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
+   if(subject==='geography'){
+     const enterMap=page.locator('#laria-geography-world nav.laria-ipad-left-rail [data-gv="journey"]');
+     if(await enterMap.count()){await enterMap.waitFor({state:'visible'});await enterMap.click();}
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map');
    await root.waitFor({timeout:16000});
    await page.waitForFunction(s=>{
@@ -197,6 +203,10 @@ async function verify(engine,label,viewport){
    }
    assert(replayable,label+' '+title+' lost checkpoint ID '+marked[subject].id);
    await root.locator('.locked-journey-back').click();
+   if(subject==='geography'){
+     const land=page.locator('#laria-geography-world .gv-home');
+     if(await land.isVisible())await land.click();
+   }
    if(subject==='norwegian'){
      // Preserve saved checkpoint data through Bokskogen -> Eggenipa -> Home.
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});

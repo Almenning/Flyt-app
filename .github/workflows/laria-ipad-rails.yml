@@ -1,0 +1,47 @@
+name: Læria iPad left rail QA
+on:
+  push:
+    branches: [feat/laria-ipad-unified-left-rails-20261115]
+    paths:
+      - .github/workflows/laria-ipad-rails.yml
+      - laer-litt-mer/laria-ipad-subject-rails-v1.*
+      - laer-litt-mer/eggenipa.js
+      - laer-litt-mer/tallvika.js
+      - laer-litt-mer/geography-kinnaklova-scene.*
+      - laer-litt-mer/index.html
+      - tests/laria-ipad-left-rails.playwright.js
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  tablet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Check JavaScript
+        run: |
+          node --check laer-litt-mer/laria-ipad-subject-rails-v1.js
+          node --check laer-litt-mer/geography-kinnaklova-scene.js
+          node --check laer-litt-mer/eggenipa.js
+          node --check laer-litt-mer/tallvika.js
+          node --check tests/laria-ipad-left-rails.playwright.js
+      - name: Start preview
+        run: python3 -m http.server 8765 --directory . >/tmp/laria-ipad-server.log 2>&1 &
+      - name: Verify iPad landscape and portrait in Chromium and WebKit
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_IPAD_RAIL_SHOTS: /tmp/laria-ipad-rails
+        run: node tests/laria-ipad-left-rails.playwright.js
+      - name: Actual iPad screens
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-ipad-left-rail-devices
+          path: /tmp/laria-ipad-rails
+          if-no-files-found: warn

@@ -172,8 +172,11 @@ async function verifyBasecamp(page,label,width,height){
   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
     label+' retired Norwegian map visible');
   await noOverflow(page,label+' Eggenipa');
-  assertTap(await rect(page,'#eggenipa-world .eg-portal[data-eg="reading"]'),label+' Lesekroken entry');
-  await norwegian.locator('.eg-portal[data-eg="reading"]').tap();
+  const ipadReading='#eggenipa-world nav.laria-ipad-left-rail [data-eg="reading"]';
+  const readingEntry=await page.locator(ipadReading).count()?ipadReading:
+    '#eggenipa-world .eg-portal[data-eg="reading"]';
+  assertTap(await rect(page,readingEntry),label+' Lesekroken entry');
+  await page.locator(readingEntry).tap();
   await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
   assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian',label+' wrong subject');
   assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',label+' wrong Norsk module');

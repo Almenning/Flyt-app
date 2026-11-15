@@ -117,6 +117,10 @@ async function returnFromJourney(page,root,label,subject){
  const floating=root.locator('.locked-journey-floating-back');
  const useFloating=await floating.isVisible();
  await (useFloating?floating:native).click();
+ if(subject==='geography'){
+  const landing=page.locator('#laria-geography-world .gv-home');
+  if(await landing.isVisible())await landing.click();
+ }
  try{await page.locator('#home-screen.active').waitFor({timeout:16000});}
  catch(error){
   const evidence=await page.evaluate(()=>{
@@ -259,7 +263,9 @@ async function run(engine,label,viewport){
        label+' Norsk direct learning routes are missing');
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' legacy Bokskogen map leaked into Norsk');
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     const ipadRead=page.locator('#eggenipa-world nav.laria-ipad-left-rail [data-eg="reading"]');
+     if(await ipadRead.count())await ipadRead.click();
+     else await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',
        label+' Lesekroken opened the wrong module');
@@ -332,6 +338,10 @@ async function run(engine,label,viewport){
      // missions and node IDs are reachable through the Bokskogen portal.
      await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
+   if(subject==='geography'){
+    const journey=page.locator('#laria-geography-world nav.laria-ipad-left-rail [data-gv="journey"]');
+    if(await journey.count()){await journey.waitFor({state:'visible',timeout:16000});await journey.click();}
    }
    const isTallvika=subject==='math';
    const base=isTallvika?'#subject-screen.active #tallvika-world':
@@ -419,6 +429,11 @@ async function run(engine,label,viewport){
    assert.equal(finished.last.countsTowardGoal,true,label+' fresh mission did not count toward daily goal');
    assert.equal(finished.goal,1,label+' daily goal not updated after completion');
    await page.locator('#complete-home').click();
+   if(subject==='geography'){
+     // Enter the saved journey again from the new Nordlysleiren facade.
+     const entry=page.locator('#laria-geography-world nav.laria-ipad-left-rail [data-gv="journey"]');
+     if(await entry.isVisible())await entry.click();
+   }
    if(subject==='norwegian'){
      // Resumed missions start on Home; the map origin is not persisted.
      // Reopen Bokskogen to verify real saved node progress after completion.

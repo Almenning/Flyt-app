@@ -22,7 +22,9 @@ async function assertScene(page,label){
   const audit=await scene.evaluate(el=>{const r=el.getBoundingClientRect();return {w:r.width,h:r.height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth,bg:getComputedStyle(el).backgroundImage};});
   assert.ok(audit.w>250&&audit.h>140,label+' has no substantial illustration');
   assert.ok(audit.scroll<=audit.client+2,label+' horizontal overflow');
-  assert.match(audit.bg,/laria-tallvika-premium-locked-20261027\.png/,label+' wrong locked scene master');
+  const ipad=await page.evaluate(()=>window.LARIA_IPAD_RAILS?.enabled());
+  assert.match(audit.bg,ipad?/tallvika-fjord-no-buildings-(wide|portrait)-20261107\.webp/:/laria-tallvika-premium-locked-20261027\.png/,
+    label+' wrong approved scene for this device');
 }
 async function run(browserType,label,viewport){
   const browser=await browserType.launch({headless:true,args:browserType===chromium?['--no-sandbox']:[]});
@@ -36,7 +38,16 @@ async function run(browserType,label,viewport){
     await page.locator('#tallvika-world [data-tv="grade"]').click();await page.locator('.tv-grade-dialog[open]').waitFor();await page.locator('[data-tv-grade="3"]').click();
     assert.deepEqual(await page.evaluate(()=>[window.LARIA_TALLVIKA_BRIDGE.currentGrade(),window.LARIA_TALLVIKA_BRIDGE.journeyViewGrade('math')]),[2,3],label+' grade picker changed profile grade');
     // Troll choice remains persisted for existing activity runtime without changing learning data.
-    await page.locator('#tallvika-world [data-tv="choose"]').click();await page.locator('.tv-dialog[open]').waitFor();await page.locator('[data-tv-troll="lillebror"]').click();
+    const ipad=await page.evaluate(()=>window.LARIA_IPAD_RAILS?.enabled());
+    if(ipad){
+      await page.locator('#tallvika-world .laria-ipad-actor').click();
+      await page.locator('dialog.laria-ipad-chooser[open]').waitFor();
+      await page.locator('dialog.laria-ipad-chooser [data-laria-ipad-troll="lillebror"]').click();
+    }else{
+      await page.locator('#tallvika-world [data-tv="choose"]').click();
+      await page.locator('.tv-dialog[open]').waitFor();
+      await page.locator('[data-tv-troll="lillebror"]').click();
+    }
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),'lillebror',label+' troll selection did not persist');
     // Each painted destination opens its existing activity and returns in one tap.
     await page.locator('.tv-hotspot[data-tv="multiply"]').click();await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});
