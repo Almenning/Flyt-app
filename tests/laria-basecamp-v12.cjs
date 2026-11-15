@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 (async()=>{
  const screenshots=process.env.QA_SCREENSHOTS||'/tmp/laria-v12-qa';fs.mkdirSync(screenshots,{recursive:true});
  const errors=[];
@@ -70,7 +71,18 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.screenshot({path:`${screenshots}/${name}.png`,fullPage:true});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow');
 
-  assert.equal(await page.locator('.bc14-subject:visible').count(),4,name+' subject-first Home missing four illustrated subjects');
+  // A true clean iPad Home must not leave ANY of the four retired bottom
+  // subject touch areas active. Phone and fallback continue to use them.
+  const artState=await page.locator('.bc12.bc15-locked-home').getAttribute('data-bc15-card-art');
+  if(artState==='clean-candidate'){
+    assert.equal(await page.locator('.bc14-subject:visible').count(),0,
+      name+' a retired bottom subject hotspot was left active');
+    assert.equal(await page.locator('.bc15-subject-signs button:visible').count(),4,
+      name+' all four real left-hand oak subject signs must be visible');
+  }else{
+    assert.equal(await page.locator('.bc14-subject:visible').count(),4,
+      name+' original Home fallback lost a subject hotspot');
+  }
   await page.locator('.bc12-nav [data-camp="explore"]').tap();
   await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor();
   assert.equal(await page.locator('.bc12.bc15-locked-home').count(),0,name+' locked Home must yield to the existing Explore map-board');
@@ -159,10 +171,9 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   });
   await page.locator('.bc12-nav [data-camp="home"]').tap();
   // "Fortsett reisen" tracks the most recent subject, which may be Maths.
-  // Enter Norsk through its explicit, real Home card.
-  const norsk=page.locator('#home-screen.active .bc14-subject[data-camp="subject-norwegian"]');
-  await norsk.waitFor({state:'visible',timeout:12000});
-  await norsk.tap();
+  // Enter Norsk through the child's visible Home navigation. On iPad this
+  // is the unified left wood rail, NOT a deleted or hidden bottom card.
+  await openHomeSubject(page,'norwegian');
   try{
     await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
   }catch(error){
