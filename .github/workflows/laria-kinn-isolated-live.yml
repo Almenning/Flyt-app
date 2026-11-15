@@ -1,0 +1,51 @@
+name: Læria Kinnaklova isolated release QA
+on:
+  push:
+    branches: [fix/laria-kinnaklova-left-rail-live-20261115, main]
+    paths:
+      - .github/workflows/laria-kinn-isolated-live.yml
+      - laer-litt-mer/kinnaklova.js
+      - laer-litt-mer/kinnaklova.css
+      - laer-litt-mer/kinnaklova-standalone-v1.*
+      - laer-litt-mer/laria-kinnaklova-unified-v1.css
+      - laer-litt-mer/assets/kinnaklova/**
+      - tests/laria-kinnaklova-left-rail.playwright.js
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/laria-kinn-isolated-live.yml
+      - laer-litt-mer/kinnaklova.js
+      - laer-litt-mer/kinnaklova-standalone-v1.*
+      - laer-litt-mer/assets/kinnaklova/**
+      - tests/laria-kinnaklova-left-rail.playwright.js
+permissions:
+  contents: read
+jobs:
+  kinnaklova-isolated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Check script syntax
+        run: |
+          node --check laer-litt-mer/kinnaklova.js
+          node --check laer-litt-mer/kinnaklova-standalone-v1.js
+          node --check tests/laria-kinnaklova-left-rail.playwright.js
+      - name: Start preview
+        run: python3 -m http.server 8765 --directory . >/tmp/laria-http.log 2>&1 &
+      - name: Test Kinnaklova real activity and locked visual system on iPad / iPhone
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_KINNAKLOVA_SCREENSHOTS: /tmp/laria-kinn-isolated
+        run: node tests/laria-kinnaklova-left-rail.playwright.js
+      - name: Upload real device screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-kinnaklova-isolated-screenshots
+          path: /tmp/laria-kinn-isolated
+          if-no-files-found: warn
