@@ -45,7 +45,10 @@ async function homeReady(page,label){
    label+' historical Grovanova art was incorrectly marked clean and premium-approved');
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
  const portrait=label.includes('iphone')||(label.includes('ipad')&&!label.includes('landscape'));
- const expected=portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp';
+ const cardArt=await home.getAttribute('data-bc15-card-art');
+ const expected=cardArt==='clean-candidate'?
+  (portrait?'kjosnes-home-phone-no-bottom-cards.webp':'kjosnes-home-tablet-no-bottom-cards.webp'):
+  (portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp');
  assert(art.includes(expected),label+' must use the exact locked WebP master: '+art);
  const natural=await home.evaluate(async el=>{
    const raw=getComputedStyle(el).getPropertyValue('--bc15-home-art');
@@ -153,7 +156,16 @@ async function run(engine,label,viewport){
    const liveNextText=(await page.locator('.bc15-live-next').innerText()).trim();
    assert(liveNextText.includes(originalNext),label+' live next-stop copy must mirror journey state');
    assert.match(liveNextText,/^(Pågående|Neste stopp) · /,label+' journey status must use the compact integrated label');
-   assert.equal(await page.locator('.bc14-subject:visible').count(),4,label+' must keep four real subject hit areas');
+   const cleanHome=(await home.getAttribute('data-bc15-card-art'))==='clean-candidate';
+   const visibleOldCards=await page.locator('.bc14-subject:visible').count();
+   assert.equal(visibleOldCards,cleanHome?0:4,
+     label+' must hide all four old bottom hit areas ONLY when original-faithful clean artwork loaded');
+   if(cleanHome){
+    assert.equal(await home.locator('.bc15-subject-signs button:visible').count(),4,
+      label+' no-card Home must instead provide four working oak signs');
+    assert.equal(await home.locator('.bc14-subjects').getAttribute('aria-hidden'),'true');
+    assert.equal(await home.locator('.bc14-subjects').evaluate(el=>el.inert),true);
+   }
    assert.equal(await page.locator('.bc12-journey:visible').count(),1,label+' journey action must stay real');
    assert.equal(await page.locator('.bc12-fox:visible').count(),0,label+' old fox must not be visible on Home v15');
    assert.equal(await page.locator('.bc12-fox-call:visible').count(),0,label+' old fox callout must not be visible');
@@ -192,7 +204,10 @@ async function run(engine,label,viewport){
      return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,liveCopyShadow:liveCopyStyle.boxShadow,liveNextShadow:liveNextStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
-   assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
+   if(cleanHome)assert(geom.cards.every(r=>r.width===0&&r.height===0),
+     label+' removed bottom hotspot still has touch geometry');
+   else assert(geom.cards.every(r=>r.width>=44&&r.height>=44),
+     label+' fallback subject hotspot too small '+JSON.stringify(geom.cards));
    assert(geom.journey.width>=44&&geom.journey.height>=44,label+' journey touch target too small');
    assert(geom.liveNext.x>=geom.journey.x-2&&geom.liveNext.right<=geom.journey.right+2&&
      geom.liveNext.y>=geom.journey.y-2&&geom.liveNext.bottom<=geom.journey.bottom+2,
@@ -221,7 +236,7 @@ async function run(engine,label,viewport){
      label+' safe-area fill must not repeat logo, gear, text or other painted UI from the locked artwork');
    if(portrait){
      assert(geom.artLeft>=-1&&geom.artLeft+geom.artWidth<=geom.viewport+1,
-       label+' portrait artwork must not crop the subject cards/navigation: '+JSON.stringify({artLeft:geom.artLeft,artWidth:geom.artWidth,viewport:geom.viewport}));
+       label+' portrait artwork must not crop the locked original/navigation: '+JSON.stringify({artLeft:geom.artLeft,artWidth:geom.artWidth,viewport:geom.viewport}));
      assert.notEqual(geom.liveNextBg,'none',
        label+' portrait journey status must cover baked placeholder text instead of ghosting over it');
      if(label.includes('iphone')){
