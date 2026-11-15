@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Visual acceptance evidence from ACTUAL iPad app, not concept pictures.
  * Preview remains opt-in; Grovanova and Kinnaklova art are blocked. */
 const assert=require('node:assert/strict');
@@ -30,7 +31,7 @@ async function testEngine(engine,name,device,viewport){
    const normal=base.replace(/([?&])lariaReferenceLayout=[^&]*&?/g,'$1').replace(/[?&]$/,'');
    await page.goto(normal,{waitUntil:'domcontentloaded',timeout:90000});
    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
-   await page.locator('#home-screen .bc14-subject[data-camp="subject-geography"]').click();
+   await openHomeSubject(page,'geography');
    const defaultGeography=page.locator('#laria-geography-world .gv-scene.laria-reference-layout-v1');
    await defaultGeography.waitFor({state:'visible',timeout:20000});
    assert.equal(await defaultGeography.locator('button.laria-reference-heading strong').textContent(),'Geografi');
@@ -38,7 +39,7 @@ async function testEngine(engine,name,device,viewport){
    assert.equal(await defaultGeography.locator('nav.laria-reference-subject-nav:visible').count(),0);
    await page.goto(normal+(normal.includes('?')?'&':'?')+'lariaReferenceLayout=0',{waitUntil:'domcontentloaded',timeout:90000});
    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
-   await page.locator('#home-screen .bc14-subject[data-camp="subject-geography"]').click();
+   await openHomeSubject(page,'geography');
    await page.locator('#laria-geography-world .gv-scene').waitFor({state:'visible',timeout:20000});
    assert.equal(await page.locator('#laria-geography-world .gv-scene.laria-reference-layout-v1').count(),0,
     'Explicit opt-out must preserve the original Geography presentation');
@@ -49,7 +50,7 @@ async function testEngine(engine,name,device,viewport){
   await fs.promises.mkdir(out,{recursive:true});
   await page.screenshot({path:path.join(out,name+'-'+device+'-home-art-blocked.png'),animations:'disabled'});
   for(const world of worlds){
-   await page.locator('#home-screen .bc14-subject[data-camp="subject-'+world.id+'"]').click();
+   await openHomeSubject(page,world.id);
    const scene=page.locator(world.root);
    await scene.waitFor({state:'visible',timeout:20000});
    // The real selected TrollActor greets the child once on first entrance.
@@ -401,7 +402,7 @@ async function testEngine(engine,name,device,viewport){
   }
   // A quick click must NOT open the protected parent area. The exact same
   // deliberate long press as the original Home gate must open it on iPad.
-  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  await openHomeSubject(page,'norwegian');
   const gate=page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-reference-settings');
   await gate.waitFor({state:'visible',timeout:15000});
   await gate.click();
@@ -414,7 +415,7 @@ async function testEngine(engine,name,device,viewport){
   await home.waitFor({state:'visible',timeout:16000});
   // Test the new five-sign navigation itself, not only a return to Home.
   // Clicking an inactive subject must reuse the original child routes.
-  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  await openHomeSubject(page,'norwegian');
   await page.locator('#eggenipa-world .laria-reference-heading').click();
   await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="math"]').click();
   await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
@@ -430,7 +431,7 @@ async function testEngine(engine,name,device,viewport){
   // The three signs are the actual learning routes, not decorative labels.
   // Exercise two independent activity engines through their real DOM buttons
   // and confirm their Back actions restore the same subject artwork.
-  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  await openHomeSubject(page,'norwegian');
   // The three original activity signs are visible on entry.
   await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-scene-hit[data-eg="words"]').click();
   const wordHunt=page.locator('#word-hunt-overlay:not([hidden])');
@@ -444,7 +445,7 @@ async function testEngine(engine,name,device,viewport){
   await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-reference-heading').click();
   await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:16000});
-  await page.locator('#home-screen .bc14-subject[data-camp="subject-math"]').click();
+  await openHomeSubject(page,'math');
   // The three original activity signs are visible on entry.
   await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-sign[data-tv="multiply"]').click();
   await page.locator('#multiplication-lab-screen.active').waitFor({state:'visible',timeout:17000});
@@ -454,7 +455,7 @@ async function testEngine(engine,name,device,viewport){
   await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1 .laria-reference-heading').click();
   await page.locator('#tallvika-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:16000});
-  await page.locator('#home-screen .bc14-subject[data-camp="subject-english"]').click();
+  await openHomeSubject(page,'english');
   const english=page.locator('#kinnaklova-world:visible');
   await english.waitFor({state:'visible',timeout:18000});
   const cleanArtApproved=(await english.getAttribute('data-ki-premium-art'))==='approved';
