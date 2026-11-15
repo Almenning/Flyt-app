@@ -103,6 +103,9 @@ async function returnFromLockedJourney(page,screen,subject,label){
    const utility=world.locator('.ki-utility [data-ki="home"]');
    if(await utility.isVisible())await utility.click();
    else await world.locator('.ki-painted-home').click();
+ }else if(subject==='geography'&&await page.locator('#laria-geography-world .gv-home:visible').count()){
+   // Geografi begins at Nordlysleiren; return with the real facade Home.
+   await page.locator('#laria-geography-world .gv-home').click();
  }else{
    const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});
