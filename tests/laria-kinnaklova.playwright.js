@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -20,9 +21,7 @@ async function shot(page,label){
  await page.screenshot({path:path.join(output,label+'.png'),fullPage:true,animations:'disabled'});
 }
 async function visitEnglish(page){
- const tile=page.locator('.bc14-subject[data-camp="subject-english"]');
- await tile.waitFor({state:'visible',timeout:25000});
- await tile.click();
+ await openHomeSubject(page,'english');
  await page.locator('#subject-screen.active #kinnaklova-world').waitFor({state:'visible',timeout:16000});
 }
 async function takeActivity(page,action,label){
@@ -252,7 +251,7 @@ async function run(browserType,name,viewport){
   const utility=world.locator('.ki-utility [data-ki="home"]');
   if(await utility.isVisible())await utility.click();
   else await world.locator('.ki-painted-home').click();
-  await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({timeout:16000});
   assert.deepEqual(errors,[],name+' runtime JS errors');
   console.log('[KINNAKLOVA]',name,'direct English, resume, return',art.ready?'ART READY':'ART MISSING (draft release gate)');
   await context.close();
