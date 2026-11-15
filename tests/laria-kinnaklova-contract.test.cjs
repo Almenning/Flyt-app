@@ -34,12 +34,12 @@ test('Approved scene is one painted 1672x941 image with mapped transparent targe
    'Browser must verify the exact checksum of a separately approved clean image');
  assert.match(js,/const UI_FREE_ART_VISUAL_SIGNOFF=true/,
    'The pixel-preserving edited Kinn image must be activated');
- assert.match(js,/const UI_FREE_ART_SHA256='298c9fa0887a3a9b73d9aff716c135357e73a305d11df9d19c0e52c534f85abe'/,
+ assert.match(js,/const UI_FREE_ART_SHA256='7878237645c369fde210830ded37704bc0dfeb1f6d78b86782a47f41e80b7f8d'/,
    'The app must verify the exact edited image checksum');
  const clean=app('assets/kinnaklova/kinnaklova-ui-free-approved.webp');
  assert.ok(fs.existsSync(clean),'The UI-free scene asset must be installed');
  assert.equal(crypto.createHash('sha256').update(fs.readFileSync(clean)).digest('hex'),
-   '298c9fa0887a3a9b73d9aff716c135357e73a305d11df9d19c0e52c534f85abe','The restored scene must pass an exact integrity check');
+   '7878237645c369fde210830ded37704bc0dfeb1f6d78b86782a47f41e80b7f8d','The restored scene must pass an exact integrity check');
  assert.match(js,/globalThis\.crypto\.subtle\.digest\('SHA-256'/);
  assert.match(js,/fetch\(ART,\{cache:'no-store'\}\)/);
  assert.doesNotMatch(js,/image\.src=trustedURL/,
