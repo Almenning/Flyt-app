@@ -196,6 +196,20 @@ async function testEngine(engine,name,device,viewport){
    const plaqueBox=await plaque.boundingBox();
    const menuBox=await nav.boundingBox();
    assert.ok(actorBox&&plaqueBox&&menuBox,world.id+' scene geometry unavailable');
+   // Landscape-aware placement: identical sign components, scene-specific
+   // anchors instead of one arbitrary 24% overlay on every iPad painting.
+   if(device.startsWith('ipad')){
+    const stageBox=await scene.boundingBox();
+    const anchors={
+     'ipad-landscape':{norwegian:.265,math:.275,geography:.30},
+     'ipad-portrait':{norwegian:.28,math:.27,geography:.30}
+    };
+    const expected=anchors[device][world.id];
+    const observed=(menuBox.y-stageBox.y)/stageBox.height;
+    assert.ok(Math.abs(observed-expected)<.017,
+      world.id+' signs are not naturally anchored to the approved terrain: '+
+      JSON.stringify({device,expected,observed}));
+   }
    assert.ok(actorBox.width>=240&&actorBox.height>=420,
      world.id+' original TrollActor is too small for the locked reference: '+JSON.stringify(actorBox));
    assert.ok(actorBox.x>menuBox.x+menuBox.width+8,
@@ -485,6 +499,15 @@ async function testEngine(engine,name,device,viewport){
     ['words','sentences','reading'],'Real activity routes must survive migration');
   const xcoords=await actions.evaluateAll(items=>items.map(el=>el.getBoundingClientRect().left));
   assert.ok(Math.max(...xcoords)-Math.min(...xcoords)<3,'All Kinn signs must align left');
+  if(device.startsWith('ipad')){
+   const stageBox=await english.locator('.ki-stage.laria-reference-layout-v1').boundingBox();
+   const railBox=await rail.boundingBox();
+   const expected=device==='ipad-landscape'?.185:.27;
+   const observed=(railBox.y-stageBox.y)/stageBox.height;
+   assert.ok(Math.abs(observed-expected)<.017,
+     'Kinnaklova signposts must sit against the left cliff, never on the church roof: '+
+     JSON.stringify({device,expected,observed}));
+  }
   await page.screenshot({path:path.join(out,name+'-'+device+'-english-unified-approved.png'),animations:'disabled'});
   assert.deepEqual(errors,[],name+'/'+device+' browser exceptions');
   const st=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));

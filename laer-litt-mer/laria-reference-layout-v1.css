@@ -13,7 +13,7 @@
     #laria-geography-world .gv-scene.laria-reference-layout-v1)
  > nav.laria-reference-subject-nav{
  box-sizing:border-box;position:absolute;z-index:26;
- left:var(--ref-left);right:auto;top:24%;bottom:auto;
+ left:var(--ref-left);right:auto;top:var(--ref-natural-rail-top,24%);bottom:auto;
  width:var(--ref-menu-width);margin:0;padding:0;border:0;
  background:none;display:flex;flex-direction:column;gap:6px;
  isolation:isolate;pointer-events:auto;
@@ -34,7 +34,7 @@
  * Both left menu modes use these exact components, never separate pairs. */
 .laria-reference-layout-v1 > :is(nav.laria-reference-subject-nav,nav.laria-scene-navigation){
  --ref-post-top:clamp(8px,1.4vh,16px);
- --ref-post-overhang:clamp(16px,4vh,46px);
+ --ref-post-overhang:var(--ref-natural-post-tail,clamp(16px,4vh,46px));
  isolation:isolate!important;
 }
 .laria-reference-layout-v1 > :is(nav.laria-reference-subject-nav,nav.laria-scene-navigation)::before{
@@ -182,7 +182,7 @@
     #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"]
  > nav.laria-scene-navigation{
  box-sizing:border-box!important;position:absolute!important;inset:auto!important;
- top:24%!important;left:var(--ref-left)!important;right:auto!important;bottom:auto!important;
+ top:var(--ref-natural-rail-top,24%)!important;left:var(--ref-left)!important;right:auto!important;bottom:auto!important;
  width:var(--ref-menu-width)!important;height:auto!important;min-height:0!important;
  max-height:none!important;aspect-ratio:auto!important;
  display:flex!important;flex-direction:column!important;align-items:stretch!important;
@@ -281,7 +281,7 @@
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1)
- > nav.laria-reference-subject-nav{top:26%;gap:6px}
+ > nav.laria-reference-subject-nav{top:var(--ref-natural-rail-top,26%);gap:6px}
  .laria-reference-layout-v1 .laria-reference-subject-sign{height:clamp(69px,8.9vh,90px)}
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
@@ -290,7 +290,7 @@
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1)
- > nav.laria-scene-navigation{top:26%!important;width:var(--ref-menu-width)!important;left:var(--ref-left)!important;right:auto!important}
+ > nav.laria-scene-navigation{top:var(--ref-natural-rail-top,26%)!important;width:var(--ref-menu-width)!important;left:var(--ref-left)!important;right:auto!important}
  #eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-companion-actor,
  #tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor,
  #laria-geography-world .gv-scene.laria-reference-layout-v1 .gv-troll{
@@ -532,7 +532,7 @@
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"]
-   > nav.laria-scene-navigation{top:26%!important}
+   > nav.laria-scene-navigation{top:var(--ref-natural-rail-top,26%)!important}
 }
 
 /* Phone portrait (review-only): reuse the same REAL sign components, not a
@@ -1047,5 +1047,39 @@
  #laria-geography-world .gv-scene.laria-reference-layout-v1
  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder > span.laria-reference-activity-icon{
   flex:0 0 19px!important;width:19px!important;height:19px!important;
+ }
+}
+/* iPad: landscape-aware ground placement, not an identical floating menu.
+ * One shared left-side oak sign rail remains; only its scene anchor and
+ * the length of its TWO common posts vary with the actual landscape.
+ * Never move the locked painted mountains, church, camp or TrollActor.
+ * Both the activity and five-subject modes inherit the same scene anchor.
+ * Other devices keep their separately reviewed responsive positioning. */
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px){
+ #eggenipa-world .eg-hero.laria-reference-layout-v1{
+  --ref-natural-rail-top:26.5%;
+  --ref-natural-post-tail:clamp(36px,5.2vh,68px);
+ }
+ #tallvika-world .tv-scene.laria-reference-layout-v1{
+  --ref-natural-rail-top:27.5%;
+  --ref-natural-post-tail:clamp(24px,4.3vh,54px);
+ }
+ #laria-geography-world .gv-scene.laria-reference-layout-v1{
+  --ref-natural-rail-top:30%;
+  --ref-natural-post-tail:clamp(18px,3.6vh,45px);
+ }
+}
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+ #eggenipa-world .eg-hero.laria-reference-layout-v1{
+  --ref-natural-rail-top:28%;
+  --ref-natural-post-tail:clamp(50px,7vh,105px);
+ }
+ #tallvika-world .tv-scene.laria-reference-layout-v1{
+  --ref-natural-rail-top:27%;
+  --ref-natural-post-tail:clamp(24px,3.7vh,52px);
+ }
+ #laria-geography-world .gv-scene.laria-reference-layout-v1{
+  --ref-natural-rail-top:30%;
+  --ref-natural-post-tail:clamp(24px,4vh,55px);
  }
 }

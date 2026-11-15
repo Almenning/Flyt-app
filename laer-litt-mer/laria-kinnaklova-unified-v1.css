@@ -42,7 +42,7 @@
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav,
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation{
   box-sizing:border-box!important;position:absolute!important;z-index:26!important;
-  top:24%!important;left:var(--ref-left)!important;right:auto!important;bottom:auto!important;
+  top:var(--ref-natural-rail-top,24%)!important;left:var(--ref-left)!important;right:auto!important;bottom:auto!important;
   width:var(--ref-menu-width)!important;height:auto!important;
   display:flex!important;flex-direction:column!important;align-items:stretch!important;
   gap:6px!important;margin:0!important;padding:0!important;border:0!important;
@@ -58,7 +58,7 @@
   content:""!important;position:absolute!important;display:block!important;
   z-index:-1!important;pointer-events:none!important;
   top:-12px!important;left:0!important;width:100%!important;
-  height:calc(100% + 48px)!important;
+  height:calc(100% + var(--ref-natural-post-tail,48px))!important;
   background:url("./assets/ui/laria-grovanova-signposts.svg") center/100% 100% no-repeat!important;
 }
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder{
@@ -206,4 +206,19 @@
 #kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
  .ki-stage.laria-reference-layout-v1 > .laria-reference-heading{
   visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
+/* Kinnaklova's left cliff is the sign support: the 3-sign rail must END
+ * above the church roof in landscape and on the grassy cliff in portrait.
+ * The approved original mountain, church and live character stay unchanged. */
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:landscape){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
+  --ref-natural-rail-top:18.5%;
+  --ref-natural-post-tail:22px;
+ }
+}
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
+  --ref-natural-rail-top:27%;
+  --ref-natural-post-tail:clamp(35px,4.7vh,64px);
+ }
 }
