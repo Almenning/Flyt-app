@@ -92,6 +92,27 @@ async function run(browserType,engine,name,viewport){
    const root=page.locator(spec.root+':visible');
    await root.waitFor({timeout:20000});
    if(spec.id==='english')await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:20000});
+   if(spec.id==='english'&&portrait&&viewport.width<=767&&viewport.height>=600){
+     // Regression: the old phone variant only painted a 219px panorama,
+     // stranding the entire rest of the iPhone on an empty beige field.
+     const stage=root.locator('.ki-stage.laria-reference-layout-v1');
+     await stage.waitFor({state:'visible',timeout:16000});
+     const frame=await stage.evaluate(el=>{
+       const r=el.getBoundingClientRect(),img=el.querySelector('.ki-master');
+       const rs=getComputedStyle(img);
+       return {top:r.top,bottom:r.bottom,width:r.width,height:r.height,
+         artFit:rs.objectFit,paintedArtReady:el.closest('#kinnaklova-world')?.dataset.kiArt};
+     });
+     assert.ok(frame.top>=-2&&frame.bottom>=viewport.height-2&&
+       frame.height>=viewport.height-2&&frame.width>=viewport.width-2,
+       engine+' '+name+' English must fill the iPhone screen, not a thin banner: '+JSON.stringify(frame));
+     assert.equal(frame.artFit,'cover',engine+' '+name+' English art must fill its approved scene');
+     assert.equal(frame.paintedArtReady,'ready',engine+' '+name+' English art integrity must remain ready');
+     assert.equal(await stage.locator('.laria-reference-heading:visible').count(),1,
+       engine+' '+name+' English needs the shared live heading');
+     assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
+       engine+' '+name+' all English wooden activities must remain available');
+   }
    const sign=root.locator(spec.sign);
    const board=root.locator(spec.paint);
    if(spec.id==='english')
