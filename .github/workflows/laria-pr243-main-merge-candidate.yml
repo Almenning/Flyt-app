@@ -77,9 +77,25 @@ jobs:
           mkdir -p /tmp/laria-merge-candidate
           python3 -m http.server 8765 --directory . > /tmp/laria-merge-candidate/http.log 2>&1 &
       - name: Browser QA of all iPad facades after preserving published main Kinn
+        shell: bash
         run: |
+          set -euo pipefail
           node tests/laria-visual-identity-v1.playwright.js
-          node tests/laria-reference-layout-v1.playwright.js
+          # WebKit can fail at page.goto with an *internal browser error* on
+          # CI. Retry just that transient browser crash once, never an app
+          # assertion, timeout, geometry regression or broken activity route.
+          if node tests/laria-reference-layout-v1.playwright.js > /tmp/laria-reference-attempt1.log 2>&1; then
+            cat /tmp/laria-reference-attempt1.log
+          else
+            cat /tmp/laria-reference-attempt1.log
+            if grep -Fq 'WebKit encountered an internal error' /tmp/laria-reference-attempt1.log; then
+              echo 'Transient WebKit navigation crash, one clean retry.'
+              node tests/laria-reference-layout-v1.playwright.js
+            else
+              echo 'A real iPad reference-layout test failure; no retry and no PR push.' >&2
+              exit 1
+            fi
+          fi
           node tests/laria-kinnaklova.playwright.js
           node tests/laria-wayfinder.playwright.js
           node tests/laria-home-kjosnes-v15.playwright.js
