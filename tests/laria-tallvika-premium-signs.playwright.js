@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /*
  * Visual QA for Kinnaklova-style separate wooden activity signs inside Tallvika.
  * Three navigable destinations, one selected troll and an unchanged approved landscape.
@@ -161,7 +162,7 @@ async function run(browserType,engine,device,viewport,sha){
     await page.route('https://raw.githubusercontent.com/**',route=>route.abort());
     await page.route('https://api.worldbank.org/**',route=>route.abort());
     await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
-    await page.locator('.bc14-subject[data-camp="subject-math"]').click();
+    await openHomeSubject(page,'math');
     const scene=page.locator('#subject-screen.active #tallvika-world .tv-scene');
     await scene.waitFor({state:'visible',timeout:18000});
     await page.evaluate(()=>document.fonts?.ready);
