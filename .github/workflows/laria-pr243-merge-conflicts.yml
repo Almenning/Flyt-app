@@ -34,6 +34,19 @@ jobs:
           git diff --name-only --diff-filter=U | sort > /tmp/laria-merge-audit/unmerged-paths.txt
           echo "unmerged paths: $(wc -l < /tmp/laria-merge-audit/unmerged-paths.txt)" >> /tmp/laria-merge-audit/report.txt
           git status --short > /tmp/laria-merge-audit/status.txt
+          # Preserve conflicted working files WITH merge markers plus all three
+          # stages. These are forensic copies, not anything deployed or merged.
+          while IFS= read -r conflict; do
+            [ -z "$conflict" ] && continue
+            for stage in base ours theirs markers; do
+              mkdir -p "/tmp/laria-merge-audit/conflicts/$stage/$(dirname "$conflict")"
+            done
+            git show ":1:$conflict" > "/tmp/laria-merge-audit/conflicts/base/$conflict"
+            git show ":2:$conflict" > "/tmp/laria-merge-audit/conflicts/ours/$conflict"
+            git show ":3:$conflict" > "/tmp/laria-merge-audit/conflicts/theirs/$conflict"
+            cp "$conflict" "/tmp/laria-merge-audit/conflicts/markers/$conflict"
+          done < /tmp/laria-merge-audit/unmerged-paths.txt
+          git diff --cc > /tmp/laria-merge-audit/combined-conflict-diff.txt
           if [ -f .git/MERGE_HEAD ]; then git merge --abort; fi
           cat /tmp/laria-merge-audit/report.txt
           cat /tmp/laria-merge-audit/unmerged-paths.txt
