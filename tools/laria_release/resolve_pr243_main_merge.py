@@ -82,7 +82,24 @@ def main():
     ordered=sorted(POLICY,key=lambda p:(0 if p.endswith('/kinnaklova.js') else 1,p))
     for filename in ordered:
         report.append(resolve(filename,POLICY[filename]))
-    subprocess.check_call(['git','add',*POLICY.keys()],cwd=ROOT)
+    # PR's original TrollActor test assumed Kinnaklova's clean art had not
+    # been shipped. main has since published the same SHA-locked clean art,
+    # with its own technical verification. Check that exact invariant rather
+    # than falsely testing for the old pre-release variable name.
+    old_test=ROOT/'tests/laria-premium-beta-trollactor.test.cjs'
+    old_text=old_test.read_text(encoding='utf8')
+    expected="assert.match(kinnaklova,/const UI_FREE_ART_VISUAL_SIGNOFF=true/,"
+    if old_text.count(expected)!=1:
+        raise RuntimeError('Stale Kinn trollactor contract changed unexpectedly')
+    revised=old_text.replace(expected,
+      "assert.match(kinnaklova,/const UI_FREE_ART_TECHNICALLY_VERIFIED=true/,",1)
+    revised=revised.replace(
+      "'An unreviewed sign removal must not become production art'",
+      "'The separately published source-faithful UI-free Kinn artwork must remain technically verified'")
+    old_test.write_text(revised,encoding='utf8')
+    report.append({'file':str(old_test.relative_to(ROOT)),'test_only':True,
+                   'reason':'published main technical SHA check'})
+    subprocess.check_call(['git','add',*POLICY.keys(),str(old_test.relative_to(ROOT))],cwd=ROOT)
     unresolved=subprocess.check_output(['git','ls-files','-u'],cwd=ROOT,text=True)
     if unresolved:raise RuntimeError('Unresolved index conflicts remain')
     for file in ('laer-litt-mer/index.html','laer-litt-mer/sw.js','laer-litt-mer/kinnaklova.js'):
