@@ -259,7 +259,9 @@ async function run(engine,label,viewport){
        label+' Norsk direct learning routes are missing');
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' legacy Bokskogen map leaked into Norsk');
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     const ipadRead=page.locator('#eggenipa-world nav.laria-ipad-left-rail [data-eg="reading"]');
+     if(await ipadRead.count())await ipadRead.click();
+     else await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',
        label+' Lesekroken opened the wrong module');
