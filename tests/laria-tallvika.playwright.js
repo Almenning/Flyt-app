@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
@@ -7,7 +8,7 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
 async function screenshot(page,name){if(output){fs.mkdirSync(output,{recursive:true});await page.screenshot({path:path.join(output,name+'.png'),fullPage:true,animations:'disabled'});}}
 async function enter(page){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
-  await page.locator('.bc14-subject[data-camp="subject-math"]').click();
+  await openHomeSubject(page,'math');
   await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:18000});
 }
 async function assertScene(page,label){

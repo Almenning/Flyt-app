@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const base=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
@@ -10,8 +11,7 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
  answerLog:[],sessionLog:[],activeSession:null};
 async function photo(page,label){if(!shots)return;fs.mkdirSync(shots,{recursive:true});await page.screenshot({path:path.join(shots,label+'.png'),animations:'disabled'})}
 async function english(page){
- const tile=page.locator('.bc14-subject[data-camp="subject-english"]');
- await tile.waitFor({timeout:20000});await tile.click();
+ await openHomeSubject(page,'english');
  await page.locator('#subject-screen.active').waitFor({timeout:16000});
 }
 async function enter(page){

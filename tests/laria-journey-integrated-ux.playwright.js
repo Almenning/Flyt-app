@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 // Integrated young journey smoke: the approved scene identity and task -> map return.
 // Runs against the real app engine and the real approved PNGs.
 const assert=require('node:assert/strict');
@@ -18,10 +19,10 @@ async function run(engine,label,viewport){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&journey-ux='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:16000});
   for(const [subject,world] of Object.entries(worlds)){
    const screen=subject==='geography'?'geography':'subject';
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await openHomeSubject(page,subject);
    if(subject==='norwegian'){
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      assert.deepEqual(await page.locator('#eggenipa-world .eg-portal').evaluateAll(a=>a.map(x=>x.dataset.eg)),
@@ -44,7 +45,7 @@ async function run(engine,label,viewport){
      assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,
        label+' historical progress was reset');
      await page.locator('#eggenipa-world [data-eg="home"]').click();
-     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
    }
    if(subject==='math'){
@@ -63,7 +64,7 @@ async function run(engine,label,viewport){
      await page.locator('#close-session').click();
      await tv.waitFor({state:'visible',timeout:16000});
      await tv.locator('[data-tv="back"]').click();
-     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
    }
    if(subject==='english'){
@@ -105,7 +106,7 @@ async function run(engine,label,viewport){
      const back=ki.locator('.ki-utility [data-ki="home"]');
      if(await back.isVisible())await back.click();
      else await ki.locator('.ki-painted-home').click();
-     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
    }
    if(subject==='geography'){
@@ -169,7 +170,7 @@ async function run(engine,label,viewport){
      await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
      await page.locator('#laria-geography-world [data-gv="home"]').click();
    }
-   await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');
   console.log('[journey integrated UX]',label,'Norsk and Geography maps, Tallvika and Kinnaklova direct worlds OK');

@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
@@ -24,8 +25,7 @@ async function assertCompactHint(page,textSelector,backSelector,viewport,label){
  assert.ok(button.height<=55,label+' Back button got too tall');
 }
 async function go(page,subject){await page.goto(base+flags,{waitUntil:'domcontentloaded'});
- const button=page.locator('.bc14-subject[data-camp="subject-'+subject+'"]');
- await button.waitFor({timeout:22000});await button.click();
+ await openHomeSubject(page,subject);
  const root=subject==='geography'?'#geography-screen.active':'#subject-screen.active';
  await page.locator(root).waitFor({timeout:18000});
 }
@@ -40,9 +40,7 @@ async function verifyDefaultChildNavigation(page,label){
  ];
  for(const [subject,selector] of entries){
   await page.goto(base,{waitUntil:'domcontentloaded'});
-  const home=page.locator('.bc14-subject[data-camp="subject-'+subject+'"]');
-  await home.waitFor({timeout:22000});
-  await home.click();
+  await openHomeSubject(page,subject);
   await page.locator(subject==='geography'?'#geography-screen.active':'#subject-screen.active')
    .waitFor({timeout:18000});
   assert.equal(await page.locator(selector).count(),0,

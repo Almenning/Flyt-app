@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Isolated production-safe Kinnaklova regression and screenshot QA. */
 const assert=require('node:assert/strict');
 const path=require('node:path');
@@ -16,9 +17,7 @@ const seed={
 };
 async function enter(page){
  await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
- const home=page.locator('#home-screen .bc14-subject[data-camp="subject-english"]');
- await home.waitFor({state:'visible',timeout:30000});
- await home.click();
+ await openHomeSubject(page,'english');
  await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:25000});
  const stage=page.locator('#kinnaklova-world .ki-stage.laria-reference-layout-v1');
  await stage.waitFor({state:'visible',timeout:16000});
@@ -96,7 +95,7 @@ async function poisonedArt(){
   await page.route('**/assets/kinnaklova/kinnaklova-ui-free-approved.webp',route=>
    route.fulfill({path:original,contentType:'image/webp'}));
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
-  await page.locator('#home-screen .bc14-subject[data-camp="subject-english"]').click();
+  await openHomeSubject(page,'english');
   const world=page.locator('#kinnaklova-world[data-ki-art="unapproved"]');
   await world.waitFor({timeout:22000});
   assert.equal(await world.locator('.ki-master').isVisible(),false,'Wrong art became visible');

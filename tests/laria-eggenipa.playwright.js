@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 // Approved Eggenipa art + direct Norsk play. No Bokskogen journey map.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -51,8 +52,7 @@ async function run(engine,browserType,view,viewport){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:80000});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({state:'visible',timeout:20000});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').tap();
+  await openHomeSubject(page,'norwegian');
   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
   const label=engine+'-'+view;
   const master=await page.locator('#eggenipa-world .eg-master').evaluate(async img=>{
