@@ -253,7 +253,9 @@ async function finishSession(page){
             'Retired Bokskogen map still visible');
           assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
             'Stored avatar preference changed when removing old Norwegian fox');
-          await p.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+          const ipadRead=p.locator('#eggenipa-world nav.laria-ipad-left-rail [data-eg="reading"]');
+           if(await ipadRead.count())await ipadRead.click();
+           else await p.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
           await p.locator('#session-screen.active .laria-task-card').waitFor();
           assert.equal(await p.evaluate(()=>sessionScope?.module),'reading','Norsk reading module changed');
           await p.locator('#close-session').click();
@@ -700,7 +702,9 @@ async function finishSession(page){
 
     // The same reading engine still starts real questions and records a
     // completed practice round, but must NOT overwrite journey nodes.
-    await eggenipa.locator('.eg-portal[data-eg="reading"]').click();
+    const ipadRead=eggenipa.locator('nav.laria-ipad-left-rail [data-eg="reading"]');
+     if(await ipadRead.count())await ipadRead.click();
+     else await eggenipa.locator('.eg-portal[data-eg="reading"]').click();
     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
     const reading=await page.evaluate(()=>({
       type:sessionScope?.type,
@@ -1132,7 +1136,10 @@ async function finishSession(page){
       }else if(subject==='english'){
         // Follow the live Kinnaklova portal, not the retired mixed English
         // shortcut that still preserves legacy chapter-journey behavior.
-        await page.locator('#subject-screen.active #kinnaklova-world .ki-card[data-ki="words"]').click();
+        const kinnSign=page.locator('#kinnaklova-world nav.laria-scene-navigation [data-ki="words"]');
+         await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:22000});
+         await kinnSign.waitFor({state:'visible',timeout:16000});
+         await kinnSign.click();
       }else{
         await page.evaluate(s=>startLearningSession(s,null,SUBJECTS[s]?.mission||'Blandet'),subject);
       }
