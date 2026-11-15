@@ -12,6 +12,11 @@ const state={
  skillEvidence:{},preferences:{sound:false,autoRead:false},lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{},chapterProgress:{}},answerLog:[],sessionLog:[],activeSession:null
 };
+async function openNorwegianActivity(page,id){
+ const oak=page.locator('#eggenipa-world nav.laria-ipad-left-rail [data-eg="'+id+'"]');
+ if(await oak.count()){await oak.waitFor({state:'visible',timeout:12000});await oak.tap();}
+ else await page.locator('#eggenipa-world .eg-portal[data-eg="'+id+'"]').tap();
+}
 async function shot(page,label,fullPage=false){
  if(!out)return;
  fs.mkdirSync(out,{recursive:true});
@@ -90,7 +95,7 @@ async function run(engine,browserType,view,viewport){
   }
   await shot(page,label+'-eggenipa',true);
 
-  await page.locator('#eggenipa-world .eg-portal[data-eg="words"]').tap();
+  await openNorwegianActivity(page,'words');
   await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-theme-picker:not([hidden])').waitFor({timeout:12000});
   assert.equal(await page.locator('#word-hunt-overlay .wh-theme-close').getAttribute('aria-label'),'Tilbake til Norsk',
     label+' theme back button names the wrong return world');
@@ -108,7 +113,7 @@ async function run(engine,browserType,view,viewport){
   await page.locator('#word-hunt-overlay .word-hunt-back').tap();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
 
-  await page.locator('#eggenipa-world .eg-portal[data-eg="find"]').tap();
+  await openNorwegianActivity(page,'find');
   await page.locator('#find-the-words-overlay:not([hidden])').waitFor({timeout:12000});
   assert.match(await page.locator('#find-the-words-overlay .fw-scene-image').getAttribute('src'),
     /find-the-words-garden-premium\.webp/,
@@ -143,7 +148,7 @@ async function run(engine,browserType,view,viewport){
   assert.equal(pictureSave.round,3,label+' painted garden round did not persist');
   assert.equal(pictureSave.track,'eggenipa',label+' premium round selection was not saved');
 
-  await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').tap();
+  await openNorwegianActivity(page,'reading');
   await page.locator('#session-screen.active').waitFor({timeout:14000});
   const question=await page.evaluate(()=>({
    subject:sessionScope?.subject,module:sessionScope?.module,grade:sessionScope?.grade,
