@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 1000" width="640" height="1000" aria-hidden="true" data-laria-grovanova-posts="two-shared">
+<title>To sammenhengende naturtrestolper som på Grovanova-forsiden</title>
+<!-- One pair belongs to the entire menu, NEVER to an individual board. -->
+<defs>
+ <linearGradient id="postwood" x1="0" y1="0" x2="1" y2="0">
+  <stop stop-color="#59351d"/><stop offset=".17" stop-color="#8d522a"/>
+  <stop offset=".42" stop-color="#cb8b4d"/><stop offset=".68" stop-color="#a66732"/>
+  <stop offset=".9" stop-color="#77431f"/><stop offset="1" stop-color="#513019"/>
+ </linearGradient>
+ <filter id="drop" x="-18%" y="-3%" width="138%" height="107%">
+  <feDropShadow dx="3" dy="2" stdDeviation="3" flood-color="#2e1c11" flood-opacity=".43"/>
+ </filter>
+</defs>
+<g filter="url(#drop)">
+ <path id="grovanova-post-left" d="M164 21 L172 7 213 10 224 26 219 149 224 312 217 447 225 641 220 816 223 987 211 999 169 998 162 910 164 754 158 590 166 435 161 250Z" fill="url(#postwood)" stroke="#70411d" stroke-width="4"/>
+ <path id="grovanova-post-right" d="M394 27 L404 8 449 9 458 25 455 178 458 327 451 500 462 700 453 891 455 989 445 998 405 999 391 975 396 776 390 581 399 404 392 225Z" fill="url(#postwood)" stroke="#70411d" stroke-width="4"/>
+ <g fill="none" stroke-linecap="round">
+  <path d="M177 40 Q186 210 179 351 T180 652 T178 982 M212 37 Q200 169 210 333 T205 661 T209 991 M407 38 Q424 200 409 350 T419 631 T411 983 M448 33 Q431 201 446 358 T440 666 T446 982" stroke="#f3bb78" stroke-width="4.5" opacity=".46"/>
+  <path d="M193 41 Q201 187 192 349 T190 679 T198 996 M433 44 Q422 245 432 411 T427 774 T432 985" stroke="#4c2c16" stroke-width="4" opacity=".51"/>
+  <path d="M169 97 l16 10 m-11 153 l12 8 m-11 306 l12 11 m228-382 l12-8 m-9 312 l18 10 m-18 298 l13 9" stroke="#71401e" stroke-width="5" opacity=".5"/>
+ </g>
+ <path d="M170 12 L209 15 219 26 165 24Z M400 16 L446 14 457 26 396 29Z" fill="#d69b57" stroke="#67401e" stroke-width="4"/>
+</g>
+</svg>
