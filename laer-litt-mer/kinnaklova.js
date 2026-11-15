@@ -15,8 +15,8 @@
   // The only acceptable next image is a pixel-faithful UI-clean derivative
   // of the locked source. Newly generated landscapes are prohibited.
   const UI_FREE_ART='./assets/kinnaklova/kinnaklova-ui-free-approved.webp';
-  const UI_FREE_ART_SHA256='';
-  const UI_FREE_ART_VISUAL_SIGNOFF=false;
+  const UI_FREE_ART_SHA256='298c9fa0887a3a9b73d9aff716c135357e73a305d11df9d19c0e52c534f85abe';
+  const UI_FREE_ART_VISUAL_SIGNOFF=true;
   const PREMIUM_CLEAN_ART_APPROVED=UI_FREE_ART_VISUAL_SIGNOFF&&
     /^[a-f0-9]{64}$/.test(UI_FREE_ART_SHA256);
   const ART=PREMIUM_CLEAN_ART_APPROVED?UI_FREE_ART:LOCKED_ART;
