@@ -1,0 +1,312 @@
+/* Læria iPad-only shared premium subject entrance, 15 November 2026.
+ * Same light oak plank, single continuous two-post rail and logo hierarchy as
+ * published Kinnaklova. Do not alter original paintings or the iPhone layout.
+ */
+@media (min-width:768px) and (min-height:700px) and (any-pointer:coarse) {
+ :is(#eggenipa-world,#tallvika-world,#laria-geography-world)[data-laria-ipad-rail]{
+  --laria-sign-art:url("./assets/ui/laria-light-arrow-sign.svg");
+  --laria-home-art:url("./assets/ui/laria-home-round.svg");
+  --laria-sign-ink:#3d2715;
+  --laria-sign-shadow:drop-shadow(0 5px 5px #231709c2);
+  --ref-left:3%;
+  --ref-menu-width:clamp(204px,21vw,270px);
+ }
+ #subject-screen.eggenipa-active,
+ #subject-screen.tallvika-active,
+ #geography-screen.gv-visible{
+  width:100vw!important;max-width:none!important;min-height:100dvh!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;
+ }
+ .app:has(#subject-screen.eggenipa-active),
+ .app:has(#subject-screen.tallvika-active),
+ .app:has(#geography-screen.gv-visible){
+  width:100%!important;max-width:none!important;min-height:100dvh!important;
+  padding:0!important;margin:0!important;overflow:visible!important;
+ }
+ body:has(#subject-screen.eggenipa-active),
+ body:has(#subject-screen.tallvika-active),
+ body:has(#geography-screen.gv-visible){overflow-x:hidden!important}
+ /* The original subject components continue to own their learning handlers. */
+ #eggenipa-world[data-laria-ipad-rail]{
+  width:100vw!important;height:100dvh!important;min-height:100dvh!important;
+  max-width:none!important;margin:0!important;padding:0!important;
+  position:relative!important;overflow:hidden!important;
+ }
+ #eggenipa-world .eg-hero.laria-ipad-stage{
+  display:block!important;width:100%!important;max-width:none!important;
+  height:100dvh!important;min-height:100dvh!important;aspect-ratio:auto!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;
+  background:#88aab0!important;position:relative!important;
+ }
+ #eggenipa-world .eg-hero.laria-ipad-stage .eg-master{
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;max-width:none!important;
+  object-fit:cover!important;object-position:50% 50%!important;
+  pointer-events:none!important;user-select:none!important;
+ }
+ #eggenipa-world .eg-top{
+  position:absolute!important;inset:0 0 auto!important;height:76px!important;
+  width:100%!important;max-width:none!important;margin:0!important;
+  padding:0!important;z-index:40!important;pointer-events:none!important;
+ }
+ #eggenipa-world .eg-top > *{pointer-events:auto!important}
+ #eggenipa-world .eg-top .eg-top-label{display:none!important}
+ #eggenipa-world .eg-intro,
+ #eggenipa-world .eg-portals,
+ #eggenipa-world .eg-next,
+ #eggenipa-world .eg-preview,
+ #eggenipa-world .eg-resume{display:none!important}
+ #tallvika-world[data-laria-ipad-rail]{
+  position:relative!important;width:100vw!important;height:100dvh!important;
+  min-height:100dvh!important;margin:0!important;padding:0!important;
+  overflow:hidden!important;background:#8fbbb9!important;
+ }
+ #tallvika-world .tv-top{
+  position:absolute!important;top:0!important;left:0!important;right:0!important;
+  width:100%!important;max-width:none!important;height:76px!important;
+  margin:0!important;padding:0!important;z-index:40!important;
+  pointer-events:none!important;
+ }
+ #tallvika-world .tv-top > :is(button,.tv-top-actions){pointer-events:auto!important}
+ #tallvika-world .tv-top .tv-top-brand,
+ #tallvika-world .tv-top button[data-tv="choose"]{display:none!important}
+ #tallvika-world .tv-main,#tallvika-world .tv-stage{
+  display:block!important;width:100%!important;max-width:none!important;
+  height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:0!important;
+ }
+ #tallvika-world .tv-scene.laria-ipad-stage{
+  position:relative!important;width:100%!important;max-width:none!important;
+  height:100dvh!important;min-height:100dvh!important;aspect-ratio:auto!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  background-image:url("./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp")!important;
+  background-size:cover!important;background-position:center center!important;
+  background-repeat:no-repeat!important;overflow:hidden!important;
+ }
+ #tallvika-world .tv-scene.laria-ipad-stage .tv-scene-copy,
+ #tallvika-world .tv-next{display:none!important}
+ #laria-geography-world[data-laria-ipad-rail] .gv-scene.laria-ipad-stage{
+  width:100%!important;height:100dvh!important;min-height:100dvh!important;
+  max-width:none!important;border:0!important;border-radius:0!important;
+  margin:0!important;padding:0!important;position:relative!important;
+  overflow:hidden!important;
+ }
+ #laria-geography-world .gv-scene.laria-ipad-stage .gv-landscape{
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;object-fit:cover!important;
+  object-position:50% 50%!important;pointer-events:none!important;
+ }
+ #laria-geography-world .gv-scene.laria-ipad-stage .gv-brand,
+ #laria-geography-world .gv-scene.laria-ipad-stage .gv-choose{
+  display:none!important
+ }
+ /* All three subjects use the exact same live two-pole construction. */
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene).laria-ipad-stage > nav.laria-ipad-left-rail{
+  position:absolute!important;top:25%!important;left:var(--ref-left)!important;
+  right:auto!important;bottom:auto!important;z-index:26!important;
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  justify-content:flex-start!important;gap:6px!important;
+  width:var(--ref-menu-width)!important;height:auto!important;
+  margin:0!important;padding:0!important;border:0!important;
+  background:none!important;box-shadow:none!important;
+  pointer-events:auto!important;isolation:isolate!important;
+  transform:none!important;filter:none!important;
+ }
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene).laria-ipad-stage > nav.laria-ipad-left-rail::before{
+  content:""!important;display:block!important;position:absolute!important;
+  z-index:-1!important;pointer-events:none!important;
+  top:-12px!important;left:0!important;width:100%!important;
+  height:calc(100% + 48px)!important;
+  background:url("./assets/ui/laria-grovanova-signposts.svg") center/100% 100% no-repeat!important;
+  opacity:1!important;
+ }
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene).laria-ipad-stage > nav.laria-ipad-left-rail > button.laria-ipad-sign{
+  box-sizing:border-box!important;position:relative!important;inset:auto!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  flex:none!important;order:initial!important;gap:12px!important;
+  width:100%!important;max-width:none!important;
+  height:clamp(70px,8.8vh,90px)!important;min-height:54px!important;
+  margin:0!important;padding:7px clamp(16px,1.9vw,26px)!important;
+  border:0!important;border-radius:0!important;
+  background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+  color:var(--laria-sign-ink)!important;
+  filter:var(--laria-sign-shadow)!important;box-shadow:none!important;
+  font:900 clamp(18px,1.9vw,27px)/1.08 ui-rounded,system-ui,sans-serif!important;
+  text-align:left!important;text-shadow:0 1px 0 #fff2d2!important;
+  transform:none!important;cursor:pointer!important;touch-action:manipulation!important;
+  opacity:1!important;visibility:visible!important;pointer-events:auto!important;
+ }
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene) > nav.laria-ipad-left-rail > button.laria-ipad-sign::before,
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene) > nav.laria-ipad-left-rail > button.laria-ipad-sign::after{
+  content:none!important;display:none!important;
+ }
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene) > nav.laria-ipad-left-rail > button.laria-ipad-sign .laria-ipad-sign-label{
+  box-sizing:border-box!important;display:block!important;position:static!important;
+  width:auto!important;height:auto!important;min-width:0!important;min-height:0!important;
+  flex:1 1 auto!important;max-width:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;
+  color:var(--laria-sign-ink)!important;font:inherit!important;
+  text-shadow:inherit!important;transform:none!important;
+  overflow:visible!important;clip:auto!important;clip-path:none!important;
+  white-space:nowrap!important;opacity:1!important;visibility:visible!important;
+  pointer-events:none!important;
+ }
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene) .laria-reference-activity-icon{
+  box-sizing:border-box!important;display:grid!important;place-items:center!important;
+  flex:0 0 30px!important;width:30px!important;height:30px!important;
+  position:static!important;margin:0!important;padding:0!important;
+  background:none!important;border:0!important;filter:none!important;
+  color:var(--laria-sign-ink)!important;pointer-events:none!important;
+  overflow:visible!important;clip:auto!important;clip-path:none!important;
+  opacity:1!important;visibility:visible!important;transform:none!important;
+ }
+ .laria-ipad-stage .laria-reference-activity-icon svg{
+  display:block!important;width:30px!important;height:30px!important;
+  stroke:currentColor!important;fill:none!important;pointer-events:none!important;
+ }
+ .laria-ipad-stage .laria-ipad-sign:focus-visible{
+  outline:4px solid #fff0a1!important;outline-offset:3px!important;
+ }
+ /* Identical wood Læria crest and clean non-wooden subject heading. */
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene) > .laria-ipad-brand{
+  box-sizing:border-box!important;position:absolute!important;
+  left:50%!important;top:3%!important;transform:translateX(-50%)!important;
+  z-index:22!important;display:block!important;
+  width:clamp(180px,24vw,306px)!important;height:clamp(92px,10vh,112px)!important;
+  border:4px solid #633713!important;border-radius:38px 40px 32px 34px!important;
+  background:
+    url("./assets/ui/laria-logo-from-grovanova.svg") center/80% 85% no-repeat,
+    linear-gradient(180deg,#b87737 0%,#955224 53%,#703917 100%)!important;
+  box-shadow:inset 0 2px 0 #eac38a,0 5px 0 #5f341a,0 9px 16px #16271f9a!important;
+  pointer-events:none!important;
+ }
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene) > .laria-ipad-heading{
+  box-sizing:border-box!important;position:absolute!important;
+  z-index:23!important;left:50%!important;top:15.5%!important;
+  transform:translateX(-50%)!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;gap:2px!important;
+  width:max-content!important;max-width:52%!important;margin:0!important;padding:0!important;
+  background:none!important;border:0!important;box-shadow:none!important;
+  color:#402614!important;text-align:center!important;
+  text-shadow:0 2px 3px #fff1cb,0 3px 10px #f6e2bd99!important;
+  pointer-events:none!important;
+ }
+ .laria-ipad-stage > .laria-ipad-heading strong{
+  font:950 clamp(39px,4.2vw,61px)/1.07 ui-rounded,system-ui,sans-serif!important;
+  letter-spacing:-.035em!important;white-space:nowrap!important;
+ }
+ .laria-ipad-stage > .laria-ipad-heading small{
+  font:850 clamp(19px,1.85vw,26px)/1.1 ui-rounded,system-ui,sans-serif!important;
+  color:#4b2d19!important;white-space:nowrap!important;
+ }
+ /* The selected troll is an independent, animated touch control. */
+ .laria-ipad-stage > button.laria-ipad-actor{
+  display:flex!important;align-items:end!important;justify-content:center!important;
+  position:absolute!important;z-index:17!important;
+  left:calc(var(--ref-left) + var(--ref-menu-width) + 5%)!important;
+  right:auto!important;top:auto!important;bottom:2%!important;
+  width:clamp(132px,17%,230px)!important;height:clamp(220px,43%,430px)!important;
+  padding:0!important;margin:0!important;border:0!important;background:transparent!important;
+  box-shadow:none!important;filter:none!important;
+  min-width:44px!important;min-height:44px!important;
+  cursor:pointer!important;touch-action:manipulation!important;
+ }
+ .laria-ipad-stage > .laria-ipad-actor img{
+  display:block!important;width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center bottom!important;
+  animation:laria-ipad-idle 3.3s ease-in-out infinite!important;transform-origin:50% 100%!important;
+  pointer-events:none!important;
+ }
+ @keyframes laria-ipad-idle{
+  0%,100%{transform:translateY(0) rotate(-1deg)}
+  50%{transform:translateY(-6px) rotate(1deg)}
+ }
+ .laria-ipad-stage > .laria-ipad-actor:focus-visible{
+  outline:4px solid #fff4bb!important;outline-offset:2px!important;border-radius:18px!important;
+ }
+ /* Shared round Home; original handlers still own navigation. */
+ #eggenipa-world .eg-top .eg-home,
+ #tallvika-world .tv-top button[data-tv="back"],
+ #laria-geography-world .gv-scene.laria-ipad-stage .gv-home{
+  position:absolute!important;top:max(10px,env(safe-area-inset-top))!important;
+  left:max(11px,env(safe-area-inset-left))!important;right:auto!important;
+  z-index:40!important;width:62px!important;height:62px!important;
+  min-width:44px!important;min-height:44px!important;
+  margin:0!important;padding:0!important;border:0!important;
+  border-radius:50%!important;
+  background:var(--laria-home-art) center/contain no-repeat!important;
+  color:transparent!important;font-size:0!important;text-shadow:none!important;
+  box-shadow:none!important;filter:none!important;pointer-events:auto!important;
+ }
+ #eggenipa-world .eg-top .eg-home span,
+ #tallvika-world .tv-top button[data-tv="back"] span{display:none!important}
+ #eggenipa-world .eg-top .eg-grade,
+ #tallvika-world .tv-top button[data-tv="grade"],
+ #laria-geography-world .gv-scene.laria-ipad-stage .gv-grade{
+  position:absolute!important;z-index:30!important;
+  top:max(18px,env(safe-area-inset-top))!important;
+  right:max(16px,env(safe-area-inset-right))!important;
+  left:auto!important;bottom:auto!important;
+  padding:7px 12px!important;min-height:44px!important;
+  border:2px solid #855b36!important;border-radius:999px!important;
+  background:#fff7e4!important;color:#624124!important;
+  font:850 14px ui-rounded,system-ui,sans-serif!important;
+  box-shadow:0 3px 7px #30201350!important;pointer-events:auto!important;
+ }
+ #tallvika-world .tv-scene .laria-ipad-next{
+  position:absolute!important;z-index:27!important;right:3%!important;bottom:4%!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  min-width:175px!important;min-height:52px!important;padding:9px 16px!important;
+  border:3px solid #74502e!important;border-radius:18px!important;
+  background:linear-gradient(170deg,#b77d41,#79502a)!important;
+  color:#fff5dc!important;font:900 18px ui-rounded,system-ui,sans-serif!important;
+  box-shadow:0 5px 0 #3f281c,0 7px 12px #1e2c2455!important;
+ }
+ /* The chooser is one reusable dialog; original troll artwork is not changed. */
+ dialog.laria-ipad-chooser{
+  z-index:1000!important;border:3px solid #7d5833!important;
+  border-radius:23px!important;padding:0!important;
+  width:min(540px,90vw)!important;max-width:90vw!important;
+  background:#fff9e9!important;color:#3d2715!important;
+  box-shadow:0 15px 45px #1a140d79!important;
+ }
+ dialog.laria-ipad-chooser::backdrop{background:#152c24a6!important}
+ .laria-ipad-chooser-body{padding:18px;text-align:center;font-family:ui-rounded,system-ui,sans-serif}
+ .laria-ipad-chooser-body h2{margin:0 0 14px;font-size:28px}
+ .laria-ipad-chooser-choices{display:flex;gap:11px;justify-content:space-between}
+ .laria-ipad-chooser-choices button{
+  flex:1;min-width:0;min-height:190px;border:2px solid #aa8553;border-radius:18px;
+  display:grid;justify-items:center;align-items:center;padding:10px 7px;
+  background:#eddab7;color:#3d2817;font:850 16px ui-rounded,system-ui,sans-serif;
+ }
+ .laria-ipad-chooser-choices button[aria-pressed="true"]{border-color:#397251;box-shadow:inset 0 0 0 2px #9cce9f}
+ .laria-ipad-chooser-choices img{max-width:100%;height:136px;object-fit:contain}
+ .laria-ipad-chooser-close{
+  margin-top:16px;min-height:48px;padding:10px 23px;border-radius:14px;
+  background:#e4d1ac;border:2px solid #92704d;color:#3d2817;font:900 16px system-ui;
+ }
+ @media (orientation:portrait){
+  :is(#eggenipa-world,#tallvika-world,#laria-geography-world)[data-laria-ipad-rail]{
+   --ref-menu-width:clamp(190px,27vw,260px);
+  }
+  #tallvika-world .tv-scene.laria-ipad-stage{
+   background-image:url("./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp")!important;
+   background-position:center top!important;
+  }
+  :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene).laria-ipad-stage > nav.laria-ipad-left-rail{
+   top:26%!important;
+  }
+  :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,#laria-geography-world .gv-scene) > .laria-ipad-heading{
+   top:16%!important;
+  }
+  .laria-ipad-stage > button.laria-ipad-actor{
+   left:48%!important;bottom:3%!important;
+   width:clamp(137px,22%,195px)!important;height:clamp(245px,35%,390px)!important;
+  }
+ }
+ @media(prefers-reduced-motion:reduce){
+  .laria-ipad-stage > .laria-ipad-actor img{animation:none!important}
+ }
+}
