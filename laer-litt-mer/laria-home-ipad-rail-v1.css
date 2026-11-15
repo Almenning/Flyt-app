@@ -98,3 +98,27 @@
    padding:6px 14px 7px 10px!important;
  }
 }
+
+/* A pixel-faithful strip extracted ONLY from Grovanova rows 4..23.
+ * It extends the natural treetops / clear sky into landscape iPad's top
+ * letterbox. Unlike the old brown-blue linear gradient, it contains NO
+ * logo, nav icons, subjects or new scenery. The source itself is untouched.
+ * Fade the first 24px of the already displayed image over the strip so
+ * original WebP's black top border never makes a horizontal seam. */
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:landscape){
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu.bc15-landscape-bleed[data-bc15-card-art="clean-candidate"]::before{
+   background-image:url("./assets/home-v15/kjosnes-home-tablet-scenic-top-edge.webp")!important;
+   background-position:var(--bc15-art-left,0px) 0px!important;
+   background-repeat:no-repeat!important;
+   background-size:var(--bc15-art-width,100%) calc(var(--bc15-art-top,0px) + 24px)!important;
+   box-shadow:none!important;filter:none!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu.bc15-landscape-bleed[data-bc15-card-art="clean-candidate"]::after{
+   -webkit-mask-image:linear-gradient(to bottom,
+     transparent 0px,transparent calc(var(--bc15-art-top,0px) + 3px),
+     #000 calc(var(--bc15-art-top,0px) + 24px),#000 100%)!important;
+   mask-image:linear-gradient(to bottom,
+     transparent 0px,transparent calc(var(--bc15-art-top,0px) + 3px),
+     #000 calc(var(--bc15-art-top,0px) + 24px),#000 100%)!important;
+ }
+}

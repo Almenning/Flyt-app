@@ -50,6 +50,27 @@ async function homeReady(page,label){
   (portrait?'kjosnes-home-phone-no-bottom-cards.webp':'kjosnes-home-tablet-no-bottom-cards.webp'):
   (portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp');
  assert(art.includes(expected),label+' must use the exact locked WebP master: '+art);
+ // The top scenic margin may only be filled by a source-locked, UI-free
+ // texture, never an extra copy of the Home logo or painted navigation.
+ if(label.includes('ipad')&&label.includes('landscape')&&cardArt==='clean-candidate'){
+   const scenic=await home.evaluate(async el=>{
+     const needed=el.classList.contains('bc15-landscape-bleed');
+     const p=getComputedStyle(el,'::before'),q=getComputedStyle(el,'::after');
+     const img=new Image();
+     img.src=new URL('./assets/home-v15/kjosnes-home-tablet-scenic-top-edge.webp',location.href).href;
+     try{await img.decode();}
+     catch(e){return {needed,loaded:false,reason:String(e),background:p.backgroundImage};}
+     return {needed,loaded:true,width:img.naturalWidth,height:img.naturalHeight,
+       background:p.backgroundImage,mask:q.maskImage||q.webkitMaskImage};
+   });
+   assert(scenic.needed,label+' must enable scenic-only top continuation');
+   assert(scenic.loaded&&scenic.width===1127&&scenic.height===20,
+     label+' top continuation must decode to the verified 1127x20 source strip: '+JSON.stringify(scenic));
+   assert.match(scenic.background,/kjosnes-home-tablet-scenic-top-edge\\?\.webp/,
+     label+' must replace the rejected brown-blue top letterbox with source-faithful pixels');
+   assert.match(scenic.mask,/linear-gradient/,label+' top background must meet the real painting without a black seam');
+ }
+
  const natural=await home.evaluate(async el=>{
    const raw=getComputedStyle(el).getPropertyValue('--bc15-home-art');
    const src=raw.match(/url\(["']?(.*?)["']?\)/)?.[1];

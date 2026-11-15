@@ -126,6 +126,10 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    top:phonePortrait?spareY*.30:rect.height-artHeight
  };
  host.dataset.bc15Fit=artAspect>viewportAspect?'safe-width':'safe-height';
+ // A dedicated scenic-only strip fills top letterboxing in landscape iPad.
+ // No art cropping, duplicated controls, or changed locked image pixels.
+ host.classList.toggle('bc15-landscape-bleed',
+   !portrait&&isIpadHome()&&box.top>18);
 
  const tabletPortrait=portrait&&rect.width>700;
  const layout=portrait?{
@@ -268,7 +272,7 @@ async function activate(){
  host.dataset.bc15CardArt='locked-original';
  host.querySelector('.bc14-subjects')?.removeAttribute('aria-hidden');
  if(host.querySelector('.bc14-subjects'))host.querySelector('.bc14-subjects').inert=false;
- host.classList.remove('bc15-ipad-fagmenu');
+ host.classList.remove('bc15-ipad-fagmenu','bc15-landscape-bleed');
  const youngBand=!!document.querySelector('.grade-band-young');
  if(!youngBand){
    host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');
