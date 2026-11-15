@@ -41,9 +41,16 @@ jobs:
             for stage in base ours theirs markers; do
               mkdir -p "/tmp/laria-merge-audit/conflicts/$stage/$(dirname "$conflict")"
             done
-            git show ":1:$conflict" > "/tmp/laria-merge-audit/conflicts/base/$conflict"
-            git show ":2:$conflict" > "/tmp/laria-merge-audit/conflicts/ours/$conflict"
-            git show ":3:$conflict" > "/tmp/laria-merge-audit/conflicts/theirs/$conflict"
+            for pair in '1:base' '2:ours' '3:theirs'; do
+              stage="${pair%%:*}"
+              group="${pair#*:}"
+              target="/tmp/laria-merge-audit/conflicts/$group/$conflict"
+              if git cat-file -e ":$stage:$conflict" 2>/dev/null; then
+                git show ":$stage:$conflict" > "$target"
+              else
+                printf '%s\n' '[NO FILE AT THIS MERGE STAGE]' > "$target"
+              fi
+            done
             cp "$conflict" "/tmp/laria-merge-audit/conflicts/markers/$conflict"
           done < /tmp/laria-merge-audit/unmerged-paths.txt
           git diff --cc > /tmp/laria-merge-audit/combined-conflict-diff.txt
