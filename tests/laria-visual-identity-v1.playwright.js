@@ -152,7 +152,11 @@ async function run(engine,name,layout,viewport){
    assert.equal(await sharedNav.count(),1,spec.id+' needs exactly one semantic activity rail');
    assert.equal(await sharedNav.locator('.laria-wayfinder[data-laria-component="sign"]').count(),3,
      spec.id+' must not clone or lose activity actions during common-shell enhancement');
-   assert.match(await sharedNav.getAttribute('aria-label'),/Velg aktivitet i /);
+   const title=({norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'})[spec.id];
+   const adapted=await shell.getAttribute('data-laria-reference-layout')==='v1';
+   assert.equal(await sharedNav.getAttribute('aria-label'),
+     (adapted?'Velg eventyr i ':'Velg aktivitet i ')+title,
+     spec.id+' activity landmark does not match its active presentation');
    const back=world.locator(spec.home+':visible');
    const button=await back.evaluate(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return{
      width:r.width,height:r.height,image:s.backgroundImage,top:r.top,left:r.left,role:el.getAttribute('aria-label')
