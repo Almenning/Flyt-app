@@ -504,7 +504,7 @@ async function assembleRealArtReviewSheets(){
   {id:'home-art-blocked',name:'HJEM · Grovanova',status:'KUNST BLOKKERT: innmalte knapper'},
   {id:'norwegian',name:'NORSK · Eggenipa',status:'FELLES LAYOUT: klar for visuell vurdering'},
   {id:'math',name:'MATTE · Tallvika',status:'FELLES LAYOUT: klar for visuell vurdering'},
-  {id:'english-art-blocked',name:'ENGELSK · Kinnaklova',status:'KUNST BLOKKERT: innmalte skilt'},
+  {id:'english-unified-approved',name:'ENGELSK · Kinnaklova',status:'REN KINN ORIGINAL: skilt samlet til venstre'},
   {id:'geography',name:'GEOGRAFI · Nordlysleiren',status:'FELLES LAYOUT: lavoppløst kunst'}
  ];
  const reports=[];
