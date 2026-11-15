@@ -573,7 +573,8 @@ async function assembleRealArtReviewSheets(){
    // chosen TrollActor, five-sign navigation and child activities on PC/Mac.
    // This is engineering evidence, NOT a product-owner visual sign-off.
    ['desktop',{width:1440,height:900}]
-  ])for(const [name,engine] of [['chromium',chromium],['webkit',webkit]])
+  ].filter(([device])=>process.env.LARIA_IPAD_ONLY!=='1'||device.startsWith('ipad')))
+  for(const [name,engine] of [['chromium',chromium],['webkit',webkit]])
     await testEngine(engine,name,device,viewport);
  } catch(error){failure=error;}
  try{await assembleRealArtReviewSheets();}
