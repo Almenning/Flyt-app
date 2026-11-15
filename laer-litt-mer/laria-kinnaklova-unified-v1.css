@@ -192,3 +192,18 @@
 #kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-actions{
   display:grid!important;
 }
+
+/* The premium nav selector above has stronger specificity than a generic
+   fail-closed visibility rule. Target its exact DOM structure plus the
+   integrity state so a tampered but successfully decoded 1672x941 image can
+   NEVER reveal activity hot spots before SHA-256 passes. */
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav > button,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 > .ki-world-brand,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 > .laria-reference-heading{
+  visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
