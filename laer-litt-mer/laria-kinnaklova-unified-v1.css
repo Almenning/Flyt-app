@@ -124,6 +124,19 @@
 }
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 ~ .ki-intro,
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 ~ .ki-actions{display:none!important}
+/* A malformed or SHA-mismatched image may decode before its asynchronous
+ * integrity check has finished. Never let premium !important styles override
+ * the existing fail-closed rule while art is loading or rejected. */
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 .ki-master,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 .ki-companions,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 .ki-painted-hit {
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+
 #kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-stage.laria-reference-layout-v1 > nav,
 #kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-stage.laria-reference-layout-v1 > .laria-reference-heading{
   visibility:hidden!important;pointer-events:none!important;
