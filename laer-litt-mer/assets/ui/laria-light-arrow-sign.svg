@@ -3,9 +3,9 @@
 <!-- Traced from the four painted Home signs; the locked Home artwork is unchanged. -->
 <defs>
  <linearGradient id="oak" x1="0" y1="0" x2="0" y2="1">
-  <stop stop-color="#e7a965"/><stop offset=".23" stop-color="#fac77f"/>
-  <stop offset=".53" stop-color="#f4b66f"/><stop offset=".76" stop-color="#e5a35d"/>
-  <stop offset="1" stop-color="#b76c32"/>
+  <stop stop-color="#dd9550"/><stop offset=".23" stop-color="#f4b76d"/>
+  <stop offset=".53" stop-color="#efad64"/><stop offset=".76" stop-color="#de904e"/>
+  <stop offset="1" stop-color="#a95c2b"/>
  </linearGradient>
  <linearGradient id="bevel" x1="0" y1="0" x2="0" y2="1">
   <stop stop-color="#ffe2a0"/><stop offset=".45" stop-color="#e8a55d"/>

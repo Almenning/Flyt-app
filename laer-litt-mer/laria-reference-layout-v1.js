@@ -12,7 +12,16 @@
   norwegian:'<path d="M12 6c-3-2-7-2-10-1v14c4-1 7-1 10 1m0-14c3-2 7-2 10-1v14c-4-1-7-1-10 1M12 6v14"/>',
   math:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M7 8h10M8 13h4M10 11v4M15 13h3M15 17h3"/>',
   english:'<path d="M4 5h16v12h-8l-5 4v-4H4z"/><path d="m8 13 2-5 2 5m-3-2h2M15 8h2v5h-2"/>',
-  geography:'<path d="m2 20 8-12 4 5 3-4 5 11zM7 13l3-5 3 4"/>'
+  geography:'<path d="m2 20 8-12 4 5 3-4 5 11zM7 13l3-5 3 4"/>',
+  words:'<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 9h6M8 12h4"/>',
+  find:'<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M8 10h4M10 8v4"/>',
+  reading:'<path d="M12 6C9 4 5 4 2 5v14c4-1 7-1 10 1m0-14c3-2 7-2 10-1v14c-4-1-7-1-10 1M12 6v14"/>',
+  multiply:'<path d="M5 5 19 19M19 5 5 19"/><circle cx="12" cy="12" r="10"/>',
+  fraction:'<circle cx="12" cy="12" r="10"/><path d="M12 2v10h10M5 19l7-7"/>',
+  table:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
+  journey:'<path d="m4 20 8-16 8 16-8-4-8 4z"/><circle cx="12" cy="12" r="2"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c6 5 6 15 0 20M12 2c-6 5-6 15 0 20"/>',
+  country:'<path d="M5 22V2m0 2c6-3 8 3 15 0v12c-7 3-9-3-15 0"/>'
  };
  const valid=Object.keys(names);
  const greetings=Object.freeze({norwegian:'Vil du finne ord eller lese et eventyr?',geography:'Skal vi oppdage verden sammen?'});
@@ -120,6 +129,24 @@
   back.innerHTML=icon('home')+'<span>Fagene</span>';
   back.addEventListener('click',()=>setMode(scene,'subjects',true));
   rail.insertBefore(back,rail.firstChild);
+  // Keep the original live buttons and handlers. Add presentation-only
+  // icons from the SAME pictogram family used by the five Home-style signs.
+  const activitiesByWorld={
+   norwegian:{words:'words',find:'find',reading:'reading'},
+   math:{multiply:'multiply',fraction:'fraction',table:'table'},
+   geography:{journey:'journey',globe:'globe',country:'country'}
+  };
+  for(const button of rail.querySelectorAll('.laria-wayfinder')){
+   const action=button.dataset.eg||button.dataset.tv||button.dataset.gv;
+   const iconId=activitiesByWorld[subject]?.[action];
+   const surface=button.matches('.eg-scene-hit')?button.querySelector(':scope > span'):button;
+   if(!iconId||!surface||surface.querySelector('.laria-reference-activity-icon'))continue;
+   const mark=root.document.createElement('span');
+   mark.className='laria-reference-activity-icon';
+   mark.setAttribute('aria-hidden','true');
+   mark.innerHTML=icon(iconId);
+   surface.prepend(mark);
+  }
   // Tallvika's existing Next adventure button is not allowed to float on the
   // right as a second navigation sign. Move the real node, retaining its
   // original data-tv action and delegated child click handler.
@@ -228,6 +255,8 @@
    rail.inert=false;
    rail.removeAttribute('aria-hidden');
    rail.querySelector('.laria-reference-activities-back')?.remove();
+   // Unmount restores each original learning button without decoration.
+   rail.querySelectorAll('.laria-reference-activity-icon').forEach(el=>el.remove());
    // The original Tallvika button belongs to the original scene outside the
    // adapted left rail. Keep its delegated data-tv route and enabled status.
    const next=rail.querySelector('.tv-next-sign.laria-reference-next');

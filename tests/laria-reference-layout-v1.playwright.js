@@ -252,6 +252,31 @@ async function testEngine(engine,name,device,viewport){
    for(const box of activityBoxes)
     assert.ok(box.l>=0&&box.r<viewport.width*.40&&box.w>=44&&box.h>=44&&box.b<=viewport.height+3,
       world.id+' activity was placed outside sole left rail: '+JSON.stringify(box));
+   // The planks, not just their left edges, need identical scale in both
+   // modes on iPad and desktop. No leftover 70px Eggenipa activity signs.
+   assert.ok(activityBoxes.every(r=>Math.abs(r.h-boxes.menu[0].h)<=3),
+     world.id+' activity planks differ in height from Home-style subject planks: '+
+     JSON.stringify({subject:boxes.menu[0],activities:activityBoxes}));
+   assert.equal(await activities.locator('.laria-reference-activity-icon').count(),3,
+     world.id+' learning buttons lack matching subject-style pictograms');
+   const icons=await activities.locator('.laria-reference-activity-icon').evaluateAll(nodes=>nodes.map(node=>{
+     const style=getComputedStyle(node),r=node.getBoundingClientRect();
+     return {visible:style.display!=='none'&&style.visibility!=='hidden',width:r.width,height:r.height};
+   }));
+   assert.ok(icons.every(x=>x.visible&&x.width>=18&&x.height>=18),
+     world.id+' activity pictogram hidden or below minimum visual size: '+JSON.stringify(icons));
+   // The board shape now belongs to the whole sign stack, never to each
+   // individual action. Check the rendered pseudo-elements, not only CSS text.
+   const separatePosts=await activities.locator('.laria-wayfinder').evaluateAll(nodes=>
+     nodes.map(node=>{
+       const eg=node.matches('.eg-scene-hit');
+       const target=eg?node.querySelector(':scope > span'):node;
+       const style=getComputedStyle(target,eg?'::before':'::after');
+       return {display:style.display,content:style.content};
+     }));
+   assert.ok(separatePosts.every(item=>item.display==='none'||item.content==='none'),
+     world.id+' retains per-board posts instead of one shared Home post-pair: '+
+     JSON.stringify(separatePosts));
    const leftEdges=activityBoxes.map(r=>r.l);
    const subjectsLeft=boxes.menu[0].l;
    assert.ok(leftEdges.every(left=>Math.abs(left-subjectsLeft)<=3),
