@@ -261,6 +261,20 @@ async function run(engine,name,layout,viewport){
      const expectedLiveBrand=isCleanKinn&&adapted?1:0;
      assert.equal(await world.locator('.ki-world-brand:visible').count(),expectedLiveBrand,
        'English must show one live logo on clean iPad art, no duplicate on the phone fallback');
+     if(expectedLiveBrand){
+       const logo=await world.locator('.ki-world-brand').evaluate(el=>{
+         const panel=getComputedStyle(el),word=getComputedStyle(el.querySelector('strong'));
+         return {background:panel.backgroundImage,fill:panel.backgroundColor,
+           border:panel.borderTopWidth,art:word.backgroundImage,
+           width:el.getBoundingClientRect().width};
+       });
+       assert.equal(logo.background,'none','Kinnaklova still has the rejected wooden Læria logo plaque');
+       assert.equal(logo.border,'0px','Kinnaklova still has a framed title instead of the shared bare logo');
+       assert.match(logo.art,/laria-logo-from-grovanova\.svg/,
+         'Kinnaklova logo must reuse exactly the same SVG as Norsk, Matte and Geografi');
+       assert.ok(logo.width>=160&&logo.width<viewport.width*.40,
+         'Kinnaklova bare crest is oversized on iPad: '+JSON.stringify(logo));
+     }
    }
    const screenshot=await page.screenshot({path:path.join(OUT,name+'-'+layout+'-'+spec.id+'.png'),animations:'disabled'});
    evidence.push({id:spec.id,label:({norwegian:'Norsk · Eggenipa',math:'Matte · Tallvika',english:'Engelsk · Kinnaklova',geography:'Geografi · Nordlysleiren'})[spec.id],file:name+'-'+layout+'-'+spec.id+'.png'});
@@ -287,7 +301,8 @@ async function run(engine,name,layout,viewport){
   ['ipad-portrait',{width:1024,height:1366}],
   ['iphone-portrait',{width:390,height:844}],
   ['iphone-landscape',{width:852,height:393}]
- ])for(const [name,engine] of [['chromium',chromium],['webkit',webkit]]){
+ ].filter(([device])=>process.env.LARIA_IPAD_ONLY!=='1'||device.startsWith('ipad')))
+ for(const [name,engine] of [['chromium',chromium],['webkit',webkit]]){
    await run(engine,name,label,viewport);
  }
 })().catch(e=>{console.error(e);process.exitCode=1;});
