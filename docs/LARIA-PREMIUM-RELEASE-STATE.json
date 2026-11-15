@@ -20,7 +20,8 @@
       "ownerApproved": false,
       "technicalArtVerified": true,
       "protectedOriginalPixelsIdenticalOutsideMask": true,
-      "modifiedAreaFraction": 0.18470818990283167
+      "modifiedAreaFraction": 0.33084459167433605,
+      "sourceLocked": true
     },
     "nordlysleiren": {
       "locked": "laer-litt-mer/assets/cards/reisen/geography-premium.webp",
