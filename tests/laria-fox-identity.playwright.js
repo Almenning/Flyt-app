@@ -15,7 +15,7 @@ const CHOICES=['storesoster','lillesoster','lillebror'];
 const SCENES=[
  {subject:'norwegian',root:'#subject-screen.active #eggenipa-world',actor:'.eg-companion-actor',home:'[data-eg="home"]'},
  {subject:'math',root:'#subject-screen.active #tallvika-world',actor:'.tv-actor',home:'[data-tv="back"]'},
- {subject:'english',root:'#subject-screen.active #kinnaklova-world',actor:'.ki-companion-actor',home:'[data-ki="home"]'},
+ {subject:'english',root:'#subject-screen.active #kinnaklova-world',actor:'.ki-companion-actor',home:'.ki-painted-home'},
  {subject:'geography',root:'#geography-screen.active #laria-geography-world',actor:'.gv-troll',home:'[data-gv="home"]'}
 ];
 const makeSeed=avatar=>({
