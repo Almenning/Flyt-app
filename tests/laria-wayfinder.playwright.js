@@ -48,8 +48,30 @@ async function run(browserType,engine,name,viewport){
     await page.evaluate(()=>showScreen('home'));
     await home.waitFor({state:'visible',timeout:15000});
    }
+  }else if(portrait&&viewport.width>=768&&viewport.height>=650){
+    // The LOCKED portrait master has no painted left-hand signs. Its four
+    // fully live oak signs are the primary route and must be tested as such.
+    const rail=home.locator('.bc15-subject-signs[data-bc15-presentation="live"]');
+    await rail.waitFor({state:'visible',timeout:15000});
+    const entries=rail.locator('button.bc15-painted-subject:visible');
+    assert.equal(await entries.count(),4,'portrait iPad must provide four live subject signs');
+    const style=await entries.first().evaluate(el=>{
+      const s=getComputedStyle(el),p=getComputedStyle(el.parentElement,'::before');
+      return {art:s.backgroundImage,alpha:s.opacity,posts:p.backgroundImage};
+    });
+    assert.match(style.art,/laria-light-arrow-sign\\?\.svg/,
+      'portrait iPad must use the shared light oak arrow boards');
+    assert.match(style.posts,/laria-grovanova-signposts\\?\.svg/,
+      'portrait iPad must show the shared pair of posts');
+    assert.notEqual(style.alpha,'0.001','portrait signs may not be invisible');
+    for(const spec of worlds){
+      await home.locator('.bc15-subject-signs [data-bc15-subject="'+spec.id+'"]').click();
+      await page.locator(spec.root+':visible').waitFor({timeout:18000});
+      await page.evaluate(()=>showScreen('home'));
+      await home.waitFor({state:'visible',timeout:15000});
+    }
   }else assert.equal(await home.locator('.bc15-subject-signs:visible').count(),0,
-    'portrait/short-landscape has no painted arrows and must not show invented hotspots');
+    'phone portrait/short landscape has no painted arrows');
   await page.screenshot({path:path.join(out,engine+'-'+name+'-home.png'),animations:'disabled',fullPage:false});
   for(const spec of worlds){
    const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));
