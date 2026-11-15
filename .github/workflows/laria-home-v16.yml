@@ -1,0 +1,75 @@
+name: Læria Hjem v16 – venstreskilt og originalkunst
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/home-v16-preview.*'
+      - 'laer-litt-mer/home-kjosnes-v15.*'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-home-v16-*'
+      - '.github/workflows/laria-home-v16.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/home-v16-preview.*'
+      - 'laer-litt-mer/home-kjosnes-v15.*'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-home-v16-*'
+      - '.github/workflows/laria-home-v16.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  home-v16-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify immutable masters and V16 implementation contract
+        run: |
+          node --check laer-litt-mer/home-v16-preview.js
+          node --check tests/laria-home-v16-preview.playwright.js
+          node tests/laria-home-v16-contract.test.cjs
+      - name: Start exact-head Læria app
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory . >/tmp/laria-home-v16-http.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl --fail --silent 'http://127.0.0.1:8765/laer-litt-mer/?app=laria' >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/laria-home-v16-http.log
+          exit 1
+      - name: Capture real Chromium and WebKit desktop / iPad / iPhone previews
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          LARIA_HOME_V16_SCREENSHOTS: /tmp/laria-home-v16
+        run: node tests/laria-home-v16-preview.playwright.js
+      - name: Upload immutable Home v15 masters for pixel-diff art QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-v16-original-masters-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp
+            laer-litt-mer/assets/home-v15/kjosnes-home-phone.webp
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload real screenshots and explicitly unapproved visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-v16-navigation-only-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-home-v16
+          if-no-files-found: warn
+          retention-days: 14
