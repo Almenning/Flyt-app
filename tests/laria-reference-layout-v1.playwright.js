@@ -277,6 +277,30 @@ async function testEngine(engine,name,device,viewport){
    }));
    assert.ok(icons.every(x=>x.visible&&x.width>=18&&x.height>=18),
      world.id+' activity pictogram hidden or below minimum visual size: '+JSON.stringify(icons));
+   if(world.id==='geography'){
+     const iconPlacement=await activities.locator('button.gv-sign.laria-wayfinder').evaluateAll(buttons=>
+       buttons.map(button=>{
+         const icon=button.querySelector('span.laria-reference-activity-icon');
+         const board=button.getBoundingClientRect(),r=icon.getBoundingClientRect();
+         const style=getComputedStyle(icon);
+         return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+           boardLeft:board.left,boardRight:board.right,
+           boardTop:board.top,boardBottom:board.bottom,
+           transform:style.transform,border:style.borderTopWidth,color:style.color};
+       }));
+     assert.equal(iconPlacement.length,3,'Geografi original activity buttons changed');
+     const oldArrowStates=await activities.locator('button.gv-sign.laria-wayfinder > span[aria-hidden="true"]:not(.laria-reference-activity-icon)').evaluateAll(nodes=>
+       nodes.map(node=>getComputedStyle(node).display));
+     assert.equal(oldArrowStates.length,3,'Geografi lost its three original fallback icons');
+     assert.ok(oldArrowStates.every(display=>display==='none'),
+       'Geografi still exposes legacy white arrow badges: '+JSON.stringify(oldArrowStates));
+     assert.ok(iconPlacement.every(icon=>
+       icon.left>=icon.boardLeft&&icon.right<=icon.boardRight&&
+       icon.top>=icon.boardTop&&icon.bottom<=icon.boardBottom&&
+       icon.transform==='none'&&icon.border==='0px'&&icon.color==='rgb(61, 39, 21)'),
+       'Geografi pictograms float outside the oak signs or inherit white legacy badges: '+
+       JSON.stringify(iconPlacement));
+   }
    // The board shape now belongs to the whole sign stack, never to each
    // individual action. Check the rendered pseudo-elements, not only CSS text.
    const separatePosts=await activities.locator('.laria-wayfinder').evaluateAll(nodes=>

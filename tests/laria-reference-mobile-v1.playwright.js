@@ -44,8 +44,10 @@ async function run(engine,name,viewport){
    // under a plain centered heading with no rejected wooden place plaque.
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
    assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),3);
-   assert.equal(await scene.locator('button.laria-reference-heading').count(),0);
+   assert.equal(await scene.locator('button.laria-reference-place').count(),0,
+     world.id+' rejected large wooden place plaque must not be mounted');
    const entryHeading=scene.locator('button.laria-reference-heading');
+   assert.equal(await entryHeading.count(),1);
    await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-'+world.id+'-approved-entry.png'),animations:'disabled'});
    await entryHeading.click();
    const nav=scene.locator('nav.laria-reference-subject-nav');

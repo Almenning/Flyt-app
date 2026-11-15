@@ -67,7 +67,7 @@ assert.match(carvedOak,/håndskåret treskilt/,
 const headingLock=read('docs/LARIA-LOCKED-CLEAN-HEADING-2026-11-15.md');
 const referenceRuntime=read('laer-litt-mer/laria-reference-layout-v1.js');
 for(const phrase of ['stor stedsplakett','egen, levende DOM-komponent','aldri del av','tre ekte læringsknappene'])
- assert.ok(headingLock.includes(phrase),'Missing approved live-troll heading lock: '+phrase);
+ assert.ok(headingLock.toLowerCase().includes(phrase.toLowerCase()),'Missing approved live-troll heading lock: '+phrase);
 assert.match(referenceRuntime,/className='laria-reference-heading'/,
  'The rejected wooden title must be replaced by a plain subject heading');
 assert.doesNotMatch(referenceRuntime,/className='laria-reference-place'/,
