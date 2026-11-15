@@ -192,6 +192,21 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
     'lillesoster',
     label+' selected troll identity lost'
   );
+  // The retired Home dashboard contains no hard-coded fox or lion. If the
+  // legacy dashboard survives Basecamp mounting, it must use the same child.
+  assert.equal(await page.locator('#home-screen svg.story-fox,#home-screen svg.story-lion').count(),0,
+    label+' legacy Home still has static animal SVGs');
+  const oldDashboardActor=page.locator('#home-screen .dashboard-mascot[data-laria-legacy-troll]');
+  if(await oldDashboardActor.count()){
+    const art=oldDashboardActor.locator('img.laria-premium-troll-art');
+    await art.waitFor({state:'attached',timeout:4500});
+    await page.waitForFunction(()=>{
+      const img=document.querySelector('#home-screen .dashboard-mascot[data-laria-legacy-troll] > img');
+      return !img||img.getAttribute('src')?.includes('lillesoster.webp');
+    });
+    assert.match(await art.getAttribute('src'),/gangemagi-troll\/lillesoster\.webp/,
+      label+' retired dashboard must never show the wrong selected troll');
+  }
   // Render the actual journey helper before the observer can replace any art.
   const marker=await page.evaluate(()=>{
     const fixture=document.createElement('div');

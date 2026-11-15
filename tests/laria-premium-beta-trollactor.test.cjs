@@ -37,6 +37,13 @@ assert.match(runtime,/const MOODS=new Set\(\['idle','wave','walking','think','hi
   'TrollActor reaction vocabulary changed');
 assert.match(runtime,/profile\(\)\?\.tallvikaTroll/,'Selected troll must come from the persisted profile');
 assert.match(runtime,/\.bc12-fox > img/,'Legacy Home fox must migrate outside locked Grovanova');
+// The retired dashboard cannot embed its own fox or decorative animal cameos.
+assert.doesNotMatch(index,/dashboard-mascot premium-fox|<svg class="story-character story-(?:fox|lion)"/,
+  'Legacy Home still contains a hard-coded animal illustration');
+assert.match(index,/data-laria-legacy-troll="dashboard"/,'Legacy dashboard companion must be a separate actor');
+assert.match(runtime,/\.dashboard-mascot\[data-laria-legacy-troll\] > img/,
+  'Retired dashboard image must use the child's persisted troll identity');
+
 // Retired journey-map markers must render the stored, original forest troll.
 assert.ok(!index.includes('function journeyFoxSvg()'),
   'Retired hard-coded fox drawing is still used by a journey map');

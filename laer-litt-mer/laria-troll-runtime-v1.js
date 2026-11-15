@@ -25,6 +25,7 @@
   });
   const IMAGE_SELECTORS=[
     '.bc12-fox > img',
+    '.dashboard-mascot[data-laria-legacy-troll] > img',
     '.top .avatar.profile-fox-avatar > img',
     '.locked-journey-profile > img',
     '.locked-journey-traveler > img',
@@ -271,6 +272,11 @@
 
   function bindInteractions(){
     doc.addEventListener('click',event=>{
+      const retiredHomeActor=event.target.closest?.('#home-screen .dashboard-mascot[data-laria-legacy-troll]');
+      if(retiredHomeActor){
+        mood(retiredHomeActor,'curious',{say:'Skal vi utforske sammen?'});
+        return;
+      }
       const trollEntry=event.target.closest?.('#home-screen .bc12:not(.bc15-locked-home) [data-camp="wardrobe"],#home-screen .bc12:not(.bc15-locked-home) [data-camp-fox-call]');
       if(trollEntry){
         event.preventDefault();

@@ -331,3 +331,20 @@ html[data-laria-character-system="troll"] #world-screen .premium-globe-guide:not
   .laria-troll-choice{min-height:125px;grid-template-rows:82px auto auto;padding:5px}
   .laria-troll-choice img{max-height:85px}
 }
+/* The retired dashboard hero is a live selected TrollActor, not painted fox art.
+ * Its image has no source until the persisted child's choice is read. */
+#home-screen .dashboard-mascot[data-laria-legacy-troll]{
+ appearance:none;pointer-events:auto!important;touch-action:manipulation;
+ padding:0!important;margin:0;border:0!important;background:none!important;
+ cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+#home-screen .dashboard-mascot[data-laria-legacy-troll]>.laria-premium-troll-art{
+ width:100%!important;height:100%!important;display:block!important;
+ object-fit:contain!important;object-position:center bottom!important;
+}
+#home-screen .dashboard-mascot[data-laria-legacy-troll]>.laria-premium-troll-art:not([src]){
+ visibility:hidden!important;
+}
+#home-screen .dashboard-mascot[data-laria-legacy-troll]:focus-visible{
+ outline:3px solid #fff1b2;outline-offset:4px;border-radius:15px;
+}
