@@ -40,9 +40,17 @@ async function run(engine,name,viewport){
    await page.locator('#home-screen .bc14-subject[data-camp="subject-'+world.id+'"]').click();
    const scene=page.locator(world.selector);
    await scene.waitFor({state:'visible',timeout:25000});
+   // The new approved picture opens on the three actual activity signs,
+   // under a plain centered heading with no rejected wooden place plaque.
+   assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
+   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),3);
+   assert.equal(await scene.locator('button.laria-reference-heading').count(),0);
+   const entryHeading=scene.locator('button.laria-reference-heading');
+   await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-'+world.id+'-approved-entry.png'),animations:'disabled'});
+   await entryHeading.click();
    const nav=scene.locator('nav.laria-reference-subject-nav');
    const actions=scene.locator('nav.laria-scene-navigation');
-   const plaque=scene.locator('button.laria-reference-place');
+   const plaque=scene.locator('button.laria-reference-heading');
    const chooser=scene.locator('.laria-scene-chooser:visible');
    const settings=scene.locator('button.laria-reference-settings:visible');
    assert.equal(await nav.locator('button').count(),5,world.id+' lost the five global signs');
@@ -58,7 +66,7 @@ async function run(engine,name,viewport){
       width:x.width,height:x.height};};
     const nav=el.querySelector('nav.laria-reference-subject-nav'),
       actor=el.querySelector('[data-laria-component="troll"]'),
-      title=el.querySelector('.laria-reference-place'),
+      title=el.querySelector('.laria-reference-heading'),
       logo=el.querySelector('.laria-scene-brand'),
       gear=el.querySelector('.laria-reference-settings');
     const signs=[...nav.querySelectorAll('button')].map(box);
@@ -70,17 +78,17 @@ async function run(engine,name,viewport){
     assert.ok(sign.width>=44&&sign.height>=44&&sign.left>=0&&sign.right<=viewport.width+1,
       world.id+' sign clipped or too small: '+JSON.stringify(sign));
    }
-   assert.ok(rect.nav.right+8<=rect.title.left,
-    world.id+' left menu overlaps title: '+JSON.stringify(rect));
+   assert.equal(intersects(rect.nav,rect.title),0,
+    world.id+' left sign rail overlaps the restored centered heading: '+JSON.stringify(rect));
    assert.ok(rect.nav.right+3<=rect.actor.left,
     world.id+' selected troll covers sign rail: '+JSON.stringify(rect));
    assert.ok(rect.actor.height>=260&&rect.actor.width>=120&&
     rect.actor.bottom<=viewport.height+2&&rect.actor.top>=0,
     world.id+' original selected troll clipped or tiny: '+JSON.stringify(rect));
    assert.equal(intersects(rect.title,rect.actor),0,
-    world.id+' companion covers right title');
+    world.id+' live TrollActor overlaps the restored text heading');
    assert.equal(intersects(rect.logo,rect.title),0,
-    world.id+' logo covers right title');
+    world.id+' Læria logo overlaps the restored text heading');
    assert.ok(rect.settings.width>=44&&rect.settings.height>=44,
     world.id+' adult settings below minimum touch size');
    await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-'+world.id+'-subjects.png'),animations:'disabled'});
@@ -100,7 +108,7 @@ async function run(engine,name,viewport){
     assert.ok(await next.isVisible(),'Matte Next eventyr missing');
    }
    await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-'+world.id+'-activities.png'),animations:'disabled'});
-   await actions.locator('.laria-reference-activities-back').click();
+   await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects');
    await nav.locator('[data-laria-ref-subject="home"]').click();
    await home.waitFor({state:'visible',timeout:18000});
@@ -109,6 +117,8 @@ async function run(engine,name,viewport){
   // single rail at 844x390 / 932x430, not jump to the old scattered menu.
   await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
   const rotated=page.locator('#eggenipa-world .eg-hero');
+  await rotated.locator('button.laria-reference-heading').waitFor({state:'visible',timeout:15000});
+  await rotated.locator('button.laria-reference-heading').click();
   await rotated.locator('.laria-reference-subject-nav').waitFor({state:'visible',timeout:15000});
   const beforeState=await page.evaluate(()=>localStorage.getItem('laerlittmer-v2'));
   await page.setViewportSize({width:viewport.height,height:viewport.width});
@@ -125,7 +135,7 @@ async function run(engine,name,viewport){
     const nav=el.querySelector(':scope > nav.laria-reference-subject-nav');
     return {
       scene:box(el),nav:box(nav),signs:[...nav.querySelectorAll('button')].map(box),
-      title:box(el.querySelector(':scope > button.laria-reference-place')),
+      title:box(el.querySelector(':scope > button.laria-reference-heading')),
       troll:box(el.querySelector('[data-laria-component="troll"]')),
       logo:box(el.querySelector('.laria-scene-brand')),
       settings:box(el.querySelector(':scope > button.laria-reference-settings')),
@@ -133,14 +143,14 @@ async function run(engine,name,viewport){
     };
   });
   assert.equal(landscape.actionsVisible,false,'iPhone landscape has TWO visible navigation groups');
-  assert.ok(landscape.nav.right+8<=landscape.title.left,
-    'landscape subject signs overlap right title: '+JSON.stringify(landscape));
+  assert.equal(intersects(landscape.nav,landscape.title),0,
+    'landscape subject signs overlap the restored text heading: '+JSON.stringify(landscape));
   assert.ok(landscape.nav.right+6<=landscape.troll.left,
     'landscape selected troll covers the left signs: '+JSON.stringify(landscape));
   assert.equal(intersects(landscape.title,landscape.troll),0,
-    'landscape right title covers the original live troll');
+    'landscape restored heading covers the original live TrollActor');
   assert.equal(intersects(landscape.logo,landscape.title),0,
-    'landscape logo covers right title');
+    'landscape Læria logo covers the restored text heading');
   assert.ok(landscape.troll.height>=210&&landscape.troll.bottom<=viewport.width+3,
     'landscape selected original troll is too small or clipped: '+JSON.stringify(landscape));
   for(const sign of landscape.signs){
@@ -152,7 +162,7 @@ async function run(engine,name,viewport){
     'landscape parent-settings touch target below 44px');
   await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-reference.png'),
     animations:'disabled'});
-  await rotated.locator('button.laria-reference-place').click();
+  await rotated.locator('button.laria-reference-heading').click();
   assert.equal(await rotated.getAttribute('data-laria-reference-mode'),'activities');
   assert.equal(await rotated.locator('nav.laria-reference-subject-nav').isVisible(),false);
   const activityRail=rotated.locator('nav.laria-scene-navigation');
@@ -167,7 +177,7 @@ async function run(engine,name,viewport){
   }
   await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-activities.png'),
     animations:'disabled'});
-  await activityRail.locator('.laria-reference-activities-back').click();
+  await rotated.locator('button.laria-reference-heading').click();
   assert.equal(await rotated.getAttribute('data-laria-reference-mode'),'subjects');
   // Unsupported ultra-short landscape retains the original safe fallback.
   await page.setViewportSize({width:viewport.height,height:300});
@@ -182,9 +192,10 @@ async function run(engine,name,viewport){
   await page.waitForFunction(()=>{
     const scene=document.querySelector('#eggenipa-world .eg-hero');
     return !!scene&&scene.classList.contains('laria-reference-layout-v1')&&
-      scene.dataset.lariaReferenceMode==='subjects'&&
+      scene.dataset.lariaReferenceMode==='activities'&&
       scene.querySelectorAll(':scope > nav.laria-reference-subject-nav > button').length===5;
   },null,{timeout:12000});
+  await rotated.locator('button.laria-reference-heading').click();
   assert.equal(await rotated.locator('.laria-reference-subject-nav').count(),1,
     'portrait remount duplicated the five sign rail');
   assert.equal(await page.evaluate(()=>localStorage.getItem('laerlittmer-v2')),beforeState,
@@ -194,7 +205,7 @@ async function run(engine,name,viewport){
   // The child must never enter parental settings with a short tap.
   // The same protected 1.5s hold gate is enforced on a real phone viewport.
   await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
-  await rotated.locator('.laria-reference-subject-nav').waitFor({state:'visible',timeout:16000});
+  await rotated.locator('button.laria-reference-heading').waitFor({state:'visible',timeout:16000});
   const adultGate=rotated.locator('button.laria-reference-settings');
   await adultGate.click();
   assert.equal(await page.locator('#adult-screen.active').count(),0,
@@ -223,15 +234,16 @@ async function run(engine,name,viewport){
     await page.waitForFunction(selector=>{
       const el=document.querySelector(selector);
       return !!el&&el.classList.contains('laria-reference-layout-v1')&&
-        el.dataset.lariaReferenceMode==='subjects'&&
+        el.dataset.lariaReferenceMode==='activities'&&
         el.querySelectorAll(':scope > nav.laria-reference-subject-nav > button').length===5;
     },other.world,{timeout:12000});
+    await scene.locator('button.laria-reference-heading').click();
     const dims=await scene.evaluate(el=>{
       const rect=node=>{const r=node.getBoundingClientRect();return{
         left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
       const rail=el.querySelector(':scope > nav.laria-reference-subject-nav');
       return {rail:rect(rail),signs:[...rail.querySelectorAll('button')].map(rect),
-        title:rect(el.querySelector(':scope > button.laria-reference-place')),
+        title:rect(el.querySelector(':scope > button.laria-reference-heading')),
         troll:rect(el.querySelector('[data-laria-component="troll"]')),
         logo:rect(el.querySelector('.laria-scene-brand')),
         activityVisible:getComputedStyle(el.querySelector('nav.laria-scene-navigation')).display!=='none',
@@ -239,8 +251,8 @@ async function run(engine,name,viewport){
     });
     assert.equal(dims.activityVisible,false,other.id+' showed both sign groups');
     assert.ok(dims.pageWidth<=viewport.height+2,other.id+' landscape scrolls sideways');
-    assert.ok(dims.rail.right+6<=dims.title.left&&dims.rail.right+6<=dims.troll.left,
-      other.id+' landscape navigation overlaps content: '+JSON.stringify(dims));
+    assert.ok(intersects(dims.rail,dims.title)===0&&dims.rail.right+6<=dims.troll.left,
+      other.id+' landscape navigation overlaps restored heading or live troll: '+JSON.stringify(dims));
     assert.equal(intersects(dims.title,dims.troll),0,
       other.id+' landscape original TrollActor overlaps title');
     assert.equal(intersects(dims.title,dims.logo),0,
@@ -253,7 +265,7 @@ async function run(engine,name,viewport){
         other.id+' landscape sign is clipped or too small: '+JSON.stringify(sign));
     await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-'+other.id+'-subjects.png'),
       animations:'disabled'});
-    await scene.locator('button.laria-reference-place').click();
+    await scene.locator('button.laria-reference-heading').click();
     assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
     assert.equal(await scene.locator('nav.laria-reference-subject-nav').isVisible(),false);
     const rail=scene.locator('nav.laria-scene-navigation');
@@ -265,7 +277,7 @@ async function run(engine,name,viewport){
     }
     await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-landscape-'+other.id+'-activities.png'),
       animations:'disabled'});
-    await rail.locator('.laria-reference-activities-back').click();
+    await scene.locator('button.laria-reference-heading').click();
     await page.setViewportSize(viewport);
     await page.waitForFunction(selector=>{
       const scene=document.querySelector(selector);

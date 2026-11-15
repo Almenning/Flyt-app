@@ -33,14 +33,14 @@
  const escapeHandlers=new WeakMap();
  const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function icon(id){return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+paths[id]+'</svg>'}
- // Only ONE navigation rail may be visible. The large right plaque is a
- // location label and the doorway to the SAME left-hand activity rail.
+ // Only ONE left sign rail may be visible. The plain heading replaces the
+ // rejected wooden place plaque and toggles the SAME left-hand rails.
  function setMode(scene,mode,focus=false){
   if(!scene?.isConnected)return;
   const activities=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
   const subjects=scene.querySelector('nav.laria-reference-subject-nav');
-  const plaque=scene.querySelector('button.laria-reference-place');
-  if(!activities||!subjects||!plaque)return;
+  const heading=scene.querySelector('button.laria-reference-heading');
+  if(!activities||!subjects||!heading)return;
   const activityMode=mode==='activities';
   scene.dataset.lariaReferenceMode=activityMode?'activities':'subjects';
   if(scene.dataset.lariaReferenceSubject)
@@ -49,10 +49,9 @@
   subjects.inert=activityMode;
   activities.setAttribute('aria-hidden',String(!activityMode));
   subjects.setAttribute('aria-hidden',String(activityMode));
-  plaque.setAttribute('aria-expanded',String(activityMode));
-  plaque.setAttribute('aria-label',(activityMode?'Vis fagmenyen fra ':'Vis aktiviteter i ')+scene.dataset.lariaReferenceSubject);
-  const prompt=plaque.querySelector('.laria-reference-place-action');
-  if(prompt)prompt.textContent=activityMode?'Tilbake til fagene ‹':'Utforsk eventyrene ›';
+  heading.setAttribute('aria-expanded',String(!activityMode));
+  heading.setAttribute('aria-label',(activityMode?'Bytt fag fra ':'Vis aktiviteter i ')+scene.dataset.lariaReferenceSubject);
+  heading.setAttribute('title',activityMode?'Velg et annet fag':'Vis aktivitetene');
   if(focus){
    const next=activityMode?
     activities.querySelector('.laria-wayfinder:not([disabled])'):
@@ -88,12 +87,8 @@
   if(!ipad&&!iphonePortrait&&!iphoneLandscape)return false;
   const rail=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
   if(!rail||rail.querySelectorAll('.laria-wayfinder').length!==3)return false;
-  const home=scene.querySelector('[data-laria-component="home"]');
-  if(home){
-   home.dataset.lariaReferenceHidden='true';
-   home.setAttribute('aria-hidden','true');
-   home.setAttribute('tabindex','-1');
-  }
+  // Preserve the real round Home action and its original click handler.
+  // It is not a second wooden sign rail.
   const nav=root.document.createElement('nav');
   nav.className='laria-reference-subject-nav';
   nav.dataset.lariaComponent='subject-switcher';
@@ -107,28 +102,22 @@
    const button=event.target.closest('[data-laria-ref-subject]');
    if(button&&nav.contains(button))navigate(button.dataset.lariaRefSubject,subject,scene);
   });
-  const plaque=root.document.createElement('button');
-  plaque.type='button';
-  plaque.className='laria-reference-place';
-  plaque.dataset.lariaRefOpenActivities='1';
-  plaque.setAttribute('aria-controls','laria-reference-activities-'+subject);
-  plaque.innerHTML='<span class="laria-reference-place-kicker" aria-hidden="true">'+icon(subject)+'</span>'+
-    '<strong>'+safe(names[subject])+'</strong><small>'+safe(places[subject])+'</small>'+
-    '<em class="laria-reference-place-action">Utforsk ›</em>';
-  plaque.addEventListener('click',()=>setMode(scene,
+  // Text-only heading below the unchanged Læria logo, not a new illustration.
+  // The original selected troll remains an independent live TrollActor.
+  const heading=root.document.createElement('button');
+  heading.type='button';
+  heading.className='laria-reference-heading';
+  heading.dataset.lariaRefOpenActivities='1';
+  heading.setAttribute('aria-controls','laria-reference-activities-'+subject);
+  heading.innerHTML='<strong>'+safe(names[subject])+'</strong><small>'+safe(places[subject])+'</small>';
+  heading.addEventListener('click',()=>setMode(scene,
     scene.dataset.lariaReferenceMode==='subjects'?'activities':'subjects',true));
   // Reuse, never clone, the three REAL activity buttons. They become the
   // left-hand signs only when the child explicitly opens this subject.
   rail.id='laria-reference-activities-'+subject;
   rail.setAttribute('aria-label','Velg eventyr i '+names[subject]);
-  const back=root.document.createElement('button');
-  back.type='button';
-  back.className='laria-reference-activities-back laria-reference-subject-sign';
-  back.dataset.lariaRefBackToSubjects='1';
-  back.setAttribute('aria-label','Tilbake til fagene');
-  back.innerHTML=icon('home')+'<span>Fagene</span>';
-  back.addEventListener('click',()=>setMode(scene,'subjects',true));
-  rail.insertBefore(back,rail.firstChild);
+  // Only three actual activity signs appear in the approved scene.
+  // Tapping the heading switches to five-subject navigation.
   // Keep the original live buttons and handlers. Add presentation-only
   // icons from the SAME pictogram family used by the five Home-style signs.
   const activitiesByWorld={
@@ -199,12 +188,12 @@
     event.preventDefault();cancelHold();
    }
   });
-  scene.appendChild(nav);scene.appendChild(plaque);scene.appendChild(adult);
+  scene.appendChild(nav);scene.appendChild(heading);scene.appendChild(adult);
   scene.classList.add('laria-reference-layout-v1');
   scene.dataset.lariaReferenceLayout='v1';
   scene.dataset.lariaReferenceArt='original-preserved';
   scene.dataset.lariaReferenceSubject=names[subject];
-  setMode(scene,preferredRail.get(names[subject])||'subjects');
+  setMode(scene,preferredRail.get(names[subject])||'activities');
   // External iPad keyboards: Escape returns from activities to the same
   // subject sign rail. Restrict it to menu controls, not the live troll,
   // settings or an activity that owns its own keyboard behavior.
@@ -212,7 +201,7 @@
    if(event.key!=='Escape'||event.defaultPrevented||
       scene.dataset.lariaReferenceMode!=='activities'||
       !scene.closest('.screen.active'))return;
-   if(!event.target.closest?.('nav.laria-scene-navigation, button.laria-reference-place'))return;
+   if(!event.target.closest?.('nav.laria-scene-navigation, button.laria-reference-heading'))return;
    event.preventDefault();
    event.stopPropagation();
    setMode(scene,'subjects',true);
@@ -250,11 +239,9 @@
    escapeHandlers.delete(scene);
   }
   const rail=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
-  const home=scene.querySelector('[data-laria-component="home"]');
   if(rail){
    rail.inert=false;
    rail.removeAttribute('aria-hidden');
-   rail.querySelector('.laria-reference-activities-back')?.remove();
    // Unmount restores each original learning button without decoration.
    rail.querySelectorAll('.laria-reference-activity-icon').forEach(el=>el.remove());
    // The original Tallvika button belongs to the original scene outside the
@@ -262,12 +249,8 @@
    const next=rail.querySelector('.tv-next-sign.laria-reference-next');
    if(next){next.classList.remove('laria-reference-next');scene.appendChild(next);}
   }
-  if(home){
-   delete home.dataset.lariaReferenceHidden;
-   home.removeAttribute('aria-hidden');home.removeAttribute('tabindex');
-  }
   scene.querySelector(':scope > nav.laria-reference-subject-nav')?.remove();
-  scene.querySelector(':scope > button.laria-reference-place')?.remove();
+  scene.querySelector(':scope > button.laria-reference-heading')?.remove();
   scene.querySelector(':scope > button.laria-reference-settings')?.remove();
   preferredRail.delete(scene.dataset.lariaReferenceSubject);
   scene.classList.remove('laria-reference-layout-v1');

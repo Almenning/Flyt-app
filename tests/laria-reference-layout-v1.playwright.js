@@ -42,6 +42,20 @@ async function testEngine(engine,name,device,viewport){
     assert.equal(await scene.locator('.laria-troll-speech').count(),1,
       world.id+' duplicated the chosen troll speech bubble');
    }
+   // Approved scene opens with the three real activity signs, not an extra back sign.
+   const entryTitle=scene.locator('button.laria-reference-heading');
+   assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
+   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),3);
+   assert.equal(await scene.locator('nav.laria-reference-subject-nav').isVisible(),false);
+   assert.equal(await scene.locator('button.laria-reference-place').count(),0);
+   assert.equal(await scene.locator('.laria-reference-activities-back').count(),0);
+   assert.equal(await entryTitle.locator('strong').textContent(),
+     {norwegian:'Norsk',math:'Matte',geography:'Geografi'}[world.id]);
+   assert.equal(await entryTitle.locator('small').textContent(),
+     {norwegian:'Eggenipa',math:'Tallvika',geography:'Nordlysleiren'}[world.id]);
+   await page.screenshot({path:path.join(out,name+'-'+device+'-'+world.id+'-approved-entry.png'),animations:'disabled'});
+   await entryTitle.click();
+   assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects');
    const nav=scene.locator('nav.laria-reference-subject-nav');
    assert.equal(await nav.locator('button').count(),5,world.id+' five destination signs');
    assert.equal(await nav.locator('button[aria-current="page"]').count(),1,world.id+' active menu');
@@ -65,7 +79,7 @@ async function testEngine(engine,name,device,viewport){
      world.id+' shows a duplicate Premium sticker beneath the locked logo');
    // One visible navigation rail, as in the user's locked composition.
    const activities=scene.locator('nav.laria-scene-navigation');
-   const plaque=scene.locator('button.laria-reference-place');
+   const plaque=scene.locator('button.laria-reference-heading');
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects');
    assert.equal(await activities.isVisible(),false,world.id+' duplicates signs on the right');
    assert.equal(await scene.locator('.laria-wayfinder:visible, .tv-next-sign:visible').count(),0,
@@ -85,29 +99,28 @@ async function testEngine(engine,name,device,viewport){
    assert.match(grovanovaSubjects.posts,/laria-grovanova-signposts\.svg/,
      world.id+' lacks the two shared posts of Grovanova');
    assert.equal(await plaque.isVisible(),true);
-   assert.equal(await plaque.getAttribute('aria-expanded'),'false');
-   assert.equal(await plaque.locator('.laria-reference-place-kicker svg').count(),1,
-     world.id+' place plaque does not use the shared subject icon from the locked sketch');
-
+   assert.equal(await plaque.getAttribute('aria-expanded'),'true');
+   assert.equal(await scene.locator('button.laria-reference-place').count(),0);
+   // The lock has a text-only heading below the unchanged Læria logo.
    const titleMetrics=await plaque.evaluate(el=>{
-     const title=el.querySelector('strong'),place=el.querySelector('small'),entry=el.querySelector('em');
-     return {height:el.getBoundingClientRect().height,
+     const title=el.querySelector('strong'),place=el.querySelector('small');
+     const rect=el.getBoundingClientRect();
+     return {height:rect.height,center:rect.left+rect.width/2,
        background:getComputedStyle(el).backgroundImage,
        title:parseFloat(getComputedStyle(title).fontSize),
-       place:parseFloat(getComputedStyle(place).fontSize),
-       entry:parseFloat(getComputedStyle(entry).fontSize),
-       posts:parseFloat(getComputedStyle(el,'::after').height)};
+       place:parseFloat(getComputedStyle(place).fontSize)};
    });
-   assert.ok(titleMetrics.height>=190&&titleMetrics.title>=40&&titleMetrics.place>=19&&titleMetrics.entry>=14,
-     world.id+' arched title plaque has unreadably small content: '+JSON.stringify(titleMetrics));
-   assert.match(titleMetrics.background,/arched-plaque/,world.id+' did not use upgraded single arched wooden plaque');
-   assert.ok(titleMetrics.posts>=60,world.id+' title plaque two posts are too short');
-
+   assert.ok(titleMetrics.height>=70&&titleMetrics.title>=40&&titleMetrics.place>=19,
+     world.id+' the restored heading is too small: '+JSON.stringify(titleMetrics));
+   assert.equal(titleMetrics.background,'none',
+     world.id+' rejected wooden place plaque unexpectedly returned');
+   assert.ok(Math.abs(titleMetrics.center-viewport.width/2)<=5,
+     world.id+' restored text heading not centered');
    const boxes=await scene.evaluate(el=>{
     const rect=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};
     return {
       menu:[...el.querySelectorAll('.laria-reference-subject-sign')].filter(x=>x.closest('.laria-reference-subject-nav')).map(rect),
-      plaque:rect(el.querySelector('.laria-reference-place')),
+      plaque:rect(el.querySelector('.laria-reference-heading')),
       hiddenActions:[...el.querySelectorAll('.laria-scene-navigation > .laria-wayfinder')].length
     };
    });
@@ -118,8 +131,8 @@ async function testEngine(engine,name,device,viewport){
     assert.ok(box.w>=44&&box.h>=44&&box.r<viewport.width*.40,
       world.id+' destination sign outside sole left rail');
    }
-   assert.ok(boxes.plaque.l>viewport.width*.54&&boxes.plaque.r<=viewport.width+3,
-      world.id+' title plaque is not on the right');
+   assert.ok(boxes.plaque.l>=0&&boxes.plaque.r<=viewport.width+3,
+     world.id+' restored text heading is clipped');
    assert.ok(boxes.plaque.w>=44&&boxes.plaque.h>=44,'open activities target must be accessible');
    // Top controls are real actions: existing troll chooser, and the
    // protected adult settings. Grade selection remains independently present.
@@ -166,8 +179,10 @@ async function testEngine(engine,name,device,viewport){
      world.id+' original TrollActor is too small for the locked reference: '+JSON.stringify(actorBox));
    assert.ok(actorBox.x>menuBox.x+menuBox.width+8,
      world.id+' original TrollActor overlaps the left navigation');
-   assert.ok(actorBox.x+actorBox.width+8<plaqueBox.x,
-     world.id+' original TrollActor overlaps the title plaque');
+   const overlap2D=(a,b)=>Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x))*
+     Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y));
+   assert.ok(overlap2D(actorBox,plaqueBox)<1,
+     world.id+' selected live TrollActor overlaps the restored heading');
    assert.ok(actorBox.y>=0&&actorBox.y+actorBox.height<=viewport.height+4,
      world.id+' original TrollActor is clipped');
    if(world.id!=='math'){
@@ -204,12 +219,12 @@ async function testEngine(engine,name,device,viewport){
     assert.match(source.transform,/matrix\(1\.054, 0, 0, 1\.054, 0, 0\)/,
       'original thumbnail white sky stripe was not cropped by art-safe overscan');
    }
-   const oldHome=scene.locator('[data-laria-reference-hidden="true"]');
-   assert.equal(await oldHome.count(),1,'one original legacy Home anchor');
-   assert.equal(await oldHome.isVisible(),false,'no double Home control');
+   const liveHome=scene.locator('[data-laria-component="home"]');
+   assert.equal(await liveHome.count(),1,'original round Home control must remain');
+   assert.equal(await liveHome.isVisible(),true,'original Home control is hidden');
    await page.screenshot({path:path.join(out,name+'-'+device+'-'+world.id+'.png'),animations:'disabled'});
-   // The wooden title opens the same left-side location formerly occupied by
-   // the five subject signs. No second right-hand activity stack is permitted.
+   // The plain subject heading swaps the one left-hand rail without
+   // creating a second activity menu on the right.
    await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
    assert.equal(await nav.isVisible(),false,world.id+' subject rail remained visible with activities');
@@ -221,7 +236,7 @@ async function testEngine(engine,name,device,viewport){
      getComputedStyle(el.matches('.eg-scene-hit')?el.querySelector('span'):el).backgroundImage);
    assert.match(sameArrow,/laria-light-arrow-sign\.svg/,
      world.id+' activity menu uses a different arrow board');
-   assert.equal(await plaque.getAttribute('aria-expanded'),'true');
+   assert.equal(await plaque.getAttribute('aria-expanded'),'false');
    assert.equal(await activities.locator('.laria-wayfinder').count(),3,
      world.id+' must preserve all three live activity controls');
    const allVisibleActions=scene.locator('.laria-wayfinder:visible, .tv-next-sign:visible');
@@ -240,11 +255,8 @@ async function testEngine(engine,name,device,viewport){
     assert.ok(r&&r.x>=0&&r.x+r.width<viewport.width*.40,
       'Next adventure button escaped left rail: '+JSON.stringify(r));
    }
-   assert.equal(await activities.locator('.laria-reference-activities-back').count(),1);
-   const returnSignArt=await activities.locator('.laria-reference-activities-back').evaluate(el=>
-     getComputedStyle(el).backgroundImage);
-   assert.match(returnSignArt,/laria-light-arrow-sign\.svg/,
-     world.id+' activity return sign must use the same light oak as subjects');
+   assert.equal(await activities.locator('.laria-reference-activities-back').count(),0,
+     world.id+' an extra Back sign appeared in the approved three-activity layout');
    const activityBoxes=await activities.locator('.laria-wayfinder').evaluateAll(nodes=>nodes.map(x=>{
     const r=x.getBoundingClientRect();
     return {l:r.left,r:r.right,t:r.top,b:r.bottom,w:r.width,h:r.height};
@@ -319,8 +331,8 @@ async function testEngine(engine,name,device,viewport){
      world.id+' Escape did not return to the subject menu');
    assert.equal(await nav.isVisible(),true,world.id+' subject menu hidden after Escape');
    assert.equal(await activities.isVisible(),false,world.id+' activity menu still visible after Escape');
-   assert.equal(await plaque.getAttribute('aria-expanded'),'false',
-     world.id+' plaque incorrectly remains expanded after Escape');
+   assert.equal(await plaque.getAttribute('aria-expanded'),'true',
+     world.id+' restored heading does not expose the five-subject rail after Escape');
    const currentSubject=nav.locator('button[aria-current="page"]');
    assert.equal(await currentSubject.evaluate(el=>document.activeElement===el),true,
      world.id+' Escape did not restore focus to the current subject');
@@ -329,7 +341,7 @@ async function testEngine(engine,name,device,viewport){
      world.id+' Escape from subject menu must not toggle a second rail');
    await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
-   await activities.locator('.laria-reference-activities-back').click();
+   await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects');
    assert.equal(await nav.isVisible(),true);
    assert.equal(await activities.isVisible(),false);
@@ -337,7 +349,7 @@ async function testEngine(engine,name,device,viewport){
    // exactly the same activities, and never creates a right-hand menu.
    await nav.locator('[data-laria-ref-subject="'+world.id+'"]').click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
-   await activities.locator('.laria-reference-activities-back').click();
+   await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects');
 
    await nav.locator('[data-laria-ref-subject="home"]').click();
@@ -359,19 +371,23 @@ async function testEngine(engine,name,device,viewport){
   // Test the new five-sign navigation itself, not only a return to Home.
   // Clicking an inactive subject must reuse the original child routes.
   await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  await page.locator('#eggenipa-world .laria-reference-heading').click();
   await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="math"]').click();
   await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
+  await page.locator('#tallvika-world .laria-reference-heading').click();
   await page.locator('#tallvika-world .laria-reference-subject-nav [data-laria-ref-subject="geography"]').click();
   await page.locator('#laria-geography-world .gv-scene.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
+  await page.locator('#laria-geography-world .laria-reference-heading').click();
   await page.locator('#laria-geography-world .laria-reference-subject-nav [data-laria-ref-subject="norwegian"]').click();
   await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
+  await page.locator('#eggenipa-world .laria-reference-heading').click();
   await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:17000});
   // The three signs are the actual learning routes, not decorative labels.
   // Exercise two independent activity engines through their real DOM buttons
   // and confirm their Back actions restore the same subject artwork.
   await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
-  await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 button.laria-reference-place').click();
+  // The three original activity signs are visible on entry.
   await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 .eg-scene-hit[data-eg="words"]').click();
   const wordHunt=page.locator('#word-hunt-overlay:not([hidden])');
   await wordHunt.waitFor({state:'visible',timeout:16000});
@@ -381,17 +397,17 @@ async function testEngine(engine,name,device,viewport){
   await wordHunt.locator('.word-hunt-theme-picker:not([hidden]) .wh-theme-close:visible').click();
   await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1').waitFor({state:'visible',timeout:16000});
   assert.equal(await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1').getAttribute('data-laria-reference-mode'),'activities');
-  await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-reference-activities-back').click();
+  await page.locator('#eggenipa-world .eg-hero.laria-reference-layout-v1 .laria-reference-heading').click();
   await page.locator('#eggenipa-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:16000});
   await page.locator('#home-screen .bc14-subject[data-camp="subject-math"]').click();
-  await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1 button.laria-reference-place').click();
+  // The three original activity signs are visible on entry.
   await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-sign[data-tv="multiply"]').click();
   await page.locator('#multiplication-lab-screen.active').waitFor({state:'visible',timeout:17000});
   await page.locator('#multiplication-lab-back').click();
   await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1').waitFor({state:'visible',timeout:17000});
   assert.equal(await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1').getAttribute('data-laria-reference-mode'),'activities');
-  await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1 .laria-reference-activities-back').click();
+  await page.locator('#tallvika-world .tv-scene.laria-reference-layout-v1 .laria-reference-heading').click();
   await page.locator('#tallvika-world .laria-reference-subject-nav [data-laria-ref-subject="home"]').click();
   await home.waitFor({state:'visible',timeout:16000});
   await page.locator('#home-screen .bc14-subject[data-camp="subject-english"]').click();

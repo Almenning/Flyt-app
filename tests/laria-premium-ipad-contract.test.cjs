@@ -62,6 +62,24 @@ assert.match(visual,/laria-logo-from-grovanova\.svg/,
 assert.match(carvedOak,/håndskåret treskilt/,
  'All three subject worlds must use the same carved wood sign family');
 
+// New explicit owner lock supersedes the rejected right-hand place plaque.
+// The concept image is never shipped as a background or a painted troll.
+const headingLock=read('docs/LARIA-LOCKED-CLEAN-HEADING-2026-11-15.md');
+const referenceRuntime=read('laer-litt-mer/laria-reference-layout-v1.js');
+for(const phrase of ['stor stedsplakett','egen, levende DOM-komponent','aldri del av','tre ekte læringsknappene'])
+ assert.ok(headingLock.includes(phrase),'Missing approved live-troll heading lock: '+phrase);
+assert.match(referenceRuntime,/className='laria-reference-heading'/,
+ 'The rejected wooden title must be replaced by a plain subject heading');
+assert.doesNotMatch(referenceRuntime,/className='laria-reference-place'/,
+ 'Do not recreate the large wooden right-hand plaque');
+assert.match(referenceRuntime,/preferredRail\.get\(names\[subject\]\)\|\|'activities'/,
+ 'Approved scene must show the three real learning signs immediately');
+assert.match(referenceRuntime,/const heading=root\.document\.createElement\('button'\)/,
+ 'The text heading must remain an interactive DOM element');
+assert.match(refSigns,/button\.laria-reference-heading/,
+ 'Text-only heading needs a dedicated style, not a new wooden sign');
+assert.match(referenceRuntime,/laria-reference-subject-nav/,
+ 'Five-subject navigation must remain available from the heading');
 assert.match(visual,/laria-home-round\.svg/,'Shared round Home button must stay canonical');
 const kinnaklova=read('laer-litt-mer/kinnaklova.js');
 assert.match(kinnaklova,/APPROVED_ART_SHA256/,'Kinnaklova clean artwork must preserve its integrity gate');
