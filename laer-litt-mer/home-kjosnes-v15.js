@@ -92,7 +92,7 @@ function ensureHomeSignHits(host){
   button.addEventListener('click',event=>{
    event.preventDefault();
    if(!host.classList.contains('bc15-locked-home'))return;
-   if(host.dataset.bc15Master!=='landscape'&&!isIpadHome())return;
+   if(host.dataset.bc15Master!=='landscape'&&!isIpadHome()&&!host.classList.contains('bc15-phone-fagmenu'))return;
    // Reuse Basecamp's existing subject route, including geography return state.
    if(typeof window.LARIA_HOME_OPEN_SUBJECT==='function')window.LARIA_HOME_OPEN_SUBJECT(id);
    else host.querySelector('.bc14-subject[data-camp="subject-'+id+'"]')?.click();
@@ -150,9 +150,12 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  // Coordinates are relative to the underlying image, not fixed pixels.
  const signs=ensureHomeSignHits(host);
  const liveIpadPortrait=isIpadHome()&&portrait;
+ const livePhonePortrait=isPhone()&&portrait&&host.dataset.bc15CardArt==='clean-candidate';
+ const livePortrait=liveIpadPortrait||livePhonePortrait;
  host.classList.toggle('bc15-ipad-fagmenu',isIpadHome());
- signs.hidden=portrait&&!liveIpadPortrait;
- signs.dataset.bc15Presentation=liveIpadPortrait?'live':'painted';
+ host.classList.toggle('bc15-phone-fagmenu',livePhonePortrait);
+ signs.hidden=portrait&&!livePortrait;
+ signs.dataset.bc15Presentation=livePortrait?'live':'painted';
  if(!portrait){
   const signBoxes=[
    [.012,.314,.170,.074], // Norsk
@@ -164,26 +167,39 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    place(button,box,signBoxes[index],viewport);
   });
  }
- if(liveIpadPortrait){
-  // Portrait master has NO painted left-hand signs. Use the same four live
-  // oak arrows as the other subject facades, positioned within locked art.
-  const signBoxes=[
-   [-.135,.260,.245,.068], // Norsk: narrower left rail, clear of painted children
-   [-.135,.332,.245,.068], // Matte: same oak board, no overlapping figures
+ if(livePortrait){
+  // The approved iPad rail is unchanged. Phones have no side gutter, so
+  // four shared oak boards sit together in the card-free meadow instead.
+  const phoneBoardPx=Math.max(44,Math.min(50,box.height*.065));
+  const phoneGapPx=Math.max(4,Math.min(10,box.height*.012));
+  const phoneRow0=.725;
+  const phoneRow1=phoneRow0+(phoneBoardPx+phoneGapPx)/box.height;
+  const phoneHeight=phoneBoardPx/box.height;
+  const signBoxes=livePhonePortrait?[
+   [.050,phoneRow0,.425,phoneHeight], // Norsk
+   [.525,phoneRow0,.425,phoneHeight], // Matte
+   [.050,phoneRow1,.425,phoneHeight], // Engelsk
+   [.525,phoneRow1,.425,phoneHeight] // Geografi
+  ]:[
+   [-.135,.260,.245,.068], // Norsk
+   [-.135,.332,.245,.068], // Matte
    [-.135,.404,.245,.068], // Engelsk
    [-.135,.476,.245,.068]  // Geografi
   ];
-  signs.querySelectorAll('.bc15-painted-subject').forEach((button,index)=>{
-   place(button,box,signBoxes[index],viewport);
-  });
-  const first=signs.querySelector('.bc15-painted-subject');
-  const last=signs.querySelector('.bc15-painted-subject:last-child');
-  const top=parseFloat(first?.style.top)||0;
-  const bottom=(parseFloat(last?.style.top)||0)+(parseFloat(last?.style.height)||0);
-  signs.style.setProperty('--bc15-post-left',(parseFloat(first?.style.left)||0)+'px');
+  const buttons=[...signs.querySelectorAll('.bc15-painted-subject')];
+  buttons.forEach((button,index)=>place(button,box,signBoxes[index],viewport));
+  const boxes=buttons.map(button=>({
+   left:parseFloat(button.style.left)||0,top:parseFloat(button.style.top)||0,
+   width:parseFloat(button.style.width)||0,height:parseFloat(button.style.height)||0
+  }));
+  const left=Math.min(...boxes.map(b=>b.left));
+  const top=Math.min(...boxes.map(b=>b.top));
+  const right=Math.max(...boxes.map(b=>b.left+b.width));
+  const bottom=Math.max(...boxes.map(b=>b.top+b.height));
+  signs.style.setProperty('--bc15-post-left',left+'px');
   signs.style.setProperty('--bc15-post-top',(top+8)+'px');
-  signs.style.setProperty('--bc15-post-width',(parseFloat(first?.style.width)||120)+'px');
-  signs.style.setProperty('--bc15-post-height',Math.max(0,bottom-top+45)+'px');
+  signs.style.setProperty('--bc15-post-width',(right-left)+'px');
+  signs.style.setProperty('--bc15-post-height',Math.max(0,bottom-top+(livePhonePortrait?1:45))+'px');
  }else{
   for(const p of ['--bc15-post-left','--bc15-post-top','--bc15-post-width','--bc15-post-height'])
    signs.style.removeProperty(p);
@@ -265,7 +281,7 @@ async function activate(){
  host.dataset.bc15CardArt='locked-original';
  host.querySelector('.bc14-subjects')?.removeAttribute('aria-hidden');
  if(host.querySelector('.bc14-subjects'))host.querySelector('.bc14-subjects').inert=false;
- host.classList.remove('bc15-ipad-fagmenu','bc15-landscape-bleed');
+ host.classList.remove('bc15-ipad-fagmenu','bc15-phone-fagmenu','bc15-landscape-bleed');
  const youngBand=!!document.querySelector('.grade-band-young');
  if(!youngBand){
    host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');
@@ -290,7 +306,7 @@ async function activate(){
  const portrait=isPortrait();
  const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
  const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
- const wantsClean=isIpadHome();
+ const wantsClean=isIpadHome()||isPhone();
  host.classList.add('bc15-pending');
  host.dataset.bc15Asset='loading';
  try{
