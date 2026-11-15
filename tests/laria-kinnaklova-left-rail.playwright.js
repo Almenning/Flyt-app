@@ -38,6 +38,19 @@ async function visit(engine,name,device,viewport){
   assert.equal(await stage.locator('.ki-world-brand:visible').count(),1,'must have one real Læria logo');
   assert.equal((await stage.locator('.laria-reference-heading strong').textContent()).trim(),'Engelsk');
   assert.equal((await stage.locator('.laria-reference-heading small').textContent()).trim(),'Kinnaklova');
+  const controls=await stage.evaluate(stage=>{
+   const r=sel=>stage.querySelector(sel)?.getBoundingClientRect();
+   const brand=r('.ki-world-brand'),heading=r('.laria-reference-heading');
+   const home=r('.ki-painted-home'),choose=r('.ki-stage-choose');
+   const overlaps=(a,b)=>!!(a&&b&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top);
+   const visible=sel=>{const el=stage.querySelector(sel);return !!(el&&getComputedStyle(el).display!=='none'&&getComputedStyle(el).visibility!=='hidden')};
+   return {headingAboveLogo:overlaps(brand,heading),chooserOverLogo:overlaps(brand,choose),
+    homeVisible:visible('.ki-painted-home'),homeWidth:home?.width};
+  });
+  assert.equal(controls.headingAboveLogo,false,'English heading must never overlap Læria logo');
+  assert.equal(controls.chooserOverLogo,false,'Troll chooser must not cover Læria logo');
+  assert.equal(controls.homeVisible,true,'Compact devices must not hide Home');
+  assert.ok(controls.homeWidth>=44,'Home needs a 44px touch target');
   const art=stage.locator('img.ki-master');
   assert.match(await art.getAttribute('src'),/kinnaklova-ui-free-approved\.webp/);
   const dimensions=await art.evaluate(img=>[img.naturalWidth,img.naturalHeight]);
