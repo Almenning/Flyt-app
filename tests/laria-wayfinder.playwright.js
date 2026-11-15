@@ -69,19 +69,22 @@ async function run(browserType,engine,name,viewport){
    });
    assert.ok(b.w>=44&&b.h>=44&&b.x>=-2&&b.x+b.w<=viewport.width+2&&b.y>=-2&&b.y+b.h<=viewport.height+2,
      engine+' '+name+' '+spec.id+' sign outside device: '+JSON.stringify(b));
-   // The locked Kinnaklova original already paints Words. An extra
-   // visible board would duplicate those pixels. On iPad the Words button
-   // stays transparent; portrait still supplies new, legible Sentences and
-   // Reading planks where the approved panoramic camera cuts them off.
-   const usesPaintedEnglishSign=spec.id==='english'&&
-     viewport.width>=701&&viewport.height>=600;
-   if(usesPaintedEnglishSign){
-     assert.equal(b.background,'none',
-       engine+' '+name+' English duplicated a sign already painted in the certified Kinnaklova art');
-     const nameVisibility=await sign.locator('.ki-plank-name').evaluate(el=>getComputedStyle(el).visibility);
-     assert.equal(nameVisibility,'hidden',engine+' '+name+' English duplicate sign caption returned');
-     assert.equal(await root.locator('.ki-world-brand:visible').count(),0,
-       engine+' '+name+' English should retain its painted Læria title, not a second logo');
+   // Kinn now uses the certified UI-free image and the SAME left-hand
+   // live sign family as the other subjects. Do not regress to invisible
+   // hotspots over the original painted Words/Sentences/Reading labels.
+   if(spec.id==='english'&&viewport.width>=701&&viewport.height>=600){
+     assert.equal(await root.getAttribute('data-ki-premium-art'),'approved',
+       engine+' '+name+' English clean art adapter not enabled');
+     assert.match(b.background,/laria-light-arrow-sign\.svg/,
+       engine+' '+name+' English missing shared oak board');
+     assert.equal(await root.locator('.ki-world-brand:visible').count(),1,
+       engine+' '+name+' English must show one live brand on clean art');
+     const leftRail=root.locator('.ki-stage > nav.laria-scene-navigation');
+     const boxes=await leftRail.locator('.ki-painted-hit:visible').evaluateAll(nodes=>
+       nodes.map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom}}));
+     assert.equal(boxes.length,3,engine+' '+name+' requires three English activities');
+     assert.ok(boxes.every(x=>x.left>=0&&x.right<viewport.width*.40),
+       engine+' '+name+' English activity signs escaped left rail: '+JSON.stringify(boxes));
    }else{
      assert.match(b.background,/laria-light-arrow-sign\.svg/,
        engine+' '+name+' '+spec.id+' did not render the matching Grovanova arrow');
