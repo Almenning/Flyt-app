@@ -137,10 +137,10 @@ async function run(browserType,name,viewport){
       Math.abs(frame.width-viewport.width)<=2&&Math.abs(frame.height-viewport.height)<=2,
       name+' iPad/desktop must be one full-viewport Kinnaklova scene: '+JSON.stringify(frame));
     assert.equal(frame.imageFit,'cover',name+' artwork should fill scene, without deforming pixels');
-    // Kinnaklova's SHA-verified artwork already paints the Læria crest.
-    // A second HTML header created an obvious double-logo visual defect.
-    assert.equal(await world.locator('.ki-world-brand:visible').count(),0,
-      name+' added a duplicate HTML crest over the original painted Læria heading');
+    // The sign-free original derivative uses exactly one live Læria crest.
+    const isClean=await world.getAttribute('data-ki-premium-art')==='approved';
+    assert.equal(await world.locator('.ki-world-brand:visible').count(),isClean?1:0,
+      name+' must not duplicate the Læria crest');
   }else{
     assert.ok(Math.abs(art.height-art.width*941/1672)<3,name+' compact phone must retain uncropped original art');
   }
@@ -267,13 +267,13 @@ async function rejectPoisonedSameSizeArt(){
   },seed);
   const page=await context.newPage(),artRequests=[];
   page.on('request',request=>{
-   if(request.url().includes('kinnaklova-scene-clean-approved-20261026.webp'))
+   if(request.url().includes('kinnaklova-ui-free-approved.webp'))
     artRequests.push(request.url());
   });
   const unrelatedImage=path.join(__dirname,'..','laer-litt-mer','assets','norsk','eggenipa-master-laast-20261025.png');
   // A valid image with the exact right dimensions, but not the approved
   // clean Kinnaklova master, must not activate painted signs or troll layers.
-  await page.route('**/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp',
+  await page.route('**/assets/kinnaklova/kinnaklova-ui-free-approved.webp',
     route=>route.fulfill({path:unrelatedImage,contentType:'image/png'}));
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
