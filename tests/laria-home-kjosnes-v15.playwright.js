@@ -330,5 +330,6 @@ async function run(engine,label,viewport){
    ['safari-iphone',webkit,{width:390,height:844}],
    ['safari-ipad',webkit,{width:820,height:1180}],
    ['safari-ipad-landscape',webkit,{width:1180,height:820}]
- ])await run(engine,label,viewport);
+ ].filter(([label])=>process.env.LARIA_IPAD_ONLY!=='1'||label.includes('ipad')))
+  await run(engine,label,viewport);
 })().catch(e=>{console.error(e);process.exitCode=1});
