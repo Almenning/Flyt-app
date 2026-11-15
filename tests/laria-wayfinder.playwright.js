@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Real painted Grovanova arrow hotspots + ONE shared light-wood sign across
    all four subjects. Browser and screen renders are from the exact PR SHA. */
 const assert=require('node:assert/strict');
@@ -75,7 +76,7 @@ async function run(browserType,engine,name,viewport){
   await page.screenshot({path:path.join(out,engine+'-'+name+'-home.png'),animations:'disabled',fullPage:false});
   for(const spec of worlds){
    const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));
-   await home.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
+   await openHomeSubject(page,spec.id);
    const root=page.locator(spec.root+':visible');
    await root.waitFor({timeout:20000});
    if(spec.id==='english')await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:20000});
