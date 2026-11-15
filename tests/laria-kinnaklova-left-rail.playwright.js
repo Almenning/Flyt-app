@@ -33,7 +33,8 @@ async function visit(engine,name,device,viewport){
   const stage=await enter(page);
   const world=page.locator('#kinnaklova-world');
   assert.equal(await world.getAttribute('data-ki-premium-art'),'approved');
-  assert.equal(await world.getAttribute('data-ki-unified-left-rail'),'ready');
+  assert.equal(await stage.locator('nav.laria-scene-navigation:visible').count(),1,
+    'English must show one real left oak rail, not a retired internal readiness marker');
   assert.equal(await stage.locator('.ki-world-brand:visible').count(),1,'must have one real Læria logo');
   assert.equal((await stage.locator('.laria-reference-heading strong').textContent()).trim(),'Engelsk');
   assert.equal((await stage.locator('.laria-reference-heading small').textContent()).trim(),'Kinnaklova');

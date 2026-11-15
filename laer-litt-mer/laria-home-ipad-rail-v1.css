@@ -122,3 +122,15 @@
      #000 calc(var(--bc15-art-top,0px) + 24px),#000 100%)!important;
  }
 }
+
+/* A child's journey status must be readable on iPad, not a 9px annotation.
+ * Keep the wood-colored cover so old painted placeholder text cannot ghost. */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px){
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu .bc15-live-next{
+   font-size:clamp(13px,1.25vw,15px)!important;
+   line-height:1.08!important;
+   letter-spacing:.005em!important;
+   font-weight:900!important;
+   padding:2px 8px!important;
+ }
+}

@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 
 const assert=require('node:assert/strict');
 const http=require('node:http');
@@ -156,7 +157,7 @@ async function verifyBasecamp(page,label,width,height){
   }
   // After visiting the globe, a personalized "Fortsett reisen" may
   // correctly follow Geografi. Select Norsk for this subject geometry QA.
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').tap();
+  await openHomeSubject(page,'norwegian');
    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
   // The Norwegian map is retired. Touch the real reading entrance and
   // verify readable lesson, return, and unchanged accessible geometry.

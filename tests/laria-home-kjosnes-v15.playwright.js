@@ -46,6 +46,14 @@ async function homeReady(page,label){
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
  const portrait=label.includes('iphone')||(label.includes('ipad')&&!label.includes('landscape'));
  const cardArt=await home.getAttribute('data-bc15-card-art');
+ if(label.includes('ipad')){
+   const status=await home.locator('.bc15-live-next').evaluate(el=>{
+     const s=getComputedStyle(el),r=el.getBoundingClientRect();
+     return {fontSize:parseFloat(s.fontSize),height:r.height,width:r.width};
+   });
+   assert.ok(status.fontSize>=13&&status.height>=20,
+     label+' next-stop copy is too small for a child: '+JSON.stringify(status));
+ }
  const expected=cardArt==='clean-candidate'?
   (portrait?'kjosnes-home-phone-no-bottom-cards.webp':'kjosnes-home-tablet-no-bottom-cards.webp'):
   (portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp');

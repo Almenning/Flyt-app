@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Journey mission menu: before/after completion and correct continuation.
    Direct worlds keep their own character contract; Nordlysleiren uses the same selected troll. */
 const assert=require('node:assert/strict');
@@ -52,9 +53,9 @@ async function run(engine,label,viewport,url){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(url+'&premium-mission='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:20000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:20000});
   for(const subject of ['norwegian','math','english','geography']){
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await openHomeSubject(page,subject);
    if(subject==='norwegian'){
      // The retired map is not part of the child's Norsk route. The reading
      // engine must run while the historical node IDs stay untouched.
@@ -114,7 +115,7 @@ async function run(engine,label,viewport,url){
      await tv.waitFor({state:'visible',timeout:12000});
      assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),before,label+' opening mission changed progress');
      await tv.locator('[data-tv="back"]').click();
-     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
    }
    if(subject==='english'){
@@ -156,7 +157,7 @@ async function run(engine,label,viewport,url){
      const back=world.locator('.ki-utility [data-ki="home"]');
      if(await back.isVisible())await back.click();
      else await world.locator('.ki-painted-home').click();
-     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:16000});
+     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:16000});
      continue;
    }
    if(subject==='geography'){
@@ -265,8 +266,7 @@ async function run(engine,label,viewport,url){
    assert(completion.doneIds.length>0,label+' '+subject+' no mission to complete');
    // The original persisted progress must survive a real reload, not just a rerender.
    await page.reload({waitUntil:'domcontentloaded'});
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:20000});
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await openHomeSubject(page,subject);
    if(subject==='geography'){
      const landing=page.locator('#laria-geography-world:visible');
      await landing.waitFor({timeout:16000});
@@ -310,7 +310,7 @@ async function run(engine,label,viewport,url){
      await landing.waitFor({timeout:12000});
      await landing.locator('[data-gv="home"]').click();
    }
-   await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');
   console.log('PASS journey premium mission menus',label,viewport);

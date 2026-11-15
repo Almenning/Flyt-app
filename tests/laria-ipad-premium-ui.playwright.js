@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* iPad-first interface gate: four real PR-head subjects, identical companion
    chooser, three usable scene destinations and immutable progression. */
 const assert=require('node:assert/strict');
@@ -33,7 +34,7 @@ async function run(engine,engineName,label,viewport){
     });
   });
   for(const spec of worlds){
-   await page.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
+   await openHomeSubject(page,spec.id);
    const world=page.locator(spec.root+':visible');
    await world.waitFor({timeout:18000});
    if(spec.id==='english'){
