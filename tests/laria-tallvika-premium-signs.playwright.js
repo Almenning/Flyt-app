@@ -61,7 +61,9 @@ async function collect(page){
       background:navStyle.backgroundImage,
       backgroundSize:navStyle.backgroundSize,
       before:navBefore.content,
-      after:navAfter.content
+      after:navAfter.content,
+      beforeImage:navBefore.backgroundImage,
+      afterImage:navAfter.backgroundImage
     }:null;
     const sceneCss=getComputedStyle(scene);
     return {viewport:{width:innerWidth,height:innerHeight},
@@ -69,6 +71,7 @@ async function collect(page){
       clientWidth:document.documentElement.clientWidth,
       scene:summary(scene),sceneBackground:sceneCss.backgroundImage,sceneBackgroundSize:sceneCss.backgroundSize,sceneBackgroundPosition:sceneCss.backgroundPosition,
       speech:summary(document.querySelector('#tallvika-world .tv-actor-speech')),
+      referenceLayout:scene.classList.contains("laria-reference-layout-v1"),
       actions,next,selected,lockedSign,brand};
   });
 }
@@ -106,8 +109,17 @@ function assertPremium(a,label){
     label+' live Læria/Tallvika logo has missing geometry');
   assert.ok(a.lockedSign,label+' missing semantic sign navigation host');
   assert.equal(a.lockedSign.background,'none',label+' old stacked sign rack is still visible');
-  assert.equal(a.lockedSign.before,'none',label+' CSS-drawn left signpost returned');
-  assert.equal(a.lockedSign.after,'none',label+' CSS-drawn right signpost returned');
+  if(a.referenceLayout){
+    // The real premium rail has ONE shared pair of oak posts behind all signs.
+    // It is not the old fake full-stage sign rack or a second right-side menu.
+    assert.match(a.lockedSign.beforeImage||'',/laria-grovanova-signposts\.svg/,
+      label+' premium rail lost its shared oak support');
+    assert.notEqual(a.lockedSign.before,'none',label+' shared posts are invisible');
+    assert.equal(a.lockedSign.after,'none',label+' an extra right-side signpost returned');
+  }else{
+    assert.equal(a.lockedSign.before,'none',label+' old left signpost returned');
+    assert.equal(a.lockedSign.after,'none',label+' old right signpost returned');
+  }
   assert.ok(a.next&&a.next.width>=44&&a.next.height>=44,label+' missing Next adventure');
   assert.ok(a.next.x>=0&&a.next.right<=a.viewport.width+2&&a.next.bottom<=a.viewport.height+4,
     label+' Next adventure is clipped');
@@ -201,7 +213,8 @@ async function run(browserType,engine,device,viewport,sha){
   },null,2));
   let failures=0;
   for(const [engine,browserType] of [['chromium',chromium],['webkit',webkit]]){
-    for(const [name,viewport] of devices){
+    for(const [name,viewport] of devices.filter(([device])=>
+      process.env.LARIA_IPAD_ONLY!=="1"||device.startsWith("ipad"))){
       try{await run(browserType,engine,name,viewport,sha);console.log('PASS '+engine+' '+name);}
       catch(e){failures++;console.error('FAIL '+engine+' '+name+': '+e.message);}
     }
