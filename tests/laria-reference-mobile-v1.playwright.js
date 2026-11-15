@@ -1,6 +1,7 @@
 'use strict';
 /* Læria phone-portrait reference QA. Original paintings and saved progress
  * must remain untouched; the three clean scenes reuse the same live buttons. */
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
@@ -37,7 +38,7 @@ async function run(engine,name,viewport){
   await fs.promises.mkdir(out,{recursive:true});
   await page.screenshot({path:path.join(out,name+'-'+viewport.width+'-home-locked.png'),animations:'disabled'});
   for(const world of worlds){
-   await page.locator('#home-screen .bc14-subject[data-camp="subject-'+world.id+'"]').click();
+   await openHomeSubject(page,world.id);
    const scene=page.locator(world.selector);
    await scene.waitFor({state:'visible',timeout:25000});
    // The new approved picture opens on the three actual activity signs,
@@ -117,7 +118,7 @@ async function run(engine,name,viewport){
   }
   // A real iPhone rotates. The approved layout skeleton must stay the SAME
   // single rail at 844x390 / 932x430, not jump to the old scattered menu.
-  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  await openHomeSubject(page,'norwegian');
   const rotated=page.locator('#eggenipa-world .eg-hero');
   await rotated.locator('button.laria-reference-heading').waitFor({state:'visible',timeout:15000});
   await rotated.locator('button.laria-reference-heading').click();
@@ -206,7 +207,7 @@ async function run(engine,name,viewport){
   await home.waitFor({state:'visible',timeout:16000});
   // The child must never enter parental settings with a short tap.
   // The same protected 1.5s hold gate is enforced on a real phone viewport.
-  await page.locator('#home-screen .bc14-subject[data-camp="subject-norwegian"]').click();
+  await openHomeSubject(page,'norwegian');
   await rotated.locator('button.laria-reference-heading').waitFor({state:'visible',timeout:16000});
   const adultGate=rotated.locator('button.laria-reference-settings');
   await adultGate.click();
@@ -229,7 +230,7 @@ async function run(engine,name,viewport){
     {id:'math',world:'#tallvika-world .tv-scene'},
     {id:'geography',world:'#laria-geography-world .gv-scene'}
   ]){
-    await page.locator('#home-screen .bc14-subject[data-camp="subject-'+other.id+'"]').click();
+    await openHomeSubject(page,other.id);
     const scene=page.locator(other.world);
     await scene.waitFor({state:'visible',timeout:23000});
     await page.setViewportSize({width:viewport.height,height:viewport.width});
