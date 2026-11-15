@@ -303,7 +303,16 @@ async function rejectPoisonedSameSizeArt(){
   }
   assert.equal(await painted.isVisible(),false,'Wrong 1672x941 art must be invisible');
   assert.equal(await page.locator('#kinnaklova-world .ki-companions').isVisible(),false);
-  assert.equal(await page.locator('#kinnaklova-world .ki-painted-words').isVisible(),false);
+  const poisonedSign=await page.locator('#kinnaklova-world .ki-painted-words').evaluate(el=>{
+   const s=getComputedStyle(el),world=el.closest('#kinnaklova-world');
+   return {visibility:s.visibility,display:s.display,opacity:s.opacity,
+    premium:world?.dataset.kiPremiumArt,art:world?.dataset.kiArt,
+    reference:el.closest('.ki-stage')?.dataset.lariaReferenceLayout};
+  });
+  assert.equal(await page.locator('#kinnaklova-world .ki-painted-words').isVisible(),false,
+   'A SHA-rejected Kinnaklova must hide live sign touch targets: '+JSON.stringify(poisonedSign));
+  assert.equal(poisonedSign.visibility,'hidden',
+   'A SHA-rejected Kinnaklova sign is painted: '+JSON.stringify(poisonedSign));
   assert.equal(await page.locator('#kinnaklova-world .ki-card').count(),3,
    'Even with incorrect art, real English activities must remain reachable');
   console.log('[KINNAKLOVA] missing or poisoned art correctly blocked in Chromium');
