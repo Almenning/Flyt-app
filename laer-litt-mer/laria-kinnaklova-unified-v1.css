@@ -178,3 +178,13 @@
 #kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-painted-hit{
   visibility:hidden!important;opacity:0!important;pointer-events:none!important;
 }
+
+/* A rejected or tampered image must never strand a child on an empty stage.
+   Retain the three original English activity cards as keyboard/touch fallback;
+   the premium rail is inactive until its artwork passes integrity checks. */
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-intro{
+  display:flex!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-actions{
+  display:grid!important;
+}
