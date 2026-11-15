@@ -43,7 +43,9 @@
     '.mh-story-fox > img',
     '.country-story-fox',
     '.gm-fox-art > img',
-    '.gm-book-fox-art > img'
+    '.gm-book-fox-art > img',
+    '.journey-player-v4 > img',
+    '.journey-player-v5 > img'
   ].join(',');
 
   const timers=new WeakMap();
@@ -126,7 +128,7 @@
     return lines.length?lines[Math.floor(Math.random()*lines.length)]:'';
   }
   function hostFor(el){
-    return el?.closest?.('.laria-troll-host,.locked-journey-traveler,.task-fox-companion,.fr2-guide,.fr2-mastery-banner,.fr4-scene-fox,.mp-avatar,.mp-mascot,.mp-art-practice,.mp-pick-easy-intro,.mp-pick-mentor,.word-hunt-top,.premium-globe-header')||null;
+    return el?.closest?.('.laria-troll-host,.locked-journey-traveler,.task-fox-companion,.fr2-guide,.fr2-mastery-banner,.fr4-scene-fox,.mp-avatar,.mp-mascot,.mp-art-practice,.mp-pick-easy-intro,.mp-pick-mentor,.word-hunt-top,.premium-globe-header,.journey-player-v4,.journey-player-v5')||null;
   }
   function speech(host,text){
     if(!host||!text||host.closest('#home-screen .bc15-locked-home'))return;

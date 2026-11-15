@@ -137,6 +137,18 @@ html[data-laria-character-system="troll"] #world-screen .premium-globe-guide:not
 }
 .laria-troll-speech[data-show="true"]{opacity:1;transform:translate(-50%,0) scale(1)}
 
+/* Retired journey maps used an inline fox. The original selected TrollActor
+ * now lives as a separate DOM image inside the same next-mission marker. */
+.journey-player-v4.laria-troll-host,
+.journey-player-v5.laria-troll-host{
+  pointer-events:none!important;overflow:visible!important;
+  border:0!important;background:transparent!important;box-shadow:none!important;
+}
+:is(.journey-player-v4,.journey-player-v5).laria-troll-host > img.laria-premium-troll-art{
+  display:block!important;width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center bottom!important;
+}
+
 /* Journey companion: feet remain grounded on the existing route anchor and shrink into scene depth. */
 .locked-journey-board .locked-journey-traveler.laria-troll-host{
   width:clamp(42px,11.5%,78px)!important;height:auto!important;aspect-ratio:1/2!important;

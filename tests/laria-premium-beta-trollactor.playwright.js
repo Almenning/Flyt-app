@@ -192,6 +192,20 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
     'lillesoster',
     label+' selected troll identity lost'
   );
+  // Render the actual journey helper before the observer can replace any art.
+  const marker=await page.evaluate(()=>{
+    const fixture=document.createElement('div');
+    fixture.innerHTML=journeyTrollMarkup();
+    const img=fixture.querySelector('img');
+    return {src:img?.getAttribute('src'),
+      isTroll:img?.classList.contains('laria-premium-troll-art'),
+      hasFoxSvg:fixture.querySelector('svg')!==null};
+  });
+  assert.equal(marker.src,'./assets/gangemagi-troll/lillesoster.webp',
+    label+' journey marker does not respect the saved selected troll');
+  assert.equal(marker.isTroll,true,label+' journey marker is not TrollActor art');
+  assert.equal(marker.hasFoxSvg,false,label+' journey marker still paints a fox');
+
 
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:18000});

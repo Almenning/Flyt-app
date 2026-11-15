@@ -5381,8 +5381,11 @@ function journeySceneDetails(subject,areaIndex){
 
 
 let selectedJourneyMission=null;
-function journeyFoxSvg(){
-  return '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 19L20 7l9 13h6L44 7l10 12-4 24c-2 9-10 15-18 15S16 52 14 43z" fill="#ED883E" stroke="#8B4E25" stroke-width="2.6" stroke-linejoin="round"/><path d="M20 9l4 12-9-5zM44 9l-4 12 9-5z" fill="#693B29"/><path d="M22 39c2 7 7 11 10 11s8-4 10-11c-6 3-14 3-20 0z" fill="#FFF3DF"/><circle cx="24" cy="31" r="2.4" fill="#24324C"/><circle cx="40" cy="31" r="2.4" fill="#24324C"/><path d="M29 38h6l-3 4z" fill="#24324C"/></svg>';
+function journeyTrollMarkup(){
+  // The selected, original troll is used before any async runtime update.
+  const saved=typeof state!=='undefined'&&state?.profile?.tallvikaTroll;
+  const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
+  return '<img class="laria-premium-troll-art" data-troll="'+id+'" src="./assets/gangemagi-troll/'+id+'.webp" alt="" aria-hidden="true" decoding="async">';
 }
 function journeySpecialSvg(kind){
   if(kind==='checkpoint')return '<svg viewBox="0 0 48 48"><path d="M24 4l6 12 13 2-9 9 2 13-12-6-12 6 2-13-9-9 13-2z" fill="#E1AA33" stroke="#785614" stroke-width="2.4" stroke-linejoin="round"/></svg>';
@@ -5580,10 +5583,10 @@ function journeyNodeMarkupV4(node,point,st,isNext,future,isGeo=false){
   const badge=journeyNodeBadgeV3(node,st),isCheckpoint=node.type==='checkpoint',isSide=node.type==='challenge'||node.type==='review';
   const attr=isGeo?'data-geo-journey-node':'data-journey-node';
   const label=isNext?'<span class="journey-next-label-v4"><b>NESTE OPPDRAG</b><strong>'+node.title+'</strong></span>':'';
-  const fox=isNext?'<span class="journey-player-v4">'+journeyFoxSvg()+'</span>':'';
+  const traveler=isNext?'<span class="journey-player-v4 laria-troll-host laria-troll-actor" data-laria-troll-mood="idle">'+journeyTrollMarkup()+'</span>':'';
   const goal=isCheckpoint?'<span class="journey-goal-label-v4"><b>VERDENSMÅL</b><strong>'+node.title+'</strong></span>':'';
   const side=isSide?'<span class="journey-side-label-v4">'+(node.type==='challenge'?'BONUS':'REPETISJON')+'</span>':'';
-  return '<button type="button" class="journey-node-v4 type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" '+attr+'="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+(isGeo?geoJourneyStatusText(node,st):journeyStatusText(node,st)))+'">'+label+fox+'<span class="node-pad-v4">'+journeySkillGlyph(node,isGeo)+(badge?'<span class="journey-state-v4">'+badge+'</span>':'')+'</span>'+goal+side+'</button>';
+  return '<button type="button" class="journey-node-v4 type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" '+attr+'="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+(isGeo?geoJourneyStatusText(node,st):journeyStatusText(node,st)))+'">'+label+traveler+'<span class="node-pad-v4">'+journeySkillGlyph(node,isGeo)+(badge?'<span class="journey-state-v4">'+badge+'</span>':'')+'</span>'+goal+side+'</button>';
 }
 
 function journeyWorldArtV5(subject,index,locked=false,progress=0,complete=false){
@@ -5721,13 +5724,13 @@ function journeyNodeMarkupV5(node,point,st,isNext,future,isGeo=false,stepNumber=
   const visual=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st;
   const badge=journeyNodeBadgeV3(node,st),isCheckpoint=node.type==='checkpoint',isSide=node.type==='challenge'||node.type==='review';
   const attr=isGeo?'data-geo-journey-node':'data-journey-node';
-  const fox=isNext?'<span class="journey-player-v5">'+journeyFoxSvg()+'</span><span class="journey-next-flag-v5"><b>NESTE OPPDRAG</b><strong>'+node.title+'</strong></span>':'';
+  const traveler=isNext?'<span class="journey-player-v5 laria-troll-host laria-troll-actor" data-laria-troll-mood="idle">'+journeyTrollMarkup()+'</span><span class="journey-next-flag-v5"><b>NESTE OPPDRAG</b><strong>'+node.title+'</strong></span>':'';
   const checkpoint=isCheckpoint?'<span class="journey-checkpoint-banner-v5">TROFÉTEST</span>':'';
   const number=!isSide&&!isCheckpoint?'<span class="level-number-v5">'+stepNumber+'</span>':'';
   const cls=isSide?' type-side':'';
   const status=visual==='next'?'SPILL':visual==='future'?'LÅST':st==='mastered'||st==='passed'?'MESTRET':st==='can-now'?'KLAR':st==='active'?'PÅ GANG':isSide?(node.type==='challenge'?'BONUS':'REPETER'):'NY';
   const label='<span class="node-name-v6"><strong>'+node.title+'</strong><small>'+status+'</small></span>';
-  return '<button type="button" class="journey-node-v5 type-'+node.type+cls+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" '+attr+'="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+(isGeo?geoJourneyStatusText(node,st):journeyStatusText(node,st)))+'">'+fox+'<span class="node-pedestal-v5"><span class="node-shadow-v5"></span><span class="node-platform-v5"></span><span class="node-glyph-v5">'+journeySkillGlyph(node,isGeo)+'</span>'+(badge?'<span class="journey-state-v5">'+badge+'</span>':'')+number+'</span>'+checkpoint+label+'</button>';
+  return '<button type="button" class="journey-node-v5 type-'+node.type+cls+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" '+attr+'="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+(isGeo?geoJourneyStatusText(node,st):journeyStatusText(node,st)))+'">'+traveler+'<span class="node-pedestal-v5"><span class="node-shadow-v5"></span><span class="node-platform-v5"></span><span class="node-glyph-v5">'+journeySkillGlyph(node,isGeo)+'</span>'+(badge?'<span class="journey-state-v5">'+badge+'</span>':'')+number+'</span>'+checkpoint+label+'</button>';
 }
 
 function journeyGateV5(open=false){

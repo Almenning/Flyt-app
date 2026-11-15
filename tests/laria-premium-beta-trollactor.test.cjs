@@ -37,6 +37,22 @@ assert.match(runtime,/const MOODS=new Set\(\['idle','wave','walking','think','hi
   'TrollActor reaction vocabulary changed');
 assert.match(runtime,/profile\(\)\?\.tallvikaTroll/,'Selected troll must come from the persisted profile');
 assert.match(runtime,/\.bc12-fox > img/,'Legacy Home fox must migrate outside locked Grovanova');
+// Retired journey-map markers must render the stored, original forest troll.
+assert.ok(!index.includes('function journeyFoxSvg()'),
+  'Retired hard-coded fox drawing is still used by a journey map');
+assert.ok(index.includes('function journeyTrollMarkup()'),
+  'Journey markers must use an original forest troll');
+assert.ok(index.includes("['storesoster','lillesoster','lillebror'].includes(saved)"),
+  'Journey marker must validate saved character on first paint');
+for(const variant of ['v4','v5']){
+  assert.ok(index.includes('journey-player-'+variant+' laria-troll-host laria-troll-actor'),
+    variant+' must be a separate living TrollActor');
+  assert.ok(runtime.includes('.journey-player-'+variant+' > img'),
+    variant+' must update when the chosen troll changes');
+}
+assert.ok(css.includes('journey-player-v5).laria-troll-host > img.laria-premium-troll-art'),
+  'Journey markers must use the shared TrollActor image rules');
+
 assert.match(runtime,/if\(img\.closest\('#home-screen \.bc15-locked-home'\)\)/,
   'Locked Grovanova must have an explicit DOM-only companion branch');
 assert.match(runtime,/if\(img\.getAttribute\('src'\)!==troll\.src\)img\.setAttribute\('src',troll\.src\);/,
