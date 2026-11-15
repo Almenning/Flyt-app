@@ -45,6 +45,7 @@ jobs:
       LARIA_REFERENCE_SCREENSHOTS: /tmp/laria-ipad-reference
       LARIA_KINNAKLOVA_SCREENSHOTS: /tmp/laria-ipad-kinnaklova
       LARIA_WAYFINDER_SHOTS: /tmp/laria-ipad-wayfinder
+      HOME_V15_SCREENSHOTS: /tmp/laria-ipad-home-no-bottom-cards
       LARIA_TALLVIKA_PREMIUM_SCREENSHOTS: /tmp/laria-ipad-tallvika
     steps:
       - uses: actions/checkout@v4
@@ -62,6 +63,8 @@ jobs:
           node --check tests/laria-reference-layout-v1.playwright.js
           node --check tests/laria-kinnaklova.playwright.js
           node --check tests/laria-wayfinder.playwright.js
+          node --check tests/laria-home-kjosnes-v15.playwright.js
+          node --check laer-litt-mer/home-kjosnes-v15.js
           node --check tests/laria-tallvika-premium-signs.playwright.js
       - name: Serve exact checked-out PR files
         run: |
@@ -85,6 +88,11 @@ jobs:
         if: always()
         continue-on-error: true
         run: node tests/laria-wayfinder.playwright.js
+      - name: Confirm four bottom Home cards are gone and iPad sign routes work
+        id: home
+        if: always()
+        continue-on-error: true
+        run: node tests/laria-home-kjosnes-v15.playwright.js
       - name: Check Tallvika connected wood signs and original live troll
         id: tallvika
         if: always()
@@ -101,6 +109,7 @@ jobs:
             /tmp/laria-ipad-kinnaklova
             /tmp/laria-ipad-wayfinder
             /tmp/laria-ipad-tallvika
+            /tmp/laria-ipad-home-no-bottom-cards
             /tmp/laria-ipad-http.log
           if-no-files-found: warn
           retention-days: 14
@@ -113,9 +122,11 @@ jobs:
           echo "Kinnaklova: ${{ steps.english.outcome }}"
           echo "Wayfinding: ${{ steps.wayfinder.outcome }}"
           echo "Tallvika: ${{ steps.tallvika.outcome }}"
+          echo "Home no-card: ${{ steps.home.outcome }}"
           test "${{ steps.identity.outcome }}" = "success"
           test "${{ steps.reference.outcome }}" = "success"
           test "${{ steps.english.outcome }}" = "success"
           test "${{ steps.wayfinder.outcome }}" = "success"
           test "${{ steps.tallvika.outcome }}" = "success"
+          test "${{ steps.home.outcome }}" = "success"
           echo "Automated iPad checks passed. Separate human visual approval is still required."
