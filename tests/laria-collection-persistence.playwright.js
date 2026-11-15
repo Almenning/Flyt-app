@@ -27,7 +27,7 @@ async function verify(browserType,label,viewport){
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(url+'&collection-qa='+label,{waitUntil:'domcontentloaded'});
-    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:18000});
+    await page.locator('#home-screen.active .bc12:visible').first().waitFor({timeout:18000});
     // Preserve exact, already-approved original portraits for manual visual QA,
     // so a clothing cutout cannot silently replace a child's chosen fox.
     const originals=await page.evaluate(()=>Object.fromEntries(['boy','girl'].map(id=>[
@@ -105,7 +105,7 @@ async function verify(browserType,label,viewport){
     assert.equal(await page.evaluate(()=>window.LARIA_COLLECTION_STORE.equip('eventyrskjerf')),true);
     await page.evaluate(()=>{state.profile.avatar='girl';saveState()});
     await page.reload({waitUntil:'domcontentloaded'});
-    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:18000});
+    await page.locator('#home-screen.active .bc12:visible').first().waitFor({timeout:18000});
     const persisted=await page.evaluate(()=>({
       profile:state.profile,
       source:document.querySelector('.bc12-fox img')?.getAttribute('src'),
@@ -157,7 +157,7 @@ async function verify(browserType,label,viewport){
       'previous owned item must be reconstructed from still-present learning');
     // A repaired historical inventory must not change either the legacy
     // profile field or the ONE selected, living TrollActor.
-    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:18000});
+    await page.locator('#home-screen.active .bc12:visible').first().waitFor({timeout:18000});
     assert.equal(await page.evaluate(()=>state.profile.avatar),'girl',
       'invalid inventory recovery must preserve historical profile avatar data');
     assert.equal(await page.evaluate(()=>window.LARIA_TROLL_ACTOR.choice()),'storesoster',

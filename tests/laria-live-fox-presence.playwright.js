@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Legacy filename kept for CI compatibility. Læria Premium uses the
  * three LOCKED living forest trolls, NOT old foxes. Validate real Geografi
  * travel, a task reaction, old profile-data preservation and child progress.
@@ -35,7 +36,7 @@ async function run(engine,name,viewport,legacyAvatar){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(BASE+'&living-troll='+name,{waitUntil:'domcontentloaded',timeout:60000});
   const home=page.locator('#home-screen.active');
-  await home.locator('.bc14-subject:visible').first().waitFor({timeout:17000});
+  await home.locator('.bc12:visible').first().waitFor({timeout:17000});
   assert.equal(await page.evaluate(()=>state.profile.avatar),legacyAvatar,
     name+' historical user data changed');
   assert.equal(await page.evaluate(()=>window.LARIA_TROLL_ACTOR.choice()),'storesoster');
@@ -49,7 +50,7 @@ async function run(engine,name,viewport,legacyAvatar){
   const originalJourney=await persistedJourney();
 
   // Open the real Nordic landskap, not an obsolete direct geography map.
-  await home.locator('.bc14-subject[data-camp="subject-geography"]').click();
+  await openHomeSubject(page,'geography');
   const landing=page.locator('#geography-screen.active #laria-geography-world');
   await landing.waitFor({state:'visible',timeout:17000});
   const sceneActor=landing.locator('.gv-troll[data-troll="storesoster"]');

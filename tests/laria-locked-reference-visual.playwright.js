@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* REAL original-image browser evidence. This is intentionally different from
  * the SVG decoder-stub interaction test: it runs when the relevant approved
  * original art is committed, and verifies Kinnaklova directly for English. Screenshots + visible hotspots
@@ -44,10 +45,10 @@ async function check(engine,label,viewport){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
   await page.goto(url+'&locked-original='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12:visible').first().waitFor({timeout:16000});
   for(const subject of subjects){
    const screen=subject==='geography'?'geography':'subject';
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await openHomeSubject(page,subject);
    await page.locator('#'+screen+'-screen.active').waitFor();
     if(subject==='norwegian'){
       await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});

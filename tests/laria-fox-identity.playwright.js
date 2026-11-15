@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Læria migration regression: the retired "fox" filename is retained ONLY
  * because older GitHub Actions refer to it. The product character is now
  * one of THREE approved living forest trolls, never a visible fox.
@@ -43,7 +44,7 @@ async function run(engine,label,viewport,avatar){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(BASE+'&troll-migration='+label,{waitUntil:'domcontentloaded',timeout:60000});
   const home=page.locator('#home-screen.active');
-  await home.locator('.bc14-subject:visible').first().waitFor({timeout:20000});
+  await home.locator('.bc12:visible').first().waitFor({timeout:20000});
   assert.equal(await page.evaluate(()=>state.profile.avatar),avatar,
    label+' must retain persisted legacy profile information');
   assert.deepEqual(await page.evaluate(()=>window.LARIA_TROLL_ACTOR.ids),
@@ -75,9 +76,7 @@ async function run(engine,label,viewport,avatar){
   })),initial,label+' selecting a troll changed learning progress');
 
   for(const spec of SCENES){
-   const go=home.locator('.bc14-subject[data-camp="subject-'+spec.subject+'"]');
-   await go.waitFor({state:'visible',timeout:16000});
-   await go.click();
+   await openHomeSubject(page,spec.subject);
    const world=page.locator(spec.root);
    await world.waitFor({state:'visible',timeout:16000});
    const actor=world.locator(spec.actor);
@@ -103,11 +102,11 @@ async function run(engine,label,viewport,avatar){
    // editing saved data just to satisfy a test.
    const back=world.locator(spec.home+':visible').first();
    await back.click();
-   await home.locator('.bc14-subject:visible').first().waitFor({timeout:16000});
+   await home.locator('.bc12:visible').first().waitFor({timeout:16000});
   }
   // Reload must preserve child-selected TrollActor and legacy profile fields.
   await page.reload({waitUntil:'domcontentloaded',timeout:60000});
-  await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12:visible').first().waitFor({timeout:16000});
   const after=await page.evaluate(()=>({
    profileAvatar:state.profile.avatar,
    selectedTroll:state.profile.tallvikaTroll,

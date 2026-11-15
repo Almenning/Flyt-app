@@ -37,7 +37,7 @@ async function expectTroll(page,selector,troll,label){
 
 async function launch(page,url,troll){
  await page.goto(url,{waitUntil:'domcontentloaded'});
- await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:17000});
+ await page.locator('#home-screen.active .bc12:visible').first().waitFor({timeout:17000});
  assert.equal(await page.evaluate(()=>state.profile.tallvikaTroll),troll);
  assert.equal(await page.evaluate(()=>window.LARIA_TROLL_ACTOR?.choice?.()),troll);
 }
