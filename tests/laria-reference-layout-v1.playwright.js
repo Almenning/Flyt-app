@@ -277,6 +277,34 @@ async function testEngine(engine,name,device,viewport){
    assert.ok(separatePosts.every(item=>item.display==='none'||item.content==='none'),
      world.id+' retains per-board posts instead of one shared Home post-pair: '+
      JSON.stringify(separatePosts));
+   if(world.id==='norwegian'){
+     // Visual regression: legacy Eggenipa green-arrow discs must not be
+     // generated on the text board OR the nested premium pictogram.
+     const originalButtons=activities.locator('button.eg-scene-hit.laria-wayfinder');
+     assert.equal(await originalButtons.count(),3,'Norsk must preserve its three original learning buttons');
+     const arrows=await originalButtons.evaluateAll(nodes=>nodes.map(button=>{
+       const face=button.querySelector(':scope > span');
+       const icon=face.querySelector('.laria-reference-activity-icon');
+       const faceAfter=getComputedStyle(face,'::after');
+       const iconAfter=getComputedStyle(icon,'::after');
+       const style=getComputedStyle(icon);
+       const rect=icon.getBoundingClientRect();
+       return {
+         faceAfter:{display:faceAfter.display,content:faceAfter.content},
+         iconAfter:{display:iconAfter.display,content:iconAfter.content},
+         iconBorder:style.borderTopWidth,
+         iconBackground:style.backgroundImage,
+         iconWidth:rect.width,iconHeight:rect.height
+       };
+     }));
+     assert.ok(arrows.every(s=>
+       (s.faceAfter.display==='none'||s.faceAfter.content==='none')&&
+       (s.iconAfter.display==='none'||s.iconAfter.content==='none')&&
+       s.iconBorder==='0px'&&s.iconBackground==='none'&&
+       s.iconWidth>=18&&s.iconHeight>=18&&s.iconHeight<=36),
+       'Norsk premium still has legacy green arrow discs or framed pictograms: '+
+       JSON.stringify(arrows));
+   }
    const leftEdges=activityBoxes.map(r=>r.l);
    const subjectsLeft=boxes.menu[0].l;
    assert.ok(leftEdges.every(left=>Math.abs(left-subjectsLeft)<=3),

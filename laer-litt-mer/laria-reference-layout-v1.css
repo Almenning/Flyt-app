@@ -221,6 +221,25 @@
  font:900 clamp(18px,2.1vw,29px)/1.08 var(--laria-ui-font,system-ui)!important;
  color:#3d2715!important;text-shadow:0 1px 0 #fff2d2!important;
 }
+/* The original Eggenipa button has a green circular › made by
+ * eggenipa.css on every nested span::after. In the reference activity rail
+ * that legacy decoration must not compete with the shared oak-sign icon.
+ * Leave original buttons, destinations and fallback scene untouched. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder span::after{
+ content:none!important;display:none!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder span.laria-reference-activity-icon{
+ box-sizing:border-box!important;display:grid!important;place-items:center!important;
+ flex:0 0 30px!important;width:30px!important;height:30px!important;
+ min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+ padding:0!important;margin:0!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:none!important;filter:none!important;transform:none!important;
+ color:var(--laria-sign-ink)!important;text-shadow:none!important;white-space:normal!important;
+ pointer-events:none!important;
+}
 /* Return to the five subject destinations within the exact same rail. */
 .laria-reference-layout-v1 > nav.laria-scene-navigation
  > .laria-reference-activities-back.laria-reference-subject-sign{
