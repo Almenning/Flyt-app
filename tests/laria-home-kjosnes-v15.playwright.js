@@ -253,8 +253,15 @@ async function run(engine,label,viewport){
    assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
      label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert.equal(geom.scenicFilter,'none',label+' Home safe-area fill must not blur the locked artwork');
-   assert.doesNotMatch(geom.scenicBg,/url\(/,
-     label+' safe-area fill must not repeat logo, gear, text or other painted UI from the locked artwork');
+   if(!portrait&&label.includes('ipad')&&cleanHome){
+     // Exception is ONLY the 1127x20 verified source crop from BEFORE the
+     // painted top-right nav. Any whole illustration/other URL is forbidden.
+     assert.match(geom.scenicBg,/\/assets\/home-v15\/kjosnes-home-tablet-scenic-top-edge\.webp/,
+       label+' top safe area must use the pixel-locked UI-free sky strip, not another artwork: '+geom.scenicBg);
+   }else{
+     assert.doesNotMatch(geom.scenicBg,/url\(/,
+       label+' safe-area fill must not repeat logo, gear, text or other painted UI');
+   }
    if(portrait){
      assert(geom.artLeft>=-1&&geom.artLeft+geom.artWidth<=geom.viewport+1,
        label+' portrait artwork must not crop the locked original/navigation: '+JSON.stringify({artLeft:geom.artLeft,artWidth:geom.artWidth,viewport:geom.viewport}));
