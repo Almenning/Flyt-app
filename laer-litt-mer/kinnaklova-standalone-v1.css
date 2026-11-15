@@ -1,6 +1,7 @@
 /* Kinnaklova-only shared premium rail. The locked painting is not replaced. */
 #kinnaklova-world[data-ki-premium-art="approved"]{
  --laria-sign-art:url("./assets/ui/laria-light-arrow-sign.svg");
+ --laria-home-art:url("./assets/ui/laria-home-round.svg");
  --laria-sign-ink:#3d2715;
  --laria-sign-shadow:drop-shadow(0 5px 5px #231709c2);
  --ref-left:3%;

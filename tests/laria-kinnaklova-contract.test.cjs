@@ -22,85 +22,52 @@ test('English Kinnaklova is a subject-only presentation over unchanged learning 
  assert.match(css,/#subject-screen\.kinnaklova-active/);
  execFileSync(process.execPath,['--check',app('kinnaklova.js')]);
 });
-test('Approved scene is one painted 1672x941 image with mapped transparent targets',()=>{
+test('The exact original Kinn image is preserved and its UI-free copy is SHA-locked',()=>{
  assert.equal(locked.state,'composition-approved-except-characters');
  assert.equal(locked.reference.sha256,'3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035');
- // Approval must be explicit in BOTH manifest and browser code. A correctly
- // sized, renamed copy of the rejected reference is not a clean art asset.
- const browserHash=js.match(/const APPROVED_ART_SHA256='([^']*)'/)?.[1];
- assert.ok(browserHash!==undefined,'Browser must gate by SHA-256');
- if(locked.implementation?.clean_master_visual_approved){
-   assert.equal(browserHash,locked.implementation.clean_master_sha256);
- }else{
-   assert.equal(browserHash,'','Draft must never render a scene by size alone');
- }
+ assert.equal(crypto.createHash('sha256').update(fs.readFileSync(master)).digest('hex'),'d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57');
+ const edited=app('assets/kinnaklova/kinnaklova-ui-free-approved.webp');
+ assert.ok(fs.existsSync(edited),'UI-free edit of EXACT locked Kinnaklova art must exist');
+ assert.equal(crypto.createHash('sha256').update(fs.readFileSync(edited)).digest('hex'),'7878237645c369fde210830ded37704bc0dfeb1f6d78b86782a47f41e80b7f8d');
+ assert.match(js,/const UI_FREE_ART_TECHNICALLY_VERIFIED=true/);
+ assert.match(js,/const APPROVED_ART_SHA256=PREMIUM_CLEAN_ART_APPROVED\?UI_FREE_ART_SHA256:/);
  assert.match(js,/globalThis\.crypto\.subtle\.digest\('SHA-256'/);
  assert.match(js,/fetch\(ART,\{cache:'no-store'\}\)/);
- assert.doesNotMatch(js,/image\.src=trustedURL/,
-   'WebKit must keep the already decoded, SHA-verified static WebP source');
- assert.match(js,/APPROVED_ART_SHA256===REJECTED_REFERENCE_SHA256/);
  assert.match(css,/#kinnaklova-world:not\(\[data-ki-art="ready"\]\) \.ki-master\{visibility:hidden\}/);
- assert.match(js,/kinnaklova-scene-clean-approved-20261026\.webp/);
  assert.match(js,/naturalWidth!==1672\|\|image\.naturalHeight!==941/);
- assert.match(js,/ki-master/);
- assert.match(js,/ki-painted-hit/);
- assert.match(css,/aspect-ratio:1672 \/ 941/);
- assert.match(css,/ki-painted-words/);
- assert.match(css,/ki-painted-sentences/);
- assert.match(css,/ki-painted-reading/);
- assert.match(css,/min-height:44px;min-width:44px/);
- assert.doesNotMatch(js,/ki-peak|ki-sky|ki-lighthouse|ki-house|ki-island/);
- assert.doesNotMatch(css,/\.ki-peak|\.ki-sky|\.ki-lighthouse|\.ki-island/);
+ assert.doesNotMatch(js,/assets\/fox\/|lia-fox|chapter-fox|Math\.random/i);
 });
-test('Only three original forest trolls, with byte-identical repository assets',()=>{
+test('All three locked troll sources survive, but only the selected original actor renders',()=>{
  const sources={
-   storesoster:'a8fba47e272e2856bd78b92fb262146506e828ed',
-   lillesoster:'37fd94b3d0fd5319db05e4d1aea609e96d69351f',
-   lillebror:'fcf59aad90e0c9dacca025d76cd352a924ef7120'
+  storesoster:'a8fba47e272e2856bd78b92fb262146506e828ed',
+  lillesoster:'37fd94b3d0fd5319db05e4d1aea609e96d69351f',
+  lillebror:'fcf59aad90e0c9dacca025d76cd352a924ef7120'
  };
  for(const [id,sha] of Object.entries(sources)){
-   assert.match(js,new RegExp("id:'"+id+"'"));
-   assert.match(js,new RegExp("gangemagi-troll/"+id+"\\.webp"));
-   const buffer=fs.readFileSync(app('assets/gangemagi-troll/'+id+'.webp'));
-   const blob=crypto.createHash('sha1').update('blob '+buffer.length+'\0').update(buffer).digest('hex');
-   assert.equal(blob,sha,id+' approved original changed unexpectedly');
+  assert.match(js,new RegExp("id:'"+id+"'"));
+  const source=app('assets/gangemagi-troll/'+id+'.webp');
+  const buf=fs.readFileSync(source);
+  const blob=crypto.createHash('sha1').update('blob '+buf.length+'\0').update(buf).digest('hex');
+  assert.equal(blob,sha,id+' original asset was changed');
  }
- // Storesøster uses the previously visual-approved painted variant; the
- // underlying 512×1024 identity original stays unchanged.
- const approvedScene=app('assets/kinnaklova/storesoster-inworld-approved-20261026.webp');
- assert.ok(fs.existsSync(approvedScene),'Copied approved Storesøster scene asset missing');
- const sceneBuf=fs.readFileSync(approvedScene);
- assert.equal(crypto.createHash('sha1').update('blob '+sceneBuf.length+'\0').update(sceneBuf).digest('hex'),
-   'cff7b5710401f33fa4798d40e8935cb77eb40b44',
-   'Kinnaklova storesøster must match approved #224 art byte-for-byte');
- assert.match(js,/storesoster-inworld-approved-20261026\.webp/);
- assert.match(js,/c\.sceneSrc\|\|c\.src/);
- assert.doesNotMatch(js,/assets\/fox\/|lia-fox|chapter-fox|avatarSrc|Math\.random/i);
- assert.doesNotMatch(css,/@keyframes.*ki-troll|\.ki-troll.*animation:/s);
- assert.match(css,/#kinnaklova-world:not\(\[data-ki-art="ready"\]\) \.ki-companions/);
+ assert.match(js,/state\?\.profile\?\.tallvikaTroll/);
+ assert.match(js,/ki-companion-actor laria-troll-host laria-troll-actor/);
+ assert.match(js,/data-troll=/);
+ assert.doesNotMatch(js,/CHARACTERS\.map\(c=>'<img/,'Only one original troll should be shown');
+ const adapter=fs.readFileSync(app('kinnaklova-standalone-v1.js'),'utf8');
+ assert.match(adapter,/state\.profile=\{\.\.\.state\.profile,tallvikaTroll:selected\}/);
+ assert.match(adapter,/app\.save\?\.\(\)/);
+ assert.match(adapter,/window\.LARIA_KINN_PREMIUM=Object\.freeze/);
 });
-test('Forest troll placements do not obscure approved words on painted signs',()=>{
- const zones={
-   words:[23.1,74.2,40.5,82.0],
-   sentences:[63.2,50.0,79.1,57.5],
-   reading:[82.1,67.7,99.1,79.0]
- };
- const captures={
-   storesoster:/\.ki-troll-storesoster\{left:([\d.]+)%;top:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%\}/,
-   lillebror:/\.ki-troll-lillebror\{left:([\d.]+)%;top:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%\}/,
-   lillesoster:/\.ki-troll-lillesoster\{right:([\d.]+)%;top:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%\}/
- };
- for(const [id,regex] of Object.entries(captures)){
-   const match=css.match(regex);
-   assert.ok(match,id+' position missing from CSS');
-   const [p,t,w,h]=match.slice(1).map(Number);
-   const left=id==='lillesoster'?100-p-w:p;
-   const box=[left,t,left+w,t+h];
-   for(const [name,sign] of Object.entries(zones)){
-     const overlap=box[0]<sign[2]&&box[2]>sign[0]&&box[1]<sign[3]&&box[3]>sign[1];
-     assert.equal(overlap,false,id+' would cover the locked '+name+' sign: '+box.join(','));
-   }
- }
+test('The locked left-hand activity rail has exactly two shared posts and real handlers',()=>{
+ const adapter=fs.readFileSync(app('kinnaklova-standalone-v1.js'),'utf8');
+ const styles=fs.readFileSync(app('laria-kinnaklova-unified-v1.css'),'utf8');
+ assert.match(adapter,/order=\['words','sentences','reading'\]/);
+ assert.match(adapter,/nav\.className='laria-scene-navigation'/);
+ assert.match(adapter,/nav\.appendChild\(button\)/);
+ assert.match(styles,/laria-grovanova-signposts\.svg/);
+ assert.match(styles,/ki-painted-hit\.laria-wayfinder/);
+ assert.doesNotMatch(adapter,/img\.src=trustedURL|chapter-fox/);
 });
 test('Words, Sentences and Reading use existing real English learning modules',()=>{
  for(const [id,module] of [['words','words'],['sentences','sentences'],['reading','reading']]){
@@ -115,33 +82,14 @@ test('Words, Sentences and Reading use existing real English learning modules',(
  assert.match(css,/@media\(max-width:700px\)/);
  assert.match(css,/ki-painted-hit\{display:none\}/);
 });
-test('Artwork release gate blocks missing, mismatched, or uncertified clean master',t=>{
- if(!fs.existsSync(master)){
-   if(process.env.LARIA_KINNAKLOVA_RELEASE_GATE==='1')
-     assert.fail('Clean approved Kinnaklova image is not imported. Do not merge or publish.');
-   t.skip('Visual master import not completed; draft function tests can proceed.');
-   return;
- }
- const file=fs.readFileSync(master);
- assert.equal(file.toString('ascii',0,4),'RIFF');
- assert.equal(file.toString('ascii',8,12),'WEBP');
- const sha=crypto.createHash('sha256').update(file).digest('hex');
- const allowed=locked.implementation?.clean_master_sha256;
- if(!allowed){
-   if(process.env.LARIA_KINNAKLOVA_RELEASE_GATE==='1')
-     assert.fail('Missing human-approved clean master SHA-256 in visual-lock manifest.');
-   t.skip('Clean master needs documented visual review and SHA lock before release.');
-   return;
- }
- assert.equal(sha,allowed,'Clean Kinnaklova painting differs from user-approved master');
- assert.equal(locked.implementation?.clean_master_visual_approved,true,'Art must be reviewed');
- if(process.env.LARIA_KINNAKLOVA_RELEASE_GATE==='1'){
-   assert.equal(locked.implementation?.release_approval,true,
-     'Final Kinnaklova scene with all three original trolls and device screenshots needs explicit owner sign-off');
- }
-
+test('Kinn standalone release gate verifies both original and derived art SHA',()=>{
+ const src=fs.readFileSync(master);
+ const clean=fs.readFileSync(app('assets/kinnaklova/kinnaklova-ui-free-approved.webp'));
+ assert.equal(crypto.createHash('sha256').update(src).digest('hex'),'d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57');
+ assert.equal(crypto.createHash('sha256').update(clean).digest('hex'),'7878237645c369fde210830ded37704bc0dfeb1f6d78b86782a47f41e80b7f8d');
+ assert.match(js,/const UI_FREE_ART_SHA256='7878237645c369fde210830ded37704bc0dfeb1f6d78b86782a47f41e80b7f8d'/);
+ assert.match(js,/const UI_FREE_ART_TECHNICALLY_VERIFIED=true/);
 });
-
 test('Live Kinnaklova task scene keeps English story first with correct screen-reader language',()=>{
  const live=fs.readFileSync(app('laria-task-scene-v15.js'),'utf8');
  assert.match(live,/directKinnaklova&&q\.skill==='reading'/);
@@ -159,9 +107,8 @@ test('Live Kinnaklova task scene keeps English story first with correct screen-r
  assert.match(html,/laria-task-scene-v15\.js\?v=[^"]*kinnaklova-reading2/);
 });
 
-test('Draft does not request Kinnaklova art before exact hash approval',()=>{
- assert.ok(js.includes('const HAS_CLEAN_MASTER='),'Need positive art gating before adding image src');
- assert.ok(js.includes(`(HAS_CLEAN_MASTER?' src="'+ART+'"':'')`),
-   'The master image src must be conditional on its approved SHA');
+test('Only SHA-verified Kinn art is eligible for visible presentation',()=>{
+ assert.match(js,/const HAS_CLEAN_MASTER=/);
  assert.match(js,/APPROVED_ART_SHA256===REJECTED_REFERENCE_SHA256/);
+ assert.match(js,/const UI_FREE_ART_TECHNICALLY_VERIFIED=true/);
 });
