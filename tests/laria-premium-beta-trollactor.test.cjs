@@ -42,7 +42,7 @@ assert.doesNotMatch(index,/dashboard-mascot premium-fox|<svg class="story-charac
   'Legacy Home still contains a hard-coded animal illustration');
 assert.match(index,/data-laria-legacy-troll="dashboard"/,'Legacy dashboard companion must be a separate actor');
 assert.match(runtime,/\.dashboard-mascot\[data-laria-legacy-troll\] > img/,
-  'Retired dashboard image must use the child's persisted troll identity');
+  'Retired dashboard image must use the persisted troll identity');
 
 // Retired journey-map markers must render the stored, original forest troll.
 assert.ok(!index.includes('function journeyFoxSvg()'),
