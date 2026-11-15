@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* WebKit/Chromium first-paint contract for the original October 10 journeys.
  * Force slow artwork fetches: no retired green map or dark empty board may
  * appear between Home and the approved locked paintings. */
@@ -58,7 +59,7 @@ async function contextFor(browser,viewport){
  return ctx;
 }
 async function navigateTo(page,subject){
- await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible').click();
+ await openHomeSubject(page,subject);
  const screen=subject==='geography'?'geography':'subject';
  await page.locator('#'+screen+'-screen.active').waitFor();
  if(subject==='geography'){
@@ -112,7 +113,7 @@ async function proof(engine,label,viewport,url){
    await route.continue();
   });
   await page.goto(url+'&firstpaint='+label,{waitUntil:'domcontentloaded',timeout:90000});
-  await page.locator('#home-screen.active .bc14-subject[data-camp="subject-math"]').waitFor();
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
   for(const subject of subjects){
    const screen=await navigateTo(page,subject);
    const pending=screen.locator('.locked-journey-waiting-stage');
@@ -158,7 +159,7 @@ async function proof(engine,label,viewport,url){
     await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
     await page.locator('#laria-geography-world [data-gv="home"]').click();
    }
-   await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').waitFor();
+   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
   }
   assert.deepEqual(errors,[],label+' unhandled script errors');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),'girl');
@@ -174,7 +175,7 @@ async function missingArtRecovery(url){
   const pattern='**/locked-journeys/nordlysleiren-locked-20261010.png';
   await page.route(pattern,route=>route.abort());
   await page.goto(url+'&missing-art=webkit',{waitUntil:'domcontentloaded',timeout:90000});
-  await page.locator('#home-screen.active .bc14-subject[data-camp="subject-geography"]').waitFor();
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
   const screen=await navigateTo(page,'geography');
   await screen.locator('.locked-journey-art-retry').waitFor({timeout:16000});
   assert.equal(await screen.locator('.premium-journey-map,.bok-v10-map').count(),0,

@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Geometry and interaction proof for the ORIGINAL Oct 10 image contract.
  * The SVG is a TEST-ONLY decoder stub, never shipped as app artwork.
  * Passing this test does NOT certify pixel parity with the approved PNGs.
@@ -45,10 +46,10 @@ async function run(engine,label,viewport){
     status:200,contentType:'image/svg+xml',body:mockImage,headers:{'cache-control':'no-store'}}));
   const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
   await page.goto(url+'&locked-geometry='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
   for(const subject of Object.keys(expected)){
    const screen=subject==='geography'?'geography':'subject';
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await openHomeSubject(page,subject);
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:16000});
    if(subject==='geography'){
      const entry=page.locator('#laria-geography-world:visible');
@@ -138,8 +139,8 @@ async function run(engine,label,viewport){
          localStorage.setItem('laerlittmer-v2',JSON.stringify(saved));
        },choice);
        await page.reload({waitUntil:'domcontentloaded'});
-       await page.locator('.bc14-subject[data-camp="subject-geography"]').waitFor({timeout:16000});
-       await page.locator('.bc14-subject[data-camp="subject-geography"]').click();
+       await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
+       await openHomeSubject(page,'geography');
        await page.locator('#geography-screen.active').waitFor({timeout:16000});
        const landing=page.locator('#laria-geography-world:visible');
        await landing.waitFor({timeout:16000});
@@ -384,10 +385,10 @@ async function verifyProductionFallback(){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
   await page.goto(url+'&locked-fallback=1',{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
   for(const subject of Object.keys(expected)){
    const screen=subject==='geography'?'geography':'subject';
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await openHomeSubject(page,subject);
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:10000});
    assert.equal(await page.locator('#'+screen+'-screen.active .locked-journey-map').count(),0,'Unverified original art activated on '+subject);
    await page.locator('#'+screen+'-screen .bok-v10-home:visible, #'+screen+'-screen .premium-world-back:visible, #'+screen+'-back:visible').first().click();

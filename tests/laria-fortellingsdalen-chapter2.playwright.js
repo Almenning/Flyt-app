@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -14,7 +15,7 @@ const seed={
   answerLog:[],sessionLog:[],activeSession:null
 };
 async function openChooser(page){
-  await page.evaluate(()=>openSubject('norwegian'));
+  await openHomeSubject(page,'norwegian');
   const launcher=page.locator('[data-laria-chapter2-preview="1"]');
   await launcher.waitFor({state:'attached',timeout:12000});
   const opened=await page.evaluate(()=>window.LARIA_NORWEGIAN_CHAPTER_PICKER?.open({
@@ -122,7 +123,7 @@ async function run(engine,label,viewport){
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(url+'&chapter2-preview=1&chapter2-qa='+label,{waitUntil:'domcontentloaded'});
-    await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:22000});
+    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
     await openChooser(page);
     if(label==='webkit-iphone-landscape'){
       const buttons=await page.locator('#laria-norwegian-chapter-picker .fd-chapter-action')
@@ -282,7 +283,7 @@ async function run(engine,label,viewport){
       label+' answer feedback must focus its next-action button');
     await page.locator('[data-fd-action="close"]').click();
     await page.reload({waitUntil:'domcontentloaded'});
-    await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:22000});
+    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
     await openPreview(page);
     assert.equal(await page.locator('.fd-letter h2').innerText(),firstStory,label+' story draft was lost on reload');
     assert.match(await page.locator('.fd-story-banner').innerText(),/SPOR 2 AV 4/);
@@ -353,8 +354,8 @@ async function run(engine,label,viewport){
     await page.locator('#laria-norwegian-chapter-picker').waitFor({state:'detached'});
     await page.locator('#subject-screen.active').waitFor();
     await page.goto(url+'&chapter2-preview=0&chapter2-qa='+label,{waitUntil:'domcontentloaded'});
-    await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:22000});
-    await page.evaluate(()=>openSubject('norwegian'));
+    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
+    await openHomeSubject(page,'norwegian');
     assert.equal(await page.locator('[data-laria-chapter2-preview="1"]').count(),0,
       label+' developer preview leaked into normal subject view');
     assert.equal(await page.locator('#laria-norwegian-chapter-picker').count(),0,

@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Acceptance QA: three subject entrances now follow the Kinnaklova model.
  * Check real scenes and navigation on Chromium/WebKit, not mocked screenshots.
  */
@@ -62,8 +63,8 @@ async function checkNav(page,selector,viewport,title){
 }
 async function visit(page,url,subject){
  await page.goto(url+'?app=laria&unified-qa='+subject,{waitUntil:'domcontentloaded'});
- await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').waitFor({state:'visible',timeout:22000});
- await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+ await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
+ await openHomeSubject(page,subject);
 }
 async function screenshot(page,name){
  fs.mkdirSync(output,{recursive:true});

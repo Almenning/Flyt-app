@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Real iPhone/iPad/desktop Geography chapter-2 exploration. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
@@ -11,8 +12,7 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
  answerLog:[],sessionLog:[],activeSession:null};
 async function photo(page,label){if(!shots)return;fs.mkdirSync(shots,{recursive:true});await page.screenshot({path:path.join(shots,label+'.png'),animations:'disabled'})}
 async function geography(page){
- const button=page.locator('.bc14-subject[data-camp="subject-geography"]');
- await button.waitFor({timeout:20000});await button.click();
+ await openHomeSubject(page,'geography');
  await page.locator('#geography-screen.active').waitFor({timeout:16000});
 }
 async function enter(page){

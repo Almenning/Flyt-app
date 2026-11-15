@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Læria responsive phase B: the remaining active exact portrait map on tablet/desktop.
  * Eggenipa, Tallvika and Kinnaklova now own their own responsive presentation.
  * This gate keeps Nordlysleiren's real original PNG full-width and undistorted. */
@@ -47,7 +48,7 @@ async function serve(){
  });
 }
 async function visit(page,subject){
- await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible').click();
+ await openHomeSubject(page,subject);
  const screen=subject==='geography'?'geography':'subject';
  if(subject==='geography'){
   const landing=page.locator('#laria-geography-world:visible');
@@ -172,7 +173,7 @@ async function verifyTapAndBack(page,screen,subject,label){
   await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
   await page.locator('#laria-geography-world [data-gv="home"]').click();
  }
- await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+ await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
  // A hidden journey may retain its subject marker while background preloading
  // settles. Only the ACTIVE screen may own the scenic full-width stage.
  const restored=await page.evaluate(()=>{
@@ -237,7 +238,7 @@ async function run(engine,label,viewport,url){
   await page.route('https://raw.githubusercontent.com/**',route=>route.abort());
   await page.route('https://api.worldbank.org/**',route=>route.abort());
   await page.goto(url+'&responsive-phaseb='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-geography"]:visible').waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
   for(const subject of subjects){
    const screen=await visit(page,subject);
    await validateStage(page,subject,label,viewport,screen);

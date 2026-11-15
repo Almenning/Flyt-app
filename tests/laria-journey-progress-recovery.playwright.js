@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Real journey progress + unfinished session recovery. Runs against approved assets. */
 const assert=require('node:assert/strict');
 const {chromium,webkit}=require('playwright');
@@ -173,10 +174,10 @@ async function recoverEnglishDirect(page,label,before){
  assert.equal((await progress(page,'english')).sessionCount,before.sessionCount,
   label+' partial English activity counted as completed');
  await page.reload({waitUntil:'domcontentloaded'});
- await page.locator('.bc14-subject[data-camp="subject-english"]').waitFor({timeout:20000});
+ await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
  assert.deepEqual(await activeSnapshot(page),answered,
   label+' refresh discarded the interrupted English Words session');
- await page.locator('.bc14-subject[data-camp="subject-english"]').click();
+ await openHomeSubject(page,'english');
  const live=page.locator('#subject-screen.active #kinnaklova-world');
  await live.locator('.ki-resume [data-ki="resume"]').waitFor({state:'visible',timeout:16000});
  await live.locator('.ki-resume [data-ki="resume"]').click();
@@ -224,7 +225,7 @@ async function recoverEnglishDirect(page,label,before){
  else await live.locator('.ki-painted-home').click();
  await page.locator('#home-screen.active').waitFor({timeout:16000});
  await page.reload({waitUntil:'domcontentloaded'});
- await page.locator('.bc14-subject[data-camp="subject-english"]').waitFor({timeout:18000});
+ await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
  assert.deepEqual(await progress(page,'english'),after,label+' English skill progress not durable');
  console.log('[progress recovery]',label,'english',JSON.stringify({finished:after.sessionCount,answers:after.answerCount}));
 }
@@ -244,7 +245,7 @@ async function run(engine,label,viewport){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
   await page.goto(url+'&progress-recovery='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:18000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
   let index=0;
   for(const [subject,world] of Object.entries(worlds)){
    const before=await progress(page,subject);
@@ -257,7 +258,7 @@ async function run(engine,label,viewport){
        grade:state.profile.grade,
        avatar:state.profile.avatar
      }));
-     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
+     await openHomeSubject(page,'norwegian');
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      assert.deepEqual(await page.locator('#eggenipa-world .eg-portal')
        .evaluateAll(els=>els.map(el=>el.dataset.eg)),['words','find','reading'],
@@ -288,9 +289,9 @@ async function run(engine,label,viewport){
      assert.equal((await progress(page,'norwegian')).sessionCount,before.sessionCount,
        label+' abandoned reading session was counted as completed');
      await page.reload({waitUntil:'domcontentloaded'});
-     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:18000});
+     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
      assert.deepEqual(await activeSnapshot(page),paused,label+' saved reading answer changed on reload');
-     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
+     await openHomeSubject(page,'norwegian');
      await page.locator('#eggenipa-world [data-eg="resume"]:visible').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const resumed=await activeSnapshot(page);
@@ -329,7 +330,7 @@ async function run(engine,label,viewport){
      continue;
    }
    const screen=subject==='geography'?'geography':'subject';
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await openHomeSubject(page,subject);
    if(subject==='english'){
      await recoverEnglishDirect(page,label,before);
      continue;
@@ -463,7 +464,7 @@ async function run(engine,label,viewport){
    assert.equal((await page.locator('.bc12-journey [data-camp-next]').innerText()).trim(),nextPaintedPlace,
     label+' Home sign does not match actual painted next journey stop for '+subject);
    await page.reload({waitUntil:'domcontentloaded'});
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:18000});
+   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
    const persisted=await progress(page,subject);
    assert.deepEqual(persisted,after,label+' '+world+' progress not durable after refresh');
    console.log('[progress recovery]',label,subject,JSON.stringify({done:after.done,total:after.total,completed:finished.count}));

@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const {chromium,webkit}=require('playwright');
 const base=path.resolve(__dirname,'..'),screens=process.env.PICK_QA_SCREENSHOTS||'/tmp/laria-pick-play';
@@ -10,7 +11,7 @@ async function openClassicPick(page){
   // The approved child-visible route begins at Tallvika, not the legacy
   // Gangemagi secondary navigation below the first phone viewport.
   // Validate the actual illustrated entry after first load and after reload.
-  await page.locator('.bc14-subject[data-camp="subject-math"]').click();
+  await openHomeSubject(page,'math');
   await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible'});
   await page.locator('#tallvika-world .tv-sign[data-tv="table"]').click();
   await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor();
