@@ -117,6 +117,10 @@ async function returnFromJourney(page,root,label,subject){
  const floating=root.locator('.locked-journey-floating-back');
  const useFloating=await floating.isVisible();
  await (useFloating?floating:native).click();
+ if(subject==='geography'){
+  const landing=page.locator('#laria-geography-world .gv-home');
+  if(await landing.isVisible())await landing.click();
+ }
  try{await page.locator('#home-screen.active').waitFor({timeout:16000});}
  catch(error){
   const evidence=await page.evaluate(()=>{
@@ -334,6 +338,10 @@ async function run(engine,label,viewport){
      // missions and node IDs are reachable through the Bokskogen portal.
      await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
+   if(subject==='geography'){
+    const journey=page.locator('#laria-geography-world nav.laria-ipad-left-rail [data-gv="journey"]');
+    if(await journey.count()){await journey.waitFor({state:'visible',timeout:16000});await journey.click();}
    }
    const isTallvika=subject==='math';
    const base=isTallvika?'#subject-screen.active #tallvika-world':
