@@ -166,10 +166,10 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
   // Portrait master has NO painted left-hand signs. Use the same four live
   // oak arrows as the other subject facades, positioned within locked art.
   const signBoxes=[
-   [.018,.279,.345,.071],
-   [.018,.355,.345,.071],
-   [.018,.431,.345,.071],
-   [.018,.507,.345,.071]
+   [-.105,.260,.300,.068], // Norsk: left of the painted trolls
+   [-.105,.332,.300,.068], // Matte: one readable oak rail
+   [-.105,.404,.300,.068], // Engelsk
+   [-.105,.476,.300,.068]  // Geografi
   ];
   signs.querySelectorAll('.bc15-painted-subject').forEach((button,index)=>{
    place(button,box,signBoxes[index],viewport);

@@ -65,6 +65,18 @@ async function run(browserType,engine,name,viewport){
     assert.match(style.posts,/laria-grovanova-signposts\\?\.svg/,
       'portrait iPad must show the shared pair of posts');
     assert.notEqual(style.alpha,'0.001','portrait signs may not be invisible');
+    const geom=await entries.evaluateAll(nodes=>nodes.map(node=>{
+      const b=node.getBoundingClientRect();
+      return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};
+    }));
+    assert.ok(geom.every(g=>g.left>=0&&g.right<=viewport.width*.33&&g.width>=130&&g.height>=48),
+      'portrait signs must be legible and stay left of the painted troll trio: '+JSON.stringify(geom));
+    for(let i=1;i<geom.length;i++)assert.ok(geom[i].top>=geom[i-1].bottom,
+      'portrait Home sign boards overlap each other: '+JSON.stringify(geom));
+    const greeting=await home.locator('.bc15-live-copy').boundingBox();
+    assert.ok(greeting&&geom[0].top>greeting.y+greeting.height+8,
+      'portrait Home rail overlaps the child's greeting bubble: '+JSON.stringify({greeting,geom}));
+
     for(const spec of worlds){
       await home.locator('.bc15-subject-signs [data-bc15-subject="'+spec.id+'"]').click();
       await page.locator(spec.root+':visible').waitFor({timeout:18000});

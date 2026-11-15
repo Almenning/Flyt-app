@@ -43,7 +43,7 @@
    box-shadow:none!important;
    background:var(--laria-light-plank) center/100% 100% no-repeat!important;
    color:var(--laria-sign-ink,#3d2715)!important;
-   font:900 clamp(13px,1.65vw,23px)/1.05 var(--laria-ui-font,system-ui)!important;
+   font:900 clamp(18px,2.35vw,24px)/1.05 var(--laria-ui-font,system-ui)!important;
    text-shadow:0 1px 0 #fff2d2!important;
    filter:drop-shadow(0 3px 3px #26180b77)!important;
    cursor:pointer!important;
@@ -78,4 +78,23 @@
 @media (min-width:768px) and (max-width:1366px) and (min-height:650px){
  .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu[data-bc15-card-art="clean-candidate"]
  .bc14-subjects{display:none!important;pointer-events:none!important;visibility:hidden!important;}
+}
+
+/* Portrait iPad is a narrow book painting inside a wider screen.
+ * Turn the otherwise black-green sidebars into a deliberate scenic frame
+ * instead of cropping the original fjord/mountain or duplicating its UI.
+ * The four wooden subjects live in the LEFT frame, clear of the painted
+ * child figures and the greeting bubble. */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu::before{
+   background:
+     linear-gradient(90deg,rgba(27,56,28,.65) 0%,rgba(27,56,28,.3) 11%,rgba(27,56,28,0) 30%),
+     linear-gradient(180deg,#8ebee0 0%,#83b8d9 25%,#79b8c9 49%,#6f9d80 70%,#4e7045 100%)!important;
+   box-shadow:inset 0 0 13px #1e482522!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] > .bc15-painted-subject{
+   gap:clamp(5px,1vw,10px)!important;
+   padding:6px 14px 7px 10px!important;
+ }
 }
