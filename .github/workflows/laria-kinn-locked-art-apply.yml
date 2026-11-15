@@ -1,0 +1,45 @@
+name: Kinnaklova UI-free locked-image build
+on:
+  push:
+    branches: [feat/laria-premium-beta-cleanup-20261106]
+    paths:
+      - .github/workflows/laria-kinn-locked-art-apply.yml
+      - tools/kinnaklova/build_locked_ui_free.py
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/laria-premium-beta-cleanup-20261106
+          fetch-depth: 1
+      - name: Retrieve matching unpainted Kinn scene
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/kinna
+          gh run download 43712748108 --repo "$GITHUB_REPOSITORY" --name kinnaklova-restoration-candidate-inspection --dir /tmp/kinna
+      - name: Install image libraries
+        run: python3 -m pip install --break-system-packages --quiet 'opencv-python-headless>=4.10' 'numpy>=1.25' 'pillow>=10'
+      - name: Rebuild from pixel-locked original and verify protected scenery
+        run: |
+          python3 tools/kinnaklova/build_locked_ui_free.py /tmp/kinna/kinnaklova-restoration-candidate.png
+          sha256sum laer-litt-mer/assets/kinnaklova/kinnaklova-ui-free-approved.webp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kinnaklova-source-faithful-final
+          path: |
+            laer-litt-mer/assets/kinnaklova/kinnaklova-ui-free-approved.webp
+            kinnaklova-restoration-report.json
+      - name: Commit only the restored copy
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add laer-litt-mer/assets/kinnaklova/kinnaklova-ui-free-approved.webp
+          git commit -m "art(laria): restore locked Kinn painting without old signs"
+          git push origin HEAD:feat/laria-premium-beta-cleanup-20261106
