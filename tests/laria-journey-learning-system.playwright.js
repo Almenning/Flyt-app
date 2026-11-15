@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict');
 const {chromium,webkit}=require('playwright');
 
@@ -23,7 +24,7 @@ async function run(engine,label){
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(url+'&tallenga-system='+label,{waitUntil:'domcontentloaded'});
-    await page.locator('.bc14-subject[data-camp="subject-math"]').waitFor({timeout:20000});
+    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:20000});
 
     const report=await page.evaluate(()=>{
       const system=window.LARIA_JOURNEY_LEARNING_SYSTEM;
@@ -73,7 +74,7 @@ async function run(engine,label){
         label+' '+node.id+' mixed learning objectives inside one mission');
     }
 
-    await page.locator('.bc14-subject[data-camp="subject-math"]').click();
+    await openHomeSubject(page,'math');
     const tv=page.locator('#subject-screen.active #tallvika-world');
     await tv.waitFor({state:'visible',timeout:16000});
     assert.equal(await tv.locator('.tv-sign').count(),3,label+' Math activity signs missing');

@@ -26,7 +26,7 @@ async function run(engine,label){
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(url+'&chapter1-completion='+label,{waitUntil:'domcontentloaded'});
-    await page.locator('.bc14-subject[data-camp="subject-math"]').waitFor({timeout:20000});
+    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:20000});
 
     const setup=await page.evaluate(()=>{
       ensureJourneyState();

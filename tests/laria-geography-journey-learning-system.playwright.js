@@ -28,7 +28,7 @@ async function run(engine,label){
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(url+'&nordlys-system='+label,{waitUntil:'domcontentloaded'});
-    await page.locator('.bc14-subject[data-camp="subject-geography"]').waitFor({timeout:20000});
+    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:20000});
 
     const report=await page.evaluate(()=>{
       const model=geoJourneyModel(2);
