@@ -1,0 +1,167 @@
+/* Læria Kinnaklova: exact same left-hand navigation system as other subjects.
+ * Applies ONLY when a faithful edit of the locked painting has a verified
+ * SHA and separate VISUAL sign-off. Never overpaint the old baked signs.
+ */
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
+  --ref-left:3%;--ref-right:4%;--ref-menu-width:clamp(176px,21%,268px);
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  background-color:#a2c5bd!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-master{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  object-fit:cover!important;object-position:50% 50%!important;
+  visibility:visible!important;z-index:0!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand{
+  box-sizing:border-box!important;position:absolute!important;z-index:20!important;
+  display:grid!important;place-items:center!important;gap:1px!important;
+  left:50%!important;top:3%!important;transform:translateX(-50%)!important;
+  width:max-content!important;max-width:66%!important;min-width:clamp(174px,25%,306px)!important;
+  padding:9px 27px 10px!important;border:4px solid #633713!important;
+  border-radius:38px 40px 32px 34px!important;
+  background:linear-gradient(180deg,#b87737 0%,#955224 53%,#703917 100%)!important;
+  box-shadow:inset 0 2px 0 #eac38a,0 5px 0 #5f341a,0 9px 16px #16271f9a!important;
+  pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand strong{
+  display:block!important;width:clamp(178px,20vw,245px)!important;
+  height:clamp(68px,7.1vw,88px)!important;overflow:hidden!important;
+  font-size:0!important;text-indent:-9999px!important;
+  background:url("./assets/ui/laria-logo-from-grovanova.svg") center/contain no-repeat!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand span{display:none!important}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation{
+  box-sizing:border-box!important;position:absolute!important;z-index:26!important;
+  top:24%!important;left:var(--ref-left)!important;right:auto!important;bottom:auto!important;
+  width:var(--ref-menu-width)!important;height:auto!important;
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  gap:6px!important;margin:0!important;padding:0!important;border:0!important;
+  background:none!important;box-shadow:none!important;filter:none!important;
+  isolation:isolate!important;pointer-events:auto!important;transform:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="subjects"] > nav.laria-scene-navigation,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"] > nav.laria-reference-subject-nav{
+  display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation::before,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav::before{
+  content:""!important;position:absolute!important;display:block!important;
+  z-index:-1!important;pointer-events:none!important;
+  top:-12px!important;left:0!important;width:100%!important;
+  height:calc(100% + 48px)!important;
+  background:url("./assets/ui/laria-grovanova-signposts.svg") center/100% 100% no-repeat!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder{
+  box-sizing:border-box!important;position:relative!important;inset:auto!important;
+  width:100%!important;height:clamp(69px,8.9vh,90px)!important;
+  min-width:44px!important;min-height:54px!important;max-width:none!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:12px!important;margin:0!important;padding:7px clamp(19px,2vw,28px)!important;
+  border:0!important;border-radius:0!important;
+  background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+  color:var(--laria-sign-ink)!important;text-align:left!important;
+  text-shadow:0 1px 0 #fff2d2!important;filter:var(--laria-sign-shadow)!important;
+  font:900 clamp(18px,2.1vw,29px)/1.08 var(--laria-ui-font,system-ui)!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder::before,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder::after,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit .ki-plank-name::after{
+  content:none!important;display:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit .ki-plank-name{
+  position:static!important;inset:auto!important;
+  display:block!important;visibility:visible!important;opacity:1!important;
+  color:inherit!important;font:inherit!important;text-shadow:inherit!important;pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .laria-reference-activity-icon{
+  display:grid!important;place-items:center!important;flex:0 0 30px!important;
+  width:30px!important;height:30px!important;position:relative!important;
+  background:none!important;padding:0!important;pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .laria-reference-activity-icon svg{
+  display:block!important;width:30px!important;height:30px!important;stroke:currentColor!important;fill:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-painted-home{
+  box-sizing:border-box!important;position:absolute!important;z-index:35!important;
+  top:max(9px,env(safe-area-inset-top))!important;
+  left:max(10px,env(safe-area-inset-left))!important;
+  width:62px!important;height:62px!important;min-width:44px!important;min-height:44px!important;
+  border:0!important;border-radius:50%!important;padding:0!important;
+  background:var(--laria-home-art) center/contain no-repeat!important;
+  color:transparent!important;font-size:0!important;box-shadow:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-painted-home span{display:none!important}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-stage-choose,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > .laria-reference-settings{
+  box-sizing:border-box!important;position:absolute!important;z-index:35!important;
+  top:max(12px,env(safe-area-inset-top))!important;right:auto!important;bottom:auto!important;
+  width:54px!important;height:54px!important;min-width:44px!important;min-height:44px!important;
+  border:3px solid #654020!important;border-radius:50%!important;padding:0!important;margin:0!important;
+  background:linear-gradient(160deg,#ac764c,#79502e 60%,#4c2f1c)!important;
+  color:#f9e9bd!important;box-shadow:inset 0 2px 0 #f3ce91,0 5px 0 #402918!important;
+  cursor:pointer!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-stage-choose{
+  right:calc(78px + env(safe-area-inset-right,0px))!important;font-size:0!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-stage-choose::before{
+  content:""!important;position:absolute!important;inset:7px!important;
+  background:url("./assets/ui/laria-profile-silhouette-v1.svg") center/contain no-repeat!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > .laria-reference-settings{
+  right:calc(12px + env(safe-area-inset-right,0px))!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > .laria-reference-settings svg{
+  display:block!important;width:29px!important;height:29px!important;pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-companion-actor{
+  position:absolute!important;z-index:15!important;left:calc(var(--ref-left) + var(--ref-menu-width) + 5%)!important;
+  right:auto!important;top:auto!important;bottom:2%!important;
+  width:clamp(125px,17%,240px)!important;height:clamp(230px,49%,460px)!important;
+  pointer-events:auto!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 ~ .ki-intro,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 ~ .ki-actions{display:none!important}
+/* A malformed or SHA-mismatched image may decode before its asynchronous
+ * integrity check has finished. Never let premium !important styles override
+ * the existing fail-closed rule while art is loading or rejected. */
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 .ki-master,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 .ki-companions,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 .ki-painted-hit {
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-stage.laria-reference-layout-v1 > nav,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-stage.laria-reference-layout-v1 > .laria-reference-heading{
+  visibility:hidden!important;pointer-events:none!important;
+}
+@media(max-width:767px) and (orientation:portrait){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{--ref-left:2%;--ref-menu-width:clamp(150px,43%,185px)}
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation,
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav{top:22%!important;gap:5px!important}
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder{
+  height:clamp(49px,7vh,62px)!important;min-height:49px!important;
+  gap:6px!important;padding:4px 9px!important;font-size:clamp(12px,3.4vw,16px)!important;
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-companion-actor{
+  left:52%!important;width:clamp(105px,28%,136px)!important;height:clamp(150px,34%,260px)!important;
+ }
+}
+@media(min-width:740px) and (max-height:600px) and (orientation:landscape){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{--ref-left:2.5%;--ref-menu-width:clamp(150px,22%,205px)}
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation,
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav{top:20%!important;gap:4px!important}
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder{
+  height:44px!important;min-height:44px!important;gap:6px!important;padding:3px 9px!important;font-size:clamp(12px,1.55vw,15px)!important;
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-companion-actor{
+  left:calc(var(--ref-left) + var(--ref-menu-width) + 7%)!important;
+  width:clamp(140px,22vw,207px)!important;height:clamp(205px,61vh,284px)!important;
+ }
+}

@@ -103,7 +103,14 @@ async function verify(engine,label,viewport){
      assert.ok(legacy.progress.total>0&&legacy.next,
        label+' original English journey engine no longer sees its checkpoints');
      const beforeActivity=await page.evaluate(()=>JSON.stringify(state.journey.nodes));
-     await ki.locator('.ki-card[data-ki="words"]').click();
+     // The approved Kinnaklova front uses a live left-hand sign. The old
+     // direct-activity cards intentionally remain in the DOM but are hidden.
+     const oakSign=ki.locator('nav.laria-scene-navigation .ki-painted-words[data-ki="words"]');
+     if(await oakSign.count()){
+       await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:22000});
+       await oakSign.waitFor({state:'visible',timeout:15000});
+       await oakSign.click();
+     }else await ki.locator('.ki-card[data-ki="words"]').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const session=await page.evaluate(()=>({
        subject:sessionScope?.subject,
