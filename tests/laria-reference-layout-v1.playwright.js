@@ -24,6 +24,26 @@ async function testEngine(engine,name,device,viewport){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+  // The accepted iPad layout is now the default on this PR branch.
+  // Do not silently regress to the old scattered signs without a preview query.
+  if(device==='ipad-landscape'||device==='ipad-portrait'){
+   const normal=base.replace(/([?&])lariaReferenceLayout=[^&]*&?/g,'$1').replace(/[?&]$/,'');
+   await page.goto(normal,{waitUntil:'domcontentloaded',timeout:90000});
+   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
+   await page.locator('#home-screen .bc14-subject[data-camp="subject-geography"]').click();
+   const defaultGeography=page.locator('#laria-geography-world .gv-scene.laria-reference-layout-v1');
+   await defaultGeography.waitFor({state:'visible',timeout:20000});
+   assert.equal(await defaultGeography.locator('button.laria-reference-heading strong').textContent(),'Geografi');
+   assert.equal(await defaultGeography.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),3);
+   assert.equal(await defaultGeography.locator('nav.laria-reference-subject-nav:visible').count(),0);
+   await page.goto(normal+(normal.includes('?')?'&':'?')+'lariaReferenceLayout=0',{waitUntil:'domcontentloaded',timeout:90000});
+   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
+   await page.locator('#home-screen .bc14-subject[data-camp="subject-geography"]').click();
+   await page.locator('#laria-geography-world .gv-scene').waitFor({state:'visible',timeout:20000});
+   assert.equal(await page.locator('#laria-geography-world .gv-scene.laria-reference-layout-v1').count(),0,
+    'Explicit opt-out must preserve the original Geography presentation');
+   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+  }
   const home=page.locator('#home-screen.active .bc12.bc15-locked-home');
   await home.waitFor({state:'visible',timeout:22000});
   await fs.promises.mkdir(out,{recursive:true});
