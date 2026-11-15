@@ -1,7 +1,7 @@
 # Læria Premium – opprydding i rev og gamle karakterer (15.11.2026)
 
-**Kilde:** faktisk kildekode på PR #243, HEAD `ab2479906086839c8242d4f0ad4dd6c0985a6c45` ved oppstart.  
-**Status:** pågående migrering, **ikke** ferdig revfri app eller godkjent Premium.  
+**Kilde:** faktisk kildekode på PR #243, HEAD `ab2479906086839c8242d4f0ad4dd6c0985a6c45` ved oppstart.
+**Status:** pågående migrering, **ikke** ferdig revfri app eller godkjent Premium.
 **Bindende regel:** kun de tre låste, originale levende skogstrollene, aldri malt inn i låst landskap.
 
 ## Bekreftede gjenværende kilder

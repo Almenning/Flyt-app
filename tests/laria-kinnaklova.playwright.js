@@ -290,9 +290,13 @@ async function rejectPoisonedSameSizeArt(){
   }else{
    // Once a clean master SHA is approved, same-size art with incorrect bytes
    // must still be rejected by the browser's exact SHA-256 protection.
+   // The natural dimensions are known before the async SHA-256 gate finishes.
+   // Await the completed rejection rather than racing the image load.
    await page.waitForFunction(()=>{
-    const el=document.querySelector('#kinnaklova-world .ki-master');
-    return el?.complete&&el.naturalWidth===1672&&el.naturalHeight===941;
+    const world=document.querySelector('#kinnaklova-world');
+    const image=world?.querySelector('.ki-master');
+    return image?.complete&&image.naturalWidth===1672&&image.naturalHeight===941&&
+      world?.dataset.kiArt==='unapproved';
    },null,{timeout:15000});
    assert.ok(artRequests.length>=1,'Release asset should be requested only with a locked SHA');
    assert.equal(await page.locator('#kinnaklova-world').getAttribute('data-ki-art'),'unapproved');
