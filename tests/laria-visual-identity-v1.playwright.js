@@ -234,8 +234,20 @@ async function run(engine,name,layout,viewport){
      },spec.post);
      assert.ok(plate.width>=44&&plate.height>=44,spec.id+' sign too small');
      assert.match(plate.background,/laria-light-arrow-sign\.svg/,spec.id+' has a nonstandard plank graphic');
-     assert.notEqual(plate.postContent,'none',spec.id+' sign has no posts');
-     assert.notEqual(plate.postBackground,'none',spec.id+' sign posts have no wood');
+     if(adapted){
+       // Premium has ONE continuous pair of posts behind the whole menu.
+       const posts=await sharedNav.evaluate(el=>{
+         const s=getComputedStyle(el,'::before');
+         return {image:s.backgroundImage,content:s.content,display:s.display};
+       });
+       assert.match(posts.image,/laria-grovanova-signposts\.svg/,
+         spec.id+' needs the common two-post oak rail');
+       assert.notEqual(posts.content,'none',spec.id+' common posts missing');
+       assert.notEqual(posts.display,'none',spec.id+' common posts hidden');
+     }else{
+       assert.notEqual(plate.postContent,'none',spec.id+' legacy sign has no posts');
+       assert.notEqual(plate.postBackground,'none',spec.id+' legacy sign posts have no wood');
+     }
      const style={background:plate.background,font:plate.font,ink:plate.ink};
      if(!expectedPlate)expectedPlate=style;
      else assert.deepEqual(style,expectedPlate,'Sign style diverged for '+spec.id);
