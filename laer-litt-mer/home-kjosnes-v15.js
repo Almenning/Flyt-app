@@ -7,8 +7,8 @@ const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-premi
 const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1';
 // Separate iPad-only previews. The two original SHA-locked masters above
 // remain intact and continue to serve as the safe fallback.
-const CLEAN_TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet-no-bottom-cards.webp?v=20261115-four-cards-clean3';
-const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards.webp?v=20261115-four-cards-clean2';
+const CLEAN_TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
+const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
 let activeMasterSrc='';
 let activationEpoch=0;
 

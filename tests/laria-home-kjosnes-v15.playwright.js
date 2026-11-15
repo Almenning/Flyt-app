@@ -49,9 +49,15 @@ async function homeReady(page,label){
  assert.equal(await home.locator('.bc15-live-next').count(),0,
    label+' no pasted-on next-stop label may cover the original painted journey sign');
  const expected=cardArt==='clean-candidate'?
-  (portrait?'kjosnes-home-phone-no-bottom-cards.webp':'kjosnes-home-tablet-no-bottom-cards.webp'):
+  (portrait?'kjosnes-home-phone-no-bottom-cards-no-next-stop.webp':'kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp'):
   (portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp');
  assert(art.includes(expected),label+' must use the exact locked WebP master: '+art);
+ if(label.includes('ipad')){
+   assert.equal(cardArt,'clean-candidate',label+' iPad must use the new clean illustration, not a text-bearing fallback');
+   assert(art.includes('-no-next-stop.webp'),label+' static Next Stop text has reappeared in the Home asset: '+art);
+   assert.equal(await home.locator('.bc15-live-next').count(),0,
+     label+' must never put the old next-stop sticker over the wood sign');
+ }
  // The top scenic margin may only be filled by a source-locked, UI-free
  // texture, never an extra copy of the Home logo or painted navigation.
  if(label.includes('ipad')&&label.includes('landscape')&&cardArt==='clean-candidate'){
