@@ -76,7 +76,11 @@ async function run(engine,label,viewport){
      const before=await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{}));
      assert.equal(await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{})),before,
        label+' English landing must not mutate journey progress');
-     await ki.locator('[data-ki="words"].ki-card').click();
+     // The premium left-hand oak sign is the child's visible entrance.
+     // Fall back to legacy cards only on a pre-premium app.
+     const oakSign=ki.locator('nav.laria-scene-navigation .ki-painted-words[data-ki="words"]');
+     if(await oakSign.isVisible())await oakSign.click();
+     else await ki.locator('[data-ki="words"].ki-card').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const state=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,question:sessionQuestions[qIndex]?.prompt}));
      assert.equal(state.subject,'english',label+' English engine not reached');
