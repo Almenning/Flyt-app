@@ -293,6 +293,9 @@ function openHomeSubject(subject){
   showScreen('geography');
  }else if(typeof openSubject==='function')openSubject(subject);
 }
+// Public presentation-only bridge for the iPad Home sign rail. The actual
+// navigation, return origin and child progress remain owned by Basecamp.
+window.LARIA_HOME_OPEN_SUBJECT=openHomeSubject;
 function destination(action,label,description){return '<button class="bc12-place bc12-'+action+'" data-camp="'+action+'" aria-label="'+label+' – '+description+'"><span class="bc12-place-glow" aria-hidden="true"></span><span class="bc12-sign">'+label+'</span><span class="bc12-place-hint">'+description+'</span></button>';}
 function markup(){return '<section class="bc12" data-release="basecamp-rc1" aria-label="Læria basecamp">'+
  '<div class="bc12-landscape" aria-hidden="true"></div><div class="bc12-sun" aria-hidden="true"></div>'+
