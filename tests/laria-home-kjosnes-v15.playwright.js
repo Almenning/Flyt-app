@@ -248,6 +248,20 @@ async function run(engine,label,viewport){
        label+' speech bubble or pointer physically overlaps first wooden subject sign: '+
        JSON.stringify({bubble:geom.liveCopy,firstSign}));
    }
+   if(portrait&&label.includes('ipad')&&cleanHome){
+     // The locked Home painting has three children in the lower-left. No menu
+     // plank may run through the painted silhouettes in portrait orientation.
+     const boards=await home.locator('.bc15-subject-signs .bc15-painted-subject')
+       .evaluateAll(nodes=>nodes.map(el=>{
+         const r=el.getBoundingClientRect();
+         return {left:r.left,right:r.right,width:r.width,top:r.top,bottom:r.bottom};
+       }));
+     const clearOfFigures=geom.artLeft+geom.artWidth*.125;
+     assert.equal(boards.length,4,label+' portrait Home needs four real sign buttons');
+     assert.ok(boards.every(b=>b.width>=130&&b.right<=clearOfFigures),
+       label+' portrait rail obscures the locked painted troll silhouettes: '+
+       JSON.stringify({boards,clearOfFigures}));
+   }
 
    const speech=await page.locator('.bc15-live-copy').evaluate(el=>{
      const c=getComputedStyle(el),tail=getComputedStyle(el,'::after');
