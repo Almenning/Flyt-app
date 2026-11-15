@@ -137,15 +137,13 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
-   liveCopy:tabletPortrait?[.03,.138,.62,.105]:[.00,.138,.62,.105],
-   liveNext:tabletPortrait?[.31,.665,.38,.026]:[.20,.666,.60,.024]
+   liveCopy:tabletPortrait?[.03,.138,.62,.105]:[.00,.138,.62,.105]
  }:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   liveCopy:rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11],
-   liveNext:[.073,.836,.235,.040]
+   liveCopy:rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11]
  };
  const viewport={width:rect.width,height:rect.height};
  // Map four separately tappable signboards onto the APPROVED master.
@@ -195,7 +193,6 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  place(host.querySelector('.bc12-nav'),box,layout.nav,viewport);
  place(host.querySelector('.bc12-adult-entry'),box,layout.adult,viewport);
  place(host.querySelector('.bc15-live-copy'),box,layout.liveCopy,viewport);
- place(host.querySelector('.bc15-live-next'),box,layout.liveNext,viewport);
  const ambient=ensureAmbient(host);
  const ambientLayout=portrait?{
    sun:[.69,.19,.24,.18],
@@ -231,19 +228,15 @@ function syncLiveCopy(host){
  live.querySelector('.bc15-live-intro').setAttribute('aria-hidden','true');
  live.setAttribute('aria-label',title+' '+intro);
 
- let next=host.querySelector('.bc15-live-next');
- if(!next){
-   next=document.createElement('div');
-   next.className='bc15-live-next';
-   host.appendChild(next);
- }
+ // The "Fortsett reisen" title and wood sign are part of the locked art.
+ // Remove the artificial sticker rather than trying to match its colors.
+ // Progress is still available to screen readers on the actual journey button.
+ host.querySelector('.bc15-live-next')?.remove();
  const place=host.querySelector('[data-camp-next]')?.textContent?.trim()||'Bokskogen';
  const rawType=host.querySelector('[data-camp-next-type]')?.textContent?.trim()||'Neste stopp';
- const active=/pågående/i.test(rawType);
- const type=active?'Pågående':'Neste stopp';
- next.dataset.state=active?'active':'next';
- next.textContent=type+' · '+place;
- next.setAttribute('aria-label',rawType+': '+place);
+ const type=/pågående/i.test(rawType)?'Pågående':'Neste stopp';
+ host.querySelector('.bc12-journey')?.setAttribute('aria-label',
+   'Fortsett reisen. '+type+': '+place);
 }
 
 function clearMappedControls(host){
@@ -280,7 +273,7 @@ async function activate(){
    clearMappedControls(host);
    host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='ineligible';
-   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-ambient').forEach(el=>el.remove());
    return false;
  }
  host.classList.add('bc15-capable');
@@ -387,7 +380,7 @@ const observer=new MutationObserver(mutations=>{
  const contentChanged=mutations.some(m=>{
    if(m.type!=='childList'&&m.type!=='characterData')return false;
    const el=m.target?.nodeType===1?m.target:m.target?.parentElement;
-   return !el?.closest?.('.bc15-live-copy,.bc15-live-next');
+   return !el?.closest?.('.bc15-live-copy');
  });
  if(firstMount)host.dataset.bc15Observed='true';
  if(firstMount||stateChanged)activate();

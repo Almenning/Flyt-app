@@ -46,14 +46,8 @@ async function homeReady(page,label){
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
  const portrait=label.includes('iphone')||(label.includes('ipad')&&!label.includes('landscape'));
  const cardArt=await home.getAttribute('data-bc15-card-art');
- if(label.includes('ipad')){
-   const status=await home.locator('.bc15-live-next').evaluate(el=>{
-     const s=getComputedStyle(el),r=el.getBoundingClientRect();
-     return {fontSize:parseFloat(s.fontSize),height:r.height,width:r.width};
-   });
-   assert.ok(status.fontSize>=13&&status.height>=20,
-     label+' next-stop copy is too small for a child: '+JSON.stringify(status));
- }
+ assert.equal(await home.locator('.bc15-live-next').count(),0,
+   label+' no pasted-on next-stop label may cover the original painted journey sign');
  const expected=cardArt==='clean-candidate'?
   (portrait?'kjosnes-home-phone-no-bottom-cards.webp':'kjosnes-home-tablet-no-bottom-cards.webp'):
   (portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp');
@@ -154,8 +148,11 @@ async function returnFromLockedJourney(page,screen,subject,label){
  await homeReady(page,label+' return '+subject);
  const hiddenNext=(await page.locator('[data-camp-next]').innerText()).trim();
  assert(hiddenNext,label+' '+subject+' return must expose next journey state');
- assert((await page.locator('.bc15-live-next').innerText()).includes(hiddenNext),
-   label+' '+subject+' live next-stop must still mirror real state after return');
+ const journeyLabel=await page.locator('.bc12-journey').getAttribute('aria-label');
+ assert(journeyLabel?.includes(hiddenNext),
+   label+' '+subject+' journey progress must be readable by assistive tech after return');
+ assert.equal(await page.locator('.bc15-live-next').count(),0,
+   label+' '+subject+' return may not recreate pasted-on progress plaque');
 }
 
 async function run(engine,label,viewport){
@@ -182,9 +179,12 @@ async function run(engine,label,viewport){
      label+' Home greeting and introduction must share one accessible speech bubble');
    const originalNext=(await page.locator('[data-camp-next]').innerText()).trim();
    assert(originalNext,label+' hidden journey state must expose a next place');
-   const liveNextText=(await page.locator('.bc15-live-next').innerText()).trim();
-   assert(liveNextText.includes(originalNext),label+' live next-stop copy must mirror journey state');
-   assert.match(liveNextText,/^(Pågående|Neste stopp) · /,label+' journey status must use the compact integrated label');
+   const journeyLabel=await home.locator('.bc12-journey').getAttribute('aria-label');
+   assert.match(journeyLabel||'',/^Fortsett reisen\. (Pågående|Neste stopp): /,
+     label+' journey status must be accessible without covering the sign');
+   assert(journeyLabel.includes(originalNext),label+' journey destination lost its accessible state');
+   assert.equal(await home.locator('.bc15-live-next').count(),0,
+     label+' no artificial label should be glued over Fortsett reisen');
    const cleanHome=(await home.getAttribute('data-bc15-card-art'))==='clean-candidate';
    const visibleOldCards=await page.locator('.bc14-subject:visible').count();
    assert.equal(visibleOldCards,cleanHome?0:4,
@@ -218,19 +218,16 @@ async function run(engine,label,viewport){
      const cards=[...document.querySelectorAll('.bc14-subject')].map(rect);
      const journey=rect(document.querySelector('.bc12-journey'));
      const nav=rect(document.querySelector('.bc12-nav'));
-     const liveNext=rect(document.querySelector('.bc15-live-next'));
      const liveCopy=rect(document.querySelector('.bc15-live-copy'));
      const navButtons=[...document.querySelectorAll('.bc12-nav button')].filter(e=>getComputedStyle(e).display!=='none').map(rect);
      const host=document.querySelector('.bc12.bc15-locked-home');
      const liveCopyStyle=getComputedStyle(document.querySelector('.bc15-live-copy'));
-     const liveNextStyle=getComputedStyle(document.querySelector('.bc15-live-next'));
      const liveCopyBg=liveCopyStyle.backgroundImage;
-     const liveNextBg=liveNextStyle.backgroundImage;
      const scenic=getComputedStyle(host,'::before');
      const artLeft=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-left'))||0;
      const artTop=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-top'))||0;
      const artWidth=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-width'))||0;
-     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,liveCopyShadow:liveCopyStyle.boxShadow,liveNextShadow:liveNextStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+     return {cards,journey,nav,liveCopy,liveCopyBg,liveCopyShadow:liveCopyStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    if(cleanHome)assert(geom.cards.every(r=>r.width===0&&r.height===0),
@@ -238,9 +235,6 @@ async function run(engine,label,viewport){
    else assert(geom.cards.every(r=>r.width>=44&&r.height>=44),
      label+' fallback subject hotspot too small '+JSON.stringify(geom.cards));
    assert(geom.journey.width>=44&&geom.journey.height>=44,label+' journey touch target too small');
-   assert(geom.liveNext.x>=geom.journey.x-2&&geom.liveNext.right<=geom.journey.right+2&&
-     geom.liveNext.y>=geom.journey.y-2&&geom.liveNext.bottom<=geom.journey.bottom+2,
-     label+' journey status escaped the painted Fortsett reisen sign '+JSON.stringify({journey:geom.journey,status:geom.liveNext}));
    assert(geom.liveCopy.width<geom.viewport*.65,label+' greeting overlay became a dashboard-sized panel '+JSON.stringify(geom.liveCopy));
    if(!portrait){
      const firstSign=await page.locator('.bc15-painted-subject').first().boundingBox();
@@ -273,12 +267,9 @@ async function run(engine,label,viewport){
    if(portrait){
      assert(geom.artLeft>=-1&&geom.artLeft+geom.artWidth<=geom.viewport+1,
        label+' portrait artwork must not crop the locked original/navigation: '+JSON.stringify({artLeft:geom.artLeft,artWidth:geom.artWidth,viewport:geom.viewport}));
-     assert.notEqual(geom.liveNextBg,'none',
-       label+' portrait journey status must cover baked placeholder text instead of ghosting over it');
      if(label.includes('iphone')){
        assert(geom.artTop<=40,label+' phone top safe-area grew too tall: '+JSON.stringify({artTop:geom.artTop}));
        assert.notEqual(geom.liveCopyShadow,'none',label+' selected speech bubble must have clear foreground separation');
-       assert.equal(geom.liveNextShadow,'none',label+' phone journey copy must sit flat on the painted sign');
      }
    }
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
