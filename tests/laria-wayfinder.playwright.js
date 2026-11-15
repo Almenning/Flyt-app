@@ -75,7 +75,7 @@ async function run(browserType,engine,name,viewport){
       'portrait Home sign boards overlap each other: '+JSON.stringify(geom));
     const greeting=await home.locator('.bc15-live-copy').boundingBox();
     assert.ok(greeting&&geom[0].top>greeting.y+greeting.height+8,
-      'portrait Home rail overlaps the child's greeting bubble: '+JSON.stringify({greeting,geom}));
+      "portrait Home rail overlaps the child greeting bubble: "+JSON.stringify({greeting,geom}));
 
     for(const spec of worlds){
       await home.locator('.bc15-subject-signs [data-bc15-subject="'+spec.id+'"]').click();
