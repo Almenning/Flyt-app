@@ -56,7 +56,7 @@ async function writeIpadReviewBoard(context,engine,layout,viewport,shots,homeArt
   artBlockers:[
    ...(homeArtFit.topUnpaintedRatio>0.025?['Grovanova: visible unpainted upper band exceeds 2.5% of iPad screen']:[]),
    ...(homeArtFit.leftUnpaintedRatio>0.025||homeArtFit.rightUnpaintedRatio>0.025?['Grovanova: visible unpainted side gutters exceed 2.5% of iPad screen']:[]),
-   'Grovanova: old activity cards/branding baked into approved master',
+   'Grovanova: bottom subject cards removed in separate source-locked iPad art; retouch needs visual owner approval; historical logo and characters remain baked into original',
    'Kinnaklova: old logo/three scattered signs baked into approved master'
   ]};
  await fs.promises.writeFile(path.join(OUT,engine+'-'+layout+'-review.json'),
