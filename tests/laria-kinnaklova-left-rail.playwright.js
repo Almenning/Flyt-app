@@ -110,10 +110,11 @@ async function poisonedArt(){
 (async()=>{
  await poisonedArt();
  const sizes={
+  // Premium 2.0 scope is explicitly iPad-first. The separately shipped
+  // Kinnaklova iPhone fallback has its own browser QA workflow and must NOT
+  // be required to have the new iPad-only shared reference rail yet.
   'ipad-landscape':{width:1366,height:1024},
-  'ipad-portrait':{width:1024,height:1366},
-  'iphone-portrait':{width:390,height:844},
-  'iphone-landscape':{width:844,height:390}
+  'ipad-portrait':{width:1024,height:1366}
  };
  for(const [name,engine] of [['chromium',chromium],['webkit',webkit]]){
   for(const [device,viewport] of Object.entries(sizes)){

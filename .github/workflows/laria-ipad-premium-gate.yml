@@ -77,7 +77,23 @@ jobs:
         id: reference
         if: always()
         continue-on-error: true
-        run: node tests/laria-reference-layout-v1.playwright.js
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Retry ONLY a transient WebKit navigation *internal crash* once.
+          # Actual layout/assertion/touch/art failures must still fail closed.
+          if node tests/laria-reference-layout-v1.playwright.js > /tmp/laria-ipad-reference-attempt1.log 2>&1; then
+            cat /tmp/laria-ipad-reference-attempt1.log
+          else
+            cat /tmp/laria-ipad-reference-attempt1.log
+            if grep -Fq 'WebKit encountered an internal error' /tmp/laria-ipad-reference-attempt1.log; then
+              echo 'WebKit browser crashed during navigation, one exact-source retry'
+              node tests/laria-reference-layout-v1.playwright.js
+            else
+              echo 'Real iPad reference layout failure, no retries' >&2
+              exit 1
+            fi
+          fi
       - name: Check Kinnaklova art SHA rejection, live controls and learning
         id: english
         if: always()

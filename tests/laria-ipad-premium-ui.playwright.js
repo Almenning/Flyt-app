@@ -49,36 +49,28 @@ async function run(engine,engineName,label,viewport){
        label+' Engelsk must fill the complete iPad display '+JSON.stringify(framing));
      assert.equal(framing.fit,'cover',label+' Engelsk portrait and landscape must use immersive scene framing');
      assert.deepEqual(framing.natural,[1672,941],label+' changed approved Kinnaklova source dimensions');
-     assert.equal(await world.locator('.ki-world-brand:visible').count(),0,
-       label+' duplicate HTML logo covers the original painted Læria title');
-     const painted=await world.locator('.ki-painted-words.laria-wayfinder').evaluate(el=>({
-       image:getComputedStyle(el).backgroundImage,
-       nameVisible:getComputedStyle(el.querySelector('.ki-plank-name')).visibility
-     }));
-     if(viewport.width>viewport.height){
-       assert.equal(painted.image,'none',label+' duplicates the original painted landscape signs');
-       assert.equal(painted.nameVisible,'hidden',label+' shows two Words labels on one sign');
-     }else{
-       // The portrait camera still shows the original painted Words board.
-       // Sentences and Reading require one separate navigation plank each.
-       assert.equal(painted.image,'none',label+' duplicates the original painted Words board in portrait');
-       assert.equal(painted.nameVisible,'hidden',label+' overlays Words twice in portrait');
-       for(const sign of ['sentences','reading']){
-         const bg=await world.locator('.ki-painted-'+sign).evaluate(el=>getComputedStyle(el).backgroundImage);
-         assert.match(bg,/laria-light-arrow-sign\.svg/,
-           label+' portrait '+sign+' requires an accessible scene-native arrow');
-       }
-       const position=await world.locator('.ki-master').evaluate(el=>getComputedStyle(el).objectPosition);
-       assert.ok(position.startsWith('48%'),label+' portrait framing lost the approved Kinnaklova title');
-       for(const sign of ['sentences','reading']){
-         const poles=await world.locator('.ki-painted-'+sign).evaluate(el=>({
-           content:getComputedStyle(el,'::after').content,
-           background:getComputedStyle(el,'::after').backgroundImage
-         }));
-         assert.notEqual(poles.content,'none',label+' missing '+sign+' signposts in portrait');
-         assert.notEqual(poles.background,'none',label+' '+sign+' signposts not drawn');
-       }
-     }
+     // The pixel-locked Kinnaklova image has ALREADY been cleaned of painted
+     // logo/menus. The child must see one live logo and one shared left oak
+     // rail, not the retired painted labels + invisible click overlays.
+     assert.equal(await world.locator('.ki-world-brand:visible').count(),1,
+       label+' Kinnaklova clean art must show exactly one live Læria logo');
+     const rail=world.locator('nav.laria-scene-navigation:visible');
+     assert.equal(await rail.count(),1,label+' Kinn must have exactly one left navigation rail');
+     const boards=await rail.locator('.ki-painted-hit.laria-wayfinder:visible').evaluateAll(els=>els.map(el=>({
+       id:el.dataset.ki,background:getComputedStyle(el).backgroundImage,
+       labelVisibility:getComputedStyle(el.querySelector('.ki-plank-name')).visibility,
+       x:el.getBoundingClientRect().x,width:el.getBoundingClientRect().width
+     })));
+     assert.deepEqual(boards.map(x=>x.id),['words','sentences','reading'],
+       label+' Kinnaklova activity menu changed its learning destinations');
+     assert.ok(boards.every(x=>/laria-light-arrow-sign\\?\.svg/.test(x.background)&&
+       x.labelVisibility==='visible'&&x.width>=44),
+       label+' Kinnaklova must use three readable matching oak arrows: '+JSON.stringify(boards));
+     assert.ok(Math.max(...boards.map(x=>x.x))-Math.min(...boards.map(x=>x.x))<4,
+       label+' Kinnaklova arrows must stay aligned on the left');
+     const sharedPosts=await rail.evaluate(el=>getComputedStyle(el,'::before').backgroundImage);
+     assert.match(sharedPosts,/laria-grovanova-signposts\\?\.svg/,
+       label+' Kinnaklova must reuse the same continuous two-post wood support');
      const signs=await world.locator('.ki-painted-hit.laria-wayfinder:visible').evaluateAll(nodes=>nodes.map(el=>{
        const a=el.getBoundingClientRect(),hit=document.elementFromPoint(a.x+a.width/2,a.y+a.height/2);
        return {id:el.dataset.ki,x:a.x,y:a.y,right:a.right,bottom:a.bottom,
