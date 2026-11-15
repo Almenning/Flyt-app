@@ -1,0 +1,48 @@
+name: Læria PR 243 - merge conflict audit only
+on:
+  push:
+    branches: [feat/laria-premium-beta-cleanup-20261106]
+    paths:
+      - '.github/workflows/laria-pr243-merge-conflicts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-main-merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Dry-run merge main into existing PR WITHOUT pushing or altering files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/laria-merge-audit
+          git fetch origin main
+          git config user.name "PR conflict auditor"
+          git config user.email "auditor@invalid.example"
+          echo "PR HEAD: $(git rev-parse HEAD)" > /tmp/laria-merge-audit/report.txt
+          echo "main HEAD: $(git rev-parse origin/main)" >> /tmp/laria-merge-audit/report.txt
+          set +e
+          git merge --no-commit --no-ff origin/main > /tmp/laria-merge-audit/merge-output.txt 2>&1
+          status=$?
+          set -e
+          echo "merge exit: $status" >> /tmp/laria-merge-audit/report.txt
+          git diff --name-only --diff-filter=U | sort > /tmp/laria-merge-audit/unmerged-paths.txt
+          echo "unmerged paths: $(wc -l < /tmp/laria-merge-audit/unmerged-paths.txt)" >> /tmp/laria-merge-audit/report.txt
+          git status --short > /tmp/laria-merge-audit/status.txt
+          if [ -f .git/MERGE_HEAD ]; then git merge --abort; fi
+          cat /tmp/laria-merge-audit/report.txt
+          cat /tmp/laria-merge-audit/unmerged-paths.txt
+          echo "AUDIT ONLY. Do not merge/publish until every conflict has been resolved and Læria/HverdagsOss checked separately."
+      - name: Upload exact conflict inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-pr243-merge-conflicts-${{ github.sha }}
+          path: /tmp/laria-merge-audit
+          retention-days: 14
+          if-no-files-found: warn

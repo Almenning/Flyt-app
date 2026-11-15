@@ -8,9 +8,14 @@
     "grovanova": {
       "locked": "laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp",
       "lockedSha256": "246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5",
-      "clean": null,
-      "cleanSha256": null,
-      "ownerApproved": false
+      "clean": "laer-litt-mer/assets/home-v15/kjosnes-home-tablet-no-bottom-cards.webp",
+      "cleanSha256": "9ea3cfdcc4a703964106a5aa7a83b0a033bfa90712db92687e1759b3af12ade8",
+      "ownerApproved": false,
+      "portraitClean": "laer-litt-mer/assets/home-v15/kjosnes-home-phone-no-bottom-cards.webp",
+      "portraitCleanSha256": "de12abd69d5977dcc01162b5855267bdc4141f2a6ab98d8b8d4e5ceab2933d1d",
+      "technicalArtVerified": true,
+      "protectedOriginalPixelsIdenticalOutsideMask": true,
+      "fourBottomCardsRemovedOnIpad": true
     },
     "kinnaklova": {
       "locked": "laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
@@ -39,18 +44,18 @@
   },
   "devices": {
     "ipadLandscape": {
-      "prHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
-      "actionsRun": 42905103792,
+      "prHead": "7337905e948b99a5327c5219125e3fcb4fc656a7",
+      "actionsRun": 43734137563,
       "chromiumAndWebkit": true,
       "ownerApproved": false,
-      "screenshotArtifactId": 13804922819
+      "screenshotArtifactId": 14169349643
     },
     "ipadPortrait": {
-      "prHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
-      "actionsRun": 42905103792,
+      "prHead": "7337905e948b99a5327c5219125e3fcb4fc656a7",
+      "actionsRun": 43734137563,
       "chromiumAndWebkit": true,
       "ownerApproved": false,
-      "screenshotArtifactId": 13804922819
+      "screenshotArtifactId": 14169349643
     },
     "iphonePortrait": {
       "prHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
@@ -75,12 +80,20 @@
     }
   },
   "regression": {
-    "greenOnPrHead": "b46b386c3c2831544a9c27d2df847f29908c82ad"
+    "greenOnPrHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
+    "ipadGreenOnPrHead": "7337905e948b99a5327c5219125e3fcb4fc656a7",
+    "ipadGreenRun": 43734137563
   },
   "childUsabilityTest": false,
   "permission": {
     "merge": false,
     "publish": false
   },
-  "evidenceNote": "Kinnaklova now has a separate source-faithful UI-free copy of SHA-locked original and live left sign rail, requiring final iPad visual signoff. Locked original remains unchanged. Grovanova, Nordlysleiren, whole-app device QA, owner review, and child test still block overall release."
+  "evidenceNote": "Fire nederste fagkort er fjernet fra separate SHA-låste iPad-derivater; eksisterende originalkilder urørt. Felles venstreskilt og ruting bestod Chromium/WebKit iPad på run 43734137563. Oppdatert artstatus er teknisk, ikke visuell eiergodkjenning. Publisering og konfliktløsning gjenstår.",
+  "openBlocks": [
+    "Visuell illustrasjonsgodkjenning av Hjem (mørk/lys rammekomposisjon, siste engskjøt og originale malte troll)",
+    "Nordlysleiren bruker fremdeles 1024x704-kilde og mangler godkjent høyoppløselig ren kunst",
+    "PR #243 er draft og har konflikter mot main: Kinnaklova er separat publisert i commit 384a6ad6",
+    "Barnets faktiske iPad-brukertest og gjennomgående Premium QA er ikke fullført"
+  ]
 }
