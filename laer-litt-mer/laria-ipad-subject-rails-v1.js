@@ -122,6 +122,10 @@
    const next=root.querySelector('.tv-next button[data-tv="next"]:not(:disabled)');
    if(next){next.classList.add('laria-ipad-next');next.textContent='Neste eventyr';stage.append(next);}
   }
+  if(subject==='norwegian'){
+   const resume=root.querySelector('.eg-resume button[data-eg="resume"]');
+   if(resume){resume.classList.add('laria-ipad-resume');resume.textContent='Fortsett økten';stage.append(resume);}
+  }
   actor(stage);
   stage.classList.add('laria-ipad-stage','laria-scene-shell');
   stage.dataset.lariaIpadRail='ready';
