@@ -2,6 +2,7 @@
 /* Responsive visual contract for the approved direct Eggenipa Norsk world.
  * Bokskogen was deliberately retired from the child flow; this keeps the
  * small-device regression coverage on the three real activity entrances. */
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -50,7 +51,7 @@ async function proof(engine,label,viewport,url){
   await page.route('https://raw.githubusercontent.com/**',route=>route.abort());
   await page.route('https://api.worldbank.org/**',route=>route.abort());
   await page.goto(url+'&responsive-phase-a='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]:visible').click();
+  await openHomeSubject(page,'norwegian');
   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
   const master=await page.locator('#eggenipa-world .eg-master').evaluate(async image=>{
    await image.decode();return {width:image.naturalWidth,height:image.naturalHeight};
