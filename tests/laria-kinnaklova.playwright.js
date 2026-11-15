@@ -375,7 +375,7 @@ async function firstGradeReading(engine,label){
    ['iphone-landscape',{width:844,height:390}],
    ['ipad-portrait',{width:834,height:1112}],
    ['ipad-landscape',{width:1194,height:834}]
- ]){
+ ].filter(([device])=>process.env.LARIA_IPAD_ONLY!=='1'||device.startsWith('ipad'))){
    await run(chromium,'chromium-'+label,viewport);
    await run(webkit,'webkit-'+label,viewport);
  }
