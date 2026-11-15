@@ -201,7 +201,7 @@ async function testEngine(engine,name,device,viewport){
    if(device.startsWith('ipad')){
     const stageBox=await scene.boundingBox();
     const anchors={
-     'ipad-landscape':{norwegian:.265,math:.275,geography:.30},
+     'ipad-landscape':{norwegian:.265,math:.275,geography:.27},
      'ipad-portrait':{norwegian:.28,math:.27,geography:.30}
     };
     const expected=anchors[device][world.id];

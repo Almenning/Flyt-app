@@ -1058,15 +1058,15 @@
 @media(min-width:768px) and (max-width:1366px) and (min-height:650px){
  #eggenipa-world .eg-hero.laria-reference-layout-v1{
   --ref-natural-rail-top:26.5%;
-  --ref-natural-post-tail:clamp(36px,5.2vh,68px);
+  --ref-natural-post-tail:clamp(20px,2.5vh,28px);
  }
  #tallvika-world .tv-scene.laria-reference-layout-v1{
   --ref-natural-rail-top:27.5%;
   --ref-natural-post-tail:clamp(24px,4.3vh,54px);
  }
  #laria-geography-world .gv-scene.laria-reference-layout-v1{
-  --ref-natural-rail-top:30%;
-  --ref-natural-post-tail:clamp(18px,3.6vh,45px);
+  --ref-natural-rail-top:27%;
+  --ref-natural-post-tail:22px;
  }
 }
 @media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
