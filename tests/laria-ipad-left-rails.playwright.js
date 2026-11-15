@@ -61,7 +61,7 @@ async function run(engine,name,device,viewport,s,ipad){
    await buttons.first().click();
    if(s.id==='norwegian')await page.locator('#word-hunt-overlay').waitFor({state:'visible',timeout:16000});
    if(s.id==='math')await page.locator('#multiplication-lab-screen.active').waitFor({timeout:16000});
-   if(s.id==='geography')await page.locator('#laria-geography-world[hidden]').waitFor({timeout:16000});
+   if(s.id==='geography')await page.locator('#laria-geography-world').waitFor({state:'hidden',timeout:16000});
    assert.deepEqual(errors,[],'Unexpected browser JS errors');
    console.log('PASS',name,device,s.id,coords.map(c=>Math.round(c.x)).join(','));
   }finally{await context.close();}
