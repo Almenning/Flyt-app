@@ -107,7 +107,8 @@ async function run(browserType,engine,name,viewport){
    ['ipad-portrait',{width:820,height:1180}],
    ['iphone-portrait',{width:390,height:844}],
    ['iphone-landscape',{width:852,height:393}]
- ])for(const [engine,browser] of [['chromium',chromium],['webkit',webkit]]){
+ ].filter(([device])=>process.env.LARIA_IPAD_ONLY!=='1'||device.startsWith('ipad')))
+ for(const [engine,browser] of [['chromium',chromium],['webkit',webkit]]){
   await run(browser,engine,name,view);
   console.log('PASS wooden arrow '+engine+' '+name);
  }
