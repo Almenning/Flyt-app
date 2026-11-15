@@ -10,7 +10,12 @@
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-master{
   position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
   object-fit:cover!important;object-position:50% 50%!important;
-  visibility:visible!important;z-index:0!important;
+  z-index:0!important;
+}
+/* Image visibility is a privilege of an exact verified art digest, not the
+   existence of a renderable <img> with matching dimensions. */
+#kinnaklova-world[data-ki-premium-art="approved"][data-ki-art="ready"] .ki-stage.laria-reference-layout-v1 .ki-master{
+  visibility:visible!important;
 }
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand{
   box-sizing:border-box!important;position:absolute!important;z-index:20!important;
@@ -164,4 +169,12 @@
   left:calc(var(--ref-left) + var(--ref-menu-width) + 7%)!important;
   width:clamp(140px,22vw,207px)!important;height:clamp(205px,61vh,284px)!important;
  }
+}
+
+/* Fail closed across EVERY Kinn scene mode, including a poisoned same-size
+   image, a disconnected reference adapter, and asynchronous CSS reflow. */
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-master,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-companions,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-painted-hit{
+  visibility:hidden!important;opacity:0!important;pointer-events:none!important;
 }
