@@ -10,6 +10,7 @@ let activationEpoch=0;
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
 function isPortrait(){return matchMedia('(orientation:portrait)').matches}
+function isIpadHome(){return matchMedia('(min-width:768px) and (min-height:650px)').matches}
 
 // Mine troll uses the ONE shared interactive selection of original
 // TrollActor characters; the former static art gallery is not navigation.
@@ -64,24 +65,33 @@ function place(el,box,part,viewport){
 // are painted artwork. Add only invisible and accessible hit areas, and
 // forward clicks to existing subject buttons to preserve app navigation.
 const HOME_SIGN_SUBJECTS=[['norwegian','Norsk'],['math','Matte'],['english','Engelsk'],['geography','Geografi']];
+const HOME_SIGN_ICONS=Object.freeze({
+ norwegian:'<path d="M12 6c-3-2-7-2-10-1v14c4-1 7-1 10 1m0-14c3-2 7-2 10-1v14c-4-1-7-1-10 1M12 6v14"/>',
+ math:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M7 8h10M8 13h4M10 11v4M15 13h3M15 17h3"/>',
+ english:'<path d="M4 5h16v12h-8l-5 4v-4H4z"/><path d="m8 13 2-5 2 5m-3-2h2M15 8h2v5h-2"/>',
+ geography:'<path d="m2 20 8-12 4 5 3-4 5 11zM7 13l3-5 3 4"/>'
+});
 function ensureHomeSignHits(host){
  let nav=host.querySelector('.bc15-subject-signs');
  if(nav)return nav;
  nav=document.createElement('nav');
  nav.className='bc15-subject-signs';
- nav.setAttribute('aria-label','Fag på de malte treskiltene');
+ nav.setAttribute('aria-label','Velg fag fra de venstrestilte treskiltene');
  for(const [id,label] of HOME_SIGN_SUBJECTS){
   const button=document.createElement('button');
   button.type='button';
   button.className='bc15-painted-subject';
   button.dataset.bc15Subject=id;
   button.setAttribute('aria-label','Åpne '+label+' fra treskiltet');
+  button.innerHTML='<span class="bc15-sign-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+HOME_SIGN_ICONS[id]+'</svg></span>'+
+    '<span class="bc15-sign-name">'+label+'</span>';
   button.addEventListener('click',event=>{
    event.preventDefault();
-   if(!host.classList.contains('bc15-locked-home')||
-       host.dataset.bc15Master!=='landscape')return;
-   // Exactly the same handler as the approved bottom-row subject card.
-   host.querySelector('.bc14-subject[data-camp="subject-'+id+'"]')?.click();
+   if(!host.classList.contains('bc15-locked-home'))return;
+   if(host.dataset.bc15Master!=='landscape'&&!isIpadHome())return;
+   // Reuse Basecamp's existing subject route, including geography return state.
+   if(typeof window.LARIA_HOME_OPEN_SUBJECT==='function')window.LARIA_HOME_OPEN_SUBJECT(id);
+   else host.querySelector('.bc14-subject[data-camp="subject-'+id+'"]')?.click();
   });
   nav.appendChild(button);
  }
@@ -133,7 +143,10 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  // Map four separately tappable signboards onto the APPROVED master.
  // Coordinates are relative to the underlying image, not fixed pixels.
  const signs=ensureHomeSignHits(host);
- signs.hidden=portrait;
+ const liveIpadPortrait=isIpadHome()&&portrait;
+ host.classList.toggle('bc15-ipad-fagmenu',isIpadHome());
+ signs.hidden=portrait&&!liveIpadPortrait;
+ signs.dataset.bc15Presentation=liveIpadPortrait?'live':'painted';
  if(!portrait){
   const signBoxes=[
    [.012,.314,.170,.074], // Norsk
@@ -144,6 +157,30 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
   signs.querySelectorAll('.bc15-painted-subject').forEach((button,index)=>{
    place(button,box,signBoxes[index],viewport);
   });
+ }
+ if(liveIpadPortrait){
+  // Portrait master has NO painted left-hand signs. Use the same four live
+  // oak arrows as the other subject facades, positioned within locked art.
+  const signBoxes=[
+   [.018,.279,.345,.071],
+   [.018,.355,.345,.071],
+   [.018,.431,.345,.071],
+   [.018,.507,.345,.071]
+  ];
+  signs.querySelectorAll('.bc15-painted-subject').forEach((button,index)=>{
+   place(button,box,signBoxes[index],viewport);
+  });
+  const first=signs.querySelector('.bc15-painted-subject');
+  const last=signs.querySelector('.bc15-painted-subject:last-child');
+  const top=parseFloat(first?.style.top)||0;
+  const bottom=(parseFloat(last?.style.top)||0)+(parseFloat(last?.style.height)||0);
+  signs.style.setProperty('--bc15-post-left',(parseFloat(first?.style.left)||0)+'px');
+  signs.style.setProperty('--bc15-post-top',(top+8)+'px');
+  signs.style.setProperty('--bc15-post-width',(parseFloat(first?.style.width)||120)+'px');
+  signs.style.setProperty('--bc15-post-height',Math.max(0,bottom-top+45)+'px');
+ }else{
+  for(const p of ['--bc15-post-left','--bc15-post-top','--bc15-post-width','--bc15-post-height'])
+   signs.style.removeProperty(p);
  }
  place(host.querySelector('.bc14-subjects'),box,layout.subjects,viewport);
  place(host.querySelector('.bc12-journey'),box,layout.journey,viewport);
@@ -224,6 +261,7 @@ async function activate(){
  // A successful decode is not art approval. Preserve original Home until
  // the replacement passes independent pixel + visual review.
  host.dataset.bc15PremiumArt='blocked';
+ host.classList.remove('bc15-ipad-fagmenu');
  const youngBand=!!document.querySelector('.grade-band-young');
  if(!youngBand){
    host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');
