@@ -45,6 +45,16 @@ for(const selector of [
 assert.match(visual,/laria-light-arrow-sign\.svg/,'Shared sign asset must stay canonical');
 const originalBrand=read('laer-litt-mer/assets/ui/laria-logo-from-grovanova.svg');
 const carvedOak=read('laer-litt-mer/assets/ui/laria-light-arrow-sign.svg');
+const grovanovaPosts=read('laer-litt-mer/assets/ui/laria-grovanova-signposts.svg');
+const refSigns=read('laer-litt-mer/laria-reference-layout-v1.css');
+assert.match(carvedOak,/data-laria-grovanova-arrow="true"/,
+ 'Signboards must be the shared Grovanova-style arrow, not rounded prototype planks');
+assert.match(carvedOak,/grovanova-arrow-silhouette/,
+ 'Shared arrow SVG is missing its Home-derived silhouette');
+for(const marker of ['grovanova-post-left','grovanova-post-right'])
+ assert.ok(grovanovaPosts.includes(marker),'Missing one of the two continuous Home posts: '+marker);
+assert.match(refSigns,/laria-grovanova-signposts\.svg/,
+ 'Subject and activity navigation must use exactly one shared support pair');
 assert.match(originalBrand,/original logo fra låst Grovanova-illustrasjon/,
  'Shared logo must derive from byte-locked Grovanova master, not generic lettering');
 assert.match(visual,/laria-logo-from-grovanova\.svg/,

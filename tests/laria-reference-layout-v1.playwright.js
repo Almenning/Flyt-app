@@ -76,6 +76,14 @@ async function testEngine(engine,name,device,viewport){
       'Tallvika shows a second Next eventyr sign on the right');
    }
    assert.equal(await nav.isVisible(),true);
+   const grovanovaSubjects=await nav.evaluate(el=>({
+     arrow:getComputedStyle(el.querySelector('button')).backgroundImage,
+     posts:getComputedStyle(el,'::before').backgroundImage
+   }));
+   assert.match(grovanovaSubjects.arrow,/laria-light-arrow-sign\.svg/,
+     world.id+' uses a different signboard from Grovanova');
+   assert.match(grovanovaSubjects.posts,/laria-grovanova-signposts\.svg/,
+     world.id+' lacks the two shared posts of Grovanova');
    assert.equal(await plaque.isVisible(),true);
    assert.equal(await plaque.getAttribute('aria-expanded'),'false');
    assert.equal(await plaque.locator('.laria-reference-place-kicker svg').count(),1,
@@ -206,6 +214,13 @@ async function testEngine(engine,name,device,viewport){
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
    assert.equal(await nav.isVisible(),false,world.id+' subject rail remained visible with activities');
    assert.equal(await activities.isVisible(),true);
+   const samePosts=await activities.evaluate(el=>getComputedStyle(el,'::before').backgroundImage);
+   assert.match(samePosts,/laria-grovanova-signposts\.svg/,
+     world.id+' activity menu uses a different post system');
+   const sameArrow=await activities.locator('.laria-wayfinder').first().evaluate(el=>
+     getComputedStyle(el.matches('.eg-scene-hit')?el.querySelector('span'):el).backgroundImage);
+   assert.match(sameArrow,/laria-light-arrow-sign\.svg/,
+     world.id+' activity menu uses a different arrow board');
    assert.equal(await plaque.getAttribute('aria-expanded'),'true');
    assert.equal(await activities.locator('.laria-wayfinder').count(),3,
      world.id+' must preserve all three live activity controls');

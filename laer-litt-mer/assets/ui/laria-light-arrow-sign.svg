@@ -1,27 +1,67 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 154" width="640" height="154" role="img" aria-label="Læria premium – håndskåret treskilt">
- <defs>
-  <linearGradient id="oak" x1="0" y1="0" x2="0.08" y2="1">
-   <stop stop-color="#f6cc8f"/>
-   <stop offset=".19" stop-color="#efbb78"/>
-   <stop offset=".52" stop-color="#dfa15d"/>
-   <stop offset=".83" stop-color="#c78848"/>
-   <stop offset="1" stop-color="#ab6a34"/>
-  </linearGradient>
-  <linearGradient id="carved" x1="0" y1="0" x2="0" y2="1">
-   <stop stop-color="#fff1bf"/>
-   <stop offset=".35" stop-color="#c78747"/>
-   <stop offset="1" stop-color="#80451f"/>
-  </linearGradient>
-  <filter id="depth" x="-6%" y="-34%" width="113%" height="190%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#24150d" flood-opacity=".52"/></filter>
- </defs>
- <g filter="url(#depth)">
-  <path d="M34 17Q52 12 81 15L559 13Q592 12 604 24Q617 38 615 74L616 111Q615 130 590 135L69 138Q36 139 26 124Q17 111 23 78L21 42Q22 25 34 17Z" fill="url(#oak)" stroke="#76401f" stroke-width="9" stroke-linejoin="round"/>
-  <path d="M34 34Q51 25 82 27L563 25Q591 23 601 36" fill="none" stroke="url(#carved)" stroke-width="6" stroke-linecap="round" opacity=".91"/>
-  <path d="M36 117Q54 129 84 128L560 124Q591 126 604 113" fill="none" stroke="#77431f" stroke-width="5" stroke-linecap="round" opacity=".45"/>
-  <path d="M70 49Q173 42 258 49T442 46T567 46M64 79Q155 71 260 78T447 75T568 73M75 108Q195 99 294 108T512 106" fill="none" stroke="#fff0bc" stroke-opacity=".28" stroke-width="3.4" stroke-linecap="round"/>
-  <path d="M84 62Q168 69 241 62T417 63T555 59M77 94Q174 89 256 95T445 94T562 91" fill="none" stroke="#854a25" stroke-opacity=".20" stroke-width="2.3" stroke-linecap="round"/>
-  <g fill="#744523" stroke="#f6d6a0" stroke-width="2">
-   <circle cx="46" cy="46" r="4"/><circle cx="46" cy="111" r="4"/><circle cx="590" cy="44" r="4"/><circle cx="590" cy="109" r="4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 176" width="640" height="176" role="img" aria-label="Læria premium – håndskåret treskilt i Grovanova-stil" data-laria-grovanova-arrow="true">
+<title>Læria Grovanova – lys høyrepekende treplanke</title>
+<!-- Traced from the four painted Home signs; the locked Home artwork is unchanged. -->
+<defs>
+ <linearGradient id="oak" x1="0" y1="0" x2="0" y2="1">
+  <stop stop-color="#e7a965"/><stop offset=".23" stop-color="#fac77f"/>
+  <stop offset=".53" stop-color="#f4b66f"/><stop offset=".76" stop-color="#e5a35d"/>
+  <stop offset="1" stop-color="#b76c32"/>
+ </linearGradient>
+ <linearGradient id="bevel" x1="0" y1="0" x2="0" y2="1">
+  <stop stop-color="#ffe2a0"/><stop offset=".45" stop-color="#e8a55d"/>
+  <stop offset="1" stop-color="#8c4b21"/>
+ </linearGradient>
+ <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+  <stop stop-color="#723b1d"/><stop offset=".37" stop-color="#985225"/>
+  <stop offset="1" stop-color="#ba7139"/>
+ </linearGradient>
+ <filter id="cast" x="-7%" y="-24%" width="116%" height="158%">
+  <feDropShadow dx="0" dy="8" stdDeviation="4" flood-color="#2d170b" flood-opacity=".53"/>
+ </filter>
+ <clipPath id="face">
+  <path d="M65 19 Q111 13 157 20 L552 18 Q571 18 581 27 L622 80 Q632 88 625 99 L590 144 Q578 152 552 151 L94 152 Q67 155 57 143 L37 126 L29 98 L34 72 L28 54 L48 27Z"/>
+ </clipPath>
+</defs>
+<g filter="url(#cast)">
+ <path d="M63 17 L41 25 25 49 14 72 23 92 15 113 36 146 62 158 103 156 76 138 58 109 62 72Z"
+  fill="url(#edge)" stroke="#663415" stroke-width="5" stroke-linejoin="round"/>
+ <path id="grovanova-arrow-silhouette"
+  d="M65 19 Q111 13 157 20 L552 18 Q571 18 581 27 L622 80 Q632 88 625 99 L590 144 Q578 152 552 151 L94 152 Q67 155 57 143 L37 126 L29 98 L34 72 L28 54 L48 27Z"
+  fill="url(#oak)" stroke="#68371b" stroke-width="7" stroke-linejoin="round"/>
+ <g clip-path="url(#face)">
+  <path d="M36 31 Q136 28 236 35 T451 30 Q544 25 593 38 L619 70 Q467 65 320 72 T30 68Z"
+   fill="#ffd190" opacity=".33"/>
+  <path d="M31 71 Q160 65 275 75 T514 70 L626 88 Q475 106 282 106 T28 109Z"
+   fill="#cc773c" opacity=".16"/>
+  <path d="M35 118 Q164 111 287 119 T505 116 L610 118 590 160 39 162Z"
+   fill="#c08044" opacity=".20"/>
+  <g fill="none" stroke-linecap="round">
+   <path d="M72 40 Q152 36 224 42 T375 40 T538 43 M80 52 Q194 47 283 54 T506 53"
+    stroke="#fff1b1" stroke-width="4" opacity=".34"/>
+   <path d="M73 63 Q160 59 238 65 T419 63 T567 64 M66 88 Q154 84 241 91 T417 88 T599 88 M79 107 Q178 103 289 108 T513 108 M76 132 Q169 127 280 133 T514 131"
+    stroke="#995224" stroke-width="2.9" opacity=".26"/>
+   <path d="M59 78 Q133 74 214 79 T398 79 T590 76 M69 114 Q174 110 262 117 T458 114 T598 111 M87 145 Q216 140 336 143 T550 140"
+    stroke="#75401d" stroke-width="3.1" opacity=".26"/>
+   <path d="M106 31 q13 2 25 0 M317 48 q28 2 48-2 M425 134 q15 2 24-1 M556 116 q12 2 20-2"
+    stroke="#703b1b" stroke-width="3" opacity=".47"/>
+   <path d="M77 91 l38-2 M82 119 l27 2 M560 68 l18-4 M551 98 l36 2"
+    stroke="#fbe0a0" stroke-width="3" opacity=".45"/>
   </g>
+  <path d="M55 70 L120 72 Q250 66 361 72 T607 79"
+   fill="none" stroke="#8c502a" stroke-width="1.7" opacity=".49"/>
+  <path d="M55 115 L145 113 Q254 118 354 115 T602 113"
+   fill="none" stroke="#7c411c" stroke-width="1.8" opacity=".38"/>
  </g>
+ <path d="M30 55 l41 8 M26 101 l45-3 M45 128 l30-4"
+  fill="none" stroke="#4c2815" stroke-width="6" stroke-linecap="round" opacity=".84"/>
+ <path d="M60 30 L88 32 M64 144 L91 149 M571 26 L585 37 M575 143 L588 136"
+  fill="none" stroke="url(#bevel)" stroke-width="5" stroke-linecap="round" opacity=".73"/>
+ <g fill="#60351e" opacity=".88">
+  <ellipse cx="112" cy="29" rx="3.6" ry="2.5"/><circle cx="204" cy="31" r="2.7"/>
+  <circle cx="318" cy="27" r="2.7"/><ellipse cx="515" cy="28" rx="3.2" ry="2.5"/>
+  <circle cx="557" cy="136" r="2.4"/><ellipse cx="120" cy="141" rx="3" ry="2.3"/>
+  <circle cx="293" cy="143" r="2.7"/><ellipse cx="413" cy="138" rx="3" ry="2.2"/>
+ </g>
+ <path d="M600 83 l23 5 -27 10" fill="none" stroke="#935522" stroke-width="4" opacity=".62"/>
+</g>
 </svg>
