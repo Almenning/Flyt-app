@@ -27,13 +27,15 @@ test('Approved scene is one painted 1672x941 image with mapped transparent targe
  assert.equal(locked.reference.sha256,'3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035');
  // Approval must be explicit in BOTH manifest and browser code. A correctly
  // sized, renamed copy of the rejected reference is not a clean art asset.
- const browserHash=js.match(/const APPROVED_ART_SHA256='([^']*)'/)?.[1];
- assert.ok(browserHash!==undefined,'Browser must gate by SHA-256');
- if(locked.implementation?.clean_master_visual_approved){
-   assert.equal(browserHash,locked.implementation.clean_master_sha256);
- }else{
-   assert.equal(browserHash,'','Draft must never render a scene by size alone');
- }
+ // Original source hash is preserved, but a new, UI-free derivative must be separately approved.
+ assert.match(js,/const LOCKED_ART='\.\/assets\/kinnaklova\/kinnaklova-scene-clean-approved-20261026\.webp'/,
+   'The previously locked source must not be replaced by a new landscape');
+ assert.match(js,/const APPROVED_ART_SHA256=PREMIUM_CLEAN_ART_APPROVED\?UI_FREE_ART_SHA256:/,
+   'Browser must verify the exact checksum of a separately approved clean image');
+ assert.match(js,/const UI_FREE_ART_VISUAL_SIGNOFF=false/,
+   'No new image may become production-ready without explicit visual signoff');
+ assert.match(js,/const UI_FREE_ART_SHA256=''/,
+   'The cleaned image is still absent and cannot be called approved');
  assert.match(js,/globalThis\.crypto\.subtle\.digest\('SHA-256'/);
  assert.match(js,/fetch\(ART,\{cache:'no-store'\}\)/);
  assert.doesNotMatch(js,/image\.src=trustedURL/,
