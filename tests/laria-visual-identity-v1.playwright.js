@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* The approved unified Læria design system, measured in the REAL application.
    Never substitute mockups for device screenshots or alter learning progress. */
 const assert=require('node:assert/strict');
@@ -123,7 +124,7 @@ async function run(engine,name,layout,viewport){
   const evidence=[{id:'home',label:'Hjem · Grovanova',file:name+'-'+layout+'-home.png'}];
   let expectedBrand=null,expectedPlate=null;
   for(const spec of worlds){
-   await home.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
+   await openHomeSubject(page,spec.id);
    const world=page.locator(spec.root+':visible');
    await world.waitFor({state:'visible',timeout:18000});
    if(spec.id==='english'){
