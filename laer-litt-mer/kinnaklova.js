@@ -11,11 +11,19 @@
   // The October image is SHA-verified and may render, but its painted
   // title/Words/Sentences/Reading signs make it INVALID as November's clean
   // premium scene. Rendering readiness is not visual-art approval.
-  const ART='./assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp';
-  const PREMIUM_CLEAN_ART_APPROVED=false;
+  const LOCKED_ART='./assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp';
+  // The only acceptable next image is a pixel-faithful UI-clean derivative
+  // of the locked source. Newly generated landscapes are prohibited.
+  const UI_FREE_ART='./assets/kinnaklova/kinnaklova-ui-free-approved.webp';
+  const UI_FREE_ART_SHA256='';
+  const UI_FREE_ART_VISUAL_SIGNOFF=false;
+  const PREMIUM_CLEAN_ART_APPROVED=UI_FREE_ART_VISUAL_SIGNOFF&&
+    /^[a-f0-9]{64}$/.test(UI_FREE_ART_SHA256);
+  const ART=PREMIUM_CLEAN_ART_APPROVED?UI_FREE_ART:LOCKED_ART;
   // Show only after a pixel-locked clean master and device QA have been approved.
   // A 1672x941 file that still contains the rejected characters is NOT valid.
-  const APPROVED_ART_SHA256='d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57';
+  const APPROVED_ART_SHA256=PREMIUM_CLEAN_ART_APPROVED?UI_FREE_ART_SHA256:
+    'd2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57';
   const REJECTED_REFERENCE_SHA256='3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035';
   // Draft background is intentionally absent. Do not request an unapproved
   // asset, throw HTTP 404s or display it before pixel-locked verification.
@@ -132,6 +140,7 @@
       '<span>ENGELSK · KINNAKLOVA</span><span class="ki-grade">'+grade+'. klasse</span>'+
       '<button type="button" class="ki-utility-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button></header>'+
       '<div class="ki-stage" role="group" aria-label="Kinnaklova med Words, Sentences og Reading">'+
+      (PREMIUM_CLEAN_ART_APPROVED?'<div class="ki-world-brand" aria-label="Læria, Engelsk ved Kinnaklova"><strong>Læria</strong><span>Kinnaklova</span></div>':'')+
       '<span class="ki-stage-grade" aria-hidden="true">'+grade+'. klasse</span>'+
       '<button type="button" class="ki-stage-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
       '<img class="ki-master"'+(HAS_CLEAN_MASTER?' src="'+ART+'"':'')+' alt="Kinnaklova med Kinn kyrkje, klokketårnet, sjøen og de karakteristiske tvillingtoppene" width="1672" height="941" draggable="false" decoding="async">'+

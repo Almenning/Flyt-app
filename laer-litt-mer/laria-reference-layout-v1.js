@@ -10,7 +10,7 @@
  const enabled=previewMode==='1'||(previewMode!=='0'&&
    root.matchMedia('(min-width:768px) and (min-height:650px)').matches);
  const names={home:'Hjem',norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'};
- const places={norwegian:'Eggenipa',math:'Tallvika',geography:'Nordlysleiren'};
+ const places={norwegian:'Eggenipa',math:'Tallvika',english:'Kinnaklova',geography:'Nordlysleiren'};
  const paths={
   home:'<path d="m3 12 9-8 9 8M6 10v11h12V10M10 21v-6h4v6"/>',
   norwegian:'<path d="M12 6c-3-2-7-2-10-1v14c4-1 7-1 10 1m0-14c3-2 7-2 10-1v14c-4-1-7-1-10 1M12 6v14"/>',
@@ -18,6 +18,7 @@
   english:'<path d="M4 5h16v12h-8l-5 4v-4H4z"/><path d="m8 13 2-5 2 5m-3-2h2M15 8h2v5h-2"/>',
   geography:'<path d="m2 20 8-12 4 5 3-4 5 11zM7 13l3-5 3 4"/>',
   words:'<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 9h6M8 12h4"/>',
+  sentences:'<path d="M3 5h18v12H9l-5 4v-4H3zM7 9h10M7 13h7"/>',
   find:'<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M8 10h4M10 8v4"/>',
   reading:'<path d="M12 6C9 4 5 4 2 5v14c4-1 7-1 10 1m0-14c3-2 7-2 10-1v14c-4-1-7-1-10 1M12 6v14"/>',
   multiply:'<path d="M5 5 19 19M19 5 5 19"/><circle cx="12" cy="12" r="10"/>',
@@ -83,6 +84,10 @@
  }
  function mount(scene,subject){
   if(!enabled||!places[subject]||!scene||scene.dataset.lariaReferenceLayout)return false;
+  // Never overlay live signs on the original, still sign-painted artwork.
+  if(subject==='english'&&(
+    scene.closest('#kinnaklova-world')?.dataset.kiPremiumArt!=='approved'||
+    scene.dataset.lariaArtworkUi!=='separate'))return false;
   // The same DOM components now support iPhone portrait, with a dedicated
   // compact arrangement that preserves one left rail and the original art.
   const ipad=root.matchMedia('(min-width:768px) and (min-height:650px)').matches;
@@ -127,10 +132,11 @@
   const activitiesByWorld={
    norwegian:{words:'words',find:'find',reading:'reading'},
    math:{multiply:'multiply',fraction:'fraction',table:'table'},
+   english:{words:'words',sentences:'sentences',reading:'reading'},
    geography:{journey:'journey',globe:'globe',country:'country'}
   };
   for(const button of rail.querySelectorAll('.laria-wayfinder')){
-   const action=button.dataset.eg||button.dataset.tv||button.dataset.gv;
+   const action=button.dataset.eg||button.dataset.tv||button.dataset.ki||button.dataset.gv;
    const iconId=activitiesByWorld[subject]?.[action];
    const surface=button.matches('.eg-scene-hit')?button.querySelector(':scope > span'):button;
    if(!iconId||!surface||surface.querySelector('.laria-reference-activity-icon'))continue;
@@ -195,7 +201,7 @@
   scene.appendChild(nav);scene.appendChild(heading);scene.appendChild(adult);
   scene.classList.add('laria-reference-layout-v1');
   scene.dataset.lariaReferenceLayout='v1';
-  scene.dataset.lariaReferenceArt='original-preserved';
+  scene.dataset.lariaReferenceArt=subject==='english'?'locked-kinn-ui-free-approved':'original-preserved';
   scene.dataset.lariaReferenceSubject=names[subject];
   setMode(scene,preferredRail.get(names[subject])||'activities');
   // External iPad keyboards: Escape returns from activities to the same
@@ -268,6 +274,7 @@
   for(const [selector,subject] of [
    ['#eggenipa-world .eg-hero.laria-scene-shell','norwegian'],
    ['#tallvika-world .tv-scene.laria-scene-shell','math'],
+   ['#kinnaklova-world .ki-stage.laria-scene-shell','english'],
    ['#laria-geography-world .gv-scene.laria-scene-shell','geography']]){
    const scene=root.document.querySelector(selector);
    if(!scene)continue;
