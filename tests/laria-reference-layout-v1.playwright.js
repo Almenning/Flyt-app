@@ -472,20 +472,26 @@ async function testEngine(engine,name,device,viewport){
       'Do not overlay the logo baked into the locked October image');
   }
   await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:22000});
-  // Historical art may decode successfully, but its baked-in title/signs
-  // can NEVER satisfy the November premium clean-master gate.
-  assert.equal(await english.getAttribute('data-ki-premium-art'),'blocked',
-    'historical Kinnaklova image was incorrectly marked premium-ready');
-  assert.equal(await page.evaluate(()=>window.LARIA_KINNAKLOVA?.premiumReady?.()),false,
-    'legacy painted UI must not grant clean-art approval');
-  await page.screenshot({path:path.join(out,name+'-'+device+'-english-art-blocked.png'),animations:'disabled'});
+  // SHA-verified original-derived clean scene, with one shared active rail.
+  assert.equal(await english.getAttribute('data-ki-premium-art'),'approved',
+    'English should render the real original-derived Kinn picture without painted signs');
+  assert.equal(await page.evaluate(()=>window.LARIA_KINNAKLOVA?.premiumReady?.()),true,
+    'Kinn artwork must be verified by actual SHA-256 before presentation');
+  const rail=english.locator('.ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation');
+  await rail.waitFor({state:'visible',timeout:15000});
+  const actions=rail.locator('.ki-painted-hit.laria-wayfinder');
+  assert.deepEqual(await actions.evaluateAll(items=>items.map(x=>x.dataset.ki)),
+    ['words','sentences','reading'],'Real activity routes must survive migration');
+  const xcoords=await actions.evaluateAll(items=>items.map(el=>el.getBoundingClientRect().left));
+  assert.ok(Math.max(...xcoords)-Math.min(...xcoords)<3,'All Kinn signs must align left');
+  await page.screenshot({path:path.join(out,name+'-'+device+'-english-unified-approved.png'),animations:'disabled'});
   assert.deepEqual(errors,[],name+'/'+device+' browser exceptions');
   const st=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));
   assert.equal(st.profile.tallvikaTroll,'lillesoster');
   await fs.promises.writeFile(path.join(out,name+'-'+device+'-review.json'),JSON.stringify({
-    head:process.env.LARIA_GIT_SHA||null,mode:'NOT APPROVED - real app screenshot',
+    head:process.env.LARIA_GIT_SHA||null,mode:'KINN CLEAN ART VERIFIED - RELEASE STILL BLOCKED',
     engine:name,device,viewport,scenesReviewed:worlds.map(w=>w.id),
-    blockedOriginals:['Grovanova/Hjem','Kinnaklova/Engelsk'],
+    blockedOriginals:['Grovanova/Hjem'],
     childProgressPreserved:true
   },null,2));
   console.log('PASS real '+name+' '+device+' Læria preview');
