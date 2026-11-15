@@ -1,0 +1,109 @@
+name: Læria iPad Premium - exact-head visual QA
+
+on:
+  push:
+    branches:
+      - feat/laria-premium-beta-cleanup-20261106
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/laria-visual-identity-v1.playwright.js'
+      - 'tests/laria-reference-layout-v1.playwright.js'
+      - 'tests/laria-kinnaklova.playwright.js'
+      - 'tests/laria-wayfinder.playwright.js'
+      - 'tests/laria-premium-ipad-contract.test.cjs'
+      - '.github/workflows/laria-ipad-premium-gate.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/laria-visual-identity-v1.playwright.js'
+      - 'tests/laria-reference-layout-v1.playwright.js'
+      - 'tests/laria-kinnaklova.playwright.js'
+      - 'tests/laria-wayfinder.playwright.js'
+      - '.github/workflows/laria-ipad-premium-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-ipad-premium-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  real-ipad-webkit-chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    env:
+      QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+      LARIA_IPAD_ONLY: '1'
+      LARIA_GIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      LARIA_IDENTITY_SCREENSHOTS: /tmp/laria-ipad-identity
+      LARIA_REFERENCE_SCREENSHOTS: /tmp/laria-ipad-reference
+      LARIA_KINNAKLOVA_SCREENSHOTS: /tmp/laria-ipad-kinnaklova
+      LARIA_WAYFINDER_SHOTS: /tmp/laria-ipad-wayfinder
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Verify iPad source, original art locks and test syntax
+        run: |
+          node tests/laria-premium-ipad-contract.test.cjs
+          node --check laer-litt-mer/kinnaklova.js
+          node --check laer-litt-mer/laria-reference-layout-v1.js
+          node --check tests/laria-visual-identity-v1.playwright.js
+          node --check tests/laria-reference-layout-v1.playwright.js
+          node --check tests/laria-kinnaklova.playwright.js
+          node --check tests/laria-wayfinder.playwright.js
+      - name: Serve exact checked-out PR files
+        run: |
+          python3 -m http.server 8765 --directory . >/tmp/laria-ipad-http.log 2>&1 &
+      - name: Check four subject signs, controls and exact iPad appearance
+        id: identity
+        continue-on-error: true
+        run: node tests/laria-visual-identity-v1.playwright.js
+      - name: Check the five-screen user-approved reference layout
+        id: reference
+        if: always()
+        continue-on-error: true
+        run: node tests/laria-reference-layout-v1.playwright.js
+      - name: Check Kinnaklova art SHA rejection, live controls and learning
+        id: english
+        if: always()
+        continue-on-error: true
+        run: node tests/laria-kinnaklova.playwright.js
+      - name: Check real left-sign learning routes without touching progress
+        id: wayfinder
+        if: always()
+        continue-on-error: true
+        run: node tests/laria-wayfinder.playwright.js
+      - name: Upload actual screenshots and failure evidence for visual approval
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-ipad-exact-head-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            /tmp/laria-ipad-identity
+            /tmp/laria-ipad-reference
+            /tmp/laria-ipad-kinnaklova
+            /tmp/laria-ipad-wayfinder
+            /tmp/laria-ipad-http.log
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Fail closed if any iPad browser verification is red
+        if: always()
+        shell: bash
+        run: |
+          echo "Identity: ${{ steps.identity.outcome }}"
+          echo "Reference: ${{ steps.reference.outcome }}"
+          echo "Kinnaklova: ${{ steps.english.outcome }}"
+          echo "Wayfinding: ${{ steps.wayfinder.outcome }}"
+          test "${{ steps.identity.outcome }}" = "success"
+          test "${{ steps.reference.outcome }}" = "success"
+          test "${{ steps.english.outcome }}" = "success"
+          test "${{ steps.wayfinder.outcome }}" = "success"
+          echo "Automated iPad checks passed. Separate human visual approval is still required."
