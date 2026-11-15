@@ -255,8 +255,12 @@ async function run(engine,name,layout,viewport){
      // English's SHA-locked scene still includes baked title/sign artwork.
      // Kinnaklova now has separate real DOM branding only on clean art.
      const isCleanKinn=(await world.getAttribute('data-ki-premium-art'))==='approved';
-     assert.equal(await world.locator('.ki-world-brand:visible').count(),isCleanKinn?1:0,
-       'English must have exactly one logo without duplication');
+     // Only the iPad reference layout is approved for the live shared
+     // branding. The phone fallback is intentionally not redesigned yet.
+     // In either mode there may never be two competing Læria logos.
+     const expectedLiveBrand=isCleanKinn&&adapted?1:0;
+     assert.equal(await world.locator('.ki-world-brand:visible').count(),expectedLiveBrand,
+       'English must show one live logo on clean iPad art, no duplicate on the phone fallback');
    }
    const screenshot=await page.screenshot({path:path.join(OUT,name+'-'+layout+'-'+spec.id+'.png'),animations:'disabled'});
    evidence.push({id:spec.id,label:({norwegian:'Norsk · Eggenipa',math:'Matte · Tallvika',english:'Engelsk · Kinnaklova',geography:'Geografi · Nordlysleiren'})[spec.id],file:name+'-'+layout+'-'+spec.id+'.png'});
