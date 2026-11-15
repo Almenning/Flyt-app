@@ -1,4 +1,4 @@
-name: Læria PR 243 - resolve main Kinn in isolated candidate (no publish)
+name: Læria PR 243 - integrate verified main Kinn in draft only
 on:
   push:
     branches: [feat/laria-premium-beta-cleanup-20261106]
@@ -7,7 +7,7 @@ on:
       - 'tools/laria_release/resolve_pr243_main_merge.py'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: laria-pr243-candidate-${{ github.ref_name }}
   cancel-in-progress: true
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
+          persist-credentials: true
       - uses: actions/setup-node@v4
         with: {node-version: 22, cache: npm}
       - name: Verify resolver before touching candidate workspace
@@ -83,7 +83,31 @@ jobs:
           node tests/laria-kinnaklova.playwright.js
           node tests/laria-wayfinder.playwright.js
           node tests/laria-home-kjosnes-v15.playwright.js
-      - name: Upload merge candidate proofs without writing repository
+      - name: Commit checked-and-tested merge into DRAFT PR branch only (not main)
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git ls-files -u)"
+          test "$(git rev-parse MERGE_HEAD)" = "$(git rev-parse origin/main)"
+          branch=feat/laria-premium-beta-cleanup-20261106
+          # No intervening branch writes may be clobbered. Never force push.
+          remote_sha="$(git ls-remote origin "refs/heads/$branch" | cut -f1)"
+          if [ "$remote_sha" != "$GITHUB_SHA" ]; then
+            echo "Another commit advanced the PR. Abort without pushing." >&2
+            exit 1
+          fi
+          git commit -m "merge(laria): preserve published Kinnaklova while integrating tested iPad Premium"
+          # The successful merge has two parents, main among them.
+          test "$(git rev-list --parents -n 1 HEAD | wc -w)" -eq 3
+          git cat-file -p HEAD | grep -Fq "parent $(git rev-parse origin/main)"
+          git push origin "HEAD:refs/heads/$branch"
+          echo "Merged only into draft PR #243; main and GitHub Pages were NOT touched."
+      - name: Upload merge candidate proofs and screenshots
+
         if: always()
         uses: actions/upload-artifact@v4
         with:
