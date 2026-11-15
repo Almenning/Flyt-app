@@ -41,30 +41,31 @@ def build(root:Path,dest:Path):
         assert original.size==record['size'],mode+' source geometry changed'
         w,h=original.size
         original_rgb=np.array(original,dtype=np.uint8)
-        fill=np.array(donor.resize((w,h-455 if mode=='tablet' else 120),Image.Resampling.LANCZOS),dtype=np.uint8)
         base=original_rgb.copy()
-        alpha=np.zeros((h,w),dtype=np.uint8)
         protected=np.zeros((h,w),dtype=bool)
         if mode=='tablet':
-            base[455:h,:,:]=fill
-            # The boundary follows the natural rock/foliage shoreline rather
-            # than a straight web-content rectangle. Left-side Journey is safe.
-            for x in range(380,w):
-                begin=468+round(9*math.sin(x/45)+4*math.sin(x/12))
-                start_x=393
-                alpha[begin:h,x]=255
-            # For all y, the mask begins on the right of the original Journey.
-            for y in range(455,h):
-                first=393+round(10*math.sin(y/34)+4*math.sin(y/9))
-                alpha[y,:first]=0
-            protected[446:h,367:w]=True
-            feather=10
+            # Follow the real rocky shoreline with a gradual edge. The old
+            # rectangular feather boundary was visible in the real iPad QA.
+            # Never overwrite the original locked mountains, fjord or trolls.
+            fill=np.array(donor.resize((w,h-440),Image.Resampling.LANCZOS),dtype=np.uint8)
+            base[440:h,:,:]=fill
+            yy,xx=np.mgrid[0:h,0:w].astype(np.float32)
+            top=462-12*np.clip((xx-540)/190,0,1)+5*np.sin(xx/22)+2*np.sin(xx/6)
+            left=375+6*np.sin(yy/21)+4*np.sin(yy/8)
+            def smoothstep(value):
+                v=np.clip(value,0,1)
+                return v*v*(3-2*v)
+            soft=smoothstep((yy-top)/17)*smoothstep((xx-left)/23)
+            protected[438:h,365:w]=True
         else:
+            # The portrait button and bottom navigation stay exactly where
+            # they are. Replace ONLY its already identified four-card strip.
+            fill=np.array(donor.resize((w,120),Image.Resampling.LANCZOS),dtype=np.uint8)
             base[459:579,:,:]=fill
+            alpha=np.zeros((h,w),dtype=np.uint8)
             alpha[463:575,:]=255
             protected[455:576,:]=True
-            feather=5
-        soft=np.asarray(Image.fromarray(alpha,'L').filter(ImageFilter.GaussianBlur(feather)),dtype=np.float32)/255.
+            soft=np.asarray(Image.fromarray(alpha,'L').filter(ImageFilter.GaussianBlur(5)),dtype=np.float32)/255.
         soft[~protected]=0
         blend=np.clip(original_rgb.astype('float32')*(1-soft[:,:,None])+base.astype('float32')*soft[:,:,None],0,255).astype('uint8')
         if not np.array_equal(blend[~protected],original_rgb[~protected]):

@@ -11,7 +11,7 @@ test('iPad Home removes four bottom cards without changing locked original art',
  for(const [file,expected] of [
   ['kjosnes-home-tablet.webp','246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5'],
   ['kjosnes-home-phone.webp','0d804d147dc38d259c13757522907f953488f0b40dea298a8efc06055427c8f7'],
-  ['kjosnes-home-tablet-no-bottom-cards.webp','ee05dad80475e1a64963768556681a31f5c69dbe87de91d5d3b66218e76f9ecf'],
+  ['kjosnes-home-tablet-no-bottom-cards.webp','9ea3cfdcc4a703964106a5aa7a83b0a033bfa90712db92687e1759b3af12ade8'],
   ['kjosnes-home-phone-no-bottom-cards.webp','de12abd69d5977dcc01162b5855267bdc4141f2a6ab98d8b8d4e5ceab2933d1d']
  ])assert.equal(sha(home+file),expected,'Original or clean iPad artwork bytes changed: '+file);
  const script=read('laer-litt-mer/home-kjosnes-v15.js');
