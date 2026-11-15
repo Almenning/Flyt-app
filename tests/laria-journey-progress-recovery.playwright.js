@@ -429,6 +429,11 @@ async function run(engine,label,viewport){
    assert.equal(finished.last.countsTowardGoal,true,label+' fresh mission did not count toward daily goal');
    assert.equal(finished.goal,1,label+' daily goal not updated after completion');
    await page.locator('#complete-home').click();
+   if(subject==='geography'){
+     // Enter the saved journey again from the new Nordlysleiren facade.
+     const entry=page.locator('#laria-geography-world nav.laria-ipad-left-rail [data-gv="journey"]');
+     if(await entry.isVisible())await entry.click();
+   }
    if(subject==='norwegian'){
      // Resumed missions start on Home; the map origin is not persisted.
      // Reopen Bokskogen to verify real saved node progress after completion.
