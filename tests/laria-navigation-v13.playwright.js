@@ -69,7 +69,9 @@ async function run(engine,label,viewport){
        ['words','find','reading'],label+' direct Norsk activities lost');
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' old Bokskogen map is visible');
-     await world.locator('.eg-portal[data-eg="reading"]').click();
+     // Eggenipa's child-facing UI is the painted hotspot. The older portal
+     // remains an internal compatibility route and is intentionally hidden.
+     await world.locator('.eg-scene-reading:visible, .eg-portal[data-eg="reading"]:visible').first().click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',label+' reading route broke');
      await page.locator('#close-session').click();
@@ -82,7 +84,7 @@ async function run(engine,label,viewport){
    if(subject==='math'){
      const tallvika=page.locator('#subject-screen.active #tallvika-world');
      await tallvika.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tallvika.locator('.tv-hotspot').count(),3,label+' Tallvika must have three house destinations');
+     assert.equal(await tallvika.locator('.tv-sign[data-tv]').count(),3,label+' Tallvika must have three clickable activity sign destinations');
      const back=tallvika.locator('[data-tv="back"]');
      // The world container can become visible before WebKit has finished the
      // subject-mode transition and exposed its header. Wait for the *real*
@@ -146,8 +148,19 @@ async function run(engine,label,viewport){
    const utility=world.locator('.ki-utility [data-ki="home"]');
    if(await utility.isVisible())await utility.click();
    else await world.locator('.ki-painted-home').click();
+   }else if(subject==='geography'){
+   // Nordlysleiren is the actual subject landing now. Follow the child's
+   // illustrated wooden sign to the original journey and return in two steps.
+   const landing=page.locator('#laria-geography-world:visible');
+   await landing.waitFor({timeout:16000});
+   await landing.locator('[data-gv="journey"]').click();
+   const back=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"] .locked-journey-back');
+   await back.waitFor({state:'visible',timeout:16000});
+   await back.click();
+   await landing.waitFor({timeout:16000});
+   await landing.locator('[data-gv="home"]').click();
    }else{
-   // Norsk and Geografi retain their approved painted journey maps.
+   // The former Bokskogen legacy map remains tested separately.
    const journeyBack=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await journeyBack.waitFor({state:'visible',timeout:16000});
    // Return from the actual painted mission, which is below the fold on

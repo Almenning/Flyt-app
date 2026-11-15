@@ -4,11 +4,15 @@
  */
 (function(){
  'use strict';
- const buddy=window.LARIA_CHAPTER_FOX_BUDDY;
+ const buddy=window.LARIA_CHAPTER_TROLL_BUDDY||window.LARIA_CHAPTER_FOX_BUDDY;
  const core=window.LARIA_GEO_CONTINENT_VOYAGE;if(!core)return;
  let ui=null;
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const fox=()=>'<img class="cv-fox" alt="Reven din er med på reisen" src="'+esc(ui.foxSrc)+'">';
+ const fox=()=>{const a=window.LARIA_TROLL_ACTOR,t=a?.selected?.();const src=t?.src||(()=>{
+      const stored=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+      const id=['storesoster','lillesoster','lillebror'].includes(stored)?stored:'storesoster';
+      return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
+    })();return '<img class="cv-fox laria-premium-troll-art" alt="Trollet ditt er med på reisen" src="'+esc(src)+'">';};
  const shell=body=>'<div class="cv-shell"><header class="cv-top"><button type="button" data-cv-act="close" class="cv-quiet">← Tilbake</button>'+
    '<span class="cv-development">INTERN TEST · GEOGRAFI KAPITTEL 2</span></header>'+
    '<main class="cv-main">'+body+'</main></div>';
@@ -69,9 +73,9 @@
    const foxState=buddy.response({subject:'geography',stageId:s.place.id,kind:s.task.kind,
      feedback,expanded:ui.hintShown});
    const foxPanel='<div class="cv-companion cv-fox-'+foxState.mood+'">'+fox()+
-     '<div class="cv-fox-copy"><span class="cv-eyebrow">REVENS KOMPASS</span>'+
+     '<div class="cv-fox-copy"><span class="cv-eyebrow">KOMPASSET</span>'+
      '<p id="cv-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
-     (foxState.showHint?'<button type="button" class="cv-fox-help" data-cv-act="hint" aria-controls="cv-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>';
+     (foxState.showHint?'<button type="button" class="cv-fox-help" data-cv-act="hint" aria-controls="cv-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint':'Få hint')+'">Hint</button>':'')+'</div>';
    return shell('<article class="cv-task"><div class="cv-task-nav"><button class="cv-quiet" data-cv-act="intro" type="button">← Alle stedene</button>'+
      '<span>'+esc(s.place.title)+'</span></div>'+
      foxPanel+
@@ -147,7 +151,7 @@
      /^data:image\/(?:png|webp|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src);
    const app=document.querySelector('.app'),root=document.createElement('section');
    ui={root,app,wasInert:app?.inert||false,focus:document.activeElement,
-     overflow:document.documentElement.style.overflow,foxSrc:safe?src:'./lia-fox-explorer-home.webp',
+     overflow:document.documentElement.style.overflow,foxSrc:safe?src:'./assets/gangemagi-troll/storesoster.webp',
      state:args.state,save:args.save,mode:'intro',result:null,hintShown:false};
    root.id='laria-geo-continent-voyage-preview';root.className='cv-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');

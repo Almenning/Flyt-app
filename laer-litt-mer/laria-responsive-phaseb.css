@@ -218,3 +218,10 @@
     border-radius:0!important;
   }
 }
+
+
+/* Nordlysleiren is the artwork itself. Do not show an enlarged duplicate,
+   blurry geography card behind its bottom edge on phone or tablet. */
+body.locked-journey-subject-geography:has(#geography-screen.active.locked-journey-active) .app{
+  background:radial-gradient(ellipse at 50% 5%,#3e6679 0%,#224556 52%,#142b37 100%)!important;
+}

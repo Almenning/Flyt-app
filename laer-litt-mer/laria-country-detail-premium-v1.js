@@ -111,10 +111,10 @@
     lastCountry=country;lastId=id;
     const scene=sceneFor(country);
     const featured=FEATURED_SCENES[id]||null;
-    const avatar=root.LARIA_FOX?.choice?.()||'boy';
-    const foxSrc=root.LARIA_FOX?.worldSource?.(avatar)||'';
-    const foxMarkup=foxSrc?
-      '<img class="country-story-fox" src="'+esc(foxSrc)+'" alt="" aria-hidden="true" draggable="false" decoding="async">':'';
+    const trollSrc=root.LARIA_TROLL_ACTOR?.selected?.()?.src||
+      root.LARIA_FOX?.worldSource?.(root.LARIA_FOX?.choice?.()||'boy')||'';
+    const foxMarkup=trollSrc?
+      '<img class="country-story-fox laria-premium-troll-art" src="'+esc(trollSrc)+'" alt="" aria-hidden="true" draggable="false" decoding="async">':'';
     const outline=outerRings(country).length?
       '<div class="country-story-map">'+
         '<div class="country-story-map-copy">'+

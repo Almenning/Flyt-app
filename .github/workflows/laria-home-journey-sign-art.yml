@@ -1,0 +1,58 @@
+name: Læria iPad Home - remove baked Next Stop subtitle in scoped derivatives
+on:
+  push:
+    branches: [feat/laria-premium-beta-cleanup-20261106]
+    paths:
+      - 'tools/laria_art/remove_home_journey_subtitle.py'
+      - '.github/workflows/laria-home-journey-sign-art.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: laria-journey-sign-${{ github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  exact-source-wood-only-retouch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.sha }}', persist-credentials: true}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install fixed image restoration versions
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==12.3.0 numpy==2.3.5 opencv-python-headless==4.13.0.92
+      - name: Create two additive, source-locked image derivatives
+        run: |
+          python tools/laria_art/remove_home_journey_subtitle.py --out /tmp/laria-journey-sign
+          test -s /tmp/laria-journey-sign/kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp
+          test -s /tmp/laria-journey-sign/kjosnes-home-phone-no-bottom-cards-no-next-stop.webp
+      - name: Publish comparison sheets as review evidence only
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-journey-sign-wood-only-review-${{ github.sha }}
+          path: |
+            /tmp/laria-journey-sign/*-before-after.png
+            /tmp/laria-journey-sign/JOURNEY-SIGN-REVIEW.json
+          retention-days: 14
+      - name: Commit two clean ADDITIVE derivative assets to the draft PR branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch=feat/laria-premium-beta-cleanup-20261106
+          # Abort instead of clobbering another user's changes to this branch.
+          head="$(git ls-remote origin "refs/heads/$branch" | cut -f1)"
+          test "$head" = "$GITHUB_SHA" || { echo 'PR branch changed, abort without push'; exit 1; }
+          cp /tmp/laria-journey-sign/kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp laer-litt-mer/assets/home-v15/
+          cp /tmp/laria-journey-sign/kjosnes-home-phone-no-bottom-cards-no-next-stop.webp laer-litt-mer/assets/home-v15/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f laer-litt-mer/assets/home-v15/kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp
+          git add -f laer-litt-mer/assets/home-v15/kjosnes-home-phone-no-bottom-cards-no-next-stop.webp
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git commit -m "art(laria): clean baked Next Stop text from iPad Home wood sign"
+            git push origin HEAD:"refs/heads/$branch"
+          fi
+          echo 'Draft PR only. Do not merge or deploy without final review.'

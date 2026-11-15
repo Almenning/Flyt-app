@@ -1,0 +1,62 @@
+name: "Læria learned clean-art candidates - REVIEW ONLY"
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/laria_art/prepare_lama_candidates.py"
+      - ".github/workflows/laria-lama-art-review.yml"
+      - "tools/laria_art/prepare_clean_art_previews.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inpaint-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Skip expensive restoration on unrelated CSS/code commits
+        id: should-run
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=yes" >> "$GITHUB_OUTPUT"
+          elif git diff-tree --no-commit-id --name-only -r HEAD | grep -Eq 'tools/laria_art/prepare_lama_candidates.py|\.github/workflows/laria-lama-art-review.yml'; then
+            echo "run=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=no" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-python@v5
+        if: steps.should-run.outputs.run == 'yes'
+        with: {python-version: "3.11"}
+      - name: Install CPU image-restoration dependencies
+        if: steps.should-run.outputs.run == 'yes'
+        run: |
+          python -m pip install --disable-pip-version-check --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+          python -m pip install --disable-pip-version-check "Pillow>=11,<13" "numpy>=1.26,<3" "opencv-python-headless>=4.10,<5"
+      - name: Verify original locks and iPad canvas before inference
+        if: steps.should-run.outputs.run == 'yes'
+        run: |
+          python -m py_compile tools/laria_art/prepare_lama_candidates.py tools/laria_release/verify_clean_candidate.py
+          python tools/laria_art/prepare_clean_art_previews.py --self-test
+          python tools/laria_art/prepare_lama_candidates.py --self-test
+      - name: Generate high-resolution Grovanova + Kinnaklova art proposals (never activated)
+        if: steps.should-run.outputs.run == 'yes'
+        run: python tools/laria_art/prepare_lama_candidates.py --out /tmp/laria-lama-review --world grovanova --world kinnaklova --max-side 1792
+      - name: Verify original landscape pixels are UNCHANGED outside strict UI masks
+        if: steps.should-run.outputs.run == 'yes'
+        run: |
+          python tools/laria_release/verify_clean_candidate.py --world grovanova --candidate /tmp/laria-lama-review/grovanova-lama-NOT-APPROVED.png --offset-x 119 --offset-y 171 --report /tmp/laria-lama-review/grovanova-pixel-integrity.json
+          python tools/laria_release/verify_clean_candidate.py --world kinnaklova --candidate /tmp/laria-lama-review/kinnaklova-lama-NOT-APPROVED.png --report /tmp/laria-lama-review/kinnaklova-pixel-integrity.json
+          printf '%s\n' 'DRAFT ART CANDIDATES - NOT PREMIUM APPROVED' 'Do not activate in Læria or remove release gates.' 'Compare EVERY native-pixel before/after detail sheet.' 'Reject any visible smearing, repeated sky, changed landforms or altered church.' > /tmp/laria-lama-review/ARTIST-REVIEW-REQUIRED.txt
+      - name: Upload review images, masks, checksums and comparisons
+        if: always() && steps.should-run.outputs.run == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-lama-REVIEW-ONLY-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-lama-review
+          retention-days: 14
+          if-no-files-found: warn

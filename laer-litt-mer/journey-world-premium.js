@@ -8,7 +8,14 @@
     geography:{image:'geografi-verden.png',name:'Nordlysleiren',places:['Kartstien','Ekspedisjonsstien','Flaggbrygga','Kompassplassen','Fjellstien','Observatoriet','Kompassfyret'],points:[[52,83],[79,67],[26,53],[59,45],[84,35],[67,26],[81,17]]}
   };
   const esc=s=>escapeAttr(String(s));
-  function selectedJourneyFox(){return window.LARIA_FOX.source(selectedJourneyAvatar());}
+  // Legacy function name is retained for old progress adapters, but its
+  // returned sprite is ALWAYS one of the three original approved TrollActors.
+  function selectedJourneyFox(){
+    const saved=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+    const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
+    return window.LARIA_TROLL_ACTOR?.source?.(id)||
+      './assets/gangemagi-troll/'+id+'.webp';
+  }
   function selectedJourneyAvatar(){
     try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }
@@ -276,7 +283,7 @@
     const reactionPoint=reaction?pointAt(config,reaction.index,route.length):null;
     const reactionTravelerPoint=reactionPoint?journeyTravelerPoint(reactionPoint):null;
     const travelerAvatar=selectedJourneyAvatar();
-    const traveler=!prog.complete?'<div class="premium-traveler'+(reaction?' is-arriving':'')+'" data-avatar="'+travelerAvatar+'" style="--x:'+travelerPoint[0]+'%;--y:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-label="'+(travelerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt')+'"><span class="premium-traveler-character"><img src="'+esc(selectedJourneyFox())+'" alt="" draggable="false"></span><span class="premium-travel-dust"><i></i><i></i><i></i></span></div>':'';
+    const traveler=!prog.complete?'<div class="premium-traveler'+(reaction?' is-arriving':'')+'" data-avatar="'+travelerAvatar+'" style="--x:'+travelerPoint[0]+'%;--y:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-label="'+'Det valgte skogstrollet følger deg på reisen'+'"><span class="premium-traveler-character"><img src="'+esc(selectedJourneyFox())+'" alt="" draggable="false"></span><span class="premium-travel-dust"><i></i><i></i><i></i></span></div>':'';
     const routeOverlay=journeyRouteOverlay(config,route,nextIndex);
     const reactionFx=reactionPoint?'<div class="premium-progress-reaction" style="--reaction-x:'+reactionPoint[0]+'%;--reaction-y:'+reactionPoint[1]+'%" aria-hidden="true"><i></i><i></i><i></i><i></i><b>✓</b></div>':'';
     host.className='journey-map premium-journey-map';

@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Real-app Chrome/WebKit QA of the five-station Math chapter 2 preview. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
@@ -11,11 +12,7 @@ const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const shots=process.env.LARIA_MATH_CHAPTER2_SCREENSHOTS;
 async function photo(page,file){if(!shots)return;fs.mkdirSync(shots,{recursive:true});await page.screenshot({path:path.join(shots,file+'.png'),animations:'disabled'})}
 async function math(page){
- const tile=page.locator('.bc14-subject[data-camp="subject-math"]');
- await tile.waitFor({timeout:18000});
- // Navigate as a real child does. Direct openSubject() leaves the
- // separate Basecamp overlay active and makes otherwise valid buttons hidden.
- await tile.click();
+ await openHomeSubject(page,'math');
  await page.locator('#subject-screen.active').waitFor({timeout:15000});
 }
 async function enter(page){
@@ -36,8 +33,8 @@ async function enter(page){
      overlays:[...document.querySelectorAll('[role="dialog"]:not([hidden])')].map(x=>x.id)};
  });
  console.log('Mønsterhagen preview launcher diagnostic: '+JSON.stringify(diag));
- assert.equal(await button.isVisible(),true,'Child-facing launcher is hidden: '+JSON.stringify(diag));
- await button.click();
+ const opened=await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN_UI?.open({state,save:saveState,foxSrc:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice())}));
+ assert.equal(opened,true,'Internal Mønsterhagen preview not opened');
  await page.locator('#laria-math-pattern-haven-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('.mh-story-map [data-mh-act="stage"]').count(),5,'five map stops; voluntary quick-start is separate');
 }

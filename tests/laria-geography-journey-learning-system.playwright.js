@@ -28,7 +28,7 @@ async function run(engine,label){
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(url+'&nordlys-system='+label,{waitUntil:'domcontentloaded'});
-    await page.locator('.bc14-subject[data-camp="subject-geography"]').waitFor({timeout:20000});
+    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:20000});
 
     const report=await page.evaluate(()=>{
       const model=geoJourneyModel(2);
@@ -109,9 +109,14 @@ async function run(engine,label){
       label+' saved geography journey id changed during semantic upgrade');
 
     await page.locator('#close-session').click();
-    await page.locator('#geography-screen.active').waitFor({timeout:10000});
+    // A direct startGeoJourneyNode() call does not create journey-map state.
+    // Closing that mission correctly restores the illustrated Geografi landing.
+    // Open the actual journey sign, then verify the real map and its missions.
+    const landing=page.locator('#geography-screen.active #laria-geography-world');
+    await landing.waitFor({state:'visible',timeout:12000});
+    await landing.locator('[data-gv="journey"]').click();
     const map=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
-    await map.waitFor({timeout:14000});
+    await map.waitFor({state:'visible',timeout:14000});
     await map.locator('[data-locked-place="1"]').click();
     const sheet=page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet.is-mission');
     await sheet.waitFor({timeout:8000});

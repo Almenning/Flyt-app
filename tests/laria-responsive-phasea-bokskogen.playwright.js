@@ -56,7 +56,7 @@ async function proof(engine,label,viewport,url){
    await image.decode();return {width:image.naturalWidth,height:image.naturalHeight};
   });
   assert.deepEqual(master,{width:1672,height:941},label+' lost the approved Eggenipa master');
-  const portals=page.locator('#eggenipa-world .eg-portal');
+  const portals=page.locator('#eggenipa-world .eg-scene-hit:visible');
   assert.deepEqual(await portals.evaluateAll(items=>items.map(item=>item.dataset.eg)),['words','find','reading'],
     label+' must offer exactly Ordjakt, Finn ordene and Lesekroken');
   assert.equal(await page.locator('#eggenipa-world [data-eg="map"],#subject-screen.active .locked-journey-map:visible').count(),0,
@@ -64,7 +64,7 @@ async function proof(engine,label,viewport,url){
   const geometry=await page.evaluate(()=>{
    const world=document.querySelector('#eggenipa-world');
    const master=world.querySelector('.eg-master').getBoundingClientRect();
-   const targets=[...world.querySelectorAll('.eg-portal')].map(node=>{
+   const targets=[...world.querySelectorAll('.eg-scene-hit')].map(node=>{
     const r=node.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,target=document.elementFromPoint(x,y);
     return {name:node.dataset.eg,top:r.top,bottom:r.bottom,width:r.width,height:r.height,hit:target===node||node.contains(target)};
    });
@@ -75,7 +75,7 @@ async function proof(engine,label,viewport,url){
   assert.ok(geometry.targets.every(hit=>hit.width>=44&&hit.height>=44),
     label+' an Eggenipa activity entrance is undersized '+JSON.stringify(geometry));
   for(const activity of ['words','find','reading']){
-    const portal=page.locator('#eggenipa-world .eg-portal[data-eg="'+activity+'"]');
+    const portal=page.locator('#eggenipa-world .eg-scene-hit[data-eg="'+activity+'"]');
     await portal.scrollIntoViewIfNeeded();
     const touch=await portal.evaluate(node=>{
       const r=node.getBoundingClientRect(),target=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
@@ -84,7 +84,7 @@ async function proof(engine,label,viewport,url){
     assert.ok(touch.top>=0&&touch.bottom<=touch.viewport&&touch.hit,
       label+' Eggenipa '+activity+' entrance is not reachable after normal scroll '+JSON.stringify(touch));
   }
-  await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+  await page.locator('#eggenipa-world .eg-scene-hit[data-eg="reading"]').click();
   await page.locator('#session-screen.active').waitFor({timeout:16000});
   const choices=await page.locator('#session-screen.active .answer').evaluateAll(items=>items.slice(0,3).map(item=>{
    const r=item.getBoundingClientRect();return {width:r.width,height:r.height,top:r.top,bottom:r.bottom};

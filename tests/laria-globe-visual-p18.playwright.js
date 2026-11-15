@@ -38,31 +38,34 @@ async function assertProfileFoxSelection(browserType){
   const browser=await browserType.launch({headless:true});
   try{
     const sources={};
-    for(const avatar of ['boy','girl']){
-      const avatarSeed={...seed,profile:{...seed.profile,avatar}};
+    for(const [avatar,trollId] of [['boy','lillebror'],['girl','lillesoster']]){
+      const avatarSeed={...seed,profile:{...seed.profile,avatar,tallvikaTroll:trollId}};
       const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block',deviceScaleFactor:1});
       const page=await ctx.newPage();
       await page.addInitScript(x=>localStorage.setItem('laerlittmer-v2',JSON.stringify(x)),avatarSeed);
       await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
       await page.route('https://api.worldbank.org/**',r=>r.abort());
-      await page.goto(globalThis.__url+'?app=laria&p18=profile-'+avatar,{waitUntil:'domcontentloaded'});
-      await page.waitForFunction(()=>typeof openGlobe==='function'&&window.LARIA_PROFILE_AVATARS);
+      await page.goto(globalThis.__url+'?app=laria&p18=profile-'+trollId,{waitUntil:'domcontentloaded'});
+      await page.waitForFunction(()=>typeof openGlobe==='function'&&window.LARIA_TROLL_ACTOR);
       await page.evaluate(()=>openGlobe());
       await page.locator('#world-screen.active .premium-globe-fox').waitFor();
-      const pair=await page.evaluate(a=>({
+      const pair=await page.evaluate(()=>({
         actual:document.querySelector('#world-screen.active .premium-globe-fox')?.getAttribute('src')||'',
-        expected:window.LARIA_PROFILE_AVATARS?.[a]||'',
-        guide:document.querySelector('#world-screen.active .premium-globe-guide')?.getAttribute('src')||'',
-        guideAvatar:document.querySelector('#world-screen.active .premium-globe-guide')?.dataset.profileAvatar||''
-      }),avatar);
-      assert.ok(pair.expected.startsWith('data:image/webp;base64,'),'missing '+avatar+' profile fox source');
-      assert.equal(pair.actual,pair.expected,'globe did not render selected '+avatar+' profile fox');
-      assert.equal(pair.guide,'./lia-fox-explorer-home.webp','physical globe guide must use the established transparent explorer asset');
-      assert.equal(pair.guideAvatar,avatar,'physical globe guide lost profile context');
-      sources[avatar]=pair.actual;
+        expected:window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()),
+        selected:window.LARIA_TROLL_ACTOR.choice(),
+        oldGuideVisibility:(()=>{
+          const el=document.querySelector('#world-screen.active .premium-globe-guide');
+          return el?getComputedStyle(el).visibility:'absent';
+        })()
+      }));
+      assert.equal(pair.selected,trollId,'globe lost selected TrollActor identity');
+      assert.equal(pair.actual,pair.expected,'globe did not render selected '+trollId+' TrollActor');
+      assert.ok(pair.oldGuideVisibility==='hidden'||pair.oldGuideVisibility==='absent',
+        'the retired transparent fox guide must not be visible');
+      sources[trollId]=pair.actual;
       await ctx.close();
     }
-    assert.notEqual(sources.boy,sources.girl,'boy and girl globe companions must remain distinct');
+    assert.notEqual(sources.lillebror,sources.lillesoster,'chosen globe TrollActors must remain distinct');
   }finally{await browser.close()}
 }
 

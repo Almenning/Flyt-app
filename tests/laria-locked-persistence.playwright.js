@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Regression: the approved October 10 art must never erase an existing
  * checkpoint, alter its original node ID, or remove the ability to replay.
  * Exercises and user progress remain owned by the existing journey engine.
@@ -28,7 +29,7 @@ async function verify(engine,label,viewport){
   await page.route('https://api.worldbank.org/**',route=>route.abort());
   const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
   await page.goto(url+'&locked-persistence='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
   // Use REAL, original checkpoint IDs. Never introduce invented records.
   const marked=await page.evaluate(()=>{
    const result={};
@@ -45,18 +46,18 @@ async function verify(engine,label,viewport){
   const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes);
   assert.equal(Object.keys(before).length,4,label+' must have four original checkpoints');
   await page.reload({waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,
    label+' original progress changed on reload');
   for(const [subject,title] of Object.entries(titles)){
    const screen=subject==='geography'?'geography':'subject';
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await openHomeSubject(page,subject);
    if(subject==='norwegian'){
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      const saved=await page.evaluate(key=>state.journey.nodes[key],marked.norwegian.key);
      assert.equal(saved?.passed,true,label+' Norwegian historical checkpoint was lost');
      assert.equal(saved?.best,5,label+' Norwegian checkpoint evidence changed');
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     await page.locator('#eggenipa-world .eg-scene-reading:visible, #eggenipa-world .eg-portal[data-eg="reading"]:visible').first().click();
      await page.locator('#session-screen.active').waitFor({timeout:16000});
      await page.locator('#close-session').click();
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
@@ -67,7 +68,7 @@ async function verify(engine,label,viewport){
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' Tallvika activity entries');
+     assert.equal(await tv.locator('.tv-sign').count(),3,label+' Tallvika activity signs');
      const old=await page.evaluate(id=>({
        checkpoint:state.journey.nodes[journeyNodeKey('math',2,id)],
        progress:journeyProgress('math',2),
@@ -142,6 +143,11 @@ async function verify(engine,label,viewport){
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
+   if(subject==='geography'){
+    const landing=page.locator('#laria-geography-world:visible');
+    await landing.waitFor({timeout:16000});
+    await landing.locator('[data-gv="journey"]').click();
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map');
    await root.waitFor({timeout:16000});
    await page.waitForFunction(s=>{
@@ -201,6 +207,9 @@ async function verify(engine,label,viewport){
      // Preserve saved checkpoint data through Bokskogen -> Eggenipa -> Home.
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }else if(subject==='geography'){
+     await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+     await page.locator('#laria-geography-world [data-gv="home"]').click();
    }
    await page.locator('#home-screen.active').waitFor({timeout:16000});
   }

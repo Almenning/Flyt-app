@@ -1,0 +1,25 @@
+name: Læria Home locked art inspection
+on:
+  push:
+    branches: [feat/laria-premium-beta-cleanup-20261106]
+    paths:
+      - '.github/workflows/laria-home-source-inspection.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  upload-locked-sources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Include exact immutable original WebP files for targeted visual retouch review
+        run: |
+          mkdir -p /tmp/laria-home-source
+          cp laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp /tmp/laria-home-source/
+          cp laer-litt-mer/assets/home-v15/kjosnes-home-phone.webp /tmp/laria-home-source/
+          sha256sum /tmp/laria-home-source/*.webp > /tmp/laria-home-source/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-locked-source-${{ github.sha }}
+          path: /tmp/laria-home-source
+          retention-days: 3

@@ -54,7 +54,12 @@
   function foxChoice(){
     try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }
-  function foxSource(){return window.LARIA_FOX.source(foxChoice());}
+  function foxSource(){
+    const saved=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+    const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
+    return window.LARIA_TROLL_ACTOR?.source?.(id)||
+      './assets/gangemagi-troll/'+id+'.webp';
+  }
   // Norsk uses a neutral helper until the separately approved TrollActor exists.
   // The shared fox-presence engine deliberately does not own this symbol, so
   // successful answers must trigger its one short reaction here instead.
@@ -400,24 +405,27 @@
       :'<div class="learning-passage">'+text(q.passage)+'</div>'):'';
     const readButton=readAloudButton(q);
     const finalQuestion=position===total;
-    // Kinnaklova removes the retired fox; Norsk keeps its current hint helper.
-    const avatar=directKinnaklova?null:foxChoice();
-    const fox=directKinnaklova?'':subject==='norwegian'
+    // Premium beta: one selected TrollActor follows the child through every
+    // subject. Legacy class names remain only as layout hooks until cleanup ends.
+    const trollActor=window.LARIA_TROLL_ACTOR;
+    const trollId=trollActor?.choice?.()||window.LARIA_TALLVIKA_BRIDGE?.state?.()?.profile?.tallvikaTroll||'storesoster';
+    const trollSrc=trollActor?.source?.(trollId)||'./assets/gangemagi-troll/'+trollId+'.webp';
+    const fox='<div class="task-fox-companion task-troll-companion laria-troll-host laria-troll-actor" data-troll="'+attr(trollId)+'" data-laria-troll-mood="idle" aria-label="Trollet ditt følger med">'+
+      '<img class="laria-premium-troll-art" src="'+attr(trollSrc)+'" alt="" aria-hidden="true"></div>';
+    const norskHelper=subject==='norwegian'
       ?'<div class="task-norsk-helper"><button class="task-norsk-guide" type="button" aria-label="Få et hint" aria-controls="task-norsk-hint" aria-expanded="false"><span aria-hidden="true">✦</span><small aria-hidden="true">Hint</small></button><p class="task-norsk-hint" id="task-norsk-hint" role="status" aria-live="polite" hidden></p></div>'
-      :'<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
-    // A number-choice question has no illustration to stand beside.
-    // Give the ONE selected full-body fox a real place next to the prompt,
-    // not an absolutely positioned thumbnail stuck to the card's corner.
-    // The wardrobe/presence engine still owns its sprite and reactions.
-    const inlineFox=!directKinnaklova&&taskBand()==='young'&&!visual&&!passage;
-    const visualWithFox=visual?(directKinnaklova?visual:'<div class="task-visual-companion-stage">'+visual+fox+'</div>'):fox;
+      :'';
+    // A text-only question gives the actor a grounded place beside the prompt.
+    // Illustrated questions keep it inside the bounded scene stage.
+    const inlineFox=taskBand()==='young'&&!visual&&!passage;
+    const visualWithFox=visual?'<div class="task-visual-companion-stage">'+visual+fox+'</div>':fox;
     const norwegianPrompt=/^(?:Hva|Hvilket|Hvilken|Velg|Finn|Hvor)\b/i.test(prompt);
     const promptLanguage=directKinnaklova?(norwegianPrompt?'nb':'en'):'';
     const answerLanguage=directKinnaklova?(
       q.answerLanguage==='nb'||/på norsk\??\s*$/i.test(prompt)?'nb':'en'
     ):'';
     const questionScene=inlineFox?
-      '<div class="task-prompt-fox-stage"><div class="question">'+text(prompt)+'</div>'+fox+'</div>':
+      '<div class="task-prompt-fox-stage"><div class="question"'+(directKinnaklova?' lang="'+promptLanguage+'"':'')+'>'+text(prompt)+'</div>'+fox+'</div>':
       readingStory
         ?passage+'<div class="question ki-reading-question" lang="en">'+text(prompt)+'</div>'+visualWithFox
         :'<div class="question"'+(directKinnaklova?' lang="'+promptLanguage+'"':'')+'>'+text(prompt)+'</div>'+passage+visualWithFox;
@@ -427,7 +435,7 @@
         (subject==='norwegian'?'<div class="task-norsk-bookmark" aria-hidden="true">✦ <span>LESEKROKEN</span> ✦</div>':'')+
         '<div class="task-world-chip">'+text(directKinnaklova?'Kinnaklova':sceneName(subject))+'</div>'+
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
-        questionScene+
+        questionScene+norskHelper+
         '<div class="task-interaction"'+(directKinnaklova?' lang="'+answerLanguage+'"':'')+'>'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
         '<div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p>'+(subject==='english'?'<button class="task-hear-word" id="task-hear-word" type="button" hidden aria-label="Hør engelsk uttale">🔊 Hør engelsk</button>':'')+'</div>'+
         '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button>'+
@@ -435,7 +443,8 @@
 
     if(subject==='geography')bindGeographyInteraction(q,wrap);
     else bindInteraction(q,wrap);
-    // Other subjects are handled by LARIA_FOX_PRESENCE. Norsk has no fox.
+    // Norsk keeps its accessible hint control; TrollActor remains the visible
+    // companion and reacts through the shared premium runtime.
     if(subject==='norwegian'){
       bindNorskGuideReaction(wrap.querySelector('.task-interaction'));
       bindNorskHint(wrap,q);

@@ -1,11 +1,12 @@
-/* Læria private chapter pilots: contextual, optional fox guidance.
+/* Læria private chapter pilots: contextual, optional companion guidance.
  * Help is an invitation, never a gate, score or automatic answer reveal.
- * Uses the child's already selected fox artwork in each activity scene.
+ * Premium beta uses the child's selected forest troll in each activity scene.
+ * The legacy FOX_BUDDY global remains only as a compatibility alias.
  */
 (function(root,factory){
  const api=factory();
  if(typeof module==='object'&&module.exports)module.exports=api;
- if(root)root.LARIA_CHAPTER_FOX_BUDDY=api;
+ if(root){root.LARIA_CHAPTER_TROLL_BUDDY=api;root.LARIA_CHAPTER_FOX_BUDDY=api;}
 })(typeof window!=='undefined'?window:globalThis,function(){
  'use strict';
  const HINTS=Object.freeze({
@@ -46,10 +47,10 @@
    geography:'Du styrer. Spør meg om hint.'
  });
  const CHEER=Object.freeze({
-   norwegian:'Du fant et viktig spor! Reven feirer sammen med deg.',
-   math:'Du fant sammenhengen! Reven jubler med deg.',
-   english:'Well done! Reven heier på de engelske ordene dine.',
-   geography:'God kurs! Reven heier på reisen din.'
+   norwegian:'Du fant et viktig spor! Trollet feirer sammen med deg.',
+   math:'Du fant sammenhengen! Trollet jubler med deg.',
+   english:'Well done! Trollet heier på de engelske ordene dine.',
+   geography:'God kurs! Trollet heier på reisen din.'
  });
  const RETRY=Object.freeze({
    norwegian:'Fint forsøk! Vi kan lese den delen en gang til.',
@@ -57,7 +58,7 @@
    english:'Bra forsøk! Les eller lytt én gang til. Vi kan prøve igjen.',
    geography:'Spennende forsøk! Vi finner veien sammen.'
  });
- function assert(ok,message){if(!ok)throw Error('Læria rev: '+message)}
+ function assert(ok,message){if(!ok)throw Error('Læria troll: '+message)}
  function hintFor(subject,stageId,kind){
    assert(!!BASE[subject],'unknown subject');
    // The mirror can also occur in a mixed final stop.

@@ -333,7 +333,7 @@ function themePickerMarkup(){
     '<span class="wh-theme-eyebrow">Læria · Eggenipa</span><h2 id="wh-theme-heading">Velg din ordjakt</h2>'+
     '<p>Velg et tema. Ett trykk, så er ordjakten i gang!</p><div class="wh-theme-cards" role="group" aria-label="Velg et av fem ordtemaer">'+
     THEMES.list().map(pack=>'<button type="button" class="wh-theme-card" data-word-theme="'+pack.id+'" aria-pressed="false">'+
-      '<img alt="" src="'+themeArtwork(pack.id)+'" loading="lazy">'+
+      '<img alt="" src="'+themeArtwork(pack.id)+'" loading="eager" decoding="async">'+
       '<strong>'+pack.title+'</strong><small>'+pack.description+'</small><span class="wh-theme-card-go" aria-hidden="true">Utforsk ›</span><span class="wh-theme-card-check" aria-hidden="true">Sist valgt</span></button>').join('')+
     '</div><button type="button" class="wh-theme-start">Fortsett med sist valgte tema <span aria-hidden="true">▶</span></button></div></section>';
 }

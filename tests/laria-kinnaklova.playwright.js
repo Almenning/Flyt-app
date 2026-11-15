@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -7,7 +8,7 @@ const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const output=process.env.LARIA_KINNAKLOVA_SCREENSHOTS;
 const seed={
  version:7,progressSchemaVersion:3,
- profile:{grade:2,onboarded:true,name:'Kinnaklova QA',avatar:'girl',setupVersion:2},
+ profile:{grade:2,onboarded:true,name:'Kinnaklova QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},
  masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},
  lastMilestone:null,recentCountryWin:null,lastActivity:null,
@@ -20,13 +21,17 @@ async function shot(page,label){
  await page.screenshot({path:path.join(output,label+'.png'),fullPage:true,animations:'disabled'});
 }
 async function visitEnglish(page){
- const tile=page.locator('.bc14-subject[data-camp="subject-english"]');
- await tile.waitFor({state:'visible',timeout:25000});
- await tile.click();
+ await openHomeSubject(page,'english');
  await page.locator('#subject-screen.active #kinnaklova-world').waitFor({state:'visible',timeout:16000});
 }
 async function takeActivity(page,action,label){
- await page.locator('#kinnaklova-world .ki-card[data-ki="'+action+'"]').click();
+  // Artwork is asynchronous. Let the integrity gate settle before choosing
+  // painted controls; fallback cards only exist when the asset fails closed.
+  await page.waitForFunction(()=>['ready','missing','unapproved'].includes(
+    document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
+  const painted=page.locator('#kinnaklova-world .ki-painted-'+action+':visible');
+  if(await painted.count())await painted.click();
+  else await page.locator('#kinnaklova-world .ki-card[data-ki="'+action+'"]:visible').click();
  await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
  const result=await page.evaluate(()=>({
    subject:sessionScope?.subject,module:sessionScope?.module,
@@ -51,10 +56,12 @@ async function takeActivity(page,action,label){
    label+' '+action+' VoiceOver question language is incorrect');
  assert.equal(speechLanguage.answers,expectedAnswers,
    label+' '+action+' VoiceOver answer language is incorrect');
- // Direct Kinnaklova has no retired fox actor; the real troll rig arrives
- // as a separately approved art layer, not a static mascot substitution.
- assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-   label+' '+action+' still renders the retired fox');
+ const actor=page.locator('#session-screen.active .task-fox-companion.task-troll-companion');
+ await actor.waitFor({state:'visible',timeout:8000});
+ assert.equal(await actor.getAttribute('data-troll'),'lillesoster',
+   label+' '+action+' lost the selected TrollActor');
+ assert.match(await actor.locator('img').getAttribute('src'),/gangemagi-troll\/lillesoster\.webp$/,
+   label+' '+action+' uses wrong TrollActor art');
  assert.equal(await page.evaluate(()=>state.profile.avatar),'girl',
    label+' '+action+' changed the saved profile identity');
  assert.ok(result.count>=5,label+' missing real learning questions in '+action);
@@ -119,16 +126,30 @@ async function run(browserType,name,viewport){
       width:rect.width,height:rect.height,naturalWidth:img.naturalWidth};
   });
   assert.ok(art.width>250,name+' no stage visible');
-  assert.ok(Math.abs(art.height-art.width*941/1672)<3,name+' must not crop approved art');
-  const documents=await world.locator('.ki-troll').evaluateAll(els=>els.map(el=>({
-    id:el.dataset.kiCharacter,src:el.getAttribute('src')
-  })));
-  assert.deepEqual(documents.map(el=>el.id),['storesoster','lillebror','lillesoster']);
-  assert.deepEqual(documents.map(el=>el.src),[
-    './assets/kinnaklova/storesoster-inworld-approved-20261026.webp',
-    './assets/gangemagi-troll/lillebror.webp',
-    './assets/gangemagi-troll/lillesoster.webp'
-  ],name+' must use the already painted approved Storesøster and unchanged other originals');
+  if(viewport.width>=701&&viewport.height>=600){
+    const frame=await world.locator('.ki-stage').evaluate(stage=>{
+      const b=stage.getBoundingClientRect(),im=stage.querySelector('.ki-master');
+      return {left:b.left,top:b.top,width:b.width,height:b.height,
+        imageFit:getComputedStyle(im).objectFit,imagePosition:getComputedStyle(im).objectPosition};
+    });
+    assert.ok(Math.abs(frame.left)<=2&&Math.abs(frame.top)<=2&&
+      Math.abs(frame.width-viewport.width)<=2&&Math.abs(frame.height-viewport.height)<=2,
+      name+' iPad/desktop must be one full-viewport Kinnaklova scene: '+JSON.stringify(frame));
+    assert.equal(frame.imageFit,'cover',name+' artwork should fill scene, without deforming pixels');
+    // The sign-free original derivative uses exactly one live Læria crest.
+    const isClean=await world.getAttribute('data-ki-premium-art')==='approved';
+    assert.equal(await world.locator('.ki-world-brand:visible').count(),isClean?1:0,
+      name+' must not duplicate the Læria crest');
+  }else{
+    assert.ok(Math.abs(art.height-art.width*941/1672)<3,name+' compact phone must retain uncropped original art');
+  }
+  const actor=world.locator('.ki-companion-actor[data-troll="lillesoster"]');
+  assert.equal(await actor.count(),1,name+' must render one selected TrollActor');
+  const actorImg=actor.locator('.ki-troll');
+  assert.equal(await actorImg.getAttribute('data-ki-character'),'lillesoster',name+' wrong selected Kinnaklova troll');
+  assert.equal(await actorImg.getAttribute('src'),'./assets/gangemagi-troll/lillesoster.webp',
+    name+' selected Kinnaklova troll must use the persistent identity asset');
+  assert.equal(await world.locator('.ki-troll').count(),1,name+' Kinnaklova must not show all three trolls at once');
   if(art.ready){
     assert.equal(await page.evaluate(()=>window.LARIA_KINNAKLOVA.ready()),true);
     assert.equal(await world.locator('.ki-companions').isVisible(),true);
@@ -230,7 +251,7 @@ async function run(browserType,name,viewport){
   const utility=world.locator('.ki-utility [data-ki="home"]');
   if(await utility.isVisible())await utility.click();
   else await world.locator('.ki-painted-home').click();
-  await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({timeout:16000});
   assert.deepEqual(errors,[],name+' runtime JS errors');
   console.log('[KINNAKLOVA]',name,'direct English, resume, return',art.ready?'ART READY':'ART MISSING (draft release gate)');
   await context.close();
@@ -245,13 +266,13 @@ async function rejectPoisonedSameSizeArt(){
   },seed);
   const page=await context.newPage(),artRequests=[];
   page.on('request',request=>{
-   if(request.url().includes('kinnaklova-scene-clean-approved-20261026.webp'))
+   if(request.url().includes('kinnaklova-ui-free-approved.webp'))
     artRequests.push(request.url());
   });
   const unrelatedImage=path.join(__dirname,'..','laer-litt-mer','assets','norsk','eggenipa-master-laast-20261025.png');
   // A valid image with the exact right dimensions, but not the approved
   // clean Kinnaklova master, must not activate painted signs or troll layers.
-  await page.route('**/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp',
+  await page.route('**/assets/kinnaklova/kinnaklova-ui-free-approved.webp',
     route=>route.fulfill({path:unrelatedImage,contentType:'image/png'}));
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
@@ -268,16 +289,29 @@ async function rejectPoisonedSameSizeArt(){
   }else{
    // Once a clean master SHA is approved, same-size art with incorrect bytes
    // must still be rejected by the browser's exact SHA-256 protection.
+   // The natural dimensions are known before the async SHA-256 gate finishes.
+   // Await the completed rejection rather than racing the image load.
    await page.waitForFunction(()=>{
-    const el=document.querySelector('#kinnaklova-world .ki-master');
-    return el?.complete&&el.naturalWidth===1672&&el.naturalHeight===941;
+    const world=document.querySelector('#kinnaklova-world');
+    const image=world?.querySelector('.ki-master');
+    return image?.complete&&image.naturalWidth===1672&&image.naturalHeight===941&&
+      world?.dataset.kiArt==='unapproved';
    },null,{timeout:15000});
    assert.ok(artRequests.length>=1,'Release asset should be requested only with a locked SHA');
    assert.equal(await page.locator('#kinnaklova-world').getAttribute('data-ki-art'),'unapproved');
   }
   assert.equal(await painted.isVisible(),false,'Wrong 1672x941 art must be invisible');
   assert.equal(await page.locator('#kinnaklova-world .ki-companions').isVisible(),false);
-  assert.equal(await page.locator('#kinnaklova-world .ki-painted-words').isVisible(),false);
+  const poisonedSign=await page.locator('#kinnaklova-world .ki-painted-words').evaluate(el=>{
+   const s=getComputedStyle(el),world=el.closest('#kinnaklova-world');
+   return {visibility:s.visibility,display:s.display,opacity:s.opacity,
+    premium:world?.dataset.kiPremiumArt,art:world?.dataset.kiArt,
+    reference:el.closest('.ki-stage')?.dataset.lariaReferenceLayout};
+  });
+  assert.equal(await page.locator('#kinnaklova-world .ki-painted-words').isVisible(),false,
+   'A SHA-rejected Kinnaklova must hide live sign touch targets: '+JSON.stringify(poisonedSign));
+  assert.equal(poisonedSign.visibility,'hidden',
+   'A SHA-rejected Kinnaklova sign is painted: '+JSON.stringify(poisonedSign));
   assert.equal(await page.locator('#kinnaklova-world .ki-card').count(),3,
    'Even with incorrect art, real English activities must remain reachable');
   console.log('[KINNAKLOVA] missing or poisoned art correctly blocked in Chromium');
@@ -349,7 +383,7 @@ async function firstGradeReading(engine,label){
    ['iphone-landscape',{width:844,height:390}],
    ['ipad-portrait',{width:834,height:1112}],
    ['ipad-landscape',{width:1194,height:834}]
- ]){
+ ].filter(([device])=>process.env.LARIA_IPAD_ONLY!=='1'||device.startsWith('ipad'))){
    await run(chromium,'chromium-'+label,viewport);
    await run(webkit,'webkit-'+label,viewport);
  }

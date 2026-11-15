@@ -67,9 +67,11 @@ test('New task card is anchored and scrolls instead of re-centering on feedback'
   assert.match(sceneJs,/scrollHost\.scrollTop=0/);
   assert.match(sceneJs,/normalizeLegacyYoungEnglish\(q\)/);
 });
-test('Fox presence remains separate from the single Norwegian answer guide',()=>{
+test('TrollActor remains separate from the single Norwegian answer guide',()=>{
   assert(!sceneJs.includes('    bindFoxReaction(wrap);'),'duplicate legacy fox reaction listener was reintroduced');
-  assert(sceneJs.includes('LARIA_FOX_PRESENCE'),'other subjects must retain established fox presence');
+  assert(sceneJs.includes('window.LARIA_TROLL_ACTOR'),'all subjects must use the selected TrollActor');
+  assert.match(sceneJs,/task-fox-companion task-troll-companion laria-troll-host laria-troll-actor/,
+    'task scene must mount one shared TrollActor companion');
   assert.match(sceneJs,/if\(subject==='norwegian'\)\s*\{\s*bindNorskGuideReaction\(wrap\.querySelector\('\.task-interaction'\)\);/,
     'Norsk reaction must bind to each new answer interaction');
   assert(sceneJs.includes('let celebrated=false'),'each new Norwegian question must suppress repeated celebrations');

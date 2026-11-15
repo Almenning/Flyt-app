@@ -163,7 +163,7 @@ async function run(engine,label,width,height){
       ['words','find','reading'],label+' Norsk must offer three direct activities');
     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
       label+' retired Bokskogen map is still visible');
-    await eggenipa.locator('.eg-portal[data-eg="reading"]').click();
+    await eggenipa.locator('.eg-scene-reading:visible, .eg-portal[data-eg="reading"]:visible').first().click();
     await screen(page,'session');
     assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',
       label+' Lesekroken did not start the real reading module');

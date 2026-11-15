@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Exact-head proof for Læria Home v15: locked Kjøsnesfjorden masters + real controls. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -40,10 +41,44 @@ async function homeReady(page,label){
  },null,{timeout:20000});
  const asset=await home.getAttribute('data-bc15-asset');
  assert.match(asset,/^(phone|tablet)-ready$/,label+' locked master did not activate');
+ assert.equal(await home.getAttribute('data-bc15-premium-art'),'blocked',
+   label+' historical Grovanova art was incorrectly marked clean and premium-approved');
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
  const portrait=label.includes('iphone')||(label.includes('ipad')&&!label.includes('landscape'));
- const expected=portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp';
+ const cardArt=await home.getAttribute('data-bc15-card-art');
+ assert.equal(await home.locator('.bc15-live-next').count(),0,
+   label+' no pasted-on next-stop label may cover the original painted journey sign');
+ const expected=cardArt==='clean-candidate'?
+  (portrait?'kjosnes-home-phone-no-bottom-cards-no-next-stop.webp':'kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp'):
+  (portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp');
  assert(art.includes(expected),label+' must use the exact locked WebP master: '+art);
+ if(label.includes('ipad')){
+   assert.equal(cardArt,'clean-candidate',label+' iPad must use the new clean illustration, not a text-bearing fallback');
+   assert(art.includes('-no-next-stop.webp'),label+' static Next Stop text has reappeared in the Home asset: '+art);
+   assert.equal(await home.locator('.bc15-live-next').count(),0,
+     label+' must never put the old next-stop sticker over the wood sign');
+ }
+ // The top scenic margin may only be filled by a source-locked, UI-free
+ // texture, never an extra copy of the Home logo or painted navigation.
+ if(label.includes('ipad')&&label.includes('landscape')&&cardArt==='clean-candidate'){
+   const scenic=await home.evaluate(async el=>{
+     const needed=el.classList.contains('bc15-landscape-bleed');
+     const p=getComputedStyle(el,'::before'),q=getComputedStyle(el,'::after');
+     const img=new Image();
+     img.src=new URL('./assets/home-v15/kjosnes-home-tablet-scenic-top-edge.webp',location.href).href;
+     try{await img.decode();}
+     catch(e){return {needed,loaded:false,reason:String(e),background:p.backgroundImage};}
+     return {needed,loaded:true,width:img.naturalWidth,height:img.naturalHeight,
+       background:p.backgroundImage,mask:q.maskImage||q.webkitMaskImage};
+   });
+   assert(scenic.needed,label+' must enable scenic-only top continuation');
+   assert(scenic.loaded&&scenic.width===1127&&scenic.height===20,
+     label+' top continuation must decode to the verified 1127x20 source strip: '+JSON.stringify(scenic));
+   assert.match(scenic.background,/kjosnes-home-tablet-scenic-top-edge\\?\.webp/,
+     label+' must replace the rejected brown-blue top letterbox with source-faithful pixels');
+   assert.match(scenic.mask,/linear-gradient/,label+' top background must meet the real painting without a black seam');
+ }
+
  const natural=await home.evaluate(async el=>{
    const raw=getComputedStyle(el).getPropertyValue('--bc15-home-art');
    const src=raw.match(/url\(["']?(.*?)["']?\)/)?.[1];
@@ -76,7 +111,9 @@ async function returnFromLockedJourney(page,screen,subject,label){
      ['words','find','reading'],label+' Norsk has not switched to direct learning activities');
    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
      label+' retired Bokskogen map unexpectedly visible');
-   await world.locator('.eg-portal[data-eg="reading"]').click();
+   { const painted=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  const entry=(await painted.count())?painted:page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible');
+  await entry.click(); }
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
    const learning=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
      question:sessionQuestions[qIndex]?.prompt}));
@@ -101,6 +138,12 @@ async function returnFromLockedJourney(page,screen,subject,label){
    const utility=world.locator('.ki-utility [data-ki="home"]');
    if(await utility.isVisible())await utility.click();
    else await world.locator('.ki-painted-home').click();
+ }else if(subject==='geography'){
+   // Geography now has a proper Nordlysleiren scene in front of the old map.
+   // The Home sign goes straight back without opening an unrelated lesson.
+   const world=page.locator('#laria-geography-world:visible');
+   await world.waitFor({timeout:16000});
+   await world.locator('[data-gv="home"]').click();
  }else{
    const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});
@@ -111,8 +154,11 @@ async function returnFromLockedJourney(page,screen,subject,label){
  await homeReady(page,label+' return '+subject);
  const hiddenNext=(await page.locator('[data-camp-next]').innerText()).trim();
  assert(hiddenNext,label+' '+subject+' return must expose next journey state');
- assert((await page.locator('.bc15-live-next').innerText()).includes(hiddenNext),
-   label+' '+subject+' live next-stop must still mirror real state after return');
+ const journeyLabel=await page.locator('.bc12-journey').getAttribute('aria-label');
+ assert(journeyLabel?.includes(hiddenNext),
+   label+' '+subject+' journey progress must be readable by assistive tech after return');
+ assert.equal(await page.locator('.bc15-live-next').count(),0,
+   label+' '+subject+' return may not recreate pasted-on progress plaque');
 }
 
 async function run(engine,label,viewport){
@@ -135,14 +181,26 @@ async function run(engine,label,viewport){
    assert.match(liveGreeting,/Testbarn/,label+' dynamic greeting must use profile name');
    assert.doesNotMatch(liveGreeting,/Aleah/,label+' locked mockup name must not leak as live child identity');
    const portrait=!label.includes('landscape');
-   assert.equal(await page.locator('.bc15-live-intro').isVisible(),portrait,
-     label+' portrait must replace the baked intro while landscape keeps the locked intro');
+   assert.equal(await page.locator('.bc15-live-intro').isVisible(),true,
+     label+' Home greeting and introduction must share one accessible speech bubble');
    const originalNext=(await page.locator('[data-camp-next]').innerText()).trim();
    assert(originalNext,label+' hidden journey state must expose a next place');
-   const liveNextText=(await page.locator('.bc15-live-next').innerText()).trim();
-   assert(liveNextText.includes(originalNext),label+' live next-stop copy must mirror journey state');
-   assert.match(liveNextText,/^(Pågående|Neste stopp) · /,label+' journey status must use the compact integrated label');
-   assert.equal(await page.locator('.bc14-subject:visible').count(),4,label+' must keep four real subject hit areas');
+   const journeyLabel=await home.locator('.bc12-journey').getAttribute('aria-label');
+   assert.match(journeyLabel||'',/^Fortsett reisen\. (Pågående|Neste stopp): /,
+     label+' journey status must be accessible without covering the sign');
+   assert(journeyLabel.includes(originalNext),label+' journey destination lost its accessible state');
+   assert.equal(await home.locator('.bc15-live-next').count(),0,
+     label+' no artificial label should be glued over Fortsett reisen');
+   const cleanHome=(await home.getAttribute('data-bc15-card-art'))==='clean-candidate';
+   const visibleOldCards=await page.locator('.bc14-subject:visible').count();
+   assert.equal(visibleOldCards,cleanHome?0:4,
+     label+' must hide all four old bottom hit areas ONLY when original-faithful clean artwork loaded');
+   if(cleanHome){
+    assert.equal(await home.locator('.bc15-subject-signs button:visible').count(),4,
+      label+' no-card Home must instead provide four working oak signs');
+    assert.equal(await home.locator('.bc14-subjects').getAttribute('aria-hidden'),'true');
+    assert.equal(await home.locator('.bc14-subjects').evaluate(el=>el.inert),true);
+   }
    assert.equal(await page.locator('.bc12-journey:visible').count(),1,label+' journey action must stay real');
    assert.equal(await page.locator('.bc12-fox:visible').count(),0,label+' old fox must not be visible on Home v15');
    assert.equal(await page.locator('.bc12-fox-call:visible').count(),0,label+' old fox callout must not be visible');
@@ -166,61 +224,97 @@ async function run(engine,label,viewport){
      const cards=[...document.querySelectorAll('.bc14-subject')].map(rect);
      const journey=rect(document.querySelector('.bc12-journey'));
      const nav=rect(document.querySelector('.bc12-nav'));
-     const liveNext=rect(document.querySelector('.bc15-live-next'));
      const liveCopy=rect(document.querySelector('.bc15-live-copy'));
      const navButtons=[...document.querySelectorAll('.bc12-nav button')].filter(e=>getComputedStyle(e).display!=='none').map(rect);
      const host=document.querySelector('.bc12.bc15-locked-home');
      const liveCopyStyle=getComputedStyle(document.querySelector('.bc15-live-copy'));
-     const liveNextStyle=getComputedStyle(document.querySelector('.bc15-live-next'));
      const liveCopyBg=liveCopyStyle.backgroundImage;
-     const liveNextBg=liveNextStyle.backgroundImage;
      const scenic=getComputedStyle(host,'::before');
      const artLeft=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-left'))||0;
      const artTop=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-top'))||0;
      const artWidth=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-width'))||0;
-     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,liveCopyShadow:liveCopyStyle.boxShadow,liveNextShadow:liveNextStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+     return {cards,journey,nav,liveCopy,liveCopyBg,liveCopyShadow:liveCopyStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
-   assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
+   if(cleanHome)assert(geom.cards.every(r=>r.width===0&&r.height===0),
+     label+' removed bottom hotspot still has touch geometry');
+   else assert(geom.cards.every(r=>r.width>=44&&r.height>=44),
+     label+' fallback subject hotspot too small '+JSON.stringify(geom.cards));
    assert(geom.journey.width>=44&&geom.journey.height>=44,label+' journey touch target too small');
-   assert(geom.liveNext.x>=geom.journey.x-2&&geom.liveNext.right<=geom.journey.right+2&&
-     geom.liveNext.y>=geom.journey.y-2&&geom.liveNext.bottom<=geom.journey.bottom+2,
-     label+' journey status escaped the painted Fortsett reisen sign '+JSON.stringify({journey:geom.journey,status:geom.liveNext}));
    assert(geom.liveCopy.width<geom.viewport*.65,label+' greeting overlay became a dashboard-sized panel '+JSON.stringify(geom.liveCopy));
+   if(!portrait){
+     const firstSign=await page.locator('.bc15-painted-subject').first().boundingBox();
+     assert.ok(firstSign&&geom.liveCopy.bottom+9<=firstSign.y,
+       label+' speech bubble or pointer physically overlaps first wooden subject sign: '+
+       JSON.stringify({bubble:geom.liveCopy,firstSign}));
+   }
+   if(portrait&&label.includes('ipad')&&cleanHome){
+     // The locked Home painting has three children in the lower-left. No menu
+     // plank may run through the painted silhouettes in portrait orientation.
+     const boards=await home.locator('.bc15-subject-signs .bc15-painted-subject')
+       .evaluateAll(nodes=>nodes.map(el=>{
+         const r=el.getBoundingClientRect();
+         return {left:r.left,right:r.right,width:r.width,top:r.top,bottom:r.bottom};
+       }));
+     const clearOfFigures=geom.artLeft+geom.artWidth*.125;
+     assert.equal(boards.length,4,label+' portrait Home needs four real sign buttons');
+     assert.ok(boards.every(b=>b.width>=130&&b.right<=clearOfFigures),
+       label+' portrait rail obscures the locked painted troll silhouettes: '+
+       JSON.stringify({boards,clearOfFigures}));
+   }
+
+   const speech=await page.locator('.bc15-live-copy').evaluate(el=>{
+     const c=getComputedStyle(el),tail=getComputedStyle(el,'::after');
+     return {radius:parseFloat(c.borderTopLeftRadius),bg:c.backgroundImage,
+       tail:tail.content,colour:c.color,opaque:c.opacity};
+   });
+   assert.ok(speech.radius>=24,label+' Home greeting must be a rounded storybook speech bubble '+JSON.stringify(speech));
+   assert.notEqual(speech.tail,'none',label+' speech bubble pointer missing');
+   assert.match(speech.bg,/linear-gradient/,label+' storybook speech background missing');
+
    assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
      label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert.equal(geom.scenicFilter,'none',label+' Home safe-area fill must not blur the locked artwork');
-   assert.doesNotMatch(geom.scenicBg,/url\(/,
-     label+' safe-area fill must not repeat logo, gear, text or other painted UI from the locked artwork');
+   if(!portrait&&label.includes('ipad')&&cleanHome){
+     // Exception is ONLY the 1127x20 verified source crop from BEFORE the
+     // painted top-right nav. Any whole illustration/other URL is forbidden.
+     assert.match(geom.scenicBg,/\/assets\/home-v15\/kjosnes-home-tablet-scenic-top-edge\.webp/,
+       label+' top safe area must use the pixel-locked UI-free sky strip, not another artwork: '+geom.scenicBg);
+   }else{
+     assert.doesNotMatch(geom.scenicBg,/url\(/,
+       label+' safe-area fill must not repeat logo, gear, text or other painted UI');
+   }
    if(portrait){
      assert(geom.artLeft>=-1&&geom.artLeft+geom.artWidth<=geom.viewport+1,
-       label+' portrait artwork must not crop the subject cards/navigation: '+JSON.stringify({artLeft:geom.artLeft,artWidth:geom.artWidth,viewport:geom.viewport}));
-     assert.notEqual(geom.liveNextBg,'none',
-       label+' portrait journey status must cover baked placeholder text instead of ghosting over it');
+       label+' portrait artwork must not crop the locked original/navigation: '+JSON.stringify({artLeft:geom.artLeft,artWidth:geom.artWidth,viewport:geom.viewport}));
      if(label.includes('iphone')){
        assert(geom.artTop<=40,label+' phone top safe-area grew too tall: '+JSON.stringify({artTop:geom.artTop}));
-       assert.equal(geom.liveCopyShadow,'none',label+' phone greeting must read as sky, not a floating UI card');
-       assert.equal(geom.liveNextShadow,'none',label+' phone journey copy must sit flat on the painted sign');
+       assert.notEqual(geom.liveCopyShadow,'none',label+' selected speech bubble must have clear foreground separation');
      }
    }
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
 
-   /* Mine troll must not leak into the old fox wardrobe. */
+   /* Mine troll is one live, selectable companion, not a static gallery. */
    await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
-   const trollDialog=page.locator('#bc15-troll-dialog');
-   await trollDialog.waitFor({state:'visible',timeout:8000});
+   const trollDialog=page.locator('#laria-premium-troll-dialog[open]');
+   await trollDialog.waitFor({state:'visible',timeout:10000});
    assert.equal((await trollDialog.locator('h2').innerText()).trim(),'Mine troll');
-   assert.equal((await page.locator('.bc12-nav [data-camp="wardrobe"]').innerText()).trim(),'Mine troll',
-     label+' troll navigation label must not fall back to Min rev');
-   assert.doesNotMatch((await trollDialog.innerText()).toLowerCase(),/min rev|kle på din rev/,
-     label+' Mine troll routed to fox wardrobe');
-   const trollArt=await trollDialog.locator('.bc15-troll-art').evaluate(el=>getComputedStyle(el).backgroundImage);
-   assert(trollArt.includes('laria-troll-trio-v3.webp'),
-     label+' Mine troll must use the locked standalone troll trio art: '+trollArt);
+   assert.equal((await page.locator('.bc12-nav [data-camp="wardrobe"]').innerText()).trim(),'Mine troll');
+   assert.equal(await page.locator('#bc15-troll-dialog[open],#bc12-dialog.is-wardrobe[open]').count(),0,
+     label+' legacy static gallery or fox wardrobe was opened');
+   assert.deepEqual(await trollDialog.locator('[data-troll-choice]').evaluateAll(xs=>xs.map(x=>x.dataset.trollChoice)),
+     ['storesoster','lillesoster','lillebror'],label+' original three companion choices changed');
+   assert.equal(await trollDialog.locator('[data-troll-choice][aria-pressed="true"]').getAttribute('data-troll-choice'),
+     'storesoster',label+' must initially select approved Storesøster');
    await page.screenshot({path:folder+'/'+label+'-mine-troll.png',fullPage:true});
-   await trollDialog.locator('.bc15-troll-close').click();
+   await trollDialog.locator('[data-troll-choice="lillesoster"]').click();
+   await trollDialog.waitFor({state:'hidden',timeout:9000});
+   assert.equal(await page.evaluate(()=>window.LARIA_TROLL_ACTOR.choice()),'lillesoster',
+     label+' chosen companion was not applied');
+   assert.equal(await page.evaluate(()=>state.profile.tallvikaTroll),'lillesoster',
+     label+' chosen companion was not saved');
 
    /* Every subject gateway remains functional under the locked artwork. */
    for(const [subject,screen] of [
@@ -229,7 +323,7 @@ async function run(engine,label,viewport){
      ['english','subject'],
      ['geography','geography']
    ]){
-     await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+     await openHomeSubject(page,subject);
      await page.locator('#'+screen+'-screen.active').waitFor({timeout:15000});
      await returnFromLockedJourney(page,screen,subject,label);
    }
@@ -283,5 +377,6 @@ async function run(engine,label,viewport){
    ['safari-iphone',webkit,{width:390,height:844}],
    ['safari-ipad',webkit,{width:820,height:1180}],
    ['safari-ipad-landscape',webkit,{width:1180,height:820}]
- ])await run(engine,label,viewport);
+ ].filter(([label])=>process.env.LARIA_IPAD_ONLY!=='1'||label.includes('ipad')))
+  await run(engine,label,viewport);
 })().catch(e=>{console.error(e);process.exitCode=1});

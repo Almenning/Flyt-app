@@ -1,0 +1,64 @@
+name: Læria iPad Home - build separate no-card art on PR branch
+on:
+  push:
+    branches: [feat/laria-premium-beta-cleanup-20261106]
+    paths:
+      - '.github/workflows/laria-home-clean-assets.yml'
+      - 'tools/laria_art/compose_home_four_cards_clean.py'
+      - 'tools/laria_art/laria_home_meadow_donor.base64'
+      - 'tools/laria_art/build_home_top_edge.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: laria-home-assets-${{ github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  locked-originals-untouched:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install deterministic image composer
+        run: python -m pip install --disable-pip-version-check "Pillow>=11,<13" "numpy>=1.26,<3"
+      - name: Generate source-locked NO-BOTTOM-CARDS derivatives - never change originals
+        run: |
+          python tools/laria_art/compose_home_four_cards_clean.py --out /tmp/laria-ipad-clean-home
+          test -s /tmp/laria-ipad-clean-home/kjosnes-home-tablet-no-bottom-cards.webp
+          test -s /tmp/laria-ipad-clean-home/kjosnes-home-phone-no-bottom-cards.webp
+          python tools/laria_art/build_home_top_edge.py --out /tmp/laria-ipad-clean-home/kjosnes-home-tablet-scenic-top-edge.webp
+          test -s /tmp/laria-ipad-clean-home/kjosnes-home-tablet-scenic-top-edge.webp
+      - name: Store visual before/after evidence for independent review
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-four-cards-removed-${{ github.sha }}
+          path: |
+            /tmp/laria-ipad-clean-home/*-original-reference.png
+            /tmp/laria-ipad-clean-home/*-retouch-review.png
+            /tmp/laria-ipad-clean-home/ART-REVIEW-REQUIRED.json
+            /tmp/laria-ipad-clean-home/SCENIC-TOP-EDGE-SOURCE.txt
+          retention-days: 14
+      - name: Commit ONLY clean derivatives to the existing PR branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/laria-ipad-clean-home/kjosnes-home-tablet-no-bottom-cards.webp laer-litt-mer/assets/home-v15/
+          cp /tmp/laria-ipad-clean-home/kjosnes-home-phone-no-bottom-cards.webp laer-litt-mer/assets/home-v15/
+          cp /tmp/laria-ipad-clean-home/kjosnes-home-tablet-scenic-top-edge.webp laer-litt-mer/assets/home-v15/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f laer-litt-mer/assets/home-v15/kjosnes-home-tablet-no-bottom-cards.webp
+          git add -f laer-litt-mer/assets/home-v15/kjosnes-home-phone-no-bottom-cards.webp
+          git add -f laer-litt-mer/assets/home-v15/kjosnes-home-tablet-scenic-top-edge.webp
+          if ! git diff --cached --quiet; then
+            git commit -m "art(laria): remove four baked-in bottom Home cards on iPad"
+            git push origin HEAD:feat/laria-premium-beta-cleanup-20261106
+          else
+            echo "Clean assets already match this PR version"
+          fi
+          echo "Review remains required. Do not merge/publish solely from this check."

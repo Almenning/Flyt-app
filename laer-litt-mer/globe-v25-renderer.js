@@ -91,15 +91,17 @@ function paintCountryScene(canvas,c){
 }
 
 function selectedProfileAvatar(){
-  try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
+  // Legacy metadata only. Visible identity is the selected TrollActor.
+  try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'girl'}
 }
 function selectedProfileFox(){
-  const avatar=selectedProfileAvatar();
   try{
-    const src=window.LARIA_PROFILE_AVATARS?.[avatar];
-    if(typeof src==='string'&&src.startsWith('data:image/'))return src;
+    const actor=window.LARIA_TROLL_ACTOR;
+    if(actor?.selected?.()?.src)return actor.selected().src;
+    const id=(typeof state!=='undefined'&&state?.profile?.tallvikaTroll)||'storesoster';
+    if(['storesoster','lillesoster','lillebror'].includes(id))return './assets/gangemagi-troll/'+id+'.webp';
   }catch(_){}
-  return './lia-fox-explorer-home.webp';
+  return './assets/gangemagi-troll/storesoster.webp';
 }
 
 function ensurePremiumShell(){
@@ -114,12 +116,12 @@ function ensurePremiumShell(){
 
   const avatar=selectedProfileAvatar();
   header.dataset.avatar=avatar;
-  const fox=screen.querySelector('.premium-globe-fox');if(fox){fox.src=selectedProfileFox();fox.dataset.avatar=avatar;fox.setAttribute('aria-label',avatar==='girl'?'Din valgte revejente':'Din valgte revegutt')}
+  const fox=screen.querySelector('.premium-globe-fox');if(fox){fox.src=selectedProfileFox();fox.dataset.troll=window.LARIA_TROLL_ACTOR?.choice?.()||'storesoster';fox.setAttribute('aria-label','Trollet ditt er med på Kloden')}
   let guide=screen.querySelector('.premium-globe-guide');
   if(!guide){
     guide=document.createElement('img');
     guide.className='premium-globe-guide';
-    guide.src='./lia-fox-explorer-home.webp';
+    guide.src=selectedProfileFox();
     guide.alt='';
     guide.setAttribute('aria-hidden','true');
     screen.appendChild(guide);

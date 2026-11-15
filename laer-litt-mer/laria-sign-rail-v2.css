@@ -1,0 +1,92 @@
+/* Læria Sign Rail v2: a single left-side navigation rhythm.
+   Scope only to the THREE clean art-first subject scenes. Home and Kinnaklova
+   keep their existing painted-sign touch targets until separate clean masters
+   are approved. This file controls placement only; appearance and TrollActor
+   remain owned by laria-visual-identity-v1.css and their scene modules. */
+/* Shared scene-ui's semantic navigation region is intentionally STATIC:
+   all three visible sign controls retain their existing absolute coordinates
+   relative to the subject scene, not a newly positioned wrapper. */
+.laria-scene-shell > nav.laria-scene-navigation:not(.tv-sign-nav){
+  display:block!important;position:static!important;
+  inset:auto!important;width:auto!important;height:auto!important;
+  padding:0!important;margin:0!important;border:0!important;
+  background:none!important;box-shadow:none!important;
+  pointer-events:none!important;
+}
+.laria-scene-shell > nav.laria-scene-navigation > .laria-wayfinder{
+  pointer-events:auto!important;
+}
+:is(#eggenipa-world .eg-hero.laria-sign-rail-v2,
+    #laria-geography-world .gv-scene.laria-sign-rail-v2,
+    #tallvika-world .tv-scene.laria-sign-rail-v2){
+  --rail-left:4%;
+  --rail-width:clamp(168px,20%,286px);
+}
+/* The Tallvika nav is a full-stage hit region; DO NOT offset the full
+   100%-wide nav. Position its three children instead. */
+#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign-nav{
+  inset:0!important;left:0!important;top:0!important;
+  right:0!important;bottom:0!important;
+  width:100%!important;height:100%!important;
+}
+/* A single shared left rail with identical widths. Specificity is intentional:
+   it must beat per-scene !important placements and the old scattered layout. */
+#eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit.laria-wayfinder,
+#laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign.laria-wayfinder,
+#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign.laria-wayfinder{
+  left:var(--rail-left)!important;right:auto!important;
+  width:var(--rail-width)!important;
+  transform:none!important
+}
+/* One compact vertical left sign cluster on each subject scene.
+   The landscape must not be used for scattered navigation. */
+#eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="words"],
+#laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="journey"],
+#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="multiply"]{top:35%!important}
+#eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="find"],
+#laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="globe"],
+#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="fraction"]{top:45%!important}
+#eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="reading"],
+#laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="country"],
+#tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="table"]{top:55%!important}
+@media(orientation:portrait) and (max-width:1100px){
+  :is(#eggenipa-world .eg-hero.laria-sign-rail-v2,
+      #laria-geography-world .gv-scene.laria-sign-rail-v2,
+      #tallvika-world .tv-scene.laria-sign-rail-v2){
+    --rail-left:4%;
+    --rail-width:clamp(162px,32%,254px);
+  }
+  #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="words"],
+  #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="journey"],
+  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="multiply"]{top:37%!important}
+  #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="find"],
+  #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="globe"],
+  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="fraction"]{top:46%!important}
+  #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="reading"],
+  #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="country"],
+  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="table"]{top:55%!important}
+}
+@media(max-width:700px) and (orientation:portrait){
+  :is(#eggenipa-world .eg-hero.laria-sign-rail-v2,
+      #laria-geography-world .gv-scene.laria-sign-rail-v2,
+      #tallvika-world .tv-scene.laria-sign-rail-v2){
+    --rail-width:clamp(152px,45%,210px);
+  }
+}
+@media(orientation:landscape) and (max-height:500px){
+  :is(#eggenipa-world .eg-hero.laria-sign-rail-v2,
+      #laria-geography-world .gv-scene.laria-sign-rail-v2,
+      #tallvika-world .tv-scene.laria-sign-rail-v2){
+    --rail-left:3%;
+    --rail-width:clamp(138px,21%,194px);
+  }
+  #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="words"],
+  #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="journey"],
+  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="multiply"]{top:30%!important}
+  #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="find"],
+  #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="globe"],
+  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="fraction"]{top:47%!important}
+  #eggenipa-world .eg-hero.laria-sign-rail-v2 .eg-scene-hit[data-eg="reading"],
+  #laria-geography-world .gv-scene.laria-sign-rail-v2 .gv-sign[data-gv="country"],
+  #tallvika-world .tv-scene.laria-sign-rail-v2 .tv-sign[data-tv="table"]{top:64%!important}
+}

@@ -5,32 +5,23 @@
 
 const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-premium2';
 const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1';
-const TROLL_TRIO_ART='./assets/home-v15/laria-troll-trio-v3.webp?v=20261024-locked1';
+// Separate iPad-only previews. The two original SHA-locked masters above
+// remain intact and continue to serve as the safe fallback.
+const CLEAN_TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
+const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
 let activeMasterSrc='';
+let activationEpoch=0;
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
 function isPortrait(){return matchMedia('(orientation:portrait)').matches}
+function isIpadHome(){return matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches}
 
+// Mine troll uses the ONE shared interactive selection of original
+// TrollActor characters; the former static art gallery is not navigation.
 function openTrollDialog(){
- let d=document.getElementById('bc15-troll-dialog');
- if(!d){
-   d=document.createElement('dialog');
-   d.id='bc15-troll-dialog';
-   d.innerHTML='<button type="button" class="bc15-troll-close" aria-label="Lukk">×</button>'+
-     '<span class="bc15-troll-eyebrow">Lærias eventyrvenner</span>'+
-     '<h2>Mine troll</h2>'+
-     '<div class="bc15-troll-art" role="img" aria-label="De tre småtrollene ved Kjøsnesfjorden"></div>'+
-     '<p>De tre småtrollene blir med deg gjennom Læria. Her er de samlet på hjemstedet sitt ved Kjøsnesfjorden.</p>'+
-     '<button type="button" class="bc15-troll-back">Tilbake til Hjem</button>';
-   document.body.append(d);
-   d.querySelector('.bc15-troll-close').addEventListener('click',()=>d.close());
-   d.querySelector('.bc15-troll-back').addEventListener('click',()=>d.close());
-   d.addEventListener('click',e=>{if(e.target===d)d.close()});
- }
- d.dataset.phone=isPhone()?'true':'false';
- const art=d.querySelector('.bc15-troll-art');
- if(art)art.style.setProperty('--bc15-troll-trio','url("'+TROLL_TRIO_ART+'")');
- if(!d.open)d.showModal();
+ const open=window.LARIA_TROLL_ACTOR?.openChooser;
+ if(typeof open==='function'){open();return true;}
+ return false;
 }
 
 function decoded(src){
@@ -74,6 +65,44 @@ function place(el,box,part,viewport){
  el.style.setProperty('bottom','auto','important');
 }
 
+// The four light arrow signs on the approved Grovanova LANDSCAPE master
+// are painted artwork. Add only invisible and accessible hit areas, and
+// forward clicks to existing subject buttons to preserve app navigation.
+const HOME_SIGN_SUBJECTS=[['norwegian','Norsk'],['math','Matte'],['english','Engelsk'],['geography','Geografi']];
+const HOME_SIGN_ICONS=Object.freeze({
+ norwegian:'<path d="M12 6c-3-2-7-2-10-1v14c4-1 7-1 10 1m0-14c3-2 7-2 10-1v14c-4-1-7-1-10 1M12 6v14"/>',
+ math:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M7 8h10M8 13h4M10 11v4M15 13h3M15 17h3"/>',
+ english:'<path d="M4 5h16v12h-8l-5 4v-4H4z"/><path d="m8 13 2-5 2 5m-3-2h2M15 8h2v5h-2"/>',
+ geography:'<path d="m2 20 8-12 4 5 3-4 5 11zM7 13l3-5 3 4"/>'
+});
+function ensureHomeSignHits(host){
+ let nav=host.querySelector('.bc15-subject-signs');
+ if(nav)return nav;
+ nav=document.createElement('nav');
+ nav.className='bc15-subject-signs';
+ nav.setAttribute('aria-label','Velg fag fra de venstrestilte treskiltene');
+ for(const [id,label] of HOME_SIGN_SUBJECTS){
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='bc15-painted-subject';
+  button.dataset.bc15Subject=id;
+  button.setAttribute('aria-label','Åpne '+label+' fra treskiltet');
+  button.innerHTML='<span class="bc15-sign-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+HOME_SIGN_ICONS[id]+'</svg></span>'+
+    '<span class="bc15-sign-name">'+label+'</span>';
+  button.addEventListener('click',event=>{
+   event.preventDefault();
+   if(!host.classList.contains('bc15-locked-home'))return;
+   if(host.dataset.bc15Master!=='landscape'&&!isIpadHome())return;
+   // Reuse Basecamp's existing subject route, including geography return state.
+   if(typeof window.LARIA_HOME_OPEN_SUBJECT==='function')window.LARIA_HOME_OPEN_SUBJECT(id);
+   else host.querySelector('.bc14-subject[data-camp="subject-'+id+'"]')?.click();
+  });
+  nav.appendChild(button);
+ }
+ host.appendChild(nav);
+ return nav;
+}
+
 function mapControlsToArtwork(host,imgW,imgH,portrait){
  const rect=host.getBoundingClientRect();
  const artAspect=imgW/imgH;
@@ -97,6 +126,10 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    top:phonePortrait?spareY*.30:rect.height-artHeight
  };
  host.dataset.bc15Fit=artAspect>viewportAspect?'safe-width':'safe-height';
+ // A dedicated scenic-only strip fills top letterboxing in landscape iPad.
+ // No art cropping, duplicated controls, or changed locked image pixels.
+ host.classList.toggle('bc15-landscape-bleed',
+   !portrait&&isIpadHome()&&box.top>18);
 
  const tabletPortrait=portrait&&rect.width>700;
  const layout=portrait?{
@@ -104,23 +137,62 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
-   liveCopy:tabletPortrait?[.03,.138,.62,.105]:[.00,.138,.62,.105],
-   liveNext:tabletPortrait?[.31,.665,.38,.026]:[.20,.666,.60,.024]
+   liveCopy:tabletPortrait?[.03,.138,.62,.105]:[.00,.138,.62,.105]
  }:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   liveCopy:[.115,.172,.225,.062],
-   liveNext:[.073,.836,.235,.040]
+   liveCopy:rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11]
  };
  const viewport={width:rect.width,height:rect.height};
+ // Map four separately tappable signboards onto the APPROVED master.
+ // Coordinates are relative to the underlying image, not fixed pixels.
+ const signs=ensureHomeSignHits(host);
+ const liveIpadPortrait=isIpadHome()&&portrait;
+ host.classList.toggle('bc15-ipad-fagmenu',isIpadHome());
+ signs.hidden=portrait&&!liveIpadPortrait;
+ signs.dataset.bc15Presentation=liveIpadPortrait?'live':'painted';
+ if(!portrait){
+  const signBoxes=[
+   [.012,.314,.170,.074], // Norsk
+   [.012,.394,.170,.074], // Matte
+   [.012,.473,.170,.074], // Engelsk
+   [.012,.552,.170,.074]  // Geografi
+  ];
+  signs.querySelectorAll('.bc15-painted-subject').forEach((button,index)=>{
+   place(button,box,signBoxes[index],viewport);
+  });
+ }
+ if(liveIpadPortrait){
+  // Portrait master has NO painted left-hand signs. Use the same four live
+  // oak arrows as the other subject facades, positioned within locked art.
+  const signBoxes=[
+   [-.135,.260,.245,.068], // Norsk: narrower left rail, clear of painted children
+   [-.135,.332,.245,.068], // Matte: same oak board, no overlapping figures
+   [-.135,.404,.245,.068], // Engelsk
+   [-.135,.476,.245,.068]  // Geografi
+  ];
+  signs.querySelectorAll('.bc15-painted-subject').forEach((button,index)=>{
+   place(button,box,signBoxes[index],viewport);
+  });
+  const first=signs.querySelector('.bc15-painted-subject');
+  const last=signs.querySelector('.bc15-painted-subject:last-child');
+  const top=parseFloat(first?.style.top)||0;
+  const bottom=(parseFloat(last?.style.top)||0)+(parseFloat(last?.style.height)||0);
+  signs.style.setProperty('--bc15-post-left',(parseFloat(first?.style.left)||0)+'px');
+  signs.style.setProperty('--bc15-post-top',(top+8)+'px');
+  signs.style.setProperty('--bc15-post-width',(parseFloat(first?.style.width)||120)+'px');
+  signs.style.setProperty('--bc15-post-height',Math.max(0,bottom-top+45)+'px');
+ }else{
+  for(const p of ['--bc15-post-left','--bc15-post-top','--bc15-post-width','--bc15-post-height'])
+   signs.style.removeProperty(p);
+ }
  place(host.querySelector('.bc14-subjects'),box,layout.subjects,viewport);
  place(host.querySelector('.bc12-journey'),box,layout.journey,viewport);
  place(host.querySelector('.bc12-nav'),box,layout.nav,viewport);
  place(host.querySelector('.bc12-adult-entry'),box,layout.adult,viewport);
  place(host.querySelector('.bc15-live-copy'),box,layout.liveCopy,viewport);
- place(host.querySelector('.bc15-live-next'),box,layout.liveNext,viewport);
  const ambient=ensureAmbient(host);
  const ambientLayout=portrait?{
    sun:[.69,.19,.24,.18],
@@ -138,6 +210,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  host.style.setProperty('--bc15-art-top',box.top+'px');
  host.style.setProperty('--bc15-art-width',box.width+'px');
  host.style.setProperty('--bc15-art-height',box.height+'px');
+ return box;
 }
 
 function syncLiveCopy(host){
@@ -155,19 +228,15 @@ function syncLiveCopy(host){
  live.querySelector('.bc15-live-intro').setAttribute('aria-hidden','true');
  live.setAttribute('aria-label',title+' '+intro);
 
- let next=host.querySelector('.bc15-live-next');
- if(!next){
-   next=document.createElement('div');
-   next.className='bc15-live-next';
-   host.appendChild(next);
- }
+ // The "Fortsett reisen" title and wood sign are part of the locked art.
+ // Remove the artificial sticker rather than trying to match its colors.
+ // Progress is still available to screen readers on the actual journey button.
+ host.querySelector('.bc15-live-next')?.remove();
  const place=host.querySelector('[data-camp-next]')?.textContent?.trim()||'Bokskogen';
  const rawType=host.querySelector('[data-camp-next-type]')?.textContent?.trim()||'Neste stopp';
- const active=/pågående/i.test(rawType);
- const type=active?'Pågående':'Neste stopp';
- next.dataset.state=active?'active':'next';
- next.textContent=type+' · '+place;
- next.setAttribute('aria-label',rawType+': '+place);
+ const type=/pågående/i.test(rawType)?'Pågående':'Neste stopp';
+ host.querySelector('.bc12-journey')?.setAttribute('aria-label',
+   'Fortsett reisen. '+type+': '+place);
 }
 
 function clearMappedControls(host){
@@ -176,21 +245,35 @@ function clearMappedControls(host){
    const el=host.querySelector(sel);if(!el)return;
    ['left','top','width','height','right','bottom'].forEach(p=>el.style.removeProperty(p));
  });
+ host.querySelectorAll('.bc15-painted-subject').forEach(button=>{
+  ['left','top','width','height','right','bottom'].forEach(prop=>button.style.removeProperty(prop));
+ });
  host.style.removeProperty('background-size');
  host.style.removeProperty('background-position');
  ['--bc15-art-left','--bc15-art-top','--bc15-art-width','--bc15-art-height'].forEach(p=>host.style.removeProperty(p));
 }
 
 async function activate(){
+ const epoch=++activationEpoch;
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return false;
+ // Historic landscape can load perfectly, yet its painted characters and
+ // activity cards disqualify it as the CLEAN November premium master.
+ // A successful decode is not art approval. Preserve original Home until
+ // the replacement passes independent pixel + visual review.
+ host.dataset.bc15PremiumArt='blocked'; // candidate art is not owner-signoff
+ host.dataset.bc15CardArt='locked-original';
+ host.querySelector('.bc14-subjects')?.removeAttribute('aria-hidden');
+ if(host.querySelector('.bc14-subjects'))host.querySelector('.bc14-subjects').inert=false;
+ host.classList.remove('bc15-ipad-fagmenu','bc15-landscape-bleed');
  const youngBand=!!document.querySelector('.grade-band-young');
  if(!youngBand){
    host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
+   host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='ineligible';
-   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-ambient').forEach(el=>el.remove());
    return false;
  }
  host.classList.add('bc15-capable');
@@ -199,22 +282,41 @@ async function activate(){
    host.classList.remove('bc15-locked-home','bc15-pending');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
+   host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='inactive';
    host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    return false;
  }
  const portrait=isPortrait();
- const master=portrait?PHONE_MASTER:TABLET_MASTER;
+ const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
+ const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
+ const wantsClean=isIpadHome();
  host.classList.add('bc15-pending');
  host.dataset.bc15Asset='loading';
  try{
-   const image=await decoded(master);
+   // If the clean candidate cannot decode, retain the fully functional
+   // locked original. Never turn a missing asset into an empty Home stage.
+   let cleanLoaded=false;
+   let image;
+   if(wantsClean){
+    try{image=await decoded(cleanMaster);cleanLoaded=true;}
+    catch(_){image=await decoded(originalMaster);}
+   }else image=await decoded(originalMaster);
+   if(epoch!==activationEpoch || !host.isConnected ||
+      host!==document.querySelector('#home-screen .bc12') || portrait!==isPortrait())return false;
    activeMasterSrc=image.src;
    host.style.setProperty('--bc15-home-art','url("'+image.src+'")');
    host.classList.add('bc15-locked-home');
    host.classList.remove('bc15-pending','bc15-fallback');
    host.dataset.bc15Asset=portrait?'phone-ready':'tablet-ready';
    host.dataset.bc15Master=portrait?'portrait':'landscape';
+   host.dataset.bc15CardArt=cleanLoaded?'clean-candidate':'locked-original';
+   const oldRow=host.querySelector('.bc14-subjects');
+   if(oldRow){
+    oldRow.inert=cleanLoaded;
+    if(cleanLoaded)oldRow.setAttribute('aria-hidden','true');
+    else oldRow.removeAttribute('aria-hidden');
+   }
    syncLiveCopy(host);
    mapControlsToArtwork(host,image.width,image.height,portrait);
 
@@ -236,10 +338,12 @@ async function activate(){
    if(adult)adult.setAttribute('aria-label','Hold inne for voksenområdet');
    return true;
  }catch(err){
+   if(epoch!==activationEpoch)return false;
    host.classList.remove('bc15-locked-home','bc15-pending');
    host.classList.add('bc15-fallback');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
+   host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='missing';
    host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    console.warn('[Læria Home v15] Locked master not activated.',err);
@@ -276,7 +380,7 @@ const observer=new MutationObserver(mutations=>{
  const contentChanged=mutations.some(m=>{
    if(m.type!=='childList'&&m.type!=='characterData')return false;
    const el=m.target?.nodeType===1?m.target:m.target?.parentElement;
-   return !el?.closest?.('.bc15-live-copy,.bc15-live-next');
+   return !el?.closest?.('.bc15-live-copy');
  });
  if(firstMount)host.dataset.bc15Observed='true';
  if(firstMount||stateChanged)activate();

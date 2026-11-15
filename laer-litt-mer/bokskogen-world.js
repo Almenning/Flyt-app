@@ -425,9 +425,12 @@
 (function(){
   if(typeof renderSubjectJourney!=='function')return;
 
+  // The old helper name is kept for saved Bokskogen journey compatibility.
+  // Its visible figure is ALWAYS the child's approved original TrollActor.
   function selectedProfileFox(){
-    const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
-    return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
+    const saved=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+    const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
+    return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
   }
 
   const previousRenderSubjectJourney=renderSubjectJourney;

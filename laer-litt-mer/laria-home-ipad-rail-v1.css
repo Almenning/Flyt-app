@@ -1,0 +1,123 @@
+/* Læria iPad Home: ONE left sign rail, shared with the four subject facades.
+ * The locked Grovanova source remains immutable. The portrait master contains
+ * NO left signs, so ONLY portrait draws the live wood. Landscape retains
+ * transparent hit areas over the already painted left signs. */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px){
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu .bc15-subject-signs{
+   display:block!important;visibility:visible!important;pointer-events:none!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[hidden]{display:none!important}
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="painted"] .bc15-sign-icon,
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="painted"] .bc15-sign-name{
+   display:none!important
+ }
+}
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"]{
+   display:block!important;z-index:19!important;overflow:visible!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"]::before{
+   content:""!important;display:block!important;position:absolute!important;
+   left:var(--bc15-post-left,4%)!important;
+   top:var(--bc15-post-top,28%)!important;
+   width:var(--bc15-post-width,26%)!important;
+   height:var(--bc15-post-height,38%)!important;
+   background:url("./assets/ui/laria-grovanova-signposts.svg") center/95% 100% no-repeat!important;
+   pointer-events:none!important;z-index:0!important
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] > .bc15-painted-subject{
+   appearance:none!important;box-sizing:border-box!important;
+   opacity:1!important;visibility:visible!important;z-index:2!important;
+   pointer-events:auto!important;touch-action:manipulation!important;
+   display:flex!important;align-items:center!important;justify-content:flex-start!important;
+   gap:clamp(5px,1.2vw,13px)!important;
+   min-width:100px!important;min-height:48px!important;
+   padding:5px clamp(12px,2vw,24px) 7px clamp(9px,1.5vw,19px)!important;
+   margin:0!important;border:0!important;border-radius:0!important;
+   box-shadow:none!important;
+   background:var(--laria-light-plank) center/100% 100% no-repeat!important;
+   color:var(--laria-sign-ink,#3d2715)!important;
+   font:900 clamp(18px,2.35vw,24px)/1.05 var(--laria-ui-font,system-ui)!important;
+   text-shadow:0 1px 0 #fff2d2!important;
+   filter:drop-shadow(0 3px 3px #26180b77)!important;
+   cursor:pointer!important;
+   -webkit-tap-highlight-color:transparent!important
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] .bc15-sign-icon{
+   flex:0 0 clamp(19px,2.3vw,27px)!important;
+   display:grid!important;place-items:center!important;
+   width:clamp(19px,2.3vw,27px)!important;
+   height:clamp(19px,2.3vw,27px)!important;
+   color:#643c20!important
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] .bc15-sign-icon svg{
+   display:block!important;width:100%!important;height:100%!important
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] .bc15-sign-name{
+   color:#3d2715!important;font:inherit!important;
+   display:block!important;white-space:nowrap!important
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] .bc15-painted-subject:focus-visible{
+   outline:4px solid #fff7b5!important;outline-offset:3px!important;
+ }
+}
+/* Once the exact separate no-card image loaded, retire all four old lower
+ * invisible hit areas as well. This avoids ghost taps into the meadow.
+ * If the clean asset fails, old locked art and original controls are restored
+ * together and remain functional. Never hide only the controls on painted art. */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px){
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu[data-bc15-card-art="clean-candidate"]
+ .bc14-subjects{display:none!important;pointer-events:none!important;visibility:hidden!important;}
+}
+
+/* Portrait iPad is a narrow book painting inside a wider screen.
+ * Turn the otherwise black-green sidebars into a deliberate scenic frame
+ * instead of cropping the original fjord/mountain or duplicating its UI.
+ * The four wooden subjects live in the LEFT frame, clear of the painted
+ * child figures and the greeting bubble. */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu::before{
+   /* One consistent sky-to-meadow side frame. No dark green block on the left. */
+   background:linear-gradient(180deg,#8ebee0 0%,#83b8d9 25%,#79b8c9 49%,#6f9d80 70%,#4e7045 100%)!important;
+   box-shadow:inset 0 0 8px #1e48251c!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] > .bc15-painted-subject{
+   gap:clamp(5px,1vw,10px)!important;
+   padding:6px 14px 7px 10px!important;
+ }
+}
+
+/* A pixel-faithful strip extracted ONLY from Grovanova rows 4..23.
+ * It extends the natural treetops / clear sky into landscape iPad's top
+ * letterbox. Unlike the old brown-blue linear gradient, it contains NO
+ * logo, nav icons, subjects or new scenery. The source itself is untouched.
+ * Fade the first 24px of the already displayed image over the strip so
+ * original WebP's black top border never makes a horizontal seam. */
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:landscape){
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu.bc15-landscape-bleed[data-bc15-card-art="clean-candidate"]::before{
+   background-image:url("./assets/home-v15/kjosnes-home-tablet-scenic-top-edge.webp")!important;
+   background-position:var(--bc15-art-left,0px) 0px!important;
+   background-repeat:no-repeat!important;
+   background-size:var(--bc15-art-width,100%) calc(var(--bc15-art-top,0px) + 24px)!important;
+   box-shadow:none!important;filter:none!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu.bc15-landscape-bleed[data-bc15-card-art="clean-candidate"]::after{
+   -webkit-mask-image:linear-gradient(to bottom,
+     transparent 0px,transparent calc(var(--bc15-art-top,0px) + 3px),
+     #000 calc(var(--bc15-art-top,0px) + 24px),#000 100%)!important;
+   mask-image:linear-gradient(to bottom,
+     transparent 0px,transparent calc(var(--bc15-art-top,0px) + 3px),
+     #000 calc(var(--bc15-art-top,0px) + 24px),#000 100%)!important;
+ }
+}

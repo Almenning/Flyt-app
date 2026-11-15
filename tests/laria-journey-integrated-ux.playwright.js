@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 // Integrated young journey smoke: the approved scene identity and task -> map return.
 // Runs against the real app engine and the real approved PNGs.
 const assert=require('node:assert/strict');
@@ -18,10 +19,10 @@ async function run(engine,label,viewport){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&journey-ux='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:16000});
   for(const [subject,world] of Object.entries(worlds)){
    const screen=subject==='geography'?'geography':'subject';
-   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await openHomeSubject(page,subject);
    if(subject==='norwegian'){
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      assert.deepEqual(await page.locator('#eggenipa-world .eg-portal').evaluateAll(a=>a.map(x=>x.dataset.eg)),
@@ -29,7 +30,9 @@ async function run(engine,label,viewport){
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' obsolete Bokskogen map is visible');
      const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes);
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     { const painted=page.locator('#eggenipa-world .eg-scene-reading:visible');
+  const entry=(await painted.count())?painted:page.locator('#eggenipa-world .eg-portal[data-eg="reading"]:visible');
+  await entry.click(); }
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const learning=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
        question:sessionQuestions[qIndex]?.prompt}));
@@ -42,7 +45,7 @@ async function run(engine,label,viewport){
      assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,
        label+' historical progress was reset');
      await page.locator('#eggenipa-world [data-eg="home"]').click();
-     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
    }
    if(subject==='math'){
@@ -50,7 +53,7 @@ async function run(engine,label,viewport){
      // directly and the old map remains intentionally hidden.
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' missing math houses');
+     assert.equal(await tv.locator('.tv-sign').count(),3,label+' missing math activity signs');
      const next=tv.locator('[data-tv="next"]');
      assert.equal(await next.isEnabled(),true,label+' next math mission must remain reachable');
      await next.click();
@@ -61,7 +64,7 @@ async function run(engine,label,viewport){
      await page.locator('#close-session').click();
      await tv.waitFor({state:'visible',timeout:16000});
      await tv.locator('[data-tv="back"]').click();
-     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
    }
    if(subject==='english'){
@@ -103,24 +106,42 @@ async function run(engine,label,viewport){
      const back=ki.locator('.ki-utility [data-ki="home"]');
      if(await back.isVisible())await back.click();
      else await ki.locator('.ki-painted-home').click();
-     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
+   }
+   if(subject==='geography'){
+     // The child enters the original journey through the new Nordlysleiren
+     // scene, not directly from Home. Check the real sign navigation.
+     const landing=page.locator('#laria-geography-world:visible');
+     await landing.waitFor({timeout:16000});
+     assert.equal(await landing.locator('.gv-sign').count(),3,
+       label+' missing Nordlysleiren activity signs');
+     await landing.locator('[data-gv="journey"]').click();
    }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    try{
      await root.waitFor({state:'visible',timeout:16000});
    }catch(error){
      const after=await page.evaluate(()=>{
-       const screen=document.getElementById('subject-screen'),map=document.getElementById('journey-map');
-       const section=document.getElementById('subject-journey-section'),eg=document.getElementById('eggenipa-world');
-       const s=el=>el?{className:el.className,display:getComputedStyle(el).display,
-         visibility:getComputedStyle(el).visibility,hidden:el.hidden,
-         subject:el.dataset.journeySubject,waiting:el.dataset.journeyWaiting,
-         box:[Math.round(el.getBoundingClientRect().width),Math.round(el.getBoundingClientRect().height)]}:null;
-       return {screen:s(screen),map:s(map),section:s(section),eggenipa:s(eg),
-         mapVisible:window.LARIA_EGGENIPA?.isMapOpen?.(),paintedBack:map?.querySelector('.locked-journey-back')?.getAttribute('aria-label')};
+       const geo=document.getElementById('geography-screen');
+       const map=document.getElementById('geo-journey-map');
+       const shell=document.getElementById('geo-journey-shell');
+       const landing=document.getElementById('laria-geography-world');
+       const s=el=>{
+         if(!el)return null;
+         const cs=getComputedStyle(el),rect=el.getBoundingClientRect();
+         return {className:el.className,display:cs.display,visibility:cs.visibility,
+           hidden:el.hidden,inlineDisplay:el.style.display,position:cs.position,
+           box:[Math.round(rect.width),Math.round(rect.height)],
+           top:Math.round(rect.top),dataset:{...el.dataset}};
+       };
+       return {geo:s(geo),shell:s(shell),map:s(map),landing:s(landing),
+         children:[...geo.children].map(el=>({id:el.id,display:getComputedStyle(el).display})),
+         journeyAsset:window.LARIA_LOCKED_JOURNEY_RUNTIME?.assetStatus?.('geography'),
+         activeSubject:window.LARIA_LOCKED_JOURNEY_RUNTIME?.active?.(),
+         bodyClass:document.body.className};
      });
-     console.error('[NORSK_BOKSKOGEN_TIMEOUT]',label,JSON.stringify(after));
+     console.error('[LARIA_GEOGRAPHY_JOURNEY_HIDDEN]',label,JSON.stringify(after));
      throw error;
    }
    const currentStop=root.locator('.locked-journey-hotspot.state-current').first();
@@ -145,7 +166,11 @@ async function run(engine,label,viewport){
    await root.waitFor({timeout:16000});
    assert.equal(await page.locator('#session-screen.active').count(),0,label+' task did not close');
    await root.locator('.locked-journey-back').click();
-   await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+   if(subject==='geography'){
+     await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
+     await page.locator('#laria-geography-world [data-gv="home"]').click();
+   }
+   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');
   console.log('[journey integrated UX]',label,'Norsk and Geography maps, Tallvika and Kinnaklova direct worlds OK');

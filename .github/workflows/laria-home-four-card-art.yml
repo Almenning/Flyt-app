@@ -1,0 +1,37 @@
+name: Læria Home four-card clean art - review only
+on:
+  push:
+    branches: [feat/laria-premium-beta-cleanup-20261106]
+    paths:
+      - 'tools/laria_art/home_remove_bottom_cards_candidate.py'
+      - '.github/workflows/laria-home-four-card-art.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: laria-home-four-cards-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  produce-unapproved-clean-art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install reproducible CPU-only art restoration tools
+        run: |
+          python -m pip install --disable-pip-version-check --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+          python -m pip install --disable-pip-version-check "Pillow>=11,<13" "numpy>=1.26,<3" "opencv-python-headless>=4.10,<5"
+      - name: Validate original locked image checksums
+        run: python tools/laria_art/home_remove_bottom_cards_candidate.py --self-test
+      - name: Retouch ONLY the four baked-in bottom cards in both iPad compositions
+        run: python tools/laria_art/home_remove_bottom_cards_candidate.py --out /tmp/laria-home-four-cards --max-side 1152
+      - name: Upload candidate comparison sheets - not active app images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grovanova-remove-four-cards-REVIEW-ONLY-${{ github.sha }}
+          path: /tmp/laria-home-four-cards
+          retention-days: 14
+          if-no-files-found: warn

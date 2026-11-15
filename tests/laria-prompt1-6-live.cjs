@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {chromium,webkit}=require('playwright');
 const QA_URL=process.env.QA_URL||'https://almenning.github.io/Flyt-app/laer-litt-mer/?app=laria';
 const KEY='laerlittmer-v2';
-const seed={version:7,progressSchemaVersion:3,profile:{grade:3,onboarded:true,name:'Runtimebarn',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+const seed={version:7,progressSchemaVersion:3,profile:{grade:3,onboarded:true,name:'Runtimebarn',avatar:'girl',setupVersion:2,tallvikaTroll:'storesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 
 // This checks core Læria behaviour rather than World Bank availability.
 // Simulate a third-party HTTP 503 with CORS permission. The application must
@@ -57,6 +57,12 @@ async function returnFromSubjectOrJourney(page,screen,back,subject){
    const nav=world.locator('.ki-utility [data-ki="home"]');
    if(await nav.isVisible())await nav.click();
    else await world.locator('.ki-painted-home:visible').click();
+   await page.locator('#home-screen.active').waitFor();
+   return;
+ }
+ if(subject==='geography' && await page.locator('#laria-geography-world:visible').count()){
+   // The old #geography-back is deliberately hidden by the scene-native hub.
+   await page.locator('#laria-geography-world [data-gv="home"]').click();
    await page.locator('#home-screen.active').waitFor();
    return;
  }
@@ -165,13 +171,18 @@ async function existing(engine,name){
  assert.deepEqual(portals,['words','find','reading'],name+' direct Norsk activity choices missing');
  assert.equal(await p.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
    name+' retired Norsk map is still visible');
- await p.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+ // The old activity cards are kept for fallback and are hidden on the
+ // full-screen premium scene. Open Lesekroken by the actual painted sign.
+ await p.locator('#eggenipa-world .eg-scene-reading:visible').click();
  await p.locator('#session-screen.active').waitFor();
  assert.equal(await p.evaluate(()=>sessionScope?.module),'reading',name+' Lesekroken must enter real reading module');
  await finish(p);
  await p.locator('#complete-home').click();await p.locator('#eggenipa-world:visible').waitFor();
  await returnFromSubjectOrJourney(p,'#subject-screen','#subject-back','norwegian');
- await openHomeSubject(p,'geography');await p.locator('#geography-screen.active').waitFor();await p.locator('#open-world').click();await p.locator('#world-screen.active').waitFor();
+ await openHomeSubject(p,'geography');
+ await p.locator('#laria-geography-world:visible').waitFor();
+ await p.locator('#laria-geography-world [data-gv="globe"]').click();
+ await p.locator('#world-screen.active').waitFor();
  await p.locator('#globe-mode [data-globe-mode="classic"]').waitFor();
  for(const m of ['explore','mine','classic']){await p.locator('#globe-mode [data-globe-mode="'+m+'"]').click();await p.waitForFunction(x=>document.getElementById('world-screen')?.dataset.premiumGlobeMode===x,m)}
  await p.locator('#random-country').click();await p.locator('.premium-country-learn').waitFor({state:'visible'});const country=(await p.locator('#globe-status strong').first().textContent()).trim();
@@ -179,37 +190,48 @@ async function existing(engine,name){
  assert.equal(await p.locator('#world-screen').getAttribute('data-premium-globe-mode'),'classic');assert.equal((await p.locator('#globe-status strong').first().textContent()).trim(),country);
  assert.deepEqual(errs,[],name+' existing profile errors');await c.close();await b.close()
 }
-async function onboarding(engine,name,avatar){
+async function onboarding(engine,name,troll){
+ const legacyAvatar=troll==='lillebror'?'boy':'girl';
+ const childName=troll==='lillebror'?'Oskar QA':troll==='lillesoster'?'Ida QA':'Aleah QA';
  const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
  await optionalPopulationUnavailable(c);
- const p=await c.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(QA_URL+'&prepare='+avatar+'&runtime='+Date.now(),{waitUntil:'networkidle'});await p.evaluate(()=>localStorage.clear());await p.reload({waitUntil:'networkidle'});await p.locator('#onboarding.show').waitFor();
- await p.locator('.avatar-choice-card[data-avatar="'+avatar+'"]').click();const n=avatar==='boy'?'Oskar QA':'Ida QA';await p.locator('#profile-name').fill(n);await p.locator('.grade-btn[data-grade="2"]').click();await p.locator('#profile-next').click();await p.locator('#home-screen.active').waitFor();
- let profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);assert.deepEqual([profile.name,profile.avatar,profile.grade,profile.onboarded],[n,avatar,2,true]);
- await p.reload({waitUntil:'networkidle'});await p.locator('#home-screen.active').waitFor();profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);assert.deepEqual([profile.name,profile.avatar,profile.grade],[n,avatar,2]);
-  // Profile is the source of truth for the Læria fox, including Basecamp.
-  // The old static explorer-file assertion was stale once the chosen fox
-  // gained its own transparent illustrated WebP for boy and girl.
-  // Compare in-page so an assertion never dumps megabytes of base64 into logs.
-  const sceneFox=await p.locator('.bc12-fox').evaluate(holder=>{
-    const img=holder.querySelector('img');
-    const selected=window.LARIA_FOX?.choice();
-    const expected=window.LARIA_FOX?.source(selected)||'';
-    return {
-      chosen:holder.dataset.avatar,selected,
-      matchesSelected:!!img&&img.getAttribute('src')===expected,
-      usesProfileArtwork:expected.startsWith('data:image/webp;base64,'),
-      optionsDistinct:window.LARIA_FOX?.source('boy')!==window.LARIA_FOX?.source('girl'),
-      complete:!!img?.complete,naturalWidth:img?.naturalWidth||0,naturalHeight:img?.naturalHeight||0
-    };
-  });
-  assert.equal(sceneFox.chosen,avatar,'Basecamp lost the saved fox avatar');
-  assert.equal(sceneFox.selected,avatar,'fox identity does not follow current profile');
-  assert.ok(sceneFox.matchesSelected&&sceneFox.usesProfileArtwork,
-    'Basecamp must display the selected transparent fox art, not the old rectangular onboarding portrait');
-  assert.ok(sceneFox.optionsDistinct,'boy and girl must have distinct selectable fox art');
-  assert.ok(sceneFox.complete&&sceneFox.naturalWidth>0&&sceneFox.naturalHeight>0,'Basecamp selected fox image must load');
-  assert.equal(profile.avatar,avatar,'saved avatar choice must persist independently of scene artwork');
-  assert.deepEqual(errs,[],name+' '+avatar+' onboarding errors');await c.close();await b.close()
+ const p=await c.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(QA_URL+'&prepare='+troll+'&runtime='+Date.now(),{waitUntil:'networkidle'});await p.evaluate(()=>localStorage.clear());await p.reload({waitUntil:'networkidle'});await p.locator('#onboarding.show').waitFor();
+ assert.equal(await p.locator('.avatar-choice-card[data-troll]').count(),3,name+' onboarding must offer three trolls');
+ await p.locator('.avatar-choice-card[data-troll="'+troll+'"]').click();
+ await p.locator('#profile-name').fill(childName);
+ await p.locator('.grade-btn[data-grade="2"]').click();
+ await p.locator('#profile-next').click();
+ await p.locator('#home-screen.active').waitFor();
+ let profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);
+ assert.deepEqual([profile.name,profile.tallvikaTroll,profile.grade,profile.onboarded],[childName,troll,2,true]);
+ assert.equal(profile.avatar,legacyAvatar,name+' compatibility avatar metadata drifted');
+
+ await p.reload({waitUntil:'networkidle'});
+ await p.locator('#home-screen.active').waitFor();
+ profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);
+ assert.deepEqual([profile.name,profile.tallvikaTroll,profile.grade],[childName,troll,2]);
+
+ const sceneTroll=await p.locator('.bc12-fox').evaluate((holder,id)=>{
+   const img=holder.querySelector('img');
+   const expected=window.LARIA_TROLL_ACTOR?.source(id)||'';
+   return {
+     chosen:holder.dataset.troll,
+     selected:window.LARIA_TROLL_ACTOR?.choice?.(),
+     src:img?.getAttribute('src')||'',
+     expected,
+     complete:!!img?.complete,
+     naturalWidth:img?.naturalWidth||0,
+     naturalHeight:img?.naturalHeight||0
+   };
+ },troll);
+ assert.equal(sceneTroll.chosen,troll,'Basecamp lost the saved troll');
+ assert.equal(sceneTroll.selected,troll,'TrollActor identity does not follow current profile');
+ assert.equal(sceneTroll.src,sceneTroll.expected,'Basecamp must display the selected troll art directly');
+ assert.ok(sceneTroll.complete&&sceneTroll.naturalWidth>0&&sceneTroll.naturalHeight>0,'Basecamp selected troll image must load');
+ assert.equal(await p.locator('#home-screen.active img[src*="fox"]:visible,#home-screen.active img[src*="rev"]:visible').count(),0,
+   'No visible fox art may survive on Home');
+ assert.deepEqual(errs,[],name+' '+troll+' onboarding errors');
+ await c.close();await b.close()
 }
 async function viewport(engine,name,w,h,label){
  const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:w<700,serviceWorkers:'block'}),s=JSON.parse(JSON.stringify(seed));s.profile.grade=2;
@@ -217,4 +239,4 @@ async function viewport(engine,name,w,h,label){
  await c.addInitScript(({k,s})=>localStorage.setItem(k,JSON.stringify(s)),{k:KEY,s});const p=await c.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(QA_URL+'&viewport='+label+'&runtime='+Date.now(),{waitUntil:'networkidle'});await p.locator('.bc12').waitFor({state:'visible'});
  const d=await p.locator('.bc12').evaluate(x=>{const r=x.getBoundingClientRect();return {sw:document.documentElement.scrollWidth,iw:innerWidth,l:r.left,r:r.right,t:r.top,b:r.bottom,ih:innerHeight}});assert.ok(d.sw<=d.iw+1,label+' horizontal overflow');assert.ok(d.l>=-1&&d.r<=d.iw+1,label+' horizontal bounds');assert.ok(d.t>=-1&&d.b<=d.ih+2,label+' vertical bounds');assert.deepEqual(errs,[],name+' '+label+' errors');await c.close();await b.close()
 }
-(async()=>{for(const [e,n] of [[chromium,'Chromium'],[webkit,'WebKit']]){await existing(e,n);await onboarding(e,n,'boy');await onboarding(e,n,'girl');await viewport(e,n,390,844,'iPhone portrait');await viewport(e,n,820,1180,'iPad portrait');await viewport(e,n,1180,820,'iPad landscape')}console.log('Læria Prompt 1-6 published runtime verification passed in Chromium and WebKit')})().catch(e=>{console.error(e);process.exit(1)});
+(async()=>{for(const [e,n] of [[chromium,'Chromium'],[webkit,'WebKit']]){await existing(e,n);await onboarding(e,n,'lillesoster');await onboarding(e,n,'lillebror');await viewport(e,n,390,844,'iPhone portrait');await viewport(e,n,820,1180,'iPad portrait');await viewport(e,n,1180,820,'iPad landscape')}console.log('Læria Prompt 1-6 published runtime verification passed in Chromium and WebKit')})().catch(e=>{console.error(e);process.exit(1)});

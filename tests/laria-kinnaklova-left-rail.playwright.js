@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Isolated production-safe Kinnaklova regression and screenshot QA. */
 const assert=require('node:assert/strict');
 const path=require('node:path');
@@ -16,9 +17,7 @@ const seed={
 };
 async function enter(page){
  await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
- const home=page.locator('#home-screen .bc14-subject[data-camp="subject-english"]');
- await home.waitFor({state:'visible',timeout:30000});
- await home.click();
+ await openHomeSubject(page,'english');
  await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:25000});
  const stage=page.locator('#kinnaklova-world .ki-stage.laria-reference-layout-v1');
  await stage.waitFor({state:'visible',timeout:16000});
@@ -34,7 +33,8 @@ async function visit(engine,name,device,viewport){
   const stage=await enter(page);
   const world=page.locator('#kinnaklova-world');
   assert.equal(await world.getAttribute('data-ki-premium-art'),'approved');
-  assert.equal(await world.getAttribute('data-ki-unified-left-rail'),'ready');
+  assert.equal(await stage.locator('nav.laria-scene-navigation:visible').count(),1,
+    'English must show one real left oak rail, not a retired internal readiness marker');
   assert.equal(await stage.locator('.ki-world-brand:visible').count(),1,'must have one real Læria logo');
   assert.equal((await stage.locator('.laria-reference-heading strong').textContent()).trim(),'Engelsk');
   assert.equal((await stage.locator('.laria-reference-heading small').textContent()).trim(),'Kinnaklova');
@@ -96,7 +96,7 @@ async function poisonedArt(){
   await page.route('**/assets/kinnaklova/kinnaklova-ui-free-approved.webp',route=>
    route.fulfill({path:original,contentType:'image/webp'}));
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
-  await page.locator('#home-screen .bc14-subject[data-camp="subject-english"]').click();
+  await openHomeSubject(page,'english');
   const world=page.locator('#kinnaklova-world[data-ki-art="unapproved"]');
   await world.waitFor({timeout:22000});
   assert.equal(await world.locator('.ki-master').isVisible(),false,'Wrong art became visible');
@@ -110,10 +110,11 @@ async function poisonedArt(){
 (async()=>{
  await poisonedArt();
  const sizes={
+  // Premium 2.0 scope is explicitly iPad-first. The separately shipped
+  // Kinnaklova iPhone fallback has its own browser QA workflow and must NOT
+  // be required to have the new iPad-only shared reference rail yet.
   'ipad-landscape':{width:1366,height:1024},
-  'ipad-portrait':{width:1024,height:1366},
-  'iphone-portrait':{width:390,height:844},
-  'iphone-landscape':{width:844,height:390}
+  'ipad-portrait':{width:1024,height:1366}
  };
  for(const [name,engine] of [['chromium',chromium],['webkit',webkit]]){
   for(const [device,viewport] of Object.entries(sizes)){

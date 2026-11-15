@@ -42,7 +42,13 @@ const read=()=>{try{const o=JSON.parse(localStorage.getItem(STORE)||'{}');return
   actions:Number(o.actions)||0,updated:Number(o.updated)||0
  }}catch(_){return {explored:{},built:{},equal:{},sorted:{},converted:{},actions:0,updated:0}}};
 const progress=read();
-const fox=()=>'<img src="'+window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())+'" alt="" class="fr2-fox" loading="eager" decoding="async">';
+const fox=()=>{
+ const actor=window.LARIA_TROLL_ACTOR;
+ const selected=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+ const id=['storesoster','lillesoster','lillebror'].includes(selected)?selected:'storesoster';
+ const src=actor?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
+ return '<img src="'+src+'" alt="" class="fr2-fox laria-premium-troll-art" loading="eager" decoding="async">';
+};
 const key=(n,d)=>n+'/'+d;
 const clamp=(x,min,max)=>Math.max(min,Math.min(max,Number(x)||0));
 const equal=(a,b)=>a[0]*b[1]===b[0]*a[1];
@@ -266,7 +272,7 @@ function explore(){
   const speech=x.n===0?'Trykk på en del!':x.n===x.d?'Det er en hel!':x.n+' av '+x.d+' deler.';
   return '<section class="fr2-explore fr4-explore fr5-explore fr6-explore">'+labIntro('Se på nye måter','Den samme brøken, flere former!')
     +'<div class="fr2-stage fr2-explore-stage fr4-explore-stage fr5-explore-stage"><div class="fr2-stage-main fr4-stage-main"><div class="fr2-main-illustration">'+presentation(x.n,x.d,x.mode,true,x.filled)+'</div><div class="fr2-main-value">'+frac(x.n,x.d)+'</div></div>'
-    +'<div class="fr4-scene-fox fr5-scene-fox" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for hjelp og opplesning">'+fox()+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
+    +'<div class="fr4-scene-fox fr5-scene-fox" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på trollet for hjelp og opplesning">'+fox()+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
     +'<div class="fr4-stage-caption">'+caption+'</div></div>'
     +'<div class="fr2-controls fr4-controls fr5-controls fr6-controls">'+adjustField('n')+adjustField('d')+'</div>'
     +'<div class="fr2-views fr4-views fr5-view-picker" role="group" aria-label="Velg brøkvisning">'+modes.map(([k,label])=>cta('view','<span class="fr4-mode-art">'+viewIllustration(k)+'</span><b>'+label+'</b>','fr2-view '+(x.mode===k?'active':''),'data-view="'+k+'" aria-pressed="'+(x.mode===k)+'"')).join('')+'</div>'
@@ -320,7 +326,7 @@ function build(){
    +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Kaken din</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på et stykke for å fylle eller tømme det.</p></div>'
    +'<div class="fr5-build-aside"><div class="fr5-live-result fr6-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har fylt</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
    +'<div class="fr7-tablet-equivalents"><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div>'
-   +'<div class="fr2-guide fr5-fox-mentor" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for frivillig hjelp og opplesning">'+fox()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></div></div>'
+   +'<div class="fr2-guide fr5-fox-mentor" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på trollet for frivillig hjelp og opplesning">'+fox()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></div></div>'
    +'<div class="fr2-wood-tray fr5-piece-tray fr6-piece-tray"><span class="fr2-tray-title">Løse biter</span>'
    +'<div class="fr2-spare-pieces">'+(remaining.length?remaining.map(i=>cta('add',loosePieceSvg(x.d,i),'fr2-spare','data-fr-pick="1" data-piece-index="'+i+'" aria-label="Legg kakestykke '+(i+1)+' av '+x.d+' i kaken"')).join(''):'<span class="fr6-empty-tray">Alle bitene er i kaken!</span>')+'</div>'
    +'<small>Trykk eller dra en bit inn</small></div>'
@@ -535,7 +541,7 @@ function pointerDown(e){
  const btn=e.target.closest('.fr2-spare[data-fr-pick],.fr2-sort-card[data-fr-sort]');
  // One pointer path for mouse, pen and touch avoids incompatible HTML5 drag events.
  if(!btn||e.pointerType==='mouse'&&e.button!==0)return;
- drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),pieceIndex:btn.hasAttribute('data-fr-pick')?Number(btn.dataset.pieceIndex):null,moved:false,ghost:null,lastX:e.clientX,lastY:e.clientY};
+ drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),pieceIndex:btn.hasAttribute('data-fr-pick')?Number(btn.dataset.pieceIndex):null,moved:false,ghost:null,dropTarget:null,lastX:e.clientX,lastY:e.clientY};
  try{btn.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
@@ -548,19 +554,25 @@ function pointerMove(e){
  if(drag.ghost){drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px'}
  const el=document.elementFromPoint(e.clientX,e.clientY)?.closest(drag.type==='build'?'.fr2-build-target':'.fr2-sort-card');
  document.querySelectorAll('.fr2-drag-over').forEach(x=>x.classList.remove('fr2-drag-over'));
- if(el)el.classList.add('fr2-drag-over');
+ if(el){drag.dropTarget=el;el.classList.add('fr2-drag-over');}
  e.preventDefault();
 }
 function pointerUp(e){
  dragDiagnostics.pointerUp++;
  if(!drag||drag.pointer!==e.pointerId)return;
- const {moved,type,from,pieceIndex,startX,lastX,lastY}=drag;
+ const {moved,type,from,pieceIndex,startX,lastX,lastY,dropTarget}=drag;
  let target=null;
  if(moved&&type==='build'){
-  target=[...document.querySelectorAll('#fraction-lab-root .fr2-build-target')].find(el=>{
+  const targets=[...document.querySelectorAll('#fraction-lab-root .fr2-build-target')];
+  target=targets.find(el=>{
    const r=el.getBoundingClientRect();
    return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
-  })||null;
+  })||(dropTarget?.isConnected?dropTarget:null)
+    // There is exactly one tangible cake target in the build workshop. On
+    // very short Chromium viewports Playwright may auto-scroll between its
+    // final pointermove and pointerup; retain that one intended target
+    // instead of silently losing a child's completed drag.
+    ||(targets.length===1?targets[0]:null);
  }
  if(moved&&type==='sort'){
   const cards=[...document.querySelectorAll('#fraction-lab-root .fr2-sort-card[data-fr-sort]')];

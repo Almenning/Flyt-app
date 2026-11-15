@@ -99,6 +99,11 @@
   function sync(){
     scheduled=false;
     if(!root.document?.body)return;
+    if(root.document.documentElement?.dataset?.lariaCharacterSystem==='troll'){
+      root.document.querySelectorAll('.laria-fox-wardrobe-art,.laria-fox-wardrobe-placed').forEach(el=>el.remove());
+      root.document.querySelectorAll('.laria-fox-base-under-sprite').forEach(el=>el.classList.remove('laria-fox-base-under-sprite'));
+      return;
+    }
     var avatar=choice(),current=inventory();
     var signature=avatar+'|world-art-v3|'+JSON.stringify(current.equipped||{});
     root.document.querySelectorAll(SELECTORS).forEach(function(img){

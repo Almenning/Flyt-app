@@ -80,6 +80,15 @@
     pending=false;
     const host=activeHost();
     if(!host||!host.isConnected)return;
+    // Compatibility: geography still calls travelTo() for the actual map
+    // positioning, but TrollActor owns its appearance and reactions. Never
+    // reintroduce retired fox state on a living selected original troll.
+    if(host.dataset.troll){
+      delete host.dataset.lariaFoxSelected;
+      delete host.dataset.lariaFoxMood;
+      root.LARIA_FOX_WARDROBE?.refresh?.();
+      return;
+    }
     const avatar=root.LARIA_FOX?.choice?.()||'boy';
     host.dataset.lariaFoxSelected=avatar;
     if(!host.hasAttribute('data-laria-fox-mood'))host.dataset.lariaFoxMood='idle';

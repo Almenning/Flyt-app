@@ -3,13 +3,18 @@
  */
 (function(){
  'use strict';
- const buddy=window.LARIA_CHAPTER_FOX_BUDDY;
+ const buddy=window.LARIA_CHAPTER_TROLL_BUDDY||window.LARIA_CHAPTER_FOX_BUDDY;
  const core=window.LARIA_MATH_PATTERN_HAVEN;
  if(!core)return;
  let ui=null;
  const escape=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  function fox(){
-   return '<img class="mh-fox" src="'+escape(ui.foxSrc)+'" alt="Reven din er med i Mønsterhagen">';
+   const src=window.LARIA_TROLL_ACTOR?.selected?.()?.src||(()=>{
+      const stored=typeof state!=='undefined'?state?.profile?.tallvikaTroll:null;
+      const id=['storesoster','lillesoster','lillebror'].includes(stored)?stored:'storesoster';
+      return window.LARIA_TROLL_ACTOR?.source?.(id)||'./assets/gangemagi-troll/'+id+'.webp';
+    })();
+   return '<img class="mh-fox laria-premium-troll-art" src="'+escape(src)+'" alt="Trollet ditt er med i Mønsterhagen">';
  }
  function shell(content){
    return '<div class="mh-shell"><header class="mh-top"><button type="button" data-mh-act="close" class="mh-back" aria-label="Lukk Mønsterhagen">← Tilbake</button>'+
@@ -42,13 +47,13 @@
      '✦ Begynn ved '+escape(firstNext.title)+' →</button>':'';
    return shell('<section class="mh-intro">'+
      '<div class="mh-intro-header"><div><span class="mh-eyebrow">MATTE · KAPITTEL 2</span>'+
-     '<h1 tabindex="-1" class="mh-heading">Mønsterhagen</h1><p>Fem steder å leke. Du velger selv hvor eventyret går!</p></div></div>'+
+     '<h1 tabindex="-1" class="mh-heading">Mønsterhagen</h1><p>Fem steder å leke. Du velger selv hvor eventyret går!</p></div>'+quickStart+'</div>'+
      '<div class="mh-story-layout"><div class="mh-story-map'+(painted?' mh-map-painted':'')+'" role="group" aria-label="Illustrert eventyrkart med fem steder du kan trykke på">'+
      (painted?'<picture class="mh-art-picture"><source type="image/avif" srcset="./math-pattern-haven-painted-candidate-v2.avif">'+
        '<img class="mh-map-art" src="./math-pattern-haven-storymap-v1.svg" alt="" draggable="false" loading="eager"></picture>':
        '<img class="mh-map-art" src="./math-pattern-haven-storymap-v1.svg" alt="" draggable="false" loading="eager">')+
      '<div class="mh-places">'+stages+'</div></div>'+
-     '<aside class="mh-story-rail"><div class="mh-story-fox">'+fox()+'<p>Hvor vil du utforske i dag? Jeg blir med deg!</p></div>'+quickStart+
+     '<aside class="mh-story-rail"><div class="mh-story-fox">'+fox()+'<p>Hvor vil du utforske i dag? Jeg blir med deg!</p></div>'+
      '<div class="mh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<span>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har utforsket!':'Du kan velge fritt og besøke favorittene igjen.')+'</span>'+
      '<div class="mh-progress-track"><span style="width:'+(p.done*20)+'%"></span></div></div>'+
@@ -85,9 +90,9 @@
    const foxState=buddy.response({subject:'math',stageId:session.stage.id,kind:t.kind,
      feedback:session.feedback,expanded:ui.hintShown});
    const foxPanel='<div class="mh-companion mh-fox-'+foxState.mood+'">'+fox()+
-     '<div class="mh-fox-copy"><span class="mh-eyebrow">REVENS VERKSTED</span>'+
+     '<div class="mh-fox-copy"><span class="mh-eyebrow">MØNSTERHJELP</span>'+
      '<p id="mh-fox-message" role="status">'+escape(foxState.text)+'</p></div>'+
-     (foxState.showHint?'<button type="button" class="mh-fox-help" data-mh-act="hint" aria-controls="mh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>';
+     (foxState.showHint?'<button type="button" class="mh-fox-help" data-mh-act="hint" aria-controls="mh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint':'Få hint')+'">Hint</button>':'')+'</div>';
    const choices=t.kind==='choice'?'<div class="mh-options" role="group" aria-label="Svaralternativer">'+
      t.options.map((opt,i)=>'<button class="mh-option'+(session.feedback&&opt===session.feedback.answer?' mh-right':'')+
        '" type="button" data-mh-act="answer" data-mh-index="'+i+'"'+(session.feedback?' disabled':'')+'>'+
@@ -190,7 +195,7 @@
    const safe=/^(?:\.\/|\/)(?!\/)/.test(src)||/^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src);
    ui={root,app,wasInert:app?.inert||false,focus:document.activeElement,
      overflow:document.documentElement.style.overflow,
-     foxSrc:safe?src:'./lia-fox-explorer-home.webp',state:args.state,save:args.save,
+     foxSrc:safe?src:'./assets/gangemagi-troll/storesoster.webp',state:args.state,save:args.save,
      view:'intro',result:null,hintShown:false};
    root.id='laria-math-pattern-haven-preview';root.className='mh-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');

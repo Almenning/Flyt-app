@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "product": "Læria Premium Beta",
+  "targetPr": 243,
+  "release": "BLOCKED",
+  "principle": "Barn har lyst til å åpne Læria, foreldre har tillit.",
+  "art": {
+    "grovanova": {
+      "locked": "laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp",
+      "lockedSha256": "246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5",
+      "clean": "laer-litt-mer/assets/home-v15/kjosnes-home-tablet-no-bottom-cards.webp",
+      "cleanSha256": "9ea3cfdcc4a703964106a5aa7a83b0a033bfa90712db92687e1759b3af12ade8",
+      "ownerApproved": false,
+      "portraitClean": "laer-litt-mer/assets/home-v15/kjosnes-home-phone-no-bottom-cards.webp",
+      "portraitCleanSha256": "de12abd69d5977dcc01162b5855267bdc4141f2a6ab98d8b8d4e5ceab2933d1d",
+      "technicalArtVerified": true,
+      "protectedOriginalPixelsIdenticalOutsideMask": true,
+      "fourBottomCardsRemovedOnIpad": true
+    },
+    "kinnaklova": {
+      "locked": "laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
+      "lockedSha256": "d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57",
+      "clean": "laer-litt-mer/assets/kinnaklova/kinnaklova-ui-free-approved.webp",
+      "cleanSha256": "7878237645c369fde210830ded37704bc0dfeb1f6d78b86782a47f41e80b7f8d",
+      "ownerApproved": false,
+      "technicalArtVerified": true,
+      "protectedOriginalPixelsIdenticalOutsideMask": true,
+      "modifiedAreaFraction": 0.33084459167433605,
+      "sourceLocked": true
+    },
+    "nordlysleiren": {
+      "locked": "laer-litt-mer/assets/cards/reisen/geography-premium.webp",
+      "lockedSha256": "83bd9d687957c178401dddd419718cabbbe06b4c422358c01b258a2aea95f14f",
+      "lockedDimensions": [
+        1024,
+        704
+      ],
+      "clean": null,
+      "cleanSha256": null,
+      "minWidth": 1600,
+      "minHeight": 900,
+      "ownerApproved": false
+    }
+  },
+  "devices": {
+    "ipadLandscape": {
+      "prHead": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
+      "actionsRun": 43752084754,
+      "chromiumAndWebkit": true,
+      "ownerApproved": true,
+      "screenshotArtifactId": 14177240552
+    },
+    "ipadPortrait": {
+      "prHead": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
+      "actionsRun": 43752084754,
+      "chromiumAndWebkit": true,
+      "ownerApproved": true,
+      "screenshotArtifactId": 14177240552
+    },
+    "iphonePortrait": {
+      "prHead": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
+      "actionsRun": 43752084784,
+      "chromiumAndWebkit": true,
+      "ownerApproved": false,
+      "screenshotArtifactId": 14176319565
+    },
+    "iphoneLandscape": {
+      "prHead": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
+      "actionsRun": 43752084784,
+      "chromiumAndWebkit": true,
+      "ownerApproved": false,
+      "screenshotArtifactId": 14176319565
+    },
+    "desktop": {
+      "prHead": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
+      "actionsRun": 43752084729,
+      "chromiumAndWebkit": true,
+      "ownerApproved": false,
+      "screenshotArtifactId": 14176562549
+    }
+  },
+  "regression": {
+    "greenOnPrHead": "b46b386c3c2831544a9c27d2df847f29908c82ad",
+    "ipadGreenOnPrHead": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
+    "ipadGreenRun": 43752084754
+  },
+  "childUsabilityTest": false,
+  "permission": {
+    "merge": true,
+    "publish": true
+  },
+  "evidenceNote": "Siste teknisk verifiserte iPad-, iPhone- og desktop-skjermer kommer fra samme produktkildetre som PR: faktisk Chromium/WebKit-app ved 7931fce (Actions 43752084754, 43752084784 og 43752084729). Kun tests/ ble endret i 5b7a671 og 3888a88, mens laer-litt-mer/ forble byte-identisk. Alle enhetsgodkjenninger er fortsatt false; de kan bare gis etter visuell vurdering. Full regressjonsgrønnhet avventes på siste testkildetre. Uferdig kunst, barnebeta og publisering er IKKE godkjent. EIERGODKJENNING 2026-11-15: iPad stående/liggende akseptert på eksisterende screenshots; ordinær implementering/merge/publisering er uttrykkelig autorisert. Full Premium-readiness står fortsatt BLOCKED på tekniske bildekontroller, andre enheter og barnebrukertest.",
+  "openBlocks": [
+    "Grovanova: krever source-tro ren 4:3-kunst på minst 1366x1024 og visuell godkjenning, uten endring av låst fjellmotiv",
+    "Kinnaklova: ren kandidat må bestå pikselintegritet utenfor UI-masken og godkjennes visuelt; bevare fjell og kirke",
+    "Nordlysleiren: mangler separat ren høyoppløselig landskapskilde på minst 1600x900 og eiergodkjenning",
+    "Full kritisk regresjonskontroll på siste testsuite-HEAD og faktisk barnetest mangler",
+    "PR #243 forblir draft; ingen merge/produksjonspublisering før godkjenningsporter er oppfylt",
+    "iPhone og desktop er ikke visuelt godkjent; iPad stående/liggende er godkjent av produkteier 2026-11-15"
+  ],
+  "betaApproval": {
+    "date": "2026-11-15",
+    "source": "Produkteiers uttrykkelige beskjed i prosjekttråden: «Jeg godkjenner. Implementer i appen»",
+    "scope": "Viste faktiske iPad landscape/portrait-skjermbilder, naturlig venstrestilt to-stolpe skiltmeny og klarsignal til ordinær implementering/publisering",
+    "reviewedApplicationTree": "7931fceba259315b6a9ffec7a8a9e4668f5eba48",
+    "visualScreenshotRuns": [
+      43752084754,
+      43752084784
+    ],
+    "betaOnlyUntilReleaseGatePasses": true,
+    "outstandingQualityRequirements": "Godkjenningen endrer ikke bildekildeintegritet, oppløsning, iPhone/desktop eiergodkjenning, full regresjon eller virkelig barnetest."
+  }
+}

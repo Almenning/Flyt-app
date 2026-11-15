@@ -67,9 +67,13 @@ async function run(engine,name,viewport,url){
    },{subject,question});
    const label=name+' '+subject;
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:12000});
+   const companion=page.locator('#session-screen.active .task-fox-companion.laria-troll-host img.laria-premium-troll-art');
+   await companion.waitFor({state:'visible',timeout:15000});
+   assert.equal(await companion.count(),1,label+' must show exactly one selected TrollActor');
+   const selected=await companion.evaluate(img=>
+     img.getAttribute('src')===window.LARIA_TROLL_ACTOR.source(window.LARIA_TROLL_ACTOR.choice()));
+   assert.equal(selected,true,label+' task scene has wrong persistent TrollActor');
    if(subject==='norwegian'){
-     assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
-       label+' retired fox must be absent from Norsk task scene');
      const guide=page.locator('#session-screen.active .task-norsk-guide');
      await guide.waitFor({state:'visible',timeout:15000});
      assert.equal(await guide.count(),1,label+' Norsk has duplicate helper guides');
@@ -89,21 +93,6 @@ async function run(engine,name,viewport,url){
      await guide.click();
      await help.waitFor({state:'hidden'});
      assert.equal(await guide.getAttribute('aria-expanded'),'false');
-   }else{
-     assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,label+' duplicate fox');
-     // Other subjects still retain their own original full-body figure until
-     // their separately approved visual migrations ship.
-     await page.waitForFunction(visual=>{
-       const fox=document.querySelector('#session-screen.active .task-fox-companion');
-       const original=fox?.querySelector('img');
-       const rig=fox?.querySelector('svg.laria-fox-wardrobe-placed[data-fox-art="girl-fullbody-v1"]');
-       const marker=fox?.querySelector('.task-profile-marker');
-       return !!original&&!!rig&&getComputedStyle(original).visibility==='hidden'&&
-         rig.getBoundingClientRect().width>30&&rig.getBoundingClientRect().height>40&&
-         (!visual||!marker||getComputedStyle(marker).display==='none');
-     },!!question.visual,{timeout:15000});
-     assert.equal(await page.locator('#session-screen .task-fox-companion .laria-fox-wardrobe-placed').count(),1,
-       label+' duplicate or missing chosen full-body fox');
    }
    const first=await page.evaluate(()=>{
     const progress=document.querySelector('#session-screen .session-progress');
