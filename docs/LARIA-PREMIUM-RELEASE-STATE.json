@@ -15,9 +15,12 @@
     "kinnaklova": {
       "locked": "laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
       "lockedSha256": "d2e2d37b4c54191383457f423c1d568cd538391046e79e6f66e7a8b1928c0e57",
-      "clean": null,
-      "cleanSha256": null,
-      "ownerApproved": false
+      "clean": "laer-litt-mer/assets/kinnaklova/kinnaklova-ui-free-approved.webp",
+      "cleanSha256": "298c9fa0887a3a9b73d9aff716c135357e73a305d11df9d19c0e52c534f85abe",
+      "ownerApproved": false,
+      "technicalArtVerified": true,
+      "protectedOriginalPixelsIdenticalOutsideMask": true,
+      "modifiedAreaFraction": 0.18470818990283167
     },
     "nordlysleiren": {
       "locked": "laer-litt-mer/assets/cards/reisen/geography-premium.webp",
@@ -78,5 +81,5 @@
     "merge": false,
     "publish": false
   },
-  "evidenceNote": "Actual app + tests verified on product/tree b46b386c3c2831544a9c27d2df847f29908c82ad by GitHub Actions 42905103792, successful Chromium and WebKit for iPad landscape/portrait, iPhone portrait/landscape and desktop. Screenshot artifact 13804922819. This documents engineering function only: no visual owner approval, no child usability test. Grovanova and Kinnaklova need UI-free pixel-faithful masters; Nordlysleiren needs a genuinely sharp wide approved illustration (current 1024x704). Existing original art locked. No merge/publish permission."
+  "evidenceNote": "Kinnaklova now has a separate source-faithful UI-free copy of SHA-locked original and live left sign rail, requiring final iPad visual signoff. Locked original remains unchanged. Grovanova, Nordlysleiren, whole-app device QA, owner review, and child test still block overall release."
 }
