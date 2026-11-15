@@ -15,7 +15,7 @@
  box-sizing:border-box;position:absolute;z-index:26;
  left:var(--ref-left);right:auto;top:24%;bottom:auto;
  width:var(--ref-menu-width);margin:0;padding:0;border:0;
- background:none;display:flex;flex-direction:column;gap:4px;
+ background:none;display:flex;flex-direction:column;gap:6px;
  isolation:isolate;pointer-events:auto;
 }
 .laria-reference-layout-v1 .laria-reference-subject-sign{
@@ -186,7 +186,7 @@
  width:var(--ref-menu-width)!important;height:auto!important;min-height:0!important;
  max-height:none!important;aspect-ratio:auto!important;
  display:flex!important;flex-direction:column!important;align-items:stretch!important;
- justify-content:flex-start!important;gap:4px!important;
+ justify-content:flex-start!important;gap:6px!important;
  margin:0!important;padding:0!important;border:0!important;
  background:none!important;filter:none!important;box-shadow:none!important;
  transform:none!important;opacity:1!important;visibility:visible!important;
@@ -281,7 +281,7 @@
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1)
- > nav.laria-reference-subject-nav{top:26%;gap:4px}
+ > nav.laria-reference-subject-nav{top:26%;gap:6px}
  .laria-reference-layout-v1 .laria-reference-subject-sign{height:clamp(69px,8.9vh,90px)}
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
