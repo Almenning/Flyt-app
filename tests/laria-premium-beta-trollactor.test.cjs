@@ -98,8 +98,8 @@ const refLayout=file('laria-reference-layout-v1.js');
 const kinnStyle=file('laria-kinnaklova-unified-v1.css');
 assert.match(kinnaklova,/const LOCKED_ART='\.\/assets\/kinnaklova\/kinnaklova-scene-clean-approved-20261026\.webp'/,
  'English must retain the exact locked Kinnaklova landscape');
-assert.match(kinnaklova,/const UI_FREE_ART_VISUAL_SIGNOFF=true/,
- 'An unreviewed sign removal must not become production art');
+assert.match(kinnaklova,/const UI_FREE_ART_TECHNICALLY_VERIFIED=true/,
+ 'The separately published source-faithful UI-free Kinn artwork must remain technically verified');
 assert.match(kinnaklova,/const UI_FREE_ART_SHA256='7878237645c369fde210830ded37704bc0dfeb1f6d78b86782a47f41e80b7f8d'/,
  'Do not invent an approved checksum for a nonexistent cleaned source');
 assert.match(kinnaklova,/PREMIUM_CLEAN_ART_APPROVED\?UI_FREE_ART:LOCKED_ART/,

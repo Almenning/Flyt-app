@@ -78,10 +78,16 @@ async function run(engine,label,viewport){
      const before=await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{}));
      assert.equal(await page.evaluate(()=>JSON.stringify(window.LARIA_TALLVIKA_BRIDGE.state().journey?.nodes||{})),before,
        label+' English landing must not mutate journey progress');
-      await page.waitForFunction(()=>['ready','missing','unapproved'].includes(document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
-      const paintedWords=ki.locator('.ki-painted-words');
-      if(await paintedWords.isVisible())await paintedWords.click();
-      else await ki.locator('.ki-card[data-ki="words"]:visible').click();
+     // The premium left-hand oak sign is the child's visible entrance.
+     // Fall back to legacy cards only on a pre-premium app.
+     const oakSign=ki.locator('nav.laria-scene-navigation .ki-painted-words[data-ki="words"]');
+     if(await oakSign.count()){
+       // Image SHA-256 verification is asynchronous: wait for the real
+       // premium control, never fall back to a deliberately hidden card.
+       await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:22000});
+       await oakSign.waitFor({state:'visible',timeout:15000});
+       await oakSign.click();
+     }else await ki.locator('[data-ki="words"].ki-card').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const state=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,question:sessionQuestions[qIndex]?.prompt}));
      assert.equal(state.subject,'english',label+' English engine not reached');

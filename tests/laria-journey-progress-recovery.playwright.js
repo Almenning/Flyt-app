@@ -149,10 +149,12 @@ async function recoverEnglishDirect(page,label,before){
  await world.waitFor({state:'visible',timeout:18000});
  assert.equal(await world.locator('.ki-card').count(),3,label+' missing English learning places');
  const previousNodes=await page.evaluate(()=>JSON.stringify(state.journey?.nodes||{}));
-  await page.waitForFunction(()=>['ready','missing','unapproved'].includes(document.querySelector('#subject-screen.active #kinnaklova-world')?.dataset.kiArt),null,{timeout:20000});
-  const paintedWords=world.locator('.ki-painted-words');
-  if(await paintedWords.isVisible())await paintedWords.click();
-  else await world.locator('.ki-card[data-ki="words"]:visible').click();
+ const oak=world.locator('nav.laria-scene-navigation .ki-painted-words[data-ki="words"]');
+ if(await oak.count()){
+  await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:22000});
+  await oak.waitFor({state:'visible',timeout:15000});
+  await oak.click();
+ }else await world.locator('.ki-card[data-ki="words"]').click();
  await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
  const started=await activeSnapshot(page);
  assert.equal(started.scope,'subject',label+' English uses direct skill learning');

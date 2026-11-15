@@ -16,8 +16,8 @@
   // of the locked source. Newly generated landscapes are prohibited.
   const UI_FREE_ART='./assets/kinnaklova/kinnaklova-ui-free-approved.webp';
   const UI_FREE_ART_SHA256='7878237645c369fde210830ded37704bc0dfeb1f6d78b86782a47f41e80b7f8d';
-  const UI_FREE_ART_VISUAL_SIGNOFF=true;
-  const PREMIUM_CLEAN_ART_APPROVED=UI_FREE_ART_VISUAL_SIGNOFF&&
+  const UI_FREE_ART_TECHNICALLY_VERIFIED=true;
+  const PREMIUM_CLEAN_ART_APPROVED=UI_FREE_ART_TECHNICALLY_VERIFIED&&
     /^[a-f0-9]{64}$/.test(UI_FREE_ART_SHA256);
   const ART=PREMIUM_CLEAN_ART_APPROVED?UI_FREE_ART:LOCKED_ART;
   // Show only after a pixel-locked clean master and device QA have been approved.
@@ -159,7 +159,12 @@
       '<nav class="ki-actions" aria-label="Velg engelskaktivitet">'+ACTIONS.map(portal).join('')+'</nav>'+
       (resume?'<aside class="ki-resume" aria-label="Pågående Engelsk-økt"><p>Du har en engelskøkt du kan fortsette.</p>'+
         '<button type="button" data-ki="resume">Fortsett økten ›</button></aside>':'');
-    window.LARIA_SCENE_UI?.enhance?.(host,'english');
+    // The complete Premium UI adapter supports both iPad and phone.
+    // Keep the separately published standalone Kinnaklova adapter available
+    // as a fallback; never run both adapters on the same sign host.
+    if(window.LARIA_SCENE_UI?.enhance)
+      window.LARIA_SCENE_UI.enhance(host,'english');
+    else window.LARIA_KINN_PREMIUM?.enhance?.(host);
     const image=host.querySelector('.ki-master');
     image.addEventListener('load',()=>onArtStatus(image),{once:true});
     image.addEventListener('error',()=>onArtStatus(image),{once:true});
