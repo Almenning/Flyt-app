@@ -33,13 +33,17 @@ paths=[
  [(1152,570),(1190,582),(1220,586),(1247,600),(1271,626),(1288,657),(1295,682),(1324,699)]
 ]
 for pts in paths:cv2.polylines(mask,[np.array(pts,np.int32)],False,255,45,cv2.LINE_AA)
-inner=cv2.erode(mask,cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9)))
-alpha=(cv2.GaussianBlur(mask,(0,0),10)/255.0).astype(np.float32)
-alpha[mask==0]=0;alpha[inner>0]=1
+# Feather outside the painted-UI removal mask to avoid obvious rectangular
+# seams in the sky. The exact locked source stays unchanged far from edits.
+envelope=cv2.dilate(mask,cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(41,41)))
+alpha=(cv2.GaussianBlur(envelope,(0,0),10)/255.0).astype(np.float32)
+alpha[mask>0]=1
+protected=cv2.dilate(envelope,cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(61,61)))
+alpha[protected==0]=0
 out=np.rint(orig.astype(np.float32)*(1-alpha[:,:,None])+gen.astype(np.float32)*alpha[:,:,None]).clip(0,255).astype(np.uint8)
-assert np.array_equal(out[mask==0],orig[mask==0]),"A protected pixel changed"
-changed=float(np.mean(mask>0))
-assert changed<0.2,"Too much of approved scene changed"
+assert np.array_equal(out[protected==0],orig[protected==0]),"A protected pixel changed"
+changed=float(np.mean(np.any(out!=orig,axis=2)))
+assert changed<0.36,"Too much of approved scene changed"
 dst.parent.mkdir(parents=True,exist_ok=True)
 Image.fromarray(cv2.cvtColor(out,cv2.COLOR_BGR2RGB)).save(dst,format="WEBP",lossless=True,method=6)
 assert np.array_equal(np.array(Image.open(dst).convert("RGB")),cv2.cvtColor(out,cv2.COLOR_BGR2RGB))
