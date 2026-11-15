@@ -29,7 +29,9 @@ async function run(engine,label,viewport){
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        label+' obsolete Bokskogen map is visible');
      const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes);
-     await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+     const readSign=page.locator('#eggenipa-world nav.laria-ipad-left-rail [data-eg="reading"]');
+     if(await readSign.count())await readSign.click();
+     else await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      const learning=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
        question:sessionQuestions[qIndex]?.prompt}));
@@ -106,6 +108,15 @@ async function run(engine,label,viewport){
      await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
      continue;
    }
+   // On iPad Geografi now has a dedicated Nordlysleiren entrance. Enter its
+   // original five-stop map via the actual left-hand Geografireisen sign.
+   if(subject==='geography'){
+     const sign=page.locator('#laria-geography-world nav.laria-ipad-left-rail [data-gv="journey"]');
+     if(await sign.count()){
+       await sign.waitFor({state:'visible',timeout:16000});
+       await sign.click();
+     }
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    try{
      await root.waitFor({state:'visible',timeout:16000});
@@ -145,6 +156,10 @@ async function run(engine,label,viewport){
    await root.waitFor({timeout:16000});
    assert.equal(await page.locator('#session-screen.active').count(),0,label+' task did not close');
    await root.locator('.locked-journey-back').click();
+   if(subject==='geography'){
+     const landing=page.locator('#laria-geography-world .gv-home');
+     if(await landing.isVisible())await landing.click();
+   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');
