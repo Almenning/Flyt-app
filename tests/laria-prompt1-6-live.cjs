@@ -54,6 +54,13 @@ async function returnFromSubjectOrJourney(page,screen,back,subject){
  if(subject==='english' && await page.locator('#kinnaklova-world:visible').count()){
    // The direct Kinnaklova hub owns English navigation; #subject-back is hidden.
    const world=page.locator('#subject-screen.active #kinnaklova-world');
+   // Wait for the integrity gate and the final mounted scene. The utility
+   // button disappears on an approved Kinnaklova plate, so clicking during
+   // the transition can hit the round Home button instead and then time out.
+   await page.waitForFunction(()=>{
+     const w=document.querySelector('#subject-screen.active #kinnaklova-world');
+     return ['ready','missing','unapproved'].includes(w?.dataset.kiArt);
+   },null,{timeout:20000});
    const nav=world.locator('.ki-utility [data-ki="home"]');
    if(await nav.isVisible())await nav.click();
    else await world.locator('.ki-painted-home:visible').click();
