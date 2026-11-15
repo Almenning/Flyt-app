@@ -1,0 +1,88 @@
+name: Læria PR 243 - resolve main Kinn in isolated candidate (no publish)
+on:
+  push:
+    branches: [feat/laria-premium-beta-cleanup-20261106]
+    paths:
+      - '.github/workflows/laria-pr243-main-merge-candidate.yml'
+      - 'tools/laria_release/resolve_pr243_main_merge.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: laria-pr243-candidate-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  resolve-review-only:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 45
+    env:
+      QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+      LARIA_IPAD_ONLY: '1'
+      LARIA_IDENTITY_SCREENSHOTS: /tmp/laria-merge-candidate/identity
+      LARIA_REFERENCE_SCREENSHOTS: /tmp/laria-merge-candidate/reference
+      LARIA_KINNAKLOVA_SCREENSHOTS: /tmp/laria-merge-candidate/kinnaklova
+      LARIA_WAYFINDER_SHOTS: /tmp/laria-merge-candidate/wayfinder
+      HOME_V15_SCREENSHOTS: /tmp/laria-merge-candidate/home
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - name: Verify resolver before touching candidate workspace
+        run: python3 -m py_compile tools/laria_release/resolve_pr243_main_merge.py
+      - name: Produce a separate, uncommitted candidate from current main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Læria test merger'
+          git config user.email 'laria-merge-candidate@invalid.example'
+          git fetch origin main
+          set +e
+          git merge --no-commit --no-ff origin/main > /tmp/laria-main-merge-result.txt 2>&1
+          state=$?
+          set -e
+          echo "git merge status: $state"
+          cat /tmp/laria-main-merge-result.txt
+          if [ "$state" -ne 1 ]; then
+            echo 'Unexpected conflict inventory; do not auto-resolve.' >&2
+            exit 1
+          fi
+          python3 tools/laria_release/resolve_pr243_main_merge.py
+          git diff --cached --check
+          test -z "$(git ls-files -u)"
+          echo "Uncommitted candidate is conflict-free. No merge/push."
+      - run: npm ci
+      - name: Check all conflicting JavaScript source and contract tests
+        run: |
+          node --check laer-litt-mer/kinnaklova.js
+          node --check laer-litt-mer/sw.js
+          node --check laer-litt-mer/kinnaklova-standalone-v1.js
+          node --check tests/laria-kinnaklova-contract.test.cjs
+          node --check tests/laria-wayfinder.playwright.js
+          node tests/laria-premium-ipad-contract.test.cjs
+          npm run test:node
+      - name: Serve the merged candidate on localhost only
+        run: |
+          mkdir -p /tmp/laria-merge-candidate
+          python3 -m http.server 8765 --directory . > /tmp/laria-merge-candidate/http.log 2>&1 &
+      - name: Browser QA of all iPad facades after preserving published main Kinn
+        run: |
+          node tests/laria-visual-identity-v1.playwright.js
+          node tests/laria-reference-layout-v1.playwright.js
+          node tests/laria-kinnaklova.playwright.js
+          node tests/laria-wayfinder.playwright.js
+          node tests/laria-home-kjosnes-v15.playwright.js
+      - name: Upload merge candidate proofs without writing repository
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-PR243-main-merge-CANDIDATE-NOT-PUBLISHED-${{ github.sha }}
+          path: |
+            /tmp/laria-pr243-merge-candidate.json
+            /tmp/laria-main-merge-result.txt
+            /tmp/laria-merge-candidate
+          retention-days: 14
+          if-no-files-found: warn
