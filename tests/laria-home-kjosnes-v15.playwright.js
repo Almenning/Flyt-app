@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* Exact-head proof for Læria Home v15: locked Kjøsnesfjorden masters + real controls. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -260,7 +261,7 @@ async function run(engine,label,viewport){
      ['english','subject'],
      ['geography','geography']
    ]){
-     await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+     await openHomeSubject(page,subject);
      await page.locator('#'+screen+'-screen.active').waitFor({timeout:15000});
      await returnFromLockedJourney(page,screen,subject,label);
    }
