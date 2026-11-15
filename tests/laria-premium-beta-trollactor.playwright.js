@@ -1,4 +1,5 @@
 'use strict';
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 
 const assert=require('node:assert/strict');
 const http=require('node:http');
@@ -222,7 +223,7 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
   assert.equal(marker.hasFoxSvg,false,label+' journey marker still paints a fox');
 
 
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
+  await openHomeSubject(page,'norwegian');
   await page.locator('#eggenipa-world:visible').waitFor({timeout:18000});
   const paintedReading=page.locator('#eggenipa-world .eg-scene-reading:visible');
   const readingEntry=(await paintedReading.count())?paintedReading:
@@ -359,7 +360,7 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
       waitUntil:'domcontentloaded',timeout:90000
     });
     await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:20000});
-    await page.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click();
+    await openHomeSubject(page,spec.id);
     const world=page.locator(spec.root).first();
     await world.waitFor({state:'visible',timeout:22000});
 
