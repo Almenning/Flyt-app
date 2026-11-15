@@ -255,6 +255,15 @@
   font:850 14px ui-rounded,system-ui,sans-serif!important;
   box-shadow:0 3px 7px #30201350!important;pointer-events:auto!important;
  }
+ #eggenipa-world .eg-hero.laria-ipad-stage .laria-ipad-resume{
+  position:absolute!important;z-index:27!important;right:3%!important;bottom:4%!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  min-width:170px!important;min-height:52px!important;padding:9px 16px!important;
+  border:3px solid #74502e!important;border-radius:18px!important;
+  background:linear-gradient(170deg,#b77d41,#79502a)!important;
+  color:#fff5dc!important;font:900 18px ui-rounded,system-ui,sans-serif!important;
+  box-shadow:0 5px 0 #3f281c,0 7px 12px #1e2c2455!important;
+ }
  #tallvika-world .tv-scene .laria-ipad-next{
   position:absolute!important;z-index:27!important;right:3%!important;bottom:4%!important;
   display:flex!important;align-items:center!important;justify-content:center!important;
