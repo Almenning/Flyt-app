@@ -2,7 +2,7 @@
  * The locked Grovanova source remains immutable. The portrait master contains
  * NO left signs, so ONLY portrait draws the live wood. Landscape retains
  * transparent hit areas over the already painted left signs. */
-@media (min-width:768px) and (min-height:650px){
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px){
  .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu .bc15-subject-signs{
    display:block!important;visibility:visible!important;pointer-events:none!important;
  }
@@ -15,7 +15,7 @@
    display:none!important
  }
 }
-@media (min-width:768px) and (min-height:650px) and (orientation:portrait){
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
  .bc15-subject-signs[data-bc15-presentation="live"]{
    display:block!important;z-index:19!important;overflow:visible!important;
@@ -71,7 +71,11 @@
    outline:4px solid #fff7b5!important;outline-offset:3px!important;
  }
 }
-/* The source master has four bottom cards BAKED INTO ITS PIXELS.
- * Do not pretend display:none removes artwork. Keep old hit targets as
- * fallback until a separate pixel-clean portrait/landscape master passes
- * visual review; the new iPad rail is functional independently. */
+/* Once the exact separate no-card image loaded, retire all four old lower
+ * invisible hit areas as well. This avoids ghost taps into the meadow.
+ * If the clean asset fails, old locked art and original controls are restored
+ * together and remain functional. Never hide only the controls on painted art. */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px){
+ .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu[data-bc15-card-art="clean-candidate"]
+ .bc14-subjects{display:none!important;pointer-events:none!important;visibility:hidden!important;}
+}
