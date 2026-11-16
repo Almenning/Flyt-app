@@ -41,19 +41,13 @@ jobs:
         if: ${{ github.event.pull_request.number == 250 }}
         shell: bash
         run: |
-          python3 -m pip install --quiet pillow==11.3.0
           python3 - <<'PY'
-          import base64, glob, io, os
-          from PIL import Image
-          for filename in sorted(glob.glob('/tmp/laria-home-v15/*-home.png')):
+          import base64, glob, os
+          for filename in sorted(glob.glob('/tmp/laria-home-v15/*-home-review.jpg')):
               if not any(tag in filename for tag in ('ipad', 'iphone')):
                   continue
-              with Image.open(filename) as src:
-                  frame=src.convert('RGB')
-                  frame.thumbnail((680, 850))
-                  output=io.BytesIO()
-                  frame.save(output, format='JPEG', quality=66, optimize=True)
-              encoded=base64.b64encode(output.getvalue()).decode('ascii')
+              with open(filename, 'rb') as raw:
+                  encoded=base64.b64encode(raw.read()).decode('ascii')
               name=os.path.basename(filename)
               print('LARIA_SHOT_BEGIN '+name,flush=True)
               for n in range(0,len(encoded),3000):
