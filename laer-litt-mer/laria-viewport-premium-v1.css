@@ -61,16 +61,23 @@ body:has(.grade-band-young #home-screen.active .bc12){
     background:#568f92!important;
   }
   .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu::before{
-    /* Ambient extension sourced from the SAME approved clean painting.
-     * Blurred heavily and hidden beneath the crisp, unmodified central scene.
-     * The upper sky wash prevents a repeated painted logo/gear silhouette. */
-    inset:-25px!important;
+    /* UI-free scenic extension: no second image, logo, child or menu.
+       Uneven sky, mountain-shadow and meadow tones soften both gutters. */
+    inset:0!important;
     background:
-      linear-gradient(180deg,#6baedf 0%,#79bae0dd 17%,#7cb4d455 28%,transparent 48%),
-      var(--bc15-home-art) center center/cover no-repeat!important;
-    filter:blur(29px) saturate(.82) brightness(.9)!important;
-    transform:scale(1.07)!important;
-    box-shadow:none!important;
+      radial-gradient(ellipse 18% 16% at 5% 10%,rgba(255,252,233,.35) 0%,transparent 90%),
+      radial-gradient(ellipse 26% 24% at 99% 24%,rgba(245,247,240,.38) 0%,transparent 84%),
+      radial-gradient(ellipse 27% 29% at -4% 49%,rgba(28,72,63,.83) 0%,transparent 90%),
+      radial-gradient(ellipse 30% 34% at 105% 47%,rgba(56,101,128,.82) 0%,transparent 91%),
+      radial-gradient(ellipse 24% 27% at 0% 75%,rgba(29,80,48,.88) 0%,transparent 94%),
+      radial-gradient(ellipse 28% 25% at 100% 75%,rgba(43,87,58,.82) 0%,transparent 91%),
+      radial-gradient(ellipse 50% 24% at 0% 98%,rgba(43,78,45,.80) 0%,transparent 85%),
+      radial-gradient(ellipse 48% 24% at 100% 98%,rgba(43,77,49,.79) 0%,transparent 85%),
+      repeating-radial-gradient(circle at 7% 82%,rgba(244,219,164,.07) 0 2px,transparent 3px 18px),
+      linear-gradient(180deg,#68b0dc 0%,#89bedc 27%,#84b7c4 48%,#62948f 66%,#426b4e 100%)!important;
+    filter:none!important;
+    transform:none!important;
+    box-shadow:inset 0 0 22px #284c3b24!important;
   }
   /* Feather only the outer 18px of the centered source. Exact artwork
      pixels remain unchanged where all subjects, text and child figures live. */
