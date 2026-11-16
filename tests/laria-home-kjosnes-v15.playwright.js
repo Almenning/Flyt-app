@@ -330,6 +330,7 @@ async function run(engine,label,viewport){
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
+   await page.screenshot({path:folder+'/'+label+'-home-review.jpg',type:'jpeg',quality:50,fullPage:false});
 
    /* Mine troll is one live, selectable companion, not a static gallery. */
    await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
