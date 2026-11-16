@@ -61,19 +61,31 @@ body:has(.grade-band-young #home-screen.active .bc12){
     background:#568f92!important;
   }
   .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu::before{
-    inset:0!important;
+    /* Ambient extension sourced from the SAME approved clean painting.
+     * Blurred heavily and hidden beneath the crisp, unmodified central scene.
+     * The upper sky wash prevents a repeated painted logo/gear silhouette. */
+    inset:-25px!important;
     background:
-      radial-gradient(ellipse 64% 28% at 51% 16%,#f8d9a061 0%,transparent 72%),
-      radial-gradient(ellipse 30% 43% at -12% 69%,#264a37d9 0%,transparent 100%),
-      radial-gradient(ellipse 30% 45% at 112% 66%,#284c3ed9 0%,transparent 100%),
-      linear-gradient(180deg,#77b3de 0%,#85bbd6 32%,#79b5b9 51%,#659c8b 69%,#446e50 100%)!important;
-    filter:none!important;
-    box-shadow:inset 0 0 34px #23432e3d!important;
+      linear-gradient(180deg,#6baedf 0%,#79bae0dd 17%,#7cb4d455 28%,transparent 48%),
+      var(--bc15-home-art) center center/cover no-repeat!important;
+    filter:blur(29px) saturate(.82) brightness(.9)!important;
+    transform:scale(1.07)!important;
+    box-shadow:none!important;
   }
-  /* The source image itself remains centered, unmodified and uncropped.
-   * A small translucent shadow adds depth without forming a hard frame. */
+  /* Feather only the outer 18px of the centered source. Exact artwork
+     pixels remain unchanged where all subjects, text and child figures live. */
   .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu::after{
-    filter:drop-shadow(0 0 11px #173c3a38) saturate(1.02) contrast(1.012)!important;
+    -webkit-mask-image:linear-gradient(to right,
+      transparent calc(var(--bc15-art-left,0px) - 2px),
+      #000 calc(var(--bc15-art-left,0px) + 18px),
+      #000 calc(var(--bc15-art-left,0px) + var(--bc15-art-width,100%) - 18px),
+      transparent calc(var(--bc15-art-left,0px) + var(--bc15-art-width,100%) + 2px))!important;
+    mask-image:linear-gradient(to right,
+      transparent calc(var(--bc15-art-left,0px) - 2px),
+      #000 calc(var(--bc15-art-left,0px) + 18px),
+      #000 calc(var(--bc15-art-left,0px) + var(--bc15-art-width,100%) - 18px),
+      transparent calc(var(--bc15-art-left,0px) + var(--bc15-art-width,100%) + 2px))!important;
+    filter:saturate(1.02) contrast(1.012)!important;
   }
   .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
   .bc15-subject-signs[data-bc15-presentation="live"] > .bc15-painted-subject{
