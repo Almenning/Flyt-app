@@ -144,10 +144,11 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   // On short landscape phones the greeting used to sit over the painted
-   // first subject sign. Anchor it over the clear upper meadow instead.
+   // Compact landscape artwork contains an old painted greeting under
+   // the logo. Put the ONE live greeting over it, without touching the
+   // logo above or the first painted oak sign below.
    liveCopy:rect.height<=580&&rect.width<=1050?
-     [.285,.145,.315,.175]:
+     [.115,.178,.43,.125]:
      rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11]
  };
  const viewport={width:rect.width,height:rect.height};
