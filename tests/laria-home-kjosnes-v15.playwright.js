@@ -177,6 +177,25 @@ async function run(engine,label,viewport){
    await page.goto(base+'&home-v15='+label,{waitUntil:'domcontentloaded'});
 
    const home=await homeReady(page,label);
+   // Home is a fixed scene: page-level scroll and rubber-band bleed are not allowed.
+   const viewportLock=await page.evaluate(()=>{
+     const doc=document.scrollingElement;
+     const stage=document.querySelector('#home-screen.active > .bc12.bc15-locked-home');
+     window.scrollTo(0,200);
+     return {
+       scrollY:window.scrollY, scrollHeight:doc?.scrollHeight, clientHeight:doc?.clientHeight,
+       stageHeight:stage?.getBoundingClientRect().height, viewportHeight:window.innerHeight,
+       overscroll:getComputedStyle(document.body).overscrollBehaviorY,
+       touch:getComputedStyle(stage).touchAction
+     };
+   });
+   assert.equal(viewportLock.scrollY,0,label+' Home must not scroll: '+JSON.stringify(viewportLock));
+   assert.ok(viewportLock.scrollHeight<=viewportLock.clientHeight+2,
+     label+' Home extends below the viewport: '+JSON.stringify(viewportLock));
+   assert.ok(Math.abs(viewportLock.stageHeight-viewportLock.viewportHeight)<=2,
+     label+' Home artwork stage does not fill the viewport: '+JSON.stringify(viewportLock));
+   assert.equal(viewportLock.overscroll,'none',label+' browser backdrop may rubber-band');
+   assert.equal(viewportLock.touch,'pan-x',label+' Home vertical drag must stay contained');
    const liveGreeting=(await page.locator('.bc15-live-greeting').innerText()).trim();
    assert.match(liveGreeting,/Testbarn/,label+' dynamic greeting must use profile name');
    assert.doesNotMatch(liveGreeting,/Aleah/,label+' locked mockup name must not leak as live child identity');
@@ -291,6 +310,10 @@ async function run(engine,label,viewport){
    assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
      label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert.equal(geom.scenicFilter,'none',label+' Home safe-area fill must not blur the locked artwork');
+   if(portrait&&label.includes('ipad')){
+     const realArt=await home.evaluate(el=>getComputedStyle(el,'::after').filter);
+     assert.doesNotMatch(realArt,/blur\(/,label+' actual locked portrait artwork must never be blurred');
+   }
    if(!portrait&&label.includes('ipad')&&cleanHome){
      // Exception is ONLY the 1127x20 verified source crop from BEFORE the
      // painted top-right nav. Any whole illustration/other URL is forbidden.
@@ -311,6 +334,7 @@ async function run(engine,label,viewport){
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
+   await page.screenshot({path:folder+'/'+label+'-home-review.jpg',type:'jpeg',quality:50,fullPage:false});
 
    /* Mine troll is one live, selectable companion, not a static gallery. */
    await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
@@ -392,6 +416,7 @@ async function run(engine,label,viewport){
    ['chromium-iphone',chromium,{width:390,height:844}],
    ['safari-iphone',webkit,{width:390,height:844}],
    ['safari-ipad',webkit,{width:820,height:1180}],
+   ['safari-ipad-pro',webkit,{width:1024,height:1366}],
    ['safari-ipad-landscape',webkit,{width:1180,height:820}]
  ].filter(([label])=>process.env.LARIA_IPAD_ONLY!=='1'||label.includes('ipad')))
   await run(engine,label,viewport);

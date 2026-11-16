@@ -37,6 +37,23 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           HOME_V15_SCREENSHOTS: /tmp/laria-home-v15
         run: node tests/laria-home-kjosnes-v15.playwright.js
+      - name: Emit review-sized iPad screenshots for PR 250
+        if: ${{ github.event.pull_request.number == 250 }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64, glob, os
+          for filename in sorted(glob.glob('/tmp/laria-home-v15/*-home-review.jpg')):
+              if not any(tag in filename for tag in ('ipad', 'iphone')):
+                  continue
+              with open(filename, 'rb') as raw:
+                  encoded=base64.b64encode(raw.read()).decode('ascii')
+              name=os.path.basename(filename)
+              print('LARIA_SHOT_BEGIN '+name,flush=True)
+              for n in range(0,len(encoded),3000):
+                  print('LARIA_SHOT_DATA '+encoded[n:n+3000],flush=True)
+              print('LARIA_SHOT_END '+name,flush=True)
+          PY
       - name: Upload actual iPad and iPhone screenshots
         if: always()
         uses: actions/upload-artifact@v4
