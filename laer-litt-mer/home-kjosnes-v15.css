@@ -180,6 +180,17 @@
   }
   /* Small landscape viewports keep the same intentional safe-area extension without blur. */
   .grade-band-young .bc12.bc15-locked-home::before{filter:none}
+  /* One compact live greeting covers the older painted text, clear of
+     the left oak signs. No extra label, plaque or image change. */
+  .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
+    padding:4px 12px!important;border-radius:18px 20px 18px 20px!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
+    font-size:16px!important;line-height:1.02!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc15-live-intro{
+    margin-top:3px!important;font-size:11px!important;line-height:1.08!important;
+  }
 }
 
 @media(prefers-reduced-motion:reduce){
