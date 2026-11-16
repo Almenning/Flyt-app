@@ -170,6 +170,14 @@
 }
 
 @media(max-height:580px) and (orientation:landscape){
+  /* The old Basecamp base sets min-height:720px, hiding every subject entry
+     below the fold on 852x393 iPhones. Fit the existing, LOCKED master to
+     the real landscape viewport; do not crop or regenerate the mountain. */
+  .grade-band-young .bc12.bc15-locked-home{
+    height:100dvh!important;
+    min-height:100svh!important;
+    max-height:100dvh!important;
+  }
   /* Small landscape viewports keep the same intentional safe-area extension without blur. */
   .grade-band-young .bc12.bc15-locked-home::before{filter:none}
 }
