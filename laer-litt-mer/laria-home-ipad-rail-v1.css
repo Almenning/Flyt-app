@@ -182,3 +182,43 @@
   outline:3px solid #fff7b5!important;outline-offset:1px!important;
  }
 }
+
+/* Short landscape iPhone uses the SAME approved, card-free Grovanova
+ * derivative as landscape iPad. The left oak boards are part of that image:
+ * only invisible but genuine four-action hotspots sit over those boards.
+ * The retired photo buttons at the bottom must NEVER appear alongside them.
+ * If the clean art fails to load, preserve the original complete fallback. */
+@media (min-width:600px) and (max-width:1050px) and (max-height:580px) and (orientation:landscape){
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu[data-bc15-card-art="clean-candidate"] .bc14-subjects{
+  display:none!important;visibility:hidden!important;pointer-events:none!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="painted"]{
+  position:absolute!important;inset:0!important;z-index:19!important;
+  display:block!important;visibility:visible!important;
+  margin:0!important;padding:0!important;overflow:visible!important;
+  pointer-events:none!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="painted"] > .bc15-painted-subject{
+  position:absolute!important;display:block!important;box-sizing:border-box!important;
+  /* These four oak boards are only ~30px tall at 852x393. A global
+     min-height:44px overlaps the NEXT board and routes taps to the wrong
+     subject. The art-bound rectangles must remain separate. */
+  min-height:0!important;min-width:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  opacity:.001!important;visibility:visible!important;pointer-events:auto!important;
+  color:transparent!important;font-size:0!important;
+  touch-action:manipulation!important;cursor:pointer!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="painted"] :is(.bc15-sign-icon,.bc15-sign-name){
+  display:none!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="painted"] > .bc15-painted-subject:focus-visible{
+  outline:3px solid #fff5b8!important;outline-offset:1px!important;
+  opacity:.20!important;background:#fff8c8!important;
+ }
+}

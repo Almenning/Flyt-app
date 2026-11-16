@@ -276,7 +276,6 @@
   delete scene.dataset.lariaReferenceMode;
  }
  function refresh(){
-  if(!enabled)return;
   for(const [selector,subject] of [
    ['#eggenipa-world .eg-hero.laria-scene-shell','norwegian'],
    ['#tallvika-world .tv-scene.laria-scene-shell','math'],
@@ -284,11 +283,18 @@
    ['#laria-geography-world .gv-scene.laria-scene-shell','geography']]){
    const scene=root.document.querySelector(selector);
    if(!scene)continue;
-   if(eligible())mount(scene,subject);
+   // Portrait English is an approved phone exception to the iPad-only gate.
+   // A rotation must unmount that exception, and rotate-back must remount it.
+   // Do not silently activate other subjects on phone without their art QA.
+   const englishPortrait=subject==='english'&&previewMode!=='0'&&
+     root.matchMedia('(min-width:320px) and (max-width:767px) and (min-height:600px) and (orientation:portrait)').matches;
+   if(eligible()&&(enabled||englishPortrait))mount(scene,subject);
    else unmount(scene);
   }
  }
- if(enabled){
+ // A phone initially opened in landscape also needs a listener when rotated
+ // into the approved English portrait layout. Explicit opt-out stays off.
+ if(previewMode!=='0'){
   let queued=false;
   const scheduleRefresh=()=>{
    if(queued)return;

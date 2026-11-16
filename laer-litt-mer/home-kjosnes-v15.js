@@ -13,6 +13,7 @@ let activeMasterSrc='';
 let activationEpoch=0;
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
+function isShortPhoneLandscape(){return matchMedia('(min-width:600px) and (max-width:1050px) and (max-height:580px) and (orientation:landscape)').matches}
 function isPortrait(){return matchMedia('(orientation:portrait)').matches}
 function isIpadHome(){return matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches}
 
@@ -143,7 +144,12 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   liveCopy:rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11]
+   // Compact landscape artwork contains an old painted greeting under
+   // the logo. Put the ONE live greeting over it, without touching the
+   // logo above or the first painted oak sign below.
+   liveCopy:rect.height<=580&&rect.width<=1050?
+     [.115,.178,.43,.125]:
+     rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11]
  };
  const viewport={width:rect.width,height:rect.height};
  // Map four separately tappable signboards onto the APPROVED master.
@@ -151,9 +157,13 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  const signs=ensureHomeSignHits(host);
  const liveIpadPortrait=isIpadHome()&&portrait;
  const livePhonePortrait=isPhone()&&portrait&&host.dataset.bc15CardArt==='clean-candidate';
+ // Short landscape phones use the SAME clean, card-free master and painted
+ // left oak signs as iPad landscape, without introducing a second menu.
+ const cleanPhoneLandscape=!portrait&&isShortPhoneLandscape()&&
+   host.dataset.bc15CardArt==='clean-candidate';
  const livePortrait=liveIpadPortrait||livePhonePortrait;
  host.classList.toggle('bc15-ipad-fagmenu',isIpadHome());
- host.classList.toggle('bc15-phone-fagmenu',livePhonePortrait);
+ host.classList.toggle('bc15-phone-fagmenu',livePhonePortrait||cleanPhoneLandscape);
  signs.hidden=portrait&&!livePortrait;
  signs.dataset.bc15Presentation=livePortrait?'live':'painted';
  if(!portrait){
@@ -273,6 +283,10 @@ async function activate(){
  const epoch=++activationEpoch;
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return false;
+ // Never measure a hidden Basecamp. A child may rotate the phone while
+ // visiting a subject; a hidden Home has zero dimensions and would poison
+ // all later subject hitboxes. Re-map when Home actually becomes active.
+ if(!host.closest('#home-screen.active'))return false;
  // Historic landscape can load perfectly, yet its painted characters and
  // activity cards disqualify it as the CLEAN November premium master.
  // A successful decode is not art approval. Preserve original Home until
@@ -306,7 +320,7 @@ async function activate(){
  const portrait=isPortrait();
  const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
  const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
- const wantsClean=isIpadHome()||isPhone();
+ const wantsClean=isIpadHome()||isPhone()||isShortPhoneLandscape();
  host.classList.add('bc15-pending');
  host.dataset.bc15Asset='loading';
  try{
@@ -387,10 +401,21 @@ if(typeof window.renderAll==='function'&&!window.__LARIA_HOME_V15_RENDERALL_WRAP
  };
  window.__LARIA_HOME_V15_RENDERALL_WRAPPED=true;
 }
-document.addEventListener('DOMContentLoaded',schedule,{once:true});
+let homeScreenObserver=null;
+function watchHomeActivation(){
+ if(homeScreenObserver)return;
+ const screen=document.getElementById('home-screen');
+ if(!screen)return;
+ homeScreenObserver=new MutationObserver(()=>{
+   if(screen.classList.contains('active'))schedule();
+ });
+ homeScreenObserver.observe(screen,{attributes:true,attributeFilter:['class']});
+}
+document.addEventListener('DOMContentLoaded',()=>{watchHomeActivation();schedule();},{once:true});
 const observer=new MutationObserver(mutations=>{
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return;
+ watchHomeActivation();
  const firstMount=host.dataset.bc15Observed!=='true';
  const stateChanged=mutations.some(m=>m.type==='attributes'&&m.target===host&&(m.attributeName==='data-mode'||m.attributeName==='data-bc13-view'));
  const contentChanged=mutations.some(m=>{

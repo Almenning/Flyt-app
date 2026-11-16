@@ -34,6 +34,52 @@ async function run(browserType,engine,name,viewport){
   await home.waitFor({state:'visible',timeout:20000});
   await fs.promises.mkdir(out,{recursive:true});
   const portrait=viewport.height>viewport.width;
+  if(!portrait&&viewport.height<=580){
+   // Same approved, card-free Grovanova landscape art and painted LEFT oak
+   // signs as iPad. No second row of photo cards may remain at the bottom.
+   await page.waitForFunction(()=>{
+    const h=document.querySelector('#home-screen.active .bc12.bc15-locked-home');
+    return h?.dataset.bc15CardArt==='clean-candidate'&&
+      h.classList.contains('bc15-phone-fagmenu')&&
+      !!h.querySelector('.bc15-subject-signs[data-bc15-presentation="painted"]');
+   },null,{timeout:20000});
+   const frame=await home.evaluate(el=>{
+    const rect=node=>{const b=node.getBoundingClientRect();
+     return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,
+       width:b.width,height:b.height};
+    };
+    const row=el.querySelector('.bc14-subjects');
+    const rail=el.querySelector('.bc15-subject-signs[data-bc15-presentation="painted"]');
+    const signs=[...rail.querySelectorAll('.bc15-painted-subject')].map(node=>{
+     const style=getComputedStyle(node);
+     return {subject:node.dataset.bc15Subject,...rect(node),
+       pointerEvents:style.pointerEvents,visibility:style.visibility};
+    });
+    return {scene:rect(el),art:el.style.getPropertyValue('--bc15-home-art'),
+      oldRowInert:row.inert,oldRowDisplay:getComputedStyle(row).display,
+      greeting:rect(el.querySelector('.bc15-live-copy')),signs};
+   });
+   assert.ok(frame.scene.top>=-2&&frame.scene.bottom<=viewport.height+2&&
+     frame.scene.height>=viewport.height-2,
+     engine+' short landscape Home must fill its screen: '+JSON.stringify(frame.scene));
+   assert.match(frame.art,/kjosnes-home-tablet-no-bottom-cards-no-next-stop/,
+     engine+' landscape iPhone must use the clean iPad Home master');
+   assert.equal(frame.oldRowInert,true,engine+' retired photo buttons remained interactive');
+   assert.equal(frame.oldRowDisplay,'none',engine+' lower photo cards must not appear');
+   assert.deepEqual(frame.signs.map(s=>s.subject),
+     ['norwegian','math','english','geography'],
+     engine+' must provide exactly the four left painted oak signs');
+   assert.ok(frame.signs.every(s=>s.width>=70&&s.height>=26&&
+     s.left>=0&&s.right<=viewport.width+2&&s.top>=0&&s.bottom<=viewport.height+2&&
+     s.pointerEvents==='auto'&&s.visibility==='visible'),
+     engine+' painted left-hand sign hotspots must stay tappable: '+JSON.stringify(frame.signs));
+   for(let i=1;i<frame.signs.length;i++)
+    assert.ok(frame.signs[i].top>=frame.signs[i-1].bottom-2,
+      engine+' sign hotspots overlap: '+JSON.stringify(frame.signs));
+   assert.ok(frame.greeting.bottom<=frame.signs[0].top-2,
+     engine+' single live greeting must clear the first left oak sign: '+
+     JSON.stringify({greeting:frame.greeting,sign:frame.signs[0]}));
+  }
   if(!portrait&&viewport.height>500){
    const nav=home.locator('.bc15-subject-signs');
    await nav.waitFor({state:'visible',timeout:15000});
@@ -105,11 +151,12 @@ async function run(browserType,engine,name,viewport){
       await page.evaluate(()=>showScreen('home'));
       await home.waitFor({state:'visible',timeout:15000});
     }
-  }else assert.equal(await home.locator('.bc15-subject-signs:visible').count(),0,
-    'short phone landscape has no painted arrows');
+  }
   await page.screenshot({path:path.join(out,engine+'-'+name+'-home.png'),animations:'disabled',fullPage:false});
   for(const spec of worlds){
    const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));
+   // All devices use the actual currently child-visible subject entry.
+   // On short landscape phones this is the painted LEFT oak rail, never cards.
    await openHomeSubject(page,spec.id);
    const root=page.locator(spec.root+':visible');
    await root.waitFor({timeout:20000});
@@ -134,6 +181,43 @@ async function run(browserType,engine,name,viewport){
        engine+' '+name+' English needs the shared live heading');
      assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
        engine+' '+name+' all English wooden activities must remain available');
+     // A phone can rotate mid-journey: clear the portrait-only menu in
+     // landscape, then restore the one live left rail on returning.
+     const learningBefore=await page.evaluate(()=>localStorage.getItem('laerlittmer-v2'));
+     await page.setViewportSize({width:844,height:390});
+     await page.waitForFunction(()=>{
+       const scene=document.querySelector('#subject-screen.active #kinnaklova-world .ki-stage');
+       return scene&&!scene.classList.contains('laria-reference-layout-v1')&&
+         !scene.querySelector(':scope > nav.laria-reference-subject-nav');
+     },null,{timeout:16000});
+     assert.equal(await root.locator('button.laria-reference-heading').count(),0,
+       engine+' English left its portrait controls mounted in landscape');
+     await page.setViewportSize(viewport);
+     await stage.waitFor({state:'visible',timeout:16000});
+     assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
+       engine+' English failed to restore all three activities');
+     assert.equal(await stage.locator('nav.laria-reference-subject-nav').count(),1,
+       engine+' English duplicated or lost its subject rail on rotate-back');
+     assert.equal(await page.evaluate(()=>localStorage.getItem('laerlittmer-v2')),learningBefore,
+       engine+' rotating Kinnaklova rewrote saved progress');
+   }
+   if(spec.id==='english'&&!portrait&&viewport.width>=740&&viewport.height<=600){
+     // Starting directly in landscape must also mount portrait English after
+     // rotation without leaving two menus or modifying learning progress.
+     const scene=root.locator('.ki-stage');
+     const learningBefore=await page.evaluate(()=>localStorage.getItem('laerlittmer-v2'));
+     await page.setViewportSize({width:390,height:844});
+     await scene.locator('nav.laria-reference-subject-nav').waitFor({state:'attached',timeout:16000});
+     assert.equal(await scene.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
+       engine+' landscape-first English failed to mount portrait navigation');
+     await page.setViewportSize(viewport);
+     await page.waitForFunction(()=>{
+       const stage=document.querySelector('#subject-screen.active #kinnaklova-world .ki-stage');
+       return stage&&!stage.classList.contains('laria-reference-layout-v1')&&
+         !stage.querySelector(':scope > nav.laria-reference-subject-nav');
+     },null,{timeout:16000});
+     assert.equal(await page.evaluate(()=>localStorage.getItem('laerlittmer-v2')),learningBefore,
+       engine+' landscape-first English rotation rewrote saved progress');
    }
    const sign=root.locator(spec.sign);
    const board=root.locator(spec.paint);
