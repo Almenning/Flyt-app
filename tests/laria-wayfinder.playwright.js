@@ -34,6 +34,25 @@ async function run(browserType,engine,name,viewport){
   await home.waitFor({state:'visible',timeout:20000});
   await fs.promises.mkdir(out,{recursive:true});
   const portrait=viewport.height>viewport.width;
+  if(!portrait&&viewport.height<=580){
+   // The locked Home image must fit a short phone. Its old 720px base
+   // height placed every subject hit area below the visible viewport.
+   const frame=await home.evaluate(el=>{
+    const rect=e=>{const b=e.getBoundingClientRect();return{
+     left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
+    const row=el.querySelector('.bc14-subjects');
+    const cards=[...row.querySelectorAll('.bc14-subject')];
+    return {scene:rect(el),rowInert:row.inert,cards:cards.map(rect)};
+   });
+   assert.ok(frame.scene.top>=-2&&frame.scene.bottom<=viewport.height+2&&
+     frame.scene.height>=viewport.height-2,
+     engine+' Home exceeds short landscape viewport: '+JSON.stringify(frame.scene));
+   assert.equal(frame.rowInert,false,engine+' locked landscape Home disabled all four subject entries');
+   assert.equal(frame.cards.length,4,engine+' short landscape Home lost its four subject routes');
+   assert.ok(frame.cards.every(b=>b.width>=44&&b.height>=44&&b.left>=0&&
+     b.right<=viewport.width+2&&b.top>=0&&b.bottom<=viewport.height+2),
+     engine+' short landscape subject routes are clipped: '+JSON.stringify(frame.cards));
+  }
   if(!portrait&&viewport.height>500){
    const nav=home.locator('.bc15-subject-signs');
    await nav.waitFor({state:'visible',timeout:15000});
