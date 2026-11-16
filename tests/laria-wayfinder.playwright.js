@@ -57,7 +57,7 @@ async function run(browserType,engine,name,viewport){
     });
     return {scene:rect(el),art:el.style.getPropertyValue('--bc15-home-art'),
       oldRowInert:row.inert,oldRowDisplay:getComputedStyle(row).display,
-      signs};
+      greeting:rect(el.querySelector('.bc15-live-copy')),signs};
    });
    assert.ok(frame.scene.top>=-2&&frame.scene.bottom<=viewport.height+2&&
      frame.scene.height>=viewport.height-2,
@@ -76,6 +76,9 @@ async function run(browserType,engine,name,viewport){
    for(let i=1;i<frame.signs.length;i++)
     assert.ok(frame.signs[i].top>=frame.signs[i-1].bottom-2,
       engine+' sign hotspots overlap: '+JSON.stringify(frame.signs));
+   assert.ok(frame.greeting.bottom<=frame.signs[0].top-2,
+     engine+' single live greeting must clear the first left oak sign: '+
+     JSON.stringify({greeting:frame.greeting,sign:frame.signs[0]}));
   }
   if(!portrait&&viewport.height>500){
    const nav=home.locator('.bc15-subject-signs');
