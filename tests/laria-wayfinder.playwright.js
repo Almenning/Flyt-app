@@ -134,6 +134,43 @@ async function run(browserType,engine,name,viewport){
        engine+' '+name+' English needs the shared live heading');
      assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
        engine+' '+name+' all English wooden activities must remain available');
+     // A phone can rotate mid-journey: clear the portrait-only menu in
+     // landscape, then restore the one live left rail on returning.
+     const learningBefore=await page.evaluate(()=>localStorage.getItem('laerlittmer-v2'));
+     await page.setViewportSize({width:844,height:390});
+     await page.waitForFunction(()=>{
+       const scene=document.querySelector('#subject-screen.active #kinnaklova-world .ki-stage');
+       return scene&&!scene.classList.contains('laria-reference-layout-v1')&&
+         !scene.querySelector(':scope > nav.laria-reference-subject-nav');
+     },null,{timeout:16000});
+     assert.equal(await root.locator('button.laria-reference-heading').count(),0,
+       engine+' English left its portrait controls mounted in landscape');
+     await page.setViewportSize(viewport);
+     await stage.waitFor({state:'visible',timeout:16000});
+     assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
+       engine+' English failed to restore all three activities');
+     assert.equal(await stage.locator('nav.laria-reference-subject-nav').count(),1,
+       engine+' English duplicated or lost its subject rail on rotate-back');
+     assert.equal(await page.evaluate(()=>localStorage.getItem('laerlittmer-v2')),learningBefore,
+       engine+' rotating Kinnaklova rewrote saved progress');
+   }
+   if(spec.id==='english'&&!portrait&&viewport.width>=740&&viewport.height<=600){
+     // Starting directly in landscape must also mount portrait English after
+     // rotation without leaving two menus or modifying learning progress.
+     const scene=root.locator('.ki-stage');
+     const learningBefore=await page.evaluate(()=>localStorage.getItem('laerlittmer-v2'));
+     await page.setViewportSize({width:390,height:844});
+     await scene.locator('nav.laria-reference-subject-nav').waitFor({state:'attached',timeout:16000});
+     assert.equal(await scene.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
+       engine+' landscape-first English failed to mount portrait navigation');
+     await page.setViewportSize(viewport);
+     await page.waitForFunction(()=>{
+       const stage=document.querySelector('#subject-screen.active #kinnaklova-world .ki-stage');
+       return stage&&!stage.classList.contains('laria-reference-layout-v1')&&
+         !stage.querySelector(':scope > nav.laria-reference-subject-nav');
+     },null,{timeout:16000});
+     assert.equal(await page.evaluate(()=>localStorage.getItem('laerlittmer-v2')),learningBefore,
+       engine+' landscape-first English rotation rewrote saved progress');
    }
    const sign=root.locator(spec.sign);
    const board=root.locator(spec.paint);
