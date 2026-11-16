@@ -52,8 +52,8 @@ async function homeReady(page,label){
   (portrait?'kjosnes-home-phone-no-bottom-cards-no-next-stop.webp':'kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp'):
   (portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp');
  assert(art.includes(expected),label+' must use the exact locked WebP master: '+art);
- if(label.includes('ipad')){
-   assert.equal(cardArt,'clean-candidate',label+' iPad must use the new clean illustration, not a text-bearing fallback');
+ if(label.includes('ipad')||label.includes('iphone')){
+   assert.equal(cardArt,'clean-candidate',label+' iPad/iPhone must use the separate no-card clean derivative');
    assert(art.includes('-no-next-stop.webp'),label+' static Next Stop text has reappeared in the Home asset: '+art);
    assert.equal(await home.locator('.bc15-live-next').count(),0,
      label+' must never put the old next-stop sticker over the wood sign');
@@ -247,6 +247,22 @@ async function run(engine,label,viewport){
      assert.ok(firstSign&&geom.liveCopy.bottom+9<=firstSign.y,
        label+' speech bubble or pointer physically overlaps first wooden subject sign: '+
        JSON.stringify({bubble:geom.liveCopy,firstSign}));
+   }
+   if(portrait&&label.includes('iphone')&&cleanHome){
+     const boards=await home.locator('.bc15-subject-signs .bc15-painted-subject')
+       .evaluateAll(nodes=>nodes.map(el=>{
+         const r=el.getBoundingClientRect(),style=getComputedStyle(el);
+         return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+           width:r.width,height:r.height,background:style.backgroundImage};
+       }));
+     assert.equal(boards.length,4,label+' phone needs four real oak signs');
+     assert.ok(boards.every(b=>b.width>=118&&b.height>=44&&b.left>=-1&&b.right<=geom.viewport+1),
+       label+' oak subjects must be tappable and in screen: '+JSON.stringify(boards));
+     assert.ok(boards.every(b=>b.top>=geom.journey.bottom+1&&b.bottom<=geom.nav.y-1),
+       label+' oak subjects must fit between the journey and painted footer: '+
+       JSON.stringify({boards,journey:geom.journey,nav:geom.nav}));
+     assert.ok(boards.every(b=>/laria-light-arrow-sign/.test(b.background)),
+       label+' phone must use the same light oak image as iPad');
    }
    if(portrait&&label.includes('ipad')&&cleanHome){
      // The locked Home painting has three children in the lower-left. No menu

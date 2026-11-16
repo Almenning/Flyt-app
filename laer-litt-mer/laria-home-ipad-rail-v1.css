@@ -121,3 +121,64 @@
      #000 calc(var(--bc15-art-top,0px) + 24px),#000 100%)!important;
  }
 }
+
+/* iPhone portrait: the original art stays immutable. Once a separate clean
+ * derivative loads, replace the four photographic cards with the SAME oak
+ * signs as iPad, grouped in two rows on the former meadow. The original
+ * five-icon footer and the painted children stay unobscured.
+ * A missing clean derivative falls back to the old art + old touch zones. */
+@media(max-width:700px) and (orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu[data-bc15-card-art="clean-candidate"]
+ .bc14-subjects{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"]{
+  display:block!important;visibility:visible!important;
+  position:absolute!important;inset:0!important;z-index:19!important;
+  margin:0!important;padding:0!important;pointer-events:none!important;overflow:visible!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"]::before{
+  content:""!important;display:block!important;position:absolute!important;
+  left:var(--bc15-post-left,5%)!important;
+  top:var(--bc15-post-top,72%)!important;
+  width:var(--bc15-post-width,90%)!important;
+  height:var(--bc15-post-height,15%)!important;
+  background:url("./assets/ui/laria-grovanova-signposts.svg") center/95% 100% no-repeat!important;
+  pointer-events:none!important;z-index:0!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] > .bc15-painted-subject{
+  appearance:none!important;box-sizing:border-box!important;
+  position:absolute!important;display:flex!important;align-items:center!important;
+  justify-content:flex-start!important;gap:4px!important;
+  opacity:1!important;visibility:visible!important;
+  pointer-events:auto!important;touch-action:manipulation!important;
+  min-height:44px!important;min-width:118px!important;
+  margin:0!important;padding:5px 13px 5px 8px!important;
+  border:0!important;border-radius:0!important;
+  background:var(--laria-light-plank) center/100% 100% no-repeat!important;
+  color:#3d2715!important;box-shadow:none!important;
+  filter:drop-shadow(0 3px 2px #25180b88)!important;
+  font:900 clamp(12px,3.25vw,16px)/1.03 ui-rounded,"SF Pro Rounded",system-ui,sans-serif!important;
+  text-shadow:0 1px 0 #fff2d2!important;
+  -webkit-tap-highlight-color:transparent!important;
+  z-index:2!important;cursor:pointer!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] .bc15-sign-icon{
+  flex:0 0 18px!important;width:18px!important;height:18px!important;
+  display:grid!important;place-items:center!important;color:#643c20!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] .bc15-sign-icon svg{
+  display:block!important;width:100%!important;height:100%!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] .bc15-sign-name{
+  display:block!important;white-space:nowrap!important;color:#3d2715!important;font:inherit!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
+ .bc15-subject-signs[data-bc15-presentation="live"] > .bc15-painted-subject:focus-visible{
+  outline:3px solid #fff7b5!important;outline-offset:1px!important;
+ }
+}
