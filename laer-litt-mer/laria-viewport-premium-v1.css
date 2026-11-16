@@ -24,6 +24,15 @@ body:has(.grade-band-young #home-screen.active .bc12){
   overflow:hidden!important;
   overscroll-behavior:none;
 }
+/* The Home screen is nested in <main>. Give that container a definite
+ * height; otherwise a percentage-height scene collapses to zero in WebKit. */
+.grade-band-young.app:has(#home-screen.active > .bc12) > main{
+  display:block!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  overscroll-behavior:none;
+}
 .grade-band-young #home-screen.active:has(> .bc12){
   height:100%!important;
   min-height:0!important;
