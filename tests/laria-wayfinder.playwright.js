@@ -35,33 +35,47 @@ async function run(browserType,engine,name,viewport){
   await fs.promises.mkdir(out,{recursive:true});
   const portrait=viewport.height>viewport.width;
   if(!portrait&&viewport.height<=580){
-   // The locked Home image must fit a short phone. Its old 720px base
-   // height placed every subject hit area below the visible viewport.
+   // Same approved, card-free Grovanova landscape art and painted LEFT oak
+   // signs as iPad. No second row of photo cards may remain at the bottom.
+   await page.waitForFunction(()=>{
+    const h=document.querySelector('#home-screen.active .bc12.bc15-locked-home');
+    return h?.dataset.bc15CardArt==='clean-candidate'&&
+      h.classList.contains('bc15-phone-fagmenu')&&
+      !!h.querySelector('.bc15-subject-signs[data-bc15-presentation="painted"]');
+   },null,{timeout:20000});
    const frame=await home.evaluate(el=>{
-    const rect=e=>{const b=e.getBoundingClientRect();return{
-     left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
+    const rect=node=>{const b=node.getBoundingClientRect();
+     return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,
+       width:b.width,height:b.height};
+    };
     const row=el.querySelector('.bc14-subjects');
-    const cards=[...row.querySelectorAll('.bc14-subject')];
-    const clickable=cards.map(node=>{
-     const style=getComputedStyle(node),r=rect(node);
-     return {...r,display:style.display,visibility:style.visibility,
-       pointerEvents:style.pointerEvents,inert:!!node.closest('[inert]')};
+    const rail=el.querySelector('.bc15-subject-signs[data-bc15-presentation="painted"]');
+    const signs=[...rail.querySelectorAll('.bc15-painted-subject')].map(node=>{
+     const style=getComputedStyle(node);
+     return {subject:node.dataset.bc15Subject,...rect(node),
+       pointerEvents:style.pointerEvents,visibility:style.visibility};
     });
-    return {scene:rect(el),rowInert:row.inert,cards:clickable,
-      rowStyle:{display:getComputedStyle(row).display,
-        visibility:getComputedStyle(row).visibility,pointerEvents:getComputedStyle(row).pointerEvents}};
+    return {scene:rect(el),art:el.style.getPropertyValue('--bc15-home-art'),
+      oldRowInert:row.inert,oldRowDisplay:getComputedStyle(row).display,
+      signs};
    });
    assert.ok(frame.scene.top>=-2&&frame.scene.bottom<=viewport.height+2&&
      frame.scene.height>=viewport.height-2,
-     engine+' Home exceeds short landscape viewport: '+JSON.stringify(frame.scene));
-   assert.equal(frame.rowInert,false,engine+' locked landscape Home disabled all four subject entries');
-   assert.equal(frame.cards.length,4,engine+' short landscape Home lost its four subject routes');
-   assert.ok(frame.cards.every(c=>!c.inert&&c.display!=='none'&&
-     c.visibility!=='hidden'&&c.pointerEvents!=='none'),
-     engine+' short landscape Home subject routes are not clickable: '+JSON.stringify(frame));
-   assert.ok(frame.cards.every(b=>b.width>=44&&b.height>=44&&b.left>=0&&
-     b.right<=viewport.width+2&&b.top>=0&&b.bottom<=viewport.height+2),
-     engine+' short landscape subject routes are clipped: '+JSON.stringify(frame.cards));
+     engine+' short landscape Home must fill its screen: '+JSON.stringify(frame.scene));
+   assert.match(frame.art,/kjosnes-home-tablet-no-bottom-cards-no-next-stop/,
+     engine+' landscape iPhone must use the clean iPad Home master');
+   assert.equal(frame.oldRowInert,true,engine+' retired photo buttons remained interactive');
+   assert.equal(frame.oldRowDisplay,'none',engine+' lower photo cards must not appear');
+   assert.deepEqual(frame.signs.map(s=>s.subject),
+     ['norwegian','math','english','geography'],
+     engine+' must provide exactly the four left painted oak signs');
+   assert.ok(frame.signs.every(s=>s.width>=70&&s.height>=26&&
+     s.left>=0&&s.right<=viewport.width+2&&s.top>=0&&s.bottom<=viewport.height+2&&
+     s.pointerEvents==='auto'&&s.visibility==='visible'),
+     engine+' painted left-hand sign hotspots must stay tappable: '+JSON.stringify(frame.signs));
+   for(let i=1;i<frame.signs.length;i++)
+    assert.ok(frame.signs[i].top>=frame.signs[i-1].bottom-2,
+      engine+' sign hotspots overlap: '+JSON.stringify(frame.signs));
   }
   if(!portrait&&viewport.height>500){
    const nav=home.locator('.bc15-subject-signs');
@@ -134,17 +148,13 @@ async function run(browserType,engine,name,viewport){
       await page.evaluate(()=>showScreen('home'));
       await home.waitFor({state:'visible',timeout:15000});
     }
-  }else assert.equal(await home.locator('.bc15-subject-signs:visible').count(),0,
-    'short phone landscape has no painted arrows');
+  }
   await page.screenshot({path:path.join(out,engine+'-'+name+'-home.png'),animations:'disabled',fullPage:false});
   for(const spec of worlds){
    const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));
-   if(!portrait&&viewport.height<=580){
-     // Short iPhone landscape retains the four *painted* Home card hotspots.
-     // Click the real art-aligned button to verify the child's actual route,
-     // not the readiness helper intended for the live oak rail on other sizes.
-     await home.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click({timeout:16000});
-   }else await openHomeSubject(page,spec.id);
+   // All devices use the actual currently child-visible subject entry.
+   // On short landscape phones this is the painted LEFT oak rail, never cards.
+   await openHomeSubject(page,spec.id);
    const root=page.locator(spec.root+':visible');
    await root.waitFor({timeout:20000});
    if(spec.id==='english')await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:20000});
