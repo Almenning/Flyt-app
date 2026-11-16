@@ -143,7 +143,11 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   liveCopy:rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11]
+   // On short landscape phones the greeting used to sit over the painted
+   // first subject sign. Anchor it over the clear upper meadow instead.
+   liveCopy:rect.height<=580&&rect.width<=1050?
+     [.285,.145,.315,.175]:
+     rect.height<600?[.105,.19,.315,.175]:[.105,.18,.315,.11]
  };
  const viewport={width:rect.width,height:rect.height};
  // Map four separately tappable signboards onto the APPROVED master.
