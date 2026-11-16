@@ -13,6 +13,7 @@ let activeMasterSrc='';
 let activationEpoch=0;
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
+function isShortPhoneLandscape(){return matchMedia('(min-width:600px) and (max-width:1050px) and (max-height:580px) and (orientation:landscape)').matches}
 function isPortrait(){return matchMedia('(orientation:portrait)').matches}
 function isIpadHome(){return matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches}
 
@@ -155,9 +156,13 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  const signs=ensureHomeSignHits(host);
  const liveIpadPortrait=isIpadHome()&&portrait;
  const livePhonePortrait=isPhone()&&portrait&&host.dataset.bc15CardArt==='clean-candidate';
+ // Short landscape phones use the SAME clean, card-free master and painted
+ // left oak signs as iPad landscape, without introducing a second menu.
+ const cleanPhoneLandscape=!portrait&&isShortPhoneLandscape()&&
+   host.dataset.bc15CardArt==='clean-candidate';
  const livePortrait=liveIpadPortrait||livePhonePortrait;
  host.classList.toggle('bc15-ipad-fagmenu',isIpadHome());
- host.classList.toggle('bc15-phone-fagmenu',livePhonePortrait);
+ host.classList.toggle('bc15-phone-fagmenu',livePhonePortrait||cleanPhoneLandscape);
  signs.hidden=portrait&&!livePortrait;
  signs.dataset.bc15Presentation=livePortrait?'live':'painted';
  if(!portrait){
@@ -314,7 +319,7 @@ async function activate(){
  const portrait=isPortrait();
  const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
  const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
- const wantsClean=isIpadHome()||isPhone();
+ const wantsClean=isIpadHome()||isPhone()||isShortPhoneLandscape();
  host.classList.add('bc15-pending');
  host.dataset.bc15Asset='loading';
  try{
