@@ -177,6 +177,25 @@ async function run(engine,label,viewport){
    await page.goto(base+'&home-v15='+label,{waitUntil:'domcontentloaded'});
 
    const home=await homeReady(page,label);
+   // Home is a fixed scene: page-level scroll and rubber-band bleed are not allowed.
+   const viewportLock=await page.evaluate(()=>{
+     const doc=document.scrollingElement;
+     const stage=document.querySelector('#home-screen.active > .bc12.bc15-locked-home');
+     window.scrollTo(0,200);
+     return {
+       scrollY:window.scrollY, scrollHeight:doc?.scrollHeight, clientHeight:doc?.clientHeight,
+       stageHeight:stage?.getBoundingClientRect().height, viewportHeight:window.innerHeight,
+       overscroll:getComputedStyle(document.body).overscrollBehaviorY,
+       touch:getComputedStyle(stage).touchAction
+     };
+   });
+   assert.equal(viewportLock.scrollY,0,label+' Home must not scroll: '+JSON.stringify(viewportLock));
+   assert.ok(viewportLock.scrollHeight<=viewportLock.clientHeight+2,
+     label+' Home extends below the viewport: '+JSON.stringify(viewportLock));
+   assert.ok(Math.abs(viewportLock.stageHeight-viewportLock.viewportHeight)<=2,
+     label+' Home artwork stage does not fill the viewport: '+JSON.stringify(viewportLock));
+   assert.equal(viewportLock.overscroll,'none',label+' browser backdrop may rubber-band');
+   assert.equal(viewportLock.touch,'pan-x',label+' Home vertical drag must stay contained');
    const liveGreeting=(await page.locator('.bc15-live-greeting').innerText()).trim();
    assert.match(liveGreeting,/Testbarn/,label+' dynamic greeting must use profile name');
    assert.doesNotMatch(liveGreeting,/Aleah/,label+' locked mockup name must not leak as live child identity');
