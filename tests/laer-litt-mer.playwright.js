@@ -1065,9 +1065,19 @@ async function finishSession(page){
     await englishWorld.waitFor({state:'visible',timeout:16000});
     assert.deepEqual(await englishWorld.locator('.ki-card').evaluateAll(cards=>cards.map(card=>card.dataset.ki)),
       ['words','sentences','reading'],'English must retain its three child-facing choices');
-    const englishHome=englishWorld.locator('.ki-utility [data-ki="home"]');
-    if(await englishHome.isVisible())await englishHome.click();
-    else await englishWorld.locator('.ki-painted-home').click();
+    // Kinnaklova hides the utility header after the clean artwork loads.
+    // A one-time visibility check races that handoff. Wait for the final art
+    // state, then click the child's actual visible Home control.
+    await page.waitForFunction(()=>{
+      const world=document.querySelector('#subject-screen.active #kinnaklova-world');
+      return ['ready','unapproved','missing'].includes(world?.dataset.kiArt);
+    },null,{timeout:20000});
+    const artState=await englishWorld.getAttribute('data-ki-art');
+    const englishHome=englishWorld.locator(artState==='ready'
+      ? '.ki-painted-home'
+      : '.ki-utility [data-ki="home"]');
+    await englishHome.waitFor({state:'visible',timeout:16000});
+    await englishHome.click();
     await page.locator('#home-screen.active').waitFor({timeout:16000});
 
     // New child-facing route: Home -> Nordlysleiren -> original Geografireisen.
