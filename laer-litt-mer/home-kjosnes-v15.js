@@ -273,6 +273,10 @@ async function activate(){
  const epoch=++activationEpoch;
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return false;
+ // Never measure a hidden Basecamp. A child may rotate the phone while
+ // visiting a subject; a hidden Home has zero dimensions and would poison
+ // all later subject hitboxes. Re-map when Home actually becomes active.
+ if(!host.closest('#home-screen.active'))return false;
  // Historic landscape can load perfectly, yet its painted characters and
  // activity cards disqualify it as the CLEAN November premium master.
  // A successful decode is not art approval. Preserve original Home until
@@ -387,10 +391,21 @@ if(typeof window.renderAll==='function'&&!window.__LARIA_HOME_V15_RENDERALL_WRAP
  };
  window.__LARIA_HOME_V15_RENDERALL_WRAPPED=true;
 }
-document.addEventListener('DOMContentLoaded',schedule,{once:true});
+let homeScreenObserver=null;
+function watchHomeActivation(){
+ if(homeScreenObserver)return;
+ const screen=document.getElementById('home-screen');
+ if(!screen)return;
+ homeScreenObserver=new MutationObserver(()=>{
+   if(screen.classList.contains('active'))schedule();
+ });
+ homeScreenObserver.observe(screen,{attributes:true,attributeFilter:['class']});
+}
+document.addEventListener('DOMContentLoaded',()=>{watchHomeActivation();schedule();},{once:true});
 const observer=new MutationObserver(mutations=>{
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return;
+ watchHomeActivation();
  const firstMount=host.dataset.bc15Observed!=='true';
  const stateChanged=mutations.some(m=>m.type==='attributes'&&m.target===host&&(m.attributeName==='data-mode'||m.attributeName==='data-bc13-view'));
  const contentChanged=mutations.some(m=>{
