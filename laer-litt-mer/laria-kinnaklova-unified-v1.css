@@ -38,6 +38,14 @@
   overflow:hidden!important;font-size:0!important;text-indent:-9999px!important;
   background:url("./assets/ui/laria-logo-from-grovanova.svg") center/contain no-repeat!important;
 }
+/* On narrow portrait phones the same freestanding crest must not occupy
+   more than 40% of the screen. Keep the exact Grovanova SVG unchanged;
+   this only changes its responsive box, never the iPad composition. */
+@media(max-width:700px) and (orientation:portrait){
+  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand strong{
+    width:clamp(120px,38vw,152px)!important;
+  }
+}
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand span{display:none!important}
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav,
 #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation{
