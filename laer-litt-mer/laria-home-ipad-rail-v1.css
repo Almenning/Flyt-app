@@ -202,6 +202,10 @@
  .grade-band-young .bc12.bc15-locked-home.bc15-phone-fagmenu
  .bc15-subject-signs[data-bc15-presentation="painted"] > .bc15-painted-subject{
   position:absolute!important;display:block!important;box-sizing:border-box!important;
+  /* These four oak boards are only ~30px tall at 852x393. A global
+     min-height:44px overlaps the NEXT board and routes taps to the wrong
+     subject. The art-bound rectangles must remain separate. */
+  min-height:0!important;min-width:0!important;max-height:none!important;
   margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
   background:transparent!important;box-shadow:none!important;
   opacity:.001!important;visibility:visible!important;pointer-events:auto!important;
