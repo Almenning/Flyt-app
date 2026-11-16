@@ -273,8 +273,14 @@ async function run(engine,name,layout,viewport){
        assert.equal(logo.border,'0px','Kinnaklova still has a framed title instead of the shared bare logo');
        assert.match(logo.art,/laria-logo-from-grovanova\.svg/,
          'Kinnaklova logo must reuse exactly the same SVG as Norsk, Matte and Geografi');
-       assert.ok(logo.width>=160&&logo.width<viewport.width*.40,
-         'Kinnaklova bare crest is oversized on iPad: '+JSON.stringify(logo));
+       // iPad keeps its 160px minimum. The old minimum was impossible
+       // together with <40% on a 390px iPhone (160 > 156).
+       // Preserve a genuinely legible, proportionate mobile crest.
+       const minCrestWidth=viewport.width<701?
+         Math.max(116,viewport.width*.33):160;
+       assert.ok(logo.width>=minCrestWidth&&logo.width<viewport.width*.40,
+         'Kinnaklova crest must fit '+layout+' without being tiny or oversized: '+
+         JSON.stringify({logo,minCrestWidth,viewportWidth:viewport.width}));
      }
    }
    const screenshot=await page.screenshot({path:path.join(OUT,name+'-'+layout+'-'+spec.id+'.png'),animations:'disabled'});
