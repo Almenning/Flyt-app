@@ -54,6 +54,13 @@ async function returnFromSubjectOrJourney(page,screen,back,subject){
  if(subject==='english' && await page.locator('#kinnaklova-world:visible').count()){
    // The direct Kinnaklova hub owns English navigation; #subject-back is hidden.
    const world=page.locator('#subject-screen.active #kinnaklova-world');
+   // Kinnaklova switches from the temporary utility menu to its approved
+   // wooden rail after first paint. Select the actual visible back action
+   // only AFTER that transition; do not race an element that disappears.
+   await page.waitForFunction(()=>{
+     const w=document.querySelector('#subject-screen.active #kinnaklova-world');
+     return ['ready','missing','unapproved'].includes(w?.dataset.kiArt);
+   },null,{timeout:20000});
    const nav=world.locator('.ki-utility [data-ki="home"]');
    if(await nav.isVisible())await nav.click();
    else await world.locator('.ki-painted-home:visible').click();

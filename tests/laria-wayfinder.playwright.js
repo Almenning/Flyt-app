@@ -83,8 +83,30 @@ async function run(browserType,engine,name,viewport){
       await page.evaluate(()=>showScreen('home'));
       await home.waitFor({state:'visible',timeout:15000});
     }
+  }else if(portrait&&viewport.width<=700){
+    // A separate clean phone derivative has the same real oak navigation as
+    // iPad, compacted into two rows on the meadow, not hidden old photo cards.
+    const rail=home.locator('.bc15-subject-signs[data-bc15-presentation="live"]');
+    await rail.waitFor({state:'visible',timeout:15000});
+    const buttons=rail.locator('button.bc15-painted-subject:visible');
+    assert.equal(await buttons.count(),4,'iPhone must expose four living oak subject signs');
+    const geo=await buttons.evaluateAll(xs=>xs.map(el=>{
+      const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+      return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+        width:r.width,height:r.height,background:s.backgroundImage};
+    }));
+    assert.ok(geo.every(x=>x.width>=118&&x.height>=44&&x.left>=0&&x.right<=viewport.width+1),
+      'iPhone oak hit areas must be in bounds: '+JSON.stringify(geo));
+    assert.ok(geo.every(x=>/laria-light-arrow-sign/.test(x.background)),
+      'iPhone must reuse the same oak component as iPad');
+    for(const spec of worlds){
+      await rail.locator('[data-bc15-subject="'+spec.id+'"]').click();
+      await page.locator(spec.root+':visible').waitFor({timeout:18000});
+      await page.evaluate(()=>showScreen('home'));
+      await home.waitFor({state:'visible',timeout:15000});
+    }
   }else assert.equal(await home.locator('.bc15-subject-signs:visible').count(),0,
-    'phone portrait/short landscape has no painted arrows');
+    'short phone landscape has no painted arrows');
   await page.screenshot({path:path.join(out,engine+'-'+name+'-home.png'),animations:'disabled',fullPage:false});
   for(const spec of worlds){
    const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));
