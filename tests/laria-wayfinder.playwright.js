@@ -42,13 +42,23 @@ async function run(browserType,engine,name,viewport){
      left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
     const row=el.querySelector('.bc14-subjects');
     const cards=[...row.querySelectorAll('.bc14-subject')];
-    return {scene:rect(el),rowInert:row.inert,cards:cards.map(rect)};
+    const clickable=cards.map(node=>{
+     const style=getComputedStyle(node),r=rect(node);
+     return {...r,display:style.display,visibility:style.visibility,
+       pointerEvents:style.pointerEvents,inert:!!node.closest('[inert]')};
+    });
+    return {scene:rect(el),rowInert:row.inert,cards:clickable,
+      rowStyle:{display:getComputedStyle(row).display,
+        visibility:getComputedStyle(row).visibility,pointerEvents:getComputedStyle(row).pointerEvents}};
    });
    assert.ok(frame.scene.top>=-2&&frame.scene.bottom<=viewport.height+2&&
      frame.scene.height>=viewport.height-2,
      engine+' Home exceeds short landscape viewport: '+JSON.stringify(frame.scene));
    assert.equal(frame.rowInert,false,engine+' locked landscape Home disabled all four subject entries');
    assert.equal(frame.cards.length,4,engine+' short landscape Home lost its four subject routes');
+   assert.ok(frame.cards.every(c=>!c.inert&&c.display!=='none'&&
+     c.visibility!=='hidden'&&c.pointerEvents!=='none'),
+     engine+' short landscape Home subject routes are not clickable: '+JSON.stringify(frame));
    assert.ok(frame.cards.every(b=>b.width>=44&&b.height>=44&&b.left>=0&&
      b.right<=viewport.width+2&&b.top>=0&&b.bottom<=viewport.height+2),
      engine+' short landscape subject routes are clipped: '+JSON.stringify(frame.cards));
