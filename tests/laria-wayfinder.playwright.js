@@ -139,7 +139,12 @@ async function run(browserType,engine,name,viewport){
   await page.screenshot({path:path.join(out,engine+'-'+name+'-home.png'),animations:'disabled',fullPage:false});
   for(const spec of worlds){
    const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));
-   await openHomeSubject(page,spec.id);
+   if(!portrait&&viewport.height<=580){
+     // Short iPhone landscape retains the four *painted* Home card hotspots.
+     // Click the real art-aligned button to verify the child's actual route,
+     // not the readiness helper intended for the live oak rail on other sizes.
+     await home.locator('.bc14-subject[data-camp="subject-'+spec.id+'"]').click({timeout:16000});
+   }else await openHomeSubject(page,spec.id);
    const root=page.locator(spec.root+':visible');
    await root.waitFor({timeout:20000});
    if(spec.id==='english')await page.locator('#kinnaklova-world[data-ki-art="ready"]').waitFor({timeout:20000});
