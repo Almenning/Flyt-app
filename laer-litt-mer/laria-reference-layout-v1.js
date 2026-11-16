@@ -83,7 +83,13 @@
   else root.openSubject?.(target);
  }
  function mount(scene,subject){
-  if(!enabled||!places[subject]||!scene||scene.dataset.lariaReferenceLayout)return false;
+  // English has independently verified clean artwork, but on portrait
+  // iPhone the unmounted reference layout leaves a 1672:941 strip at the
+  // top and the rest of the screen empty. Enable ONLY this approved English
+  // scene on supported portrait phones; preserve every other mobile world.
+  const englishPhone=subject==='english'&&previewMode!=='0'&&
+    root.matchMedia('(min-width:320px) and (max-width:767px) and (min-height:600px) and (orientation:portrait)').matches;
+  if((!enabled&&!englishPhone)||!places[subject]||!scene||scene.dataset.lariaReferenceLayout)return false;
   // Never overlay live signs on the original, still sign-painted artwork.
   if(subject==='english'&&(
     scene.closest('#kinnaklova-world')?.dataset.kiPremiumArt!=='approved'||
