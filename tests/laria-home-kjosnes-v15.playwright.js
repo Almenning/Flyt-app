@@ -310,6 +310,10 @@ async function run(engine,label,viewport){
    assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
      label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert.equal(geom.scenicFilter,'none',label+' Home safe-area fill must not blur the locked artwork');
+   if(portrait&&label.includes('ipad')){
+     const realArt=await home.evaluate(el=>getComputedStyle(el,'::after').filter);
+     assert.doesNotMatch(realArt,/blur\(/,label+' actual locked portrait artwork must never be blurred');
+   }
    if(!portrait&&label.includes('ipad')&&cleanHome){
      // Exception is ONLY the 1127x20 verified source crop from BEFORE the
      // painted top-right nav. Any whole illustration/other URL is forbidden.
@@ -412,6 +416,7 @@ async function run(engine,label,viewport){
    ['chromium-iphone',chromium,{width:390,height:844}],
    ['safari-iphone',webkit,{width:390,height:844}],
    ['safari-ipad',webkit,{width:820,height:1180}],
+   ['safari-ipad-pro',webkit,{width:1024,height:1366}],
    ['safari-ipad-landscape',webkit,{width:1180,height:820}]
  ].filter(([label])=>process.env.LARIA_IPAD_ONLY!=='1'||label.includes('ipad')))
   await run(engine,label,viewport);
