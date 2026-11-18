@@ -431,6 +431,8 @@ async function runPortraitMasterFixture(engine,label,broken=false){
   }else{
    await page.waitForFunction(()=>document.querySelector('.bc12')?.dataset.bc15Asset==='ipad-portrait-approved');
    assert.equal(await home.locator('.bc15-approved-logo:visible').count(),1,label+' real SVG logo missing');
+   const logoLoaded=await home.locator('.bc15-approved-logo').evaluate(el=>el.complete&&el.naturalWidth>0);
+   assert.equal(logoLoaded,true,label+' logo must load from the real Læria UI asset, not a broken image URL');
    assert.equal(await home.locator('.bc15-subject-signs button:visible').count(),4,label+' four visible sign buttons missing');
    assert.equal(await home.locator('.bc12-journey:visible').count(),1,label+' visible journey button missing');
    assert.equal(await home.locator('.bc12-nav button:visible').count(),5,label+' visible real navigation missing');
