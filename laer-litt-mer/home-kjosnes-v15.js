@@ -9,14 +9,12 @@ const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1
 // remain intact and continue to serve as the safe fallback.
 const CLEAN_TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
 const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
-// Deliberately inactive hand-off point for the future UI-FREE Grovanova
-// portrait master. It is not a source of art and it is not enabled merely by
-// adding a file: visual approval, an immutable checksum, final dimensions and
-// per-master UI safe areas must all be recorded first. Until then iPad portrait
-// keeps the approved locked-phone fallback above.
-//
-// See docs/LARIA-HJEM-IPAD-PORTRAIT-ART-BRIEF-2026-11-18.md before changing
-// this registry. Do not use AI concept imagery here.
+// The owner approved two specific UI-free Grovanova images on 18 Nov 2026.
+// BOTH manifests stay fail-closed until the exact exported WebP bytes are
+// imported, SHA-checked, and their actual iPad screens have been accepted.
+// Mere presence of a concept image or a source file must never activate it.
+// Continue to preserve all locked original art and app UI as safe fallbacks.
+// See docs/LARIA-GROVANOVA-APPROVED-CANDIDATES-2026-11-18.json.
 const IPAD_PORTRAIT_MANIFEST='./assets/home-v15/grovanova-ipad-portrait-master.json';
 // An independent approval gate for the owner's separately approved 4:3 artwork.
 const IPAD_LANDSCAPE_MANIFEST='./assets/home-v15/grovanova-ipad-landscape-master.json';
