@@ -18,6 +18,8 @@ const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards-n
 // See docs/LARIA-HJEM-IPAD-PORTRAIT-ART-BRIEF-2026-11-18.md before changing
 // this registry. Do not use AI concept imagery here.
 const IPAD_PORTRAIT_MANIFEST='./assets/home-v15/grovanova-ipad-portrait-master.json';
+// An independent approval gate for the owner's separately approved 4:3 artwork.
+const IPAD_LANDSCAPE_MANIFEST='./assets/home-v15/grovanova-ipad-landscape-master.json';
 let activeMasterSrc='';
 let activePortraitObjectUrl='';
 let activationEpoch=0;
@@ -45,6 +47,25 @@ async function approvedIpadPortraitMaster(){
    Array.isArray(ui.signBoards)&&ui.signBoards.length===4&&ui.signBoards.every(isUnitRect);
  const validSource=typeof candidate.source==='string'&&candidate.source.startsWith('./assets/home-v15/')&&
    /^[a-f0-9]{64}$/i.test(candidate.sha256||'')&&candidate.width>=2048&&candidate.height>=2732;
+ return candidate.status==='approved'&&validSource&&validUi?candidate:null;
+}
+
+// Neither an absent file nor owner approval of a concept activates landscape.
+// The exact exported pixels, SHA and UI anchors must be reviewed in a real app.
+async function approvedIpadLandscapeMaster(){
+ if(!isIpadHome()||isPortrait())return null;
+ let candidate;
+ try{
+  const response=await fetch(IPAD_LANDSCAPE_MANIFEST,{cache:'no-store'});
+  if(!response.ok)throw Error('landscape-manifest-missing');
+  candidate=await response.json();
+ }catch(_){return null;}
+ const ui=candidate?.ui;
+ const validUi=ui&&['logo','subjects','journey','nav','adult','liveCopy'].every(key=>isUnitRect(ui[key]))&&
+   ['sun','water','journeyGlow'].every(key=>isUnitRect(ui.ambient?.[key]))&&
+   Array.isArray(ui.signBoards)&&ui.signBoards.length===4&&ui.signBoards.every(isUnitRect);
+ const validSource=typeof candidate?.source==='string'&&candidate.source.startsWith('./assets/home-v15/')&&
+   /^[a-f0-9]{64}$/i.test(candidate.sha256||'')&&candidate.width>=2048&&candidate.height>=1536;
  return candidate.status==='approved'&&validSource&&validUi?candidate:null;
 }
 
@@ -118,7 +139,7 @@ function syncHomeBoats(host,box,viewport,portrait){
  // Fail closed when a future approved UI-free portrait master takes over.
  // Old phone-art water coordinates are NOT valid on that new illustration.
  // Require independently reviewed water anchors before enabling boats there.
- if(!isIpadHome()||host.dataset.bc15Master==='ipad-portrait-approved'){
+ if(!isIpadHome()||host.dataset.bc15CardArt==='owner-approved-ui-free'){
   host.querySelector('.bc15-boats')?.remove();
   return;
  }
@@ -263,7 +284,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait,approvedPortrait){
  // Map four separately tappable signboards onto the APPROVED master.
  // Coordinates are relative to the underlying image, not fixed pixels.
  const signs=ensureHomeSignHits(host);
- const liveIpadPortrait=isIpadHome()&&portrait;
+ const liveIpadPortrait=isIpadHome()&&(portrait||!!approvedPortrait);
  const livePhonePortrait=isPhone()&&portrait&&host.dataset.bc15CardArt==='clean-candidate';
  // Short landscape phones use the SAME clean, card-free master and painted
  // left oak signs as iPad landscape, without introducing a second menu.
@@ -274,7 +295,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait,approvedPortrait){
  host.classList.toggle('bc15-phone-fagmenu',livePhonePortrait||cleanPhoneLandscape);
  signs.hidden=portrait&&!livePortrait;
  signs.dataset.bc15Presentation=livePortrait?'live':'painted';
- if(!portrait){
+ if(!portrait&&!approvedPortrait){
   const signBoxes=[
    [.012,.314,.170,.074], // Norsk
    [.012,.394,.170,.074], // Matte
@@ -439,6 +460,8 @@ async function activate(){
  }
  const portrait=isPortrait();
  let portraitMaster=await approvedIpadPortraitMaster();
+ let landscapeMaster=await approvedIpadLandscapeMaster();
+ let approvedMaster=portraitMaster||landscapeMaster;
  // A previous fetch must not mutate Home after a rerender, orientation
  // change or navigation away while the approval manifest was loading.
  if(epoch!==activationEpoch||!host.isConnected||
@@ -455,9 +478,9 @@ async function activate(){
    let cleanLoaded=false;
    let image;
    let nextPortraitObjectUrl='';
-   if(portraitMaster){
+   if(approvedMaster){
     try{
-     const verified=await verifiedPortraitDecoded(portraitMaster);
+     const verified=await verifiedPortraitDecoded(approvedMaster);
      image=verified.image;
      // Do not own/revoke a Blob URL until this activation wins the race.
      nextPortraitObjectUrl=verified.objectUrl;
@@ -465,7 +488,7 @@ async function activate(){
     }catch(_){
      // A damaged, missing or wrongly exported future master is never allowed
      // to blank Home. Fall back to the same locked source used today.
-     portraitMaster=null;
+     approvedMaster=null;
      try{image=await decoded(cleanMaster);cleanLoaded=true;}
      catch(_){image=await decoded(originalMaster);}
 
@@ -486,10 +509,10 @@ async function activate(){
    activePortraitObjectUrl=nextPortraitObjectUrl;
    host.classList.add('bc15-locked-home');
    host.classList.remove('bc15-pending','bc15-fallback');
-   host.dataset.bc15Asset=portraitMaster?'ipad-portrait-approved':portrait?'phone-ready':'tablet-ready';
-   host.dataset.bc15Master=portraitMaster?'ipad-portrait-approved':portrait?'portrait':'landscape';
+   host.dataset.bc15Asset=approvedMaster?(portrait?'ipad-portrait-approved':'ipad-landscape-approved'):portrait?'phone-ready':'tablet-ready';
+   host.dataset.bc15Master=approvedMaster?(portrait?'ipad-portrait-approved':'ipad-landscape-approved'):portrait?'portrait':'landscape';
    host.dataset.bc15CardArt=cleanLoaded?'clean-candidate':'locked-original';
-   if(portraitMaster)host.dataset.bc15CardArt='owner-approved-ui-free';
+   if(approvedMaster)host.dataset.bc15CardArt='owner-approved-ui-free';
    const oldRow=host.querySelector('.bc14-subjects');
    if(oldRow){
     oldRow.inert=cleanLoaded;
@@ -497,8 +520,8 @@ async function activate(){
     else oldRow.removeAttribute('aria-hidden');
    }
    syncLiveCopy(host);
-   const artBox=mapControlsToArtwork(host,image.width,image.height,portrait,portraitMaster);
-   syncApprovedPortraitLogo(host,portraitMaster,artBox,{width:host.clientWidth,height:host.clientHeight});
+   const artBox=mapControlsToArtwork(host,image.width,image.height,portrait,approvedMaster);
+   syncApprovedPortraitLogo(host,approvedMaster,artBox,{width:host.clientWidth,height:host.clientHeight});
 
    const trollNav=host.querySelector('.bc12-nav [data-camp="wardrobe"]');
    if(trollNav){
