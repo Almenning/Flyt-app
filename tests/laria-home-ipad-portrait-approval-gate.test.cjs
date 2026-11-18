@@ -55,3 +55,10 @@ test('orientation changes and stale async loads cannot swap in old portrait art'
  assert.match(script,/if\(nextPortraitObjectUrl\)URL\.revokeObjectURL\(nextPortraitObjectUrl\)/);
  assert.match(script,/activePortraitObjectUrl=nextPortraitObjectUrl/);
 });
+
+test('new portrait art may cover iPad only inside locked source-safe crop margins',()=>{
+ assert.match(script,/const approvedCover=!!approvedPortrait&&sideCrop<=\.08&&verticalCrop<=\.05/);
+ assert.match(script,/const scale=approvedCover\?coverScale:/);
+ assert.match(script,/host\.dataset\.bc15Fit=approvedCover\?'approved-cover':/);
+ assert.match(script,/top:approvedCover\?\(rect\.height-artHeight\)\/2:/);
+});
