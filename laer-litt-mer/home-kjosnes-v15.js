@@ -173,10 +173,18 @@ function mapControlsToArtwork(host,imgW,imgH,portrait,approvedPortrait){
  const viewportAspect=rect.width/rect.height;
  const heightScale=rect.height/imgH;
  const maxWidthScale=(rect.width*(portrait?1:1.06))/imgW;
- // Preserve the locked mountain shape. Portrait must never crop the left/right
- // edges because the four subject cards and bottom navigation are part of the artwork.
- // Landscape may use at most 3% crop on each side; scenic fill absorbs spare space.
- const scale=artAspect>viewportAspect?Math.min(heightScale,maxWidthScale):heightScale;
+ // The historical painted masters MUST remain uncropped. Only a separately
+ // approved UI-free portrait may use restrained cover, within the artwork
+ // brief's protected 8% side / 5% top safe zones. This fills 820x1180 and
+ // 1024x1366 iPads without stretching, duplicated mountains or CSS filler.
+ const coverScale=Math.max(rect.width/imgW,heightScale);
+ const coverW=imgW*coverScale;
+ const coverH=imgH*coverScale;
+ const sideCrop=Math.max(0,(coverW-rect.width)/(2*coverW));
+ const verticalCrop=Math.max(0,(coverH-rect.height)/(2*coverH));
+ const approvedCover=!!approvedPortrait&&sideCrop<=.08&&verticalCrop<=.05;
+ const scale=approvedCover?coverScale:
+   artAspect>viewportAspect?Math.min(heightScale,maxWidthScale):heightScale;
  const phonePortrait=portrait&&rect.width<=700;
  const artWidth=imgW*scale;
  const artHeight=imgH*scale;
@@ -187,9 +195,11 @@ function mapControlsToArtwork(host,imgW,imgH,portrait,approvedPortrait){
    left:(rect.width-artWidth)/2,
    // Phones keep the whole master and split spare height between sky and the
    // cream navigation continuation. Other layouts preserve the locked bottom alignment.
-   top:phonePortrait?spareY*.30:rect.height-artHeight
+   top:approvedCover?(rect.height-artHeight)/2:
+       phonePortrait?spareY*.30:rect.height-artHeight
  };
- host.dataset.bc15Fit=artAspect>viewportAspect?'safe-width':'safe-height';
+ host.dataset.bc15Fit=approvedCover?'approved-cover':
+   artAspect>viewportAspect?'safe-width':'safe-height';
  // A dedicated scenic-only strip fills top letterboxing in landscape iPad.
  // No art cropping, duplicated controls, or changed locked image pixels.
  host.classList.toggle('bc15-landscape-bleed',
