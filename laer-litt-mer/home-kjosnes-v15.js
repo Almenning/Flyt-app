@@ -9,6 +9,25 @@ const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1
 // remain intact and continue to serve as the safe fallback.
 const CLEAN_TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
 const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
+// Deliberately inactive hand-off point for the future UI-FREE Grovanova
+// portrait master. It is not a source of art and it is not enabled merely by
+// adding a file: visual approval, an immutable checksum, final dimensions and
+// per-master UI safe areas must all be recorded first. Until then iPad portrait
+// keeps the approved locked-phone fallback above.
+//
+// See docs/LARIA-HJEM-IPAD-PORTRAIT-ART-BRIEF-2026-11-18.md before changing
+// this registry. Do not use AI concept imagery here.
+const APPROVED_IPAD_PORTRAIT_MASTER=Object.freeze({
+ status:'awaiting-visual-approval',
+ source:null,
+ sha256:null,
+ width:0,
+ height:0,
+ // Required only after owner approval. Every value is a [x,y,width,height]
+ // fraction of the approved UI-free master, so application UI stays separate
+ // from the background art.
+ ui:null
+});
 let activeMasterSrc='';
 let activationEpoch=0;
 
@@ -16,6 +35,20 @@ function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrai
 function isShortPhoneLandscape(){return matchMedia('(min-width:600px) and (max-width:1050px) and (max-height:580px) and (orientation:landscape)').matches}
 function isPortrait(){return matchMedia('(orientation:portrait)').matches}
 function isIpadHome(){return matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches}
+
+function isUnitRect(value){
+ return Array.isArray(value)&&value.length===4&&value.every(n=>typeof n==='number'&&n>=0&&n<=1);
+}
+function approvedIpadPortraitMaster(){
+ const candidate=APPROVED_IPAD_PORTRAIT_MASTER;
+ const ui=candidate.ui;
+ const validUi=ui&&['subjects','journey','nav','adult','liveCopy'].every(key=>isUnitRect(ui[key]))&&
+   ['sun','water','journeyGlow'].every(key=>isUnitRect(ui.ambient?.[key]))&&
+   Array.isArray(ui.signBoards)&&ui.signBoards.length===4&&ui.signBoards.every(isUnitRect);
+ const validSource=typeof candidate.source==='string'&&candidate.source.startsWith('./assets/home-v15/')&&
+   /^[a-f0-9]{64}$/i.test(candidate.sha256||'')&&candidate.width>=2048&&candidate.height>=2732;
+ return isIpadHome()&&isPortrait()&&candidate.status==='approved'&&validSource&&validUi?candidate:null;
+}
 
 // Mine troll uses the ONE shared interactive selection of original
 // TrollActor characters; the former static art gallery is not navigation.
@@ -104,7 +137,7 @@ function ensureHomeSignHits(host){
  return nav;
 }
 
-function mapControlsToArtwork(host,imgW,imgH,portrait){
+function mapControlsToArtwork(host,imgW,imgH,portrait,approvedPortrait){
  const rect=host.getBoundingClientRect();
  const artAspect=imgW/imgH;
  const viewportAspect=rect.width/rect.height;
@@ -133,13 +166,14 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    !portrait&&isIpadHome()&&box.top>18);
 
  const tabletPortrait=portrait&&rect.width>700;
- const layout=portrait?{
+ const lockedPortraitLayout={
    subjects:[.044,.728,.912,.135],
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
    liveCopy:tabletPortrait?[.03,.138,.62,.105]:[.00,.138,.62,.105]
- }:{
+ };
+ const layout=approvedPortrait?approvedPortrait.ui:portrait?lockedPortraitLayout:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
@@ -185,7 +219,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
   const phoneRow0=.725;
   const phoneRow1=phoneRow0+(phoneBoardPx+phoneGapPx)/box.height;
   const phoneHeight=phoneBoardPx/box.height;
-  const signBoxes=livePhonePortrait?[
+  const signBoxes=approvedPortrait?approvedPortrait.ui.signBoards:livePhonePortrait?[
    [.050,phoneRow0,.425,phoneHeight], // Norsk
    [.525,phoneRow0,.425,phoneHeight], // Matte
    [.050,phoneRow1,.425,phoneHeight], // Engelsk
@@ -206,10 +240,14 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
   const top=Math.min(...boxes.map(b=>b.top));
   const right=Math.max(...boxes.map(b=>b.left+b.width));
   const bottom=Math.max(...boxes.map(b=>b.top+b.height));
-  signs.style.setProperty('--bc15-post-left',left+'px');
-  signs.style.setProperty('--bc15-post-top',(top+8)+'px');
-  signs.style.setProperty('--bc15-post-width',(right-left)+'px');
-  signs.style.setProperty('--bc15-post-height',Math.max(0,bottom-top+(livePhonePortrait?1:45))+'px');
+  if(approvedPortrait){
+   for(const p of ['--bc15-post-left','--bc15-post-top','--bc15-post-width','--bc15-post-height'])signs.style.removeProperty(p);
+  }else{
+   signs.style.setProperty('--bc15-post-left',left+'px');
+   signs.style.setProperty('--bc15-post-top',(top+8)+'px');
+   signs.style.setProperty('--bc15-post-width',(right-left)+'px');
+   signs.style.setProperty('--bc15-post-height',Math.max(0,bottom-top+(livePhonePortrait?1:45))+'px');
+  }
  }else{
   for(const p of ['--bc15-post-left','--bc15-post-top','--bc15-post-width','--bc15-post-height'])
    signs.style.removeProperty(p);
@@ -220,7 +258,11 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  place(host.querySelector('.bc12-adult-entry'),box,layout.adult,viewport);
  place(host.querySelector('.bc15-live-copy'),box,layout.liveCopy,viewport);
  const ambient=ensureAmbient(host);
- const ambientLayout=portrait?{
+ const ambientLayout=approvedPortrait?{
+   sun:approvedPortrait.ui.ambient.sun,
+   water:approvedPortrait.ui.ambient.water,
+   journey:approvedPortrait.ui.ambient.journeyGlow
+  }:portrait?{
    sun:[.69,.19,.24,.18],
    water:[.48,.43,.48,.25],
    journey:[.76,.612,.20,.112]
@@ -318,6 +360,7 @@ async function activate(){
    return false;
  }
  const portrait=isPortrait();
+ let portraitMaster=approvedIpadPortraitMaster();
  const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
  const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
  const wantsClean=isIpadHome()||isPhone()||isShortPhoneLandscape();
@@ -328,7 +371,20 @@ async function activate(){
    // locked original. Never turn a missing asset into an empty Home stage.
    let cleanLoaded=false;
    let image;
-   if(wantsClean){
+   if(portraitMaster){
+    try{
+     image=await decoded(portraitMaster.source);
+     if(image.width!==portraitMaster.width||image.height!==portraitMaster.height)
+      throw new Error('Approved iPad portrait master dimensions do not match its registry');
+     cleanLoaded=true;
+    }catch(_){
+     // A damaged, missing or wrongly exported future master is never allowed
+     // to blank Home. Fall back to the same locked source used today.
+     portraitMaster=null;
+     image=await decoded(cleanMaster);
+     cleanLoaded=true;
+    }
+   }else if(wantsClean){
     try{image=await decoded(cleanMaster);cleanLoaded=true;}
     catch(_){image=await decoded(originalMaster);}
    }else image=await decoded(originalMaster);
@@ -338,9 +394,10 @@ async function activate(){
    host.style.setProperty('--bc15-home-art','url("'+image.src+'")');
    host.classList.add('bc15-locked-home');
    host.classList.remove('bc15-pending','bc15-fallback');
-   host.dataset.bc15Asset=portrait?'phone-ready':'tablet-ready';
-   host.dataset.bc15Master=portrait?'portrait':'landscape';
+   host.dataset.bc15Asset=portraitMaster?'ipad-portrait-approved':portrait?'phone-ready':'tablet-ready';
+   host.dataset.bc15Master=portraitMaster?'ipad-portrait-approved':portrait?'portrait':'landscape';
    host.dataset.bc15CardArt=cleanLoaded?'clean-candidate':'locked-original';
+   if(portraitMaster)host.dataset.bc15CardArt='owner-approved-ui-free';
    const oldRow=host.querySelector('.bc14-subjects');
    if(oldRow){
     oldRow.inert=cleanLoaded;
@@ -348,7 +405,7 @@ async function activate(){
     else oldRow.removeAttribute('aria-hidden');
    }
    syncLiveCopy(host);
-   mapControlsToArtwork(host,image.width,image.height,portrait);
+   mapControlsToArtwork(host,image.width,image.height,portrait,portraitMaster);
 
    const trollNav=host.querySelector('.bc12-nav [data-camp="wardrobe"]');
    if(trollNav){
