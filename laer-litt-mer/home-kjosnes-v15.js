@@ -41,11 +41,12 @@ async function approvedIpadPortraitMaster(){
   if(!response.ok)throw Error('portrait-manifest-missing');
   candidate=await response.json();
  }catch(_){return null;}
+ if(!candidate||typeof candidate!=='object')return null;
  const ui=candidate.ui;
  const validUi=ui&&['logo','subjects','journey','nav','adult','liveCopy'].every(key=>isUnitRect(ui[key]))&&
    ['sun','water','journeyGlow'].every(key=>isUnitRect(ui.ambient?.[key]))&&
    Array.isArray(ui.signBoards)&&ui.signBoards.length===4&&ui.signBoards.every(isUnitRect);
- const validSource=typeof candidate.source==='string'&&candidate.source.startsWith('./assets/home-v15/')&&
+ const validSource=typeof candidate.source==='string'&&/^\.\/assets\/home-v15\/[a-z0-9_-]+\.webp$/i.test(candidate.source)&&
    /^[a-f0-9]{64}$/i.test(candidate.sha256||'')&&candidate.width>=2048&&candidate.height>=2732;
  return candidate.status==='approved'&&validSource&&validUi?candidate:null;
 }
@@ -60,11 +61,12 @@ async function approvedIpadLandscapeMaster(){
   if(!response.ok)throw Error('landscape-manifest-missing');
   candidate=await response.json();
  }catch(_){return null;}
- const ui=candidate?.ui;
+ if(!candidate||typeof candidate!=='object')return null;
+ const ui=candidate.ui;
  const validUi=ui&&['logo','subjects','journey','nav','adult','liveCopy'].every(key=>isUnitRect(ui[key]))&&
    ['sun','water','journeyGlow'].every(key=>isUnitRect(ui.ambient?.[key]))&&
    Array.isArray(ui.signBoards)&&ui.signBoards.length===4&&ui.signBoards.every(isUnitRect);
- const validSource=typeof candidate?.source==='string'&&candidate.source.startsWith('./assets/home-v15/')&&
+ const validSource=typeof candidate?.source==='string'&&/^\.\/assets\/home-v15\/[a-z0-9_-]+\.webp$/i.test(candidate.source)&&
    /^[a-f0-9]{64}$/i.test(candidate.sha256||'')&&candidate.width>=2048&&candidate.height>=1536;
  return candidate.status==='approved'&&validSource&&validUi?candidate:null;
 }
