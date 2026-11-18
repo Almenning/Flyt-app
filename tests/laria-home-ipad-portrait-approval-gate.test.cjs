@@ -16,7 +16,9 @@ test('unapproved Grovanova iPad portrait art cannot replace the locked fallback'
  assert.match(script,/candidate\.width>=2048&&candidate\.height>=2732/);
  assert.match(script,/const originalMaster=portrait\?PHONE_MASTER:TABLET_MASTER/);
  assert.match(script,/image=await decoded\(originalMaster\)/);
- assert.match(script,/portraitMaster=null;\s+image=await decoded\(cleanMaster\)/);
+ assert.match(script,/portraitMaster=null;\s+try\{image=await decoded\(cleanMaster\);cleanLoaded=true;\}/);
+ assert.match(script,/catch\(_\)\{image=await decoded\(originalMaster\);\}/);
+
 });
 
 test('an approved portrait master must supply separate UI safe areas',()=>{
@@ -44,4 +46,12 @@ test('Læria CSP displays SHA-verified local portrait Blob images but never perm
  assert.ok(directives['img-src']?.includes('blob:'),'verified Blob URL must be displayable in img-src');
  assert.ok(!directives['script-src']?.includes('blob:'),'Blob executable scripts must remain blocked');
  assert.ok(!directives['default-src']?.includes('blob:'),'do not permit Blob URLs for unrelated resources');
+});
+
+test('orientation changes and stale async loads cannot swap in old portrait art',()=>{
+ assert.match(script,/let nextPortraitObjectUrl='';/);
+ assert.match(script,/if\(epoch!==activationEpoch\|\|!host\.isConnected/);
+ assert.match(script,/!host\.closest\('#home-screen\.active'\)\|\|portrait!==isPortrait\(\)/);
+ assert.match(script,/if\(nextPortraitObjectUrl\)URL\.revokeObjectURL\(nextPortraitObjectUrl\)/);
+ assert.match(script,/activePortraitObjectUrl=nextPortraitObjectUrl/);
 });
