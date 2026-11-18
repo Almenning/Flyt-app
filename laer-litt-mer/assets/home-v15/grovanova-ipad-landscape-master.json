@@ -1,0 +1,9 @@
+{
+  "status": "awaiting-app-screenshot-approval",
+  "source": null,
+  "sha256": null,
+  "width": 0,
+  "height": 0,
+  "ui": null,
+  "note": "Owner approved the 4:3 UI-free visual direction. No binary artwork is yet in GitHub, so release is intentionally disabled. Do not activate until exact WebP, SHA, UI anchors and actual iPad visual QA are verified."
+}
