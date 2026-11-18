@@ -14,8 +14,8 @@ test('Grovanova boats are only separate, non-interactive assets, never painted i
  assert.match(svg,/<path\b/);
  assert.doesNotMatch(svg,/<(?:script|foreignObject|image)\b|\bhref\s*=/i);
  assert.match(script,/function syncHomeBoats\(host,box,viewport,portrait\)/);
- assert.match(script,/if\(!isIpadHome\(\)\|\|host\.dataset\.bc15Master==='ipad-portrait-approved'\)/,
-   'boats must be removed if an approved UI-free portrait master takes over');
+ assert.match(script,/if\(!isIpadHome\(\)\|\|host\.dataset\.bc15CardArt==='owner-approved-ui-free'\)/,
+   'boats must be removed if either approved UI-free iPad master takes over');
  assert.match(script,/layer\.setAttribute\('aria-hidden','true'\)/);
  assert.match(script,/for\(const name of \['near','far'\]\)/);
  assert.match(script,/syncHomeBoats\(host,box,viewport,portrait\)/);
