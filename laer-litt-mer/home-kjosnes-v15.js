@@ -335,14 +335,12 @@ function mapControlsToArtwork(host,imgW,imgH,portrait,approvedPortrait){
   const top=Math.min(...boxes.map(b=>b.top));
   const right=Math.max(...boxes.map(b=>b.left+b.width));
   const bottom=Math.max(...boxes.map(b=>b.top+b.height));
-  if(approvedPortrait){
-   for(const p of ['--bc15-post-left','--bc15-post-top','--bc15-post-width','--bc15-post-height'])signs.style.removeProperty(p);
-  }else{
-   signs.style.setProperty('--bc15-post-left',left+'px');
-   signs.style.setProperty('--bc15-post-top',(top+8)+'px');
-   signs.style.setProperty('--bc15-post-width',(right-left)+'px');
-   signs.style.setProperty('--bc15-post-height',Math.max(0,bottom-top+(livePhonePortrait?1:45))+'px');
-  }
+  // Both approved iPad orientations retain the same genuine two-post
+  // scaffold, aligned to the four independent wooden sign hit areas.
+  signs.style.setProperty('--bc15-post-left',left+'px');
+  signs.style.setProperty('--bc15-post-top',(top+8)+'px');
+  signs.style.setProperty('--bc15-post-width',(right-left)+'px');
+  signs.style.setProperty('--bc15-post-height',Math.max(0,bottom-top+(livePhonePortrait?1:45))+'px');
  }else{
   for(const p of ['--bc15-post-left','--bc15-post-top','--bc15-post-width','--bc15-post-height'])
    signs.style.removeProperty(p);
