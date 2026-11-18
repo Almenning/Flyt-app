@@ -52,7 +52,10 @@ function ensureAmbient(host){
 // not the viewport. Rotating the iPad remaps them with the same art box as
 // the real Læria controls. They are never baked into the locked master.
 function syncHomeBoats(host,box,viewport,portrait){
- if(!isIpadHome()){
+ // Fail closed when a future approved UI-free portrait master takes over.
+ // Old phone-art water coordinates are NOT valid on that new illustration.
+ // Require independently reviewed water anchors before enabling boats there.
+ if(!isIpadHome()||host.dataset.bc15Master==='ipad-portrait-approved'){
   host.querySelector('.bc15-boats')?.remove();
   return;
  }
