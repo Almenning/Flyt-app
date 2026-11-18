@@ -50,3 +50,20 @@ Porten kan bare åpnes på iPad i stående orientering. Mangler godkjenning,
 filsti, SHA-256, minimumsmål, frisoner eller samsvar mellom registrerte og
 dekodede dimensjoner, bruker appen den eksisterende rene, låste
 portrett-fallbacken. Liggende iPad og iPhone berøres ikke.
+
+## Produkteiers godkjenning av nye visualiseringer 18.11.2026
+
+**Produkteier har godkjent de to viste, UI-frie bildekandidatene som visuell retning for Hjem**, i stående og liggende iPad-format. Dette overstyrer ikke automatisk teknisk release-gate eller kravet om en faktisk enhetsskjerm.
+
+Følgende originalgenereringer er bevart i den lokale leveransepakken `laria_grovanova_godkjente_bildekandidater.zip` (pakken må importeres separat; den er **ikke** i dette repositoriet):
+
+| Variant | Originalgenerering | Størrelse | WebP-kandidat | SHA-256 for WebP |
+| --- | --- | --- | --- | --- |
+| Liggende 4:3 | `grovanova_landscape_visually_approved_SOURCE.png` | 1448×1086 | `grovanova_landscape_candidate.webp` (2048×1536) | `30eff16608cfd7` (prefix, fullt i pakkens `sha256.json`) |
+| Stående 3:4 | `grovanova_portrait_visually_approved_SOURCE.png` | 1086×1448 | `grovanova_portrait_candidate.webp` (2048×2732) | `659500028828fb` (prefix, fullt i pakkens `sha256.json`) |
+
+**Eksportforbehold:** Pikselmålene er skapt ved Lanczos-oppskalering. Det gjør ikke bildekilden mer detaljert enn originalgenereringen. Samsvar med den tidligere låste Grovanova-fjellsilhuetten er ikke dokumentert som identisk. Den nye visuelle godkjenningen må derfor også avklares mot eksisterende geografiske kunstlåser, ikke stilltiende tolkes som kildepikselgodkjenning.
+
+**Status etter godkjenningen:** Appens manifest er fortsatt `awaiting-visual-approval` uten aktiv bildefil, SHA eller UI-ankre. Ingen kunstfil er pushet til GitHub; ingen bakgrunn er aktivert, og dette dokumentet alene endrer ingen funksjoner.
+
+**Før porten kan åpnes:** Importer nøyaktig eksport med full SHA, kontroller motiv/kunstgodkjenning, tegn og juster separate logo/skilt/navigasjon/TrollActor, kjør eksakt-head Chromium/WebKit på stående iPad og dokumenter produktgodkjenning av faktisk appskjerm. **Liggende kunst har foreløpig ingen egen aktiveringsport i PR #255** og må integreres separat uten å røre SHA-låst original.
