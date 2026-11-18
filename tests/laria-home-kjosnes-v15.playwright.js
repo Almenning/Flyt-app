@@ -410,6 +410,37 @@ async function run(engine,label,viewport){
  }finally{await browser.close()}
 }
 
+async function runPortraitMasterFixture(engine,label,broken=false){
+ const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+ try{
+  const context=await browser.newContext({viewport:{width:1024,height:1366},hasTouch:true,serviceWorkers:'block'});
+  const page=await context.newPage();
+  await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="2732"><rect width="100%" height="100%" fill="#2b6d84"/><text x="70" y="160" fill="white" font-size="64">TEST FIXTURE ONLY — NOT APPROVED ART</text></svg>';
+  const sha=crypto.createHash('sha256').update(svg).digest('hex');
+  const ui={logo:[.08,.04,.27,.1],subjects:[.03,.28,.28,.28],journey:[.33,.70,.34,.1],nav:[.03,.86,.94,.1],adult:[.9,.04,.06,.06],liveCopy:[.34,.17,.5,.1],ambient:{sun:[.6,.2,.1,.1],water:[.4,.45,.2,.1],journeyGlow:[.52,.68,.1,.1]},signBoards:[[.03,.28,.27,.05],[.03,.35,.27,.05],[.03,.42,.27,.05],[.03,.49,.27,.05]]};
+  const manifest={status:'approved',source:'./assets/home-v15/__test-only-portrait-master.webp',sha256:broken?'0'.repeat(64):sha,width:2048,height:2732,ui};
+  await page.route('**/assets/home-v15/grovanova-ipad-portrait-master.json',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(manifest)}));
+  await page.route('**/assets/home-v15/__test-only-portrait-master.webp',route=>route.fulfill({contentType:'image/svg+xml',body:svg}));
+  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&portrait-fixture='+label,{waitUntil:'domcontentloaded'});
+  const home=page.locator('.bc12.bc15-locked-home');await home.waitFor({state:'visible',timeout:20000});
+  if(broken){
+   await page.waitForFunction(()=>document.querySelector('.bc12')?.dataset.bc15Asset==='phone-ready');
+   assert.equal(await home.getAttribute('data-bc15-master'),'portrait');
+   assert.equal(await home.locator('.bc15-approved-logo').count(),0,label+' corrupt fixture must not expose approved UI');
+  }else{
+   await page.waitForFunction(()=>document.querySelector('.bc12')?.dataset.bc15Asset==='ipad-portrait-approved');
+   assert.equal(await home.locator('.bc15-approved-logo:visible').count(),1,label+' real SVG logo missing');
+   assert.equal(await home.locator('.bc15-subject-signs button:visible').count(),4,label+' four visible sign buttons missing');
+   assert.equal(await home.locator('.bc12-journey:visible').count(),1,label+' visible journey button missing');
+   assert.equal(await home.locator('.bc12-nav button:visible').count(),5,label+' visible real navigation missing');
+   const targets=await home.locator('.bc15-subject-signs button').evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().height));
+   assert(targets.every(h=>h>=44),label+' sign touch targets too small '+targets);
+  }
+  await context.close();
+ }finally{await browser.close();}
+}
+
 (async()=>{
  verifyLockedMasterFiles();
  for(const [label,engine,viewport] of [
@@ -420,4 +451,8 @@ async function run(engine,label,viewport){
    ['safari-ipad-landscape',webkit,{width:1180,height:820}]
  ].filter(([label])=>process.env.LARIA_IPAD_ONLY!=='1'||label.includes('ipad')))
   await run(engine,label,viewport);
+ for(const [label,engine] of [['chromium-ipad-portrait-fixture',chromium],['webkit-ipad-portrait-fixture',webkit]]){
+  await runPortraitMasterFixture(engine,label,false);
+  await runPortraitMasterFixture(engine,label+'-fallback',true);
+ }
 })().catch(e=>{console.error(e);process.exitCode=1});
