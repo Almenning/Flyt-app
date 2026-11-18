@@ -25,6 +25,33 @@ beskytte den avtalte Læria-retningen mens appen ferdigstilles.
   Fagforsidene bruker samme premium-språk og én samlet, venstrestilt
   skiltlogikk; ikke legg til konkurrerende skilt eller dobbelt navigasjon.
 
+## Kildetro visualisering og produktskille
+
+- Les `docs/LARIA-LOCKED-VISUAL-IDENTITY-2026-11-07.md` og
+  `docs/LARIA-HJEM-IPAD-PORTRAIT-ART-BRIEF-2026-11-18.md` før alle
+  visuelle endringer av Læria Hjem. Disse dokumentene er bindende.
+- Ved skisser og appvisninger av Hjem skal den låste Kjøsnesfjorden/Grovanova-
+  illustrasjonen brukes som faktisk kilde, ikke som løs inspirasjon.
+  Gjeldende originaler ligger under `laer-litt-mer/assets/home-v15/`
+  (`kjosnes-home-tablet.webp` og `kjosnes-home-phone.webp`).
+  Fotografier av Grovanova er geografiske kontrollreferanser, ikke
+  tillatelse til å bytte ut den låste illustrasjonen.
+- Ikke generer nye fjell, fjordsider, bygninger, skogstroll eller fri
+  landskapskomposisjon og presenter det som Lærias godkjente motiv.
+  Eventuell ny kunstproduksjon krever særskilt bestilling og deretter
+  uttrykkelig visuell godkjenning før implementering.
+- Vis bare funksjoner og navigasjon som faktisk finnes i Læria, verifisert
+  mot appens kildekode. Ikke overfør UI, funksjoner, ordvalg eller
+  designløsninger fra den separate appen HverdagsOss, heller ikke i
+  konseptskisser. Ingen oppdiktede funksjoner i illustrasjoner.
+- Skjermbilder fra faktisk app skal merkes med kildecommit, enhet og
+  nettleser. Konseptskisser skal alltid merkes som konsepter, aldri
+  presenteres som fungerende app. Hvis portrettillustrasjonen mangler,
+  er Hjem på iPad stående fortsatt en dokumentert kunstblokkering,
+  ikke en anledning til å skjule problemet med nye bilder eller CSS-fyll.
+- Bruk eksisterende Læria-logo, skilt og valgt TrollActor som selvstendige
+  interaktive elementer. En ny ren bakgrunn skal ikke ha disse malt inn.
+
 ## Enheter og kvalitet
 
 - Prioriter iPad først, deretter iPhone og desktop. Kontroller både stående og
