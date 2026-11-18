@@ -537,6 +537,78 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
  }finally{await browser.close();}
 }
 
+// Test-only mock: there is STILL no production landscape image on this branch.
+// The mock is never copied under assets/, and is rejected when its SHA differs.
+async function runLandscapeMasterFixture(engine,label,broken=false,viewport={width:1180,height:820}){
+ const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+ try{
+  const context=await browser.newContext({viewport,hasTouch:true,serviceWorkers:'block'});
+  const page=await context.newPage();
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1536"><rect width="100%" height="100%" fill="#246b77"/><text x="90" y="180" font-size="60" fill="white">TEST FIXTURE ONLY / NOT APPROVED ART</text></svg>';
+  const sha=crypto.createHash('sha256').update(svg).digest('hex');
+  const ui={logo:[.035,.042,.247,.153],subjects:[.022,.322,.215,.337],
+    journey:[.030,.77,.310,.123],nav:[.575,.040,.375,.132],
+    adult:[.92,.198,.059,.08],liveCopy:[.083,.197,.350,.103],
+    signBoards:[[.026,.326,.210,.071],[.026,.412,.210,.071],
+      [.026,.498,.210,.071],[.026,.584,.210,.071]],
+    ambient:{sun:[.38,.30,.18,.18],water:[.36,.54,.55,.22],journeyGlow:[.07,.74,.23,.13]}};
+  const manifest={status:'approved',source:'./assets/home-v15/__test-only-landscape-master.webp',
+    sha256:broken?'0'.repeat(64):sha,width:2048,height:1536,ui};
+  await page.route('**/assets/home-v15/grovanova-ipad-landscape-master.json',
+    route=>route.fulfill({contentType:'application/json',body:JSON.stringify(manifest)}));
+  await page.route('**/assets/home-v15/__test-only-landscape-master.webp',
+    route=>route.fulfill({contentType:'image/svg+xml',body:svg}));
+  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&landscape-fixture='+label,
+    {waitUntil:'domcontentloaded'});
+  const home=page.locator('.bc12.bc15-locked-home');
+  await home.waitFor({state:'visible',timeout:20000});
+  const expected=broken?'tablet-ready':'ipad-landscape-approved';
+  await page.waitForFunction(expected=>document.querySelector('#home-screen .bc12')?.dataset.bc15Asset===expected,
+    expected,{timeout:15000});
+  if(broken){
+   assert.equal(await home.getAttribute('data-bc15-master'),'landscape');
+   assert.equal(await home.locator('.bc15-approved-logo').count(),0,label+' fallback must never show approved logo overlay');
+   assert.equal(await home.locator('.bc15-boats').count(),1,label+' locked landscape must keep its real rowboats');
+  }else{
+   assert.equal(await home.getAttribute('data-bc15-master'),'ipad-landscape-approved');
+   assert.equal(await home.locator('.bc15-boats').count(),0,label+' approved landscape has no reviewed boat anchors');
+   assert.equal(await home.locator('.bc15-approved-logo:visible').count(),1,label+' real SVG logo missing');
+   await page.waitForFunction(()=>{const logo=document.querySelector('.bc15-approved-logo');return logo?.complete&&logo.naturalWidth>0;},null,{timeout:10000});
+   const signs=home.locator('.bc15-subject-signs[data-bc15-presentation="live"] button:visible');
+   assert.equal(await signs.count(),4,label+' four left wooden subject signs are required');
+   const names=await signs.evaluateAll(elements=>elements.map(x=>x.querySelector('.bc15-sign-name')?.textContent));
+   assert.deepEqual(names,['Norsk','Matte','Engelsk','Geografi']);
+   const touchHeights=await signs.evaluateAll(elements=>elements.map(x=>x.getBoundingClientRect().height));
+   assert(touchHeights.every(h=>h>=44),label+' subject signs are too small: '+touchHeights);
+   assert.equal(await home.locator('.bc12-nav button:visible').count(),5,label+' native navigation must be present');
+   assert.equal(await home.locator('.bc12-journey:visible').count(),1,label+' real journey action must be visible');
+   const elements=await home.evaluate(el=>{
+    const nav=el.querySelector('.bc12-nav'),journey=el.querySelector('.bc12-journey');
+    const boards=[...el.querySelectorAll('.bc15-painted-subject')];
+    const n=prop=>parseFloat(getComputedStyle(el).getPropertyValue(prop));
+    return {nav:getComputedStyle(nav).backgroundImage,
+      journeyText:getComputedStyle(journey.querySelector('span')).display,
+      journeyExtra:getComputedStyle(journey.querySelector('small')).display,
+      signLabels:boards.map(x=>getComputedStyle(x.querySelector('.bc15-sign-name')).display),
+      dimensions:{w:el.clientWidth,h:el.clientHeight,artW:n('--bc15-art-width'),artH:n('--bc15-art-height')}};
+   });
+   assert.match(elements.nav,/gradient/,label+' navigation must use one shared background');
+   assert.equal(elements.journeyText,'flex');
+   assert.equal(elements.journeyExtra,'none',label+' duplicate journey sticker');
+   assert(elements.signLabels.every(x=>x!=='none'),label+' live wooden signs are invisible');
+   assert(elements.dimensions.artW>=elements.dimensions.w-.5&&elements.dimensions.artH>=elements.dimensions.h-.5,
+     label+' approved landscape art must fill the iPad without letterboxing');
+   assert.equal(await home.getAttribute('data-bc15-fit'),'approved-cover');
+   await page.screenshot({path:folder+'/'+label+'.png',fullPage:true});
+  }
+  assert.deepEqual(errors,[],label+' page JavaScript errors');
+  await context.close();
+ }finally{await browser.close()}
+}
+
 (async()=>{
  verifyLockedMasterFiles();
  for(const [label,engine,viewport] of [
@@ -553,5 +625,10 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
   // iPad Air/Mini-like portrait 820x1180 is narrower than 3:4 master.
   // Verify restrained cover rather than stretching or top-edge letterboxing.
   await runPortraitMasterFixture(engine,label+'-820x1180',false,{width:820,height:1180});
+ }
+ for(const [label,engine] of [['chromium-ipad-landscape-fixture',chromium],['webkit-ipad-landscape-fixture',webkit]]){
+  await runLandscapeMasterFixture(engine,label,false);
+  await runLandscapeMasterFixture(engine,label+'-sha-fallback',true);
+  await runLandscapeMasterFixture(engine,label+'-1024x768',false,{width:1024,height:768});
  }
 })().catch(e=>{console.error(e);process.exitCode=1});
