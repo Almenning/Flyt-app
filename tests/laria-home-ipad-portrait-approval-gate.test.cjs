@@ -8,9 +8,16 @@ const css=fs.readFileSync(path.join(root,'laer-litt-mer/home-kjosnes-v15.css'),'
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'laer-litt-mer/assets/home-v15/grovanova-ipad-portrait-master.json'),'utf8'));
 
 test('unapproved Grovanova iPad portrait art cannot replace the locked fallback',()=>{
- assert.equal(manifest.status,'awaiting-visual-approval');
- assert.equal(manifest.source,null);
- assert.equal(manifest.sha256,null);
+ assert(['awaiting-visual-approval','awaiting-app-screenshot-approval'].includes(manifest.status),
+  'portrait must remain inactive until a real iPad screenshot has been accepted');
+ if(manifest.status==='awaiting-visual-approval'){
+  assert.equal(manifest.source,null);
+  assert.equal(manifest.sha256,null);
+ }else{
+  const approved=JSON.parse(fs.readFileSync(path.join(root,'docs/LARIA-GROVANOVA-APPROVED-CANDIDATES-2026-11-18.json'),'utf8')).portrait;
+  assert.equal(manifest.source,'./assets/home-v15/'+path.basename(approved.path));
+  assert.equal(manifest.sha256,approved.sha256);
+ }
  assert.match(script,/IPAD_PORTRAIT_MANIFEST/);
  assert.match(script,/candidate\.status==='approved'/);
  assert.match(script,/candidate\.width>=2048&&candidate\.height>=2732/);
