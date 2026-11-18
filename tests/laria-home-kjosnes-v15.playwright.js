@@ -410,10 +410,10 @@ async function run(engine,label,viewport){
  }finally{await browser.close()}
 }
 
-async function runPortraitMasterFixture(engine,label,broken=false){
+async function runPortraitMasterFixture(engine,label,broken=false,viewport={width:1024,height:1366}){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
-  const context=await browser.newContext({viewport:{width:1024,height:1366},hasTouch:true,serviceWorkers:'block'});
+  const context=await browser.newContext({viewport,hasTouch:true,serviceWorkers:'block'});
   const page=await context.newPage();
   const diagnostics={pageErrors:[],consoleErrors:[],failedRequests:[],manifestHits:0,imageHits:0};
   page.on('pageerror',e=>diagnostics.pageErrors.push(String(e.message).slice(0,400)));
@@ -462,6 +462,19 @@ async function runPortraitMasterFixture(engine,label,broken=false){
    assert.equal(await home.locator('.bc12-nav button:visible').count(),5,label+' visible real navigation missing');
    const targets=await home.locator('.bc15-subject-signs button').evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().height));
    assert(targets.every(h=>h>=44),label+' sign touch targets too small '+targets);
+   assert.equal(await home.getAttribute('data-bc15-fit'),'approved-cover',
+     label+' approved 3:4 art must fill a supported iPad without synthetic sidebars');
+   const geometry=await home.evaluate(el=>{
+     const cs=getComputedStyle(el),n=prop=>parseFloat(cs.getPropertyValue(prop));
+     return {viewportW:el.clientWidth,viewportH:el.clientHeight,
+       artW:n('--bc15-art-width'),artH:n('--bc15-art-height'),
+       artX:n('--bc15-art-left'),artY:n('--bc15-art-top')};
+   });
+   assert(geometry.artW>=geometry.viewportW-.75&&geometry.artH>=geometry.viewportH-.75,
+     label+' approved portrait must cover the entire viewport: '+JSON.stringify(geometry));
+   assert(geometry.artX<=1&&geometry.artY<=1,
+     label+' approved image must be centered, not letterboxed: '+JSON.stringify(geometry));
+   await page.screenshot({path:folder+'/'+label+'.png',fullPage:true});
   }
   await context.close();
  }finally{await browser.close();}
@@ -480,5 +493,8 @@ async function runPortraitMasterFixture(engine,label,broken=false){
  for(const [label,engine] of [['chromium-ipad-portrait-fixture',chromium],['webkit-ipad-portrait-fixture',webkit]]){
   await runPortraitMasterFixture(engine,label,false);
   await runPortraitMasterFixture(engine,label+'-fallback',true);
+  // iPad Air/Mini-like portrait 820x1180 is narrower than 3:4 master.
+  // Verify restrained cover rather than stretching or top-edge letterboxing.
+  await runPortraitMasterFixture(engine,label+'-820x1180',false,{width:820,height:1180});
  }
 })().catch(e=>{console.error(e);process.exitCode=1});
