@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="208" height="90" viewBox="0 0 208 90" role="img" aria-label="Liten tradisjonell norsk trebåt">
+  <defs>
+    <linearGradient id="hull" x1="0" y1="0" x2="0.28" y2="1">
+      <stop offset="0" stop-color="#b77536"/>
+      <stop offset="0.35" stop-color="#8b4d26"/>
+      <stop offset="0.77" stop-color="#5c321d"/>
+      <stop offset="1" stop-color="#2b1c16"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3c27a"/>
+      <stop offset="0.48" stop-color="#ce8e48"/>
+      <stop offset="1" stop-color="#995927"/>
+    </linearGradient>
+    <linearGradient id="inside" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#33231b"/>
+      <stop offset="1" stop-color="#6d4227"/>
+    </linearGradient>
+  </defs>
+  <!-- Self-contained water shadow; no alteration of the fjord artwork. -->
+  <ellipse cx="108" cy="75" rx="84" ry="4.3" fill="#173e4f" opacity=".23"/>
+  <path d="M14 35 Q105 41 193 34 Q178 62 153 67 Q111 73 59 67 Q31 62 14 35Z" fill="url(#hull)" stroke="#3f291c" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M18 44 Q101 55 189 43" fill="none" stroke="#e9ac64" stroke-opacity=".77" stroke-width="2.8"/>
+  <path d="M26 53 Q105 64 174 52" fill="none" stroke="#53301f" stroke-opacity=".65" stroke-width="2.5"/>
+  <path d="M11 34 Q102 29 196 33 L188 40 Q103 47 20 40Z" fill="url(#wood)" stroke="#55341e" stroke-width="2.8" stroke-linejoin="round"/>
+  <path d="M36 33 Q100 19 172 32 Q103 40 36 33Z" fill="url(#inside)" stroke="#3a271b" stroke-width="1.7"/>
+  <path d="M61 32 Q101 38 143 32" fill="none" stroke="#bb7940" stroke-width="5" stroke-linecap="round"/>
+  <path d="M49 34 L55 39 M155 34 L161 39" stroke="#f5d096" stroke-width="2" stroke-linecap="round"/>
+  <path d="M12 34 L22 34 M188 34 L199 32" stroke="#f4d090" stroke-width="3.4" stroke-linecap="round"/>
+  <path d="M84 40 L85 65 M126 40 L124 67" stroke="#402719" stroke-opacity=".35" stroke-width="2.2"/>
+  <path d="M45 71 Q68 75 83 74 M135 74 Q155 75 170 69" fill="none" stroke="#c4ddc8" stroke-opacity=".32" stroke-width="2" stroke-linecap="round"/>
+</svg>
