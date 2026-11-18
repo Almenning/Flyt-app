@@ -393,6 +393,11 @@ async function activate(){
  }
  const portrait=isPortrait();
  let portraitMaster=await approvedIpadPortraitMaster();
+ // A previous fetch must not mutate Home after a rerender, orientation
+ // change or navigation away while the approval manifest was loading.
+ if(epoch!==activationEpoch||!host.isConnected||
+    host!==document.querySelector('#home-screen .bc12')||
+    !host.closest('#home-screen.active')||portrait!==isPortrait())return false;
  const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
  const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
  const wantsClean=isIpadHome()||isPhone()||isShortPhoneLandscape();
@@ -403,28 +408,36 @@ async function activate(){
    // locked original. Never turn a missing asset into an empty Home stage.
    let cleanLoaded=false;
    let image;
+   let nextPortraitObjectUrl='';
    if(portraitMaster){
     try{
      const verified=await verifiedPortraitDecoded(portraitMaster);
      image=verified.image;
-     clearPortraitObjectUrl();
-     activePortraitObjectUrl=verified.objectUrl;
+     // Do not own/revoke a Blob URL until this activation wins the race.
+     nextPortraitObjectUrl=verified.objectUrl;
      cleanLoaded=true;
     }catch(_){
      // A damaged, missing or wrongly exported future master is never allowed
      // to blank Home. Fall back to the same locked source used today.
      portraitMaster=null;
-     image=await decoded(cleanMaster);
-     cleanLoaded=true;
+     try{image=await decoded(cleanMaster);cleanLoaded=true;}
+     catch(_){image=await decoded(originalMaster);}
+
     }
    }else if(wantsClean){
     try{image=await decoded(cleanMaster);cleanLoaded=true;}
     catch(_){image=await decoded(originalMaster);}
    }else image=await decoded(originalMaster);
    if(epoch!==activationEpoch || !host.isConnected ||
-      host!==document.querySelector('#home-screen .bc12') || portrait!==isPortrait())return false;
+      host!==document.querySelector('#home-screen .bc12') ||
+      !host.closest('#home-screen.active')||portrait!==isPortrait()){
+     if(nextPortraitObjectUrl)URL.revokeObjectURL(nextPortraitObjectUrl);
+     return false;
+   }
    activeMasterSrc=image.src;
    host.style.setProperty('--bc15-home-art','url("'+image.src+'")');
+   clearPortraitObjectUrl();
+   activePortraitObjectUrl=nextPortraitObjectUrl;
    host.classList.add('bc15-locked-home');
    host.classList.remove('bc15-pending','bc15-fallback');
    host.dataset.bc15Asset=portraitMaster?'ipad-portrait-approved':portrait?'phone-ready':'tablet-ready';
