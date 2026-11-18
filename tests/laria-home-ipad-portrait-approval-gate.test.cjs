@@ -32,3 +32,16 @@ test('an approved portrait master must supply separate UI safe areas',()=>{
  assert.match(css,/bc15-approved-logo/);
  assert.match(css,/\.bc12-journey\{\s+opacity:1!important/);
 });
+
+
+test('Læria CSP displays SHA-verified local portrait Blob images but never permits Blob scripts',()=>{
+ const html=fs.readFileSync(path.join(root,'laer-litt-mer/index.html'),'utf8');
+ const tag=html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/);
+ assert.ok(tag,'Læria must retain an explicit CSP');
+ const directives=Object.fromEntries(tag[1].split(';').map(s=>s.trim()).filter(Boolean).map(s=>{
+  const [name,...values]=s.split(/\s+/);return [name,values];
+ }));
+ assert.ok(directives['img-src']?.includes('blob:'),'verified Blob URL must be displayable in img-src');
+ assert.ok(!directives['script-src']?.includes('blob:'),'Blob executable scripts must remain blocked');
+ assert.ok(!directives['default-src']?.includes('blob:'),'do not permit Blob URLs for unrelated resources');
+});
