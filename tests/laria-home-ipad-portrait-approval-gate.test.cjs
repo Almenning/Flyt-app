@@ -32,7 +32,7 @@ test('an approved portrait master must supply separate UI safe areas',()=>{
  assert.match(script,/if\(portraitMaster\)host\.dataset\.bc15CardArt='owner-approved-ui-free'/);
  assert.match(css,/data-bc15-master="ipad-portrait-approved"/);
  assert.match(css,/bc15-approved-logo/);
- assert.match(css,/\.bc12-journey\{\s+opacity:1!important/);
+ assert.match(css,/\[data-bc15-master="ipad-portrait-approved"\] \.bc12-journey\{[^}]*opacity:1!important/);
 });
 
 
