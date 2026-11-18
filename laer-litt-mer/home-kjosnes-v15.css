@@ -134,6 +134,40 @@
 }
 .grade-band-young .bc12.bc15-locked-home .bc14-nav-fox::after{display:none!important}
 
+/* A future approved portrait master is explicitly UI-free. Unlike the
+ * historical painted master, real app controls must remain visible. */
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc15-approved-logo{
+   position:absolute!important;z-index:22!important;display:block!important;
+   object-fit:contain!important;pointer-events:none!important;
+   filter:drop-shadow(0 3px 5px #17384b66)!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc14-subjects{
+   display:none!important;visibility:hidden!important;pointer-events:none!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-journey{
+   opacity:1!important;border:2px solid #754624!important;border-radius:16px!important;
+   background:linear-gradient(#c99556,#86542f)!important;box-shadow:0 4px 0 #57331d!important;
+   color:#fff6d7!important;padding:8px 14px!important;text-align:left!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-journey>*{display:block!important}
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-journey span{font:900 clamp(18px,2.5vw,29px)/1.05 var(--laria-ui-font,system-ui)!important}
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-journey small{font:800 clamp(11px,1.5vw,15px)/1.2 var(--laria-ui-font,system-ui)!important}
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-nav button{
+   display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+   opacity:1!important;color:#fff9df!important;font-size:clamp(10px,1.3vw,14px)!important;
+   background:#315e67e8!important;border:2px solid #f9e7b5!important;border-radius:14px!important;
+   box-shadow:0 3px 0 #173941!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-nav button span{display:grid!important;font-size:clamp(18px,2.5vw,27px)!important}
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-nav button[data-camp="home"]{display:flex!important}
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-adult-entry{
+   opacity:1!important;color:#fff9df!important;font-size:0!important;background:#315e67e8!important;
+   border:2px solid #f9e7b5!important;border-radius:50%!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-adult-entry::after{content:"⚙";font-size:24px!important}
+}
+
 /* Legacy challenge chrome is not part of the locked Home composition. */
 .grade-band-young .bc12.bc15-locked-home .safe-challenge-young{display:none!important}
 
