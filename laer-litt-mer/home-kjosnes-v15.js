@@ -55,7 +55,10 @@ async function verifiedPortraitDecoded(candidate){
  const bytes=await response.arrayBuffer();
  const digest=hex(await globalThis.crypto.subtle.digest('SHA-256',bytes));
  if(digest!==candidate.sha256)throw Error('portrait-art-sha-mismatch');
- const objectUrl=URL.createObjectURL(new Blob([bytes]));
+ // Keep the verified response's image MIME type, including test-only SVG fixtures.
+ // Blob URLs with no content type cannot reliably decode SVG in WebKit.
+ const contentType=(response.headers.get('content-type')||'image/webp').split(';',1)[0].trim();
+ const objectUrl=URL.createObjectURL(new Blob([bytes],{type:contentType}));
  try{
   const image=await decoded(objectUrl);
   if(image.width!==candidate.width||image.height!==candidate.height)
@@ -71,7 +74,7 @@ function syncApprovedPortraitLogo(host,portraitMaster,box,viewport){
  if(!portraitMaster){logo?.remove();return;}
  if(!logo){
   logo=document.createElement('img');logo.className='bc15-approved-logo';
-  logo.alt='Læria';logo.src='./assets/home-v15/laria-logo-from-grovanova.svg';
+  logo.alt='Læria';logo.src='./assets/ui/laria-logo-from-grovanova.svg';
   host.appendChild(logo);
  }
  place(logo,box,portraitMaster.ui.logo,viewport);
