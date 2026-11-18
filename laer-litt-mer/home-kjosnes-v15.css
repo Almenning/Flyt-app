@@ -36,6 +36,30 @@
   filter:saturate(1.02) contrast(1.012);
 }
 
+/* Two optional, non-interactive wooden boats on a separate iPad-only
+   layer. Never re-render, repaint or replace any Grovanova background pixels.
+   The JS aligns each boat to the displayed locked image, not the viewport. */
+.grade-band-young .bc12.bc15-locked-home .bc15-boats{
+  position:absolute!important;
+  inset:0!important;
+  z-index:13!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc15-boat{
+  position:absolute!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  pointer-events:none!important;
+  background:url("./assets/ui/laria-grovanova-rowboat.svg") center/contain no-repeat!important;
+  filter:drop-shadow(0 1px 1px rgba(16,44,57,.20));
+  opacity:.90;
+}
+.grade-band-young .bc12.bc15-locked-home .bc15-boat-far{
+  transform:scaleX(-1);
+  opacity:.70;
+}
+
 /* V15 owns Home interaction whenever the locked master is available.
    The legacy Explore card may remain in DOM for fallback compatibility, but it
    must never capture taps before, during or after a v15 Home render. */

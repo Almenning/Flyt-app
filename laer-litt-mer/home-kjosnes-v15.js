@@ -47,6 +47,40 @@ function ensureAmbient(host){
  return ambient;
 }
 
+// Decorative wooden rowboats live in their own non-interactive layer.
+// Their positions are relative to the decoded, immutable Grovanova source,
+// not the viewport. Rotating the iPad remaps them with the same art box as
+// the real Læria controls. They are never baked into the locked master.
+function syncHomeBoats(host,box,viewport,portrait){
+ // Fail closed when a future approved UI-free portrait master takes over.
+ // Old phone-art water coordinates are NOT valid on that new illustration.
+ // Require independently reviewed water anchors before enabling boats there.
+ if(!isIpadHome()||host.dataset.bc15Master==='ipad-portrait-approved'){
+  host.querySelector('.bc15-boats')?.remove();
+  return;
+ }
+ let layer=host.querySelector('.bc15-boats');
+ if(!layer){
+  layer=document.createElement('div');
+  layer.className='bc15-boats';
+  layer.setAttribute('aria-hidden','true');
+  for(const name of ['near','far']){
+   const boat=document.createElement('span');
+   boat.className='bc15-boat bc15-boat-'+name;
+   boat.dataset.bc15Boat=name;
+   layer.appendChild(boat);
+  }
+  host.appendChild(layer);
+ }
+ layer.dataset.bc15Orientation=portrait?'portrait':'landscape';
+ // Both boats remain on open water and clear of the painted sailboat,
+ // left subject signs, journey board, greeting and top navigation.
+ const boxes=portrait?
+  [[.60,.505,.100,.027],[.755,.455,.050,.015]]:
+  [[.570,.633,.074,.033],[.625,.551,.035,.017]];
+ [...layer.children].forEach((boat,index)=>place(boat,box,boxes[index],viewport));
+}
+
 function place(el,box,part,viewport){
  if(!el)return;
  const [x,y,w,h]=part;
@@ -232,6 +266,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  place(ambient.querySelector('.bc15-sun-glow'),box,ambientLayout.sun,viewport);
  place(ambient.querySelector('.bc15-water-glints'),box,ambientLayout.water,viewport);
  place(ambient.querySelector('.bc15-journey-glow'),box,ambientLayout.journey,viewport);
+ syncHomeBoats(host,box,viewport,portrait);
  host.style.setProperty('--bc15-art-left',box.left+'px');
  host.style.setProperty('--bc15-art-top',box.top+'px');
  host.style.setProperty('--bc15-art-width',box.width+'px');
@@ -266,6 +301,7 @@ function syncLiveCopy(host){
 }
 
 function clearMappedControls(host){
+ host.querySelector('.bc15-boats')?.remove();
  ['.bc14-subjects','.bc12-journey','.bc12-nav','.bc12-adult-entry',
    '.bc15-sun-glow','.bc15-water-glints','.bc15-journey-glow'].forEach(sel=>{
    const el=host.querySelector(sel);if(!el)return;
@@ -303,7 +339,7 @@ async function activate(){
    clearMappedControls(host);
    host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='ineligible';
-   host.querySelectorAll('.bc15-live-copy,.bc15-ambient').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-ambient,.bc15-boats').forEach(el=>el.remove());
    return false;
  }
  host.classList.add('bc15-capable');
@@ -314,7 +350,7 @@ async function activate(){
    clearMappedControls(host);
    host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='inactive';
-   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient,.bc15-boats').forEach(el=>el.remove());
    return false;
  }
  const portrait=isPortrait();
@@ -375,7 +411,7 @@ async function activate(){
    clearMappedControls(host);
    host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='missing';
-   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient,.bc15-boats').forEach(el=>el.remove());
    console.warn('[Læria Home v15] Locked master not activated.',err);
    return false;
  }

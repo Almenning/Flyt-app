@@ -227,6 +227,45 @@ async function run(engine,label,viewport){
    assert.equal(await page.locator('.bc12-quest:visible').count(),0,label+' old fox-letter card must not compete on Home v15');
    assert.equal(await page.locator('.bc12-place:visible').count(),0,label+' legacy activity signs must not compete');
    assert.equal(await page.locator('.safe-challenge-young:visible').count(),0,label+' legacy challenge button must stay hidden on locked Home');
+   // Boats must be a separate, non-interactive image overlay. Their positions
+   // follow the immutable background crop on both iPad orientations and must
+   // never be introduced on iPhone Home.
+   const boatLayer=home.locator('.bc15-boats');
+   if(label.includes('ipad')){
+     assert.equal(await boatLayer.count(),1,label+' two rowboats need one shared decorative layer');
+     const boats=await boatLayer.evaluate(layer=>{
+       const home=layer.parentElement,stage=home.getBoundingClientRect();
+       const cs=getComputedStyle(home);
+       const left=parseFloat(cs.getPropertyValue('--bc15-art-left'));
+       const top=parseFloat(cs.getPropertyValue('--bc15-art-top'));
+       const width=parseFloat(cs.getPropertyValue('--bc15-art-width'));
+       const height=parseFloat(cs.getPropertyValue('--bc15-art-height'));
+       return {
+         hidden:layer.getAttribute('aria-hidden'),pointer:getComputedStyle(layer).pointerEvents,
+         orientation:layer.dataset.bc15Orientation,
+         rects:[...layer.children].map(el=>{
+           const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+           return {name:el.dataset.bc15Boat,width:r.width,height:r.height,
+             cx:r.left-stage.left+r.width/2,cy:r.top-stage.top+r.height/2,
+             pointer:s.pointerEvents,art:s.backgroundImage};
+         }),
+         art:{left,top,width,height}
+       };
+     });
+     assert.equal(boats.hidden,'true',label+' boats must not enter accessibility tree');
+     assert.equal(boats.pointer,'none',label+' boat layer must never intercept navigation');
+     assert.equal(boats.orientation,portrait?'portrait':'landscape',label+' boat positions did not track orientation');
+     assert.deepEqual(boats.rects.map(r=>r.name),['near','far'],label+' add exactly two discrete rowboats');
+     for(const boat of boats.rects){
+       assert.equal(boat.pointer,'none',label+' wooden boat cannot capture taps');
+       assert.match(boat.art,/laria-grovanova-rowboat\.svg/,label+' boat must use separate original SVG');
+       assert(boat.width>12&&boat.height>8,label+' boat must be visibly sized');
+       const x=(boat.cx-boats.art.left)/boats.art.width;
+       const y=(boat.cy-boats.art.top)/boats.art.height;
+       assert(x>.53&&x<.90&&y>.43&&y<.72,
+         label+' boat leaves the open water or exceeds artwork: '+JSON.stringify({name:boat.name,x,y}));
+     }
+   }else assert.equal(await boatLayer.count(),0,label+' iPhone must retain its prior composition');
    assert.equal(await page.locator('.bc15-ambient').count(),1,label+' Home ambience layer missing');
    assert.equal(await page.locator('.bc15-ambient>span').count(),3,label+' Home ambience must stay deliberately minimal');
    const ambient=await page.locator('.bc15-ambient').evaluate(el=>({
