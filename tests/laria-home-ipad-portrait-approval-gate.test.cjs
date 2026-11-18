@@ -16,7 +16,7 @@ test('unapproved Grovanova iPad portrait art cannot replace the locked fallback'
  assert.match(script,/candidate\.width>=2048&&candidate\.height>=2732/);
  assert.match(script,/const originalMaster=portrait\?PHONE_MASTER:TABLET_MASTER/);
  assert.match(script,/image=await decoded\(originalMaster\)/);
- assert.match(script,/portraitMaster=null;\s+try\{image=await decoded\(cleanMaster\);cleanLoaded=true;\}/);
+ assert.match(script,/approvedMaster=null;\s+try\{image=await decoded\(cleanMaster\);cleanLoaded=true;\}/);
  assert.match(script,/catch\(_\)\{image=await decoded\(originalMaster\);\}/);
 
 });
@@ -28,8 +28,8 @@ test('an approved portrait master must supply separate UI safe areas',()=>{
  assert.match(script,/crypto\.subtle\.digest\('SHA-256',bytes\)/);
  assert.match(script,/portrait-art-sha-mismatch/);
  assert.match(script,/approvedPortrait\.ui\.ambient\.sun/);
- assert.match(script,/mapControlsToArtwork\(host,image\.width,image\.height,portrait,portraitMaster\)/);
- assert.match(script,/if\(portraitMaster\)host\.dataset\.bc15CardArt='owner-approved-ui-free'/);
+ assert.match(script,/mapControlsToArtwork\(host,image\.width,image\.height,portrait,approvedMaster\)/);
+ assert.match(script,/if\(approvedMaster\)host\.dataset\.bc15CardArt='owner-approved-ui-free'/);
  assert.match(css,/data-bc15-master="ipad-portrait-approved"/);
  assert.match(css,/bc15-approved-logo/);
  assert.match(css,/\[data-bc15-master="ipad-portrait-approved"\] \.bc12-journey\{[^}]*opacity:1!important/);
