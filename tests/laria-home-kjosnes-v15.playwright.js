@@ -500,6 +500,23 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
    assert.equal(await home.locator('.bc15-subject-signs button:visible').count(),4,label+' four visible sign buttons missing');
    assert.equal(await home.locator('.bc12-journey:visible').count(),1,label+' visible journey button missing');
    assert.equal(await home.locator('.bc12-nav button:visible').count(),5,label+' visible real navigation missing');
+   const polish=await home.evaluate(el=>{
+     const nav=el.querySelector('.bc12-nav'),buttons=[...nav.querySelectorAll('button')];
+     const journey=el.querySelector('.bc12-journey');
+     return {
+       navImage:getComputedStyle(nav).backgroundImage,
+       buttons:buttons.map(b=>({shadow:getComputedStyle(b).boxShadow,
+         border:getComputedStyle(b).borderTopWidth,background:getComputedStyle(b).backgroundColor})),
+       journeySmall:getComputedStyle(journey.querySelector('small')).display,
+       journeySpan:getComputedStyle(journey.querySelector('span')).display
+     };
+   });
+   assert.match(polish.navImage,/gradient/,label+' approved UI needs a single warm navigation rail');
+   assert(polish.buttons.every(b=>b.shadow==='none'&&b.border==='0px'),
+     label+' five freestanding dashboard cards must not return: '+JSON.stringify(polish.buttons));
+   assert.equal(polish.journeySmall,'none',label+' extra destination card must not be pasted below journey sign');
+   assert.equal(polish.journeySpan,'flex',label+' journey sign label must be visible');
+
    const targets=await home.locator('.bc15-subject-signs button').evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().height));
    assert(targets.every(h=>h>=44),label+' sign touch targets too small '+targets);
    assert.equal(await home.getAttribute('data-bc15-fit'),'approved-cover',
