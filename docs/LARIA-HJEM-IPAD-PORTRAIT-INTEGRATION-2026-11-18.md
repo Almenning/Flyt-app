@@ -1,6 +1,6 @@
 # Grovanova iPad-portrett: kontrollert integrering
 
-Status 18. november 2026: **ingen ny portrettkunst er godkjent eller aktivert**.
+Status 18. november 2026: **begge UI-frie bildekonseptene er visuelt godkjent av produkteier, men ikke importert eller aktivert**. Faktiske iPad-appskjermbilder gjenstår.
 
 `home-kjosnes-v15.js` leser bare den sperrede manifestfilen
 `assets/home-v15/grovanova-ipad-portrait-master.json`. Den er inaktiv til alle
@@ -50,6 +50,33 @@ Porten kan bare åpnes på iPad i stående orientering. Mangler godkjenning,
 filsti, SHA-256, minimumsmål, frisoner eller samsvar mellom registrerte og
 dekodede dimensjoner, bruker appen den eksisterende rene, låste
 portrett-fallbacken. Liggende iPad og iPhone berøres ikke.
+
+## Samordnet integrering for begge iPad-retninger
+
+PR #255 har nå **to helt separate, deaktivert-godkjenningsporter**:
+
+| Retning | Manifest | Minimum | Status |
+| --- | --- | --- | --- |
+| Stående 3:4 | `assets/home-v15/grovanova-ipad-portrait-master.json` | 2048×2732 | Avventer fysisk fil og faktisk app-aksept |
+| Liggende 4:3 | `assets/home-v15/grovanova-ipad-landscape-master.json` | 2048×1536 | Avventer fysisk fil og faktisk app-aksept |
+
+Den eksakte godkjente kilden, SHA-256-verdiene og de foreslåtte, **separate** UI-frisonene ligger i `docs/LARIA-GROVANOVA-APPROVED-CANDIDATES-2026-11-18.json`. Disse koordinatene er forhåndsdefinerte for test og må godkjennes etter faktisk visning i iPad, ikke bare ved kodegjennomgang. Begge bildene er fremdeles **utenfor GitHub** inntil importen er gjennomført.
+
+**Import og kontroll når bildefilene er tilgjengelige i kodearbeidsområdet:**
+
+```sh
+node tools/laria_grovanova_import_approved.cjs /sti/til/utpakket/Grovanova
+node tools/laria_grovanova_import_approved.cjs /sti/til/utpakket/Grovanova --stage
+node --test tests/laria-home-ipad-dual-approved-art.test.cjs
+```
+
+Første kommando kontrollerer filbytes og størrelse uten endring. `--stage` legger nøyaktig to eksporterte bildefiler i `assets/home-v15/` og skriver **inaktive** manifester (`awaiting-app-screenshot-approval`). Ingen CLI-kommando kan sette `status: approved`.
+
+**Aktivering er en separat eiergodkjent handling etter faktisk skjermkontroll.** Etter bildekopiering må faktiske WebKit- og Chromium-skjermbilder tas for minst 820×1180, 1024×1366, 1180×820 og 1024×768, og UI-områdene sammenlignes med godkjent uttrykk. Manuell endring av manifeststatus fra inaktiv til `approved` er først aktuelt etter godkjent app-visning og grønn exact-head QA.
+
+Ved manglende fil, feil hash, feil dimensjon eller ugyldige UI-anker må appen beholde de gamle SHA-låste masterne. I nye godkjente scener vises **ingen båter** før egne, motivspesifikke vannankre er signert av produkteier. TrollActor er alltid et separat app-element og er aldri innmalt i bakgrunnene.
+
+**Merk:** Kildenes originaloppløsning er lavere enn eksportene. Oppskalering skaper ikke ny naturdetalj, og en isolert visual godkjenning er ikke dokumentasjon på at tidligere låst fjellgeometri er pikselidentisk.
 
 ## Produkteiers godkjenning av nye visualiseringer 18.11.2026
 
