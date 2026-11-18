@@ -17,18 +17,9 @@ const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards-n
 //
 // See docs/LARIA-HJEM-IPAD-PORTRAIT-ART-BRIEF-2026-11-18.md before changing
 // this registry. Do not use AI concept imagery here.
-const APPROVED_IPAD_PORTRAIT_MASTER=Object.freeze({
- status:'awaiting-visual-approval',
- source:null,
- sha256:null,
- width:0,
- height:0,
- // Required only after owner approval. Every value is a [x,y,width,height]
- // fraction of the approved UI-free master, so application UI stays separate
- // from the background art.
- ui:null
-});
+const IPAD_PORTRAIT_MANIFEST='./assets/home-v15/grovanova-ipad-portrait-master.json';
 let activeMasterSrc='';
+let activePortraitObjectUrl='';
 let activationEpoch=0;
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
@@ -37,17 +28,53 @@ function isPortrait(){return matchMedia('(orientation:portrait)').matches}
 function isIpadHome(){return matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches}
 
 function isUnitRect(value){
- return Array.isArray(value)&&value.length===4&&value.every(n=>typeof n==='number'&&n>=0&&n<=1);
+ return Array.isArray(value)&&value.length===4&&value.every(n=>typeof n==='number'&&n>=0&&n<=1)&&
+   value[2]>0&&value[3]>0&&value[0]+value[2]<=1&&value[1]+value[3]<=1;
 }
-function approvedIpadPortraitMaster(){
- const candidate=APPROVED_IPAD_PORTRAIT_MASTER;
+async function approvedIpadPortraitMaster(){
+ if(!isIpadHome()||!isPortrait())return null;
+ let candidate;
+ try{
+  const response=await fetch(IPAD_PORTRAIT_MANIFEST,{cache:'no-store'});
+  if(!response.ok)throw Error('portrait-manifest-missing');
+  candidate=await response.json();
+ }catch(_){return null;}
  const ui=candidate.ui;
- const validUi=ui&&['subjects','journey','nav','adult','liveCopy'].every(key=>isUnitRect(ui[key]))&&
+ const validUi=ui&&['logo','subjects','journey','nav','adult','liveCopy'].every(key=>isUnitRect(ui[key]))&&
    ['sun','water','journeyGlow'].every(key=>isUnitRect(ui.ambient?.[key]))&&
    Array.isArray(ui.signBoards)&&ui.signBoards.length===4&&ui.signBoards.every(isUnitRect);
  const validSource=typeof candidate.source==='string'&&candidate.source.startsWith('./assets/home-v15/')&&
    /^[a-f0-9]{64}$/i.test(candidate.sha256||'')&&candidate.width>=2048&&candidate.height>=2732;
- return isIpadHome()&&isPortrait()&&candidate.status==='approved'&&validSource&&validUi?candidate:null;
+ return candidate.status==='approved'&&validSource&&validUi?candidate:null;
+}
+
+function hex(bytes){return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');}
+async function verifiedPortraitDecoded(candidate){
+ const response=await fetch(candidate.source,{cache:'no-store'});
+ if(!response.ok||!globalThis.crypto?.subtle)throw Error('portrait-art-unavailable');
+ const bytes=await response.arrayBuffer();
+ const digest=hex(await globalThis.crypto.subtle.digest('SHA-256',bytes));
+ if(digest!==candidate.sha256)throw Error('portrait-art-sha-mismatch');
+ const objectUrl=URL.createObjectURL(new Blob([bytes]));
+ try{
+  const image=await decoded(objectUrl);
+  if(image.width!==candidate.width||image.height!==candidate.height)
+   throw Error('portrait-art-dimensions-mismatch');
+  return {image,objectUrl};
+ }catch(error){URL.revokeObjectURL(objectUrl);throw error;}
+}
+function clearPortraitObjectUrl(){
+ if(activePortraitObjectUrl){URL.revokeObjectURL(activePortraitObjectUrl);activePortraitObjectUrl='';}
+}
+function syncApprovedPortraitLogo(host,portraitMaster,box,viewport){
+ let logo=host.querySelector('.bc15-approved-logo');
+ if(!portraitMaster){logo?.remove();return;}
+ if(!logo){
+  logo=document.createElement('img');logo.className='bc15-approved-logo';
+  logo.alt='Læria';logo.src='./assets/home-v15/laria-logo-from-grovanova.svg';
+  host.appendChild(logo);
+ }
+ place(logo,box,portraitMaster.ui.logo,viewport);
 }
 
 // Mine troll uses the ONE shared interactive selection of original
@@ -308,6 +335,8 @@ function syncLiveCopy(host){
 }
 
 function clearMappedControls(host){
+ clearPortraitObjectUrl();
+ host.querySelector('.bc15-approved-logo')?.remove();
  ['.bc14-subjects','.bc12-journey','.bc12-nav','.bc12-adult-entry',
    '.bc15-sun-glow','.bc15-water-glints','.bc15-journey-glow'].forEach(sel=>{
    const el=host.querySelector(sel);if(!el)return;
@@ -360,7 +389,7 @@ async function activate(){
    return false;
  }
  const portrait=isPortrait();
- let portraitMaster=approvedIpadPortraitMaster();
+ let portraitMaster=await approvedIpadPortraitMaster();
  const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
  const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
  const wantsClean=isIpadHome()||isPhone()||isShortPhoneLandscape();
@@ -373,9 +402,10 @@ async function activate(){
    let image;
    if(portraitMaster){
     try{
-     image=await decoded(portraitMaster.source);
-     if(image.width!==portraitMaster.width||image.height!==portraitMaster.height)
-      throw new Error('Approved iPad portrait master dimensions do not match its registry');
+     const verified=await verifiedPortraitDecoded(portraitMaster);
+     image=verified.image;
+     clearPortraitObjectUrl();
+     activePortraitObjectUrl=verified.objectUrl;
      cleanLoaded=true;
     }catch(_){
      // A damaged, missing or wrongly exported future master is never allowed
@@ -405,7 +435,8 @@ async function activate(){
     else oldRow.removeAttribute('aria-hidden');
    }
    syncLiveCopy(host);
-   mapControlsToArtwork(host,image.width,image.height,portrait,portraitMaster);
+   const artBox=mapControlsToArtwork(host,image.width,image.height,portrait,portraitMaster);
+   syncApprovedPortraitLogo(host,portraitMaster,artBox,{width:host.clientWidth,height:host.clientHeight});
 
    const trollNav=host.querySelector('.bc12-nav [data-camp="wardrobe"]');
    if(trollNav){
