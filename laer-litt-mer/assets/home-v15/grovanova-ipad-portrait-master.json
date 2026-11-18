@@ -1,9 +1,9 @@
 {
-  "status": "awaiting-visual-approval",
+  "status": "awaiting-app-screenshot-approval",
   "source": null,
   "sha256": null,
   "width": 0,
   "height": 0,
   "ui": null,
-  "note": "Production art is intentionally absent. Do not replace this with AI concept imagery."
+  "note": "Owner approved this exact portrait concept visually on 2026-11-18. Its binary source is not in GitHub. Keep the gate disabled until the WebP, exact SHA, layout coordinates and actual app screenshot are reviewed."
 }
