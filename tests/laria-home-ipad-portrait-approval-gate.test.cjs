@@ -10,13 +10,21 @@ const manifest=JSON.parse(fs.readFileSync(path.join(root,'laer-litt-mer/assets/h
 test('unapproved Grovanova iPad portrait art cannot replace the locked fallback',()=>{
  assert(['awaiting-visual-approval','awaiting-app-screenshot-approval'].includes(manifest.status),
   'portrait must remain inactive until a real iPad screenshot has been accepted');
- if(manifest.status==='awaiting-visual-approval'){
-  assert.equal(manifest.source,null);
+ const approved=JSON.parse(fs.readFileSync(path.join(root,'docs/LARIA-GROVANOVA-APPROVED-CANDIDATES-2026-11-18.json'),'utf8')).portrait;
+ if(manifest.source===null){
+  // Concept has owner sign-off, but the exact binary has not been imported yet.
+  // The inactive manifest must never pretend the asset already exists.
   assert.equal(manifest.sha256,null);
+  assert.equal(manifest.width,0);
+  assert.equal(manifest.height,0);
+  assert.equal(manifest.ui,null);
  }else{
-  const approved=JSON.parse(fs.readFileSync(path.join(root,'docs/LARIA-GROVANOVA-APPROVED-CANDIDATES-2026-11-18.json'),'utf8')).portrait;
+  // Staging may record the exact source/hash, but does NOT activate artwork.
+  assert.equal(manifest.status,'awaiting-app-screenshot-approval');
   assert.equal(manifest.source,'./assets/home-v15/'+path.basename(approved.path));
   assert.equal(manifest.sha256,approved.sha256);
+  assert.deepEqual([manifest.width,manifest.height],[approved.width,approved.height]);
+  assert.deepEqual(manifest.ui,approved.ui);
  }
  assert.match(script,/IPAD_PORTRAIT_MANIFEST/);
  assert.match(script,/candidate\.status==='approved'/);
