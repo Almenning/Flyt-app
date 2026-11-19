@@ -609,6 +609,86 @@ async function runLandscapeMasterFixture(engine,label,broken=false,viewport={wid
  }finally{await browser.close()}
 }
 
+// Real WebP approval smoke. This does NOT alter either production manifest.
+// Once the exact owner-approved binary files are staged in the PR, Chromium and
+// WebKit show the real pictures with real DOM controls. Prior to import this
+// prints ART_PENDING, never claiming an illustrated screenshot passed.
+const ownerCatalog=JSON.parse(fs.readFileSync('docs/LARIA-GROVANOVA-APPROVED-CANDIDATES-2026-11-18.json','utf8'));
+function stagedArtReady(){
+ const orientations=['portrait','landscape'];
+ const present=orientations.map(key=>fs.existsSync(ownerCatalog[key].path));
+ if(!present.some(Boolean)){
+  console.log('[Grovanova] ART_PENDING: both approved WebPs are absent from GitHub. Only test fixtures are rendered.');
+  return false;
+ }
+ assert(present.every(Boolean),'The two owner-approved WebPs must be staged together, never only one');
+ for(const orientation of orientations){
+  const item=ownerCatalog[orientation];
+  const bytes=fs.readFileSync(item.path);
+  const sha=crypto.createHash('sha256').update(bytes).digest('hex');
+  assert.equal(sha,item.sha256,orientation+' exact owner-approved bytes changed');
+ }
+ return true;
+}
+async function runOwnerArtScreenshot(engine,label,orientation,broken=false){
+ const item=ownerCatalog[orientation];
+ const portrait=orientation==='portrait';
+ const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+ try{
+  const viewport=portrait?{width:1024,height:1366}:{width:1180,height:820};
+  const context=await browser.newContext({viewport,hasTouch:true,serviceWorkers:'block'});
+  const page=await context.newPage();
+  const errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+  const manifest={status:'approved',
+    source:'./assets/home-v15/'+path.basename(item.path),
+    sha256:broken?'0'.repeat(64):item.sha256,
+    width:item.width,height:item.height,ui:item.ui};
+  await page.route('**/assets/home-v15/grovanova-ipad-'+orientation+'-master.json',
+    route=>route.fulfill({contentType:'application/json',body:JSON.stringify(manifest)}));
+  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+
+    '&owner-art-review='+label,{waitUntil:'domcontentloaded'});
+  const home=page.locator('.bc12.bc15-locked-home');
+  await home.waitFor({state:'visible',timeout:20000});
+  await page.waitForFunction(expected=>document.querySelector('#home-screen .bc12')?.dataset.bc15Asset===expected,
+    broken?(portrait?'phone-ready':'tablet-ready'):'ipad-'+orientation+'-approved',{timeout:20000});
+  if(broken){
+   assert.equal(await home.locator('.bc15-approved-logo').count(),0,label+' art fallback must remove standalone logo');
+   assert.equal(await home.getAttribute('data-bc15-master'),portrait?'portrait':'landscape');
+  }else{
+   assert.equal(await home.getAttribute('data-bc15-card-art'),'owner-approved-ui-free');
+   assert.equal(await home.locator('.bc15-boats').count(),0,label+' no reused boat coordinates on new art');
+   assert.equal(await home.locator('.bc15-approved-logo:visible').count(),1,label+' standalone Læria logo missing');
+   await page.waitForFunction(()=>{const logo=document.querySelector('.bc15-approved-logo');return logo?.complete&&logo.naturalWidth>0;},null,{timeout:10000});
+   assert.equal(await home.locator('.bc15-subject-signs[data-bc15-presentation="live"] button:visible').count(),4,
+     label+' genuine independent wooden subject signs missing');
+   const signSizes=await home.locator('.bc15-subject-signs button').evaluateAll(buttons=>
+     buttons.map(b=>({w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height})));
+   assert(signSizes.every(v=>v.h>=44&&v.w>=44),label+' 44px touch-target failure '+JSON.stringify(signSizes));
+   assert.equal(await home.locator('.bc12-nav button:visible').count(),5,label+' real bottom/top navigation missing');
+   assert.equal(await home.locator('.bc12-journey:visible').count(),1,label+' journey sign missing');
+   assert.equal(await home.getAttribute('data-bc15-fit'),'approved-cover',label+' approved image letterboxed');
+   const layout=await home.evaluate(el=>{
+     const style=getComputedStyle(el),n=k=>parseFloat(style.getPropertyValue(k));
+     return {vw:el.clientWidth,vh:el.clientHeight,aw:n('--bc15-art-width'),
+       ah:n('--bc15-art-height'),bg:el.style.getPropertyValue('--bc15-home-art'),
+       navigation:getComputedStyle(el.querySelector('.bc12-nav')).backgroundImage,
+       extraJourney:getComputedStyle(el.querySelector('.bc12-journey small')).display};
+   });
+   assert(layout.aw>=layout.vw-.75&&layout.ah>=layout.vh-.75,
+     label+' landscape crop/sizing leaves empty strips: '+JSON.stringify(layout));
+   assert.match(layout.bg,/blob:/,label+' displayed art is not SHA-verified bytes');
+   assert.match(layout.navigation,/gradient/,label+' one native navigation rail missing');
+   assert.equal(layout.extraJourney,'none',label+' duplicate journey sticker returned');
+   await page.screenshot({path:folder+'/'+label+'.png',fullPage:true});
+   console.log('[Grovanova] REAL_ART_SCREENSHOT '+label+' '+JSON.stringify(layout));
+  }
+  assert.deepEqual(errors,[],label+' JS console exceptions');
+  await context.close();
+ }finally{await browser.close()}
+}
+
 (async()=>{
  verifyLockedMasterFiles();
  for(const [label,engine,viewport] of [
@@ -630,5 +710,14 @@ async function runLandscapeMasterFixture(engine,label,broken=false,viewport={wid
   await runLandscapeMasterFixture(engine,label,false);
   await runLandscapeMasterFixture(engine,label+'-sha-fallback',true);
   await runLandscapeMasterFixture(engine,label+'-1024x768',false,{width:1024,height:768});
+ }
+ if(stagedArtReady()){
+  for(const [engineName,engine] of [['chromium',chromium],['webkit',webkit]]){
+   for(const orientation of ['portrait','landscape']){
+    const label=engineName+'-owner-approved-'+orientation;
+    await runOwnerArtScreenshot(engine,label,orientation,false);
+    await runOwnerArtScreenshot(engine,label+'-sha-fallback',orientation,true);
+   }
+  }
  }
 })().catch(e=>{console.error(e);process.exitCode=1});
