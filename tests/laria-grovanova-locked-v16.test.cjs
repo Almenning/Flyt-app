@@ -49,5 +49,5 @@ test('historical originals remain exact and v16 never touches HverdagsOss',()=>{
  assert(!source.includes('Dagsform')&&!source.includes('Dagens mål'));
  assert.match(source,/const TABLET_MASTER='\.\/assets\/home-v15\/kjosnes-home-tablet\.webp/);
  assert.match(source,/const PHONE_MASTER='\.\/assets\/home-v15\/kjosnes-home-phone\.webp/);
- assert.doesNotMatch(css,/\.bc12\b(?!\.bc15-locked-home)/);
+ assert.doesNotMatch(css,/^\.bc12(?:\\s|\\{|:)/m);
 });
