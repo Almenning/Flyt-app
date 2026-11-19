@@ -376,6 +376,12 @@ function mapControlsToArtwork(host,imgW,imgH,portrait,approvedPortrait){
 }
 
 function syncLiveCopy(host){
+ if(host.classList.contains('bc15-v16-locked')){
+  // The new portrait greeting uses actual child profile text; never leave
+  // the painted TEST name visible as the child's current identity.
+  window.LARIA_HOME_V16?.syncGreeting(host);
+  return;
+ }
  let live=host.querySelector('.bc15-live-copy');
  if(!live){
    live=document.createElement('div');
@@ -437,6 +443,7 @@ async function activate(){
  host.classList.remove('bc15-ipad-fagmenu','bc15-phone-fagmenu','bc15-landscape-bleed');
  const youngBand=!!document.querySelector('.grade-band-young');
  if(!youngBand){
+   window.LARIA_HOME_V16?.deactivate(host);
    host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
@@ -448,6 +455,7 @@ async function activate(){
  host.classList.add('bc15-capable');
  const detachedView=host.dataset.bc13View && host.dataset.bc13View!=='home';
  if((host.dataset.mode && host.dataset.mode!=='home') || detachedView){
+   window.LARIA_HOME_V16?.deactivate(host);
    host.classList.remove('bc15-locked-home','bc15-pending');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
@@ -457,6 +465,20 @@ async function activate(){
    return false;
  }
  const portrait=isPortrait();
+ // New art and 4+1 navigation were explicitly approved by the product owner.
+ // Try the exact SHA-locked illustrated scene first on iPad only. Failure
+ // falls back to the existing v15/PR255 image gates without touching progress.
+ const v16=window.LARIA_HOME_V16;
+ const current=()=>epoch===activationEpoch && host.isConnected &&
+   host===document.querySelector('#home-screen .bc12') &&
+   !!host.closest('#home-screen.active') && portrait===isPortrait();
+ if(isIpadHome()&&v16?.activate){
+  try{
+   if(await v16.activate(host,{portrait,isCurrent:current}))return true;
+  }catch(error){console.warn('[Læria Home v16] Using safe fallback',error);}
+ }
+ if(!current())return false;
+ v16?.deactivate(host);
  let portraitMaster=await approvedIpadPortraitMaster();
  let landscapeMaster=await approvedIpadLandscapeMaster();
  let approvedMaster=portraitMaster||landscapeMaster;
