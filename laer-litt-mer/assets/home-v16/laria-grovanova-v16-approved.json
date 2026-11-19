@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "approvedBy": "product-owner",
+  "approvedAt": "2026-11-19",
+  "presentation": "painted-visual-dom-actions",
+  "note": "Owner approved EXACT images. Painted logo, subject boards, name bubble and bottom nav remain visible in illustration. Functional semantics are separate DOM controls; no troll characters are painted in. The locked original PNGs remain immutable. No user-visible deployment without PR merge.",
+  "variants": {
+    "landscape": {
+      "source": "./assets/home-v16/laria-grovanova-v16-landscape.webp",
+      "sha256": "c39d374c8d9972a389d120ab15a1c81352158dc78a716fc7259fc31f95ce035e",
+      "width": 2048,
+      "height": 1536,
+      "original": "laria-grovanova-v16-landscape-original.png",
+      "originalSha256": "9019d2d7be86d0f96d59770c0d141b935b1c4195fecc4e1dcfbf531ce226e028",
+      "ui": {
+        "signBoards": [
+          [
+            0.03,
+            0.26,
+            0.246,
+            0.104
+          ],
+          [
+            0.03,
+            0.37,
+            0.246,
+            0.102
+          ],
+          [
+            0.03,
+            0.478,
+            0.246,
+            0.096
+          ],
+          [
+            0.03,
+            0.583,
+            0.246,
+            0.091
+          ]
+        ],
+        "reisen": [
+          0.345,
+          0.518,
+          0.296,
+          0.145
+        ],
+        "journey": [
+          0.298,
+          0.67,
+          0.387,
+          0.106
+        ],
+        "nav": [
+          0.011,
+          0.815,
+          0.975,
+          0.146
+        ],
+        "greeting": [
+          0.048,
+          0.17,
+          0.35,
+          0.114
+        ],
+        "adult": [
+          0.937,
+          0.021,
+          0.05,
+          0.065
+        ]
+      }
+    },
+    "portrait": {
+      "source": "./assets/home-v16/laria-grovanova-v16-portrait.webp",
+      "sha256": "c842e8e901300d1506594ef6e39929611743fc64ff1eb02254b8643059963421",
+      "width": 2048,
+      "height": 2732,
+      "original": "laria-grovanova-v16-portrait-original.png",
+      "originalSha256": "ceb6331bb9ae45e3c6141dc74817262fc0f667ea0b0f82fcf85a60d99efbee55",
+      "ui": {
+        "signBoards": [
+          [
+            0.034,
+            0.318,
+            0.287,
+            0.059
+          ],
+          [
+            0.034,
+            0.38,
+            0.287,
+            0.059
+          ],
+          [
+            0.034,
+            0.444,
+            0.287,
+            0.059
+          ],
+          [
+            0.034,
+            0.503,
+            0.287,
+            0.061
+          ]
+        ],
+        "reisen": [
+          0.282,
+          0.563,
+          0.405,
+          0.12
+        ],
+        "journey": [
+          0.209,
+          0.692,
+          0.556,
+          0.093
+        ],
+        "nav": [
+          0.012,
+          0.87,
+          0.973,
+          0.097
+        ],
+        "greeting": [
+          0.052,
+          0.142,
+          0.477,
+          0.086
+        ],
+        "adult": [
+          0.935,
+          0.016,
+          0.05,
+          0.062
+        ]
+      }
+    }
+  }
+}
