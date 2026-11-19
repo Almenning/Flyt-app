@@ -15,10 +15,10 @@ module.exports=async function openHomeSubject(page,id){
    return !!h&&/^(?:(phone|tablet)-ready|v16-(portrait|landscape)-approved)$/.test(h.dataset.bc15Asset||'')&&
      !h.classList.contains('bc15-pending');
  },null,{timeout:26000});
- const clean=['clean-candidate','approved-painted-ui'].includes(await home.getAttribute('data-bc15-card-art'));
- if(clean){
-   const rail=home.locator('.bc15-subject-signs:not([hidden]) [data-bc15-subject="'+id+'"]');
-   await rail.waitFor({state:'visible',timeout:26000});
+ // Trust the actual child-visible route, not a stale art-state attribute
+ // which may still reflect the previous screen after a Home return.
+ const rail=home.locator('.bc15-subject-signs:not([hidden]) [data-bc15-subject="'+id+'"]');
+ if(await rail.isVisible()){
    await rail.click({timeout:26000});
  }else{
    // Complete fallback means original artwork AND its original real routes.
