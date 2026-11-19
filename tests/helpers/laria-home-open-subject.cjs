@@ -12,10 +12,10 @@ module.exports=async function openHomeSubject(page,id){
  // decide which control to click until the final painting is selected.
  await page.waitForFunction(()=>{
    const h=document.querySelector('#home-screen.active .bc12.bc15-locked-home');
-   return !!h&&/^(phone|tablet)-ready$/.test(h.dataset.bc15Asset||'')&&
+   return !!h&&/^(?:(phone|tablet)-ready|v16-(portrait|landscape)-approved)$/.test(h.dataset.bc15Asset||'')&&
      !h.classList.contains('bc15-pending');
  },null,{timeout:26000});
- const clean=(await home.getAttribute('data-bc15-card-art'))==='clean-candidate';
+ const clean=['clean-candidate','approved-painted-ui'].includes(await home.getAttribute('data-bc15-card-art'));
  if(clean){
    const rail=home.locator('.bc15-subject-signs:not([hidden]) [data-bc15-subject="'+id+'"]');
    await rail.waitFor({state:'visible',timeout:26000});
