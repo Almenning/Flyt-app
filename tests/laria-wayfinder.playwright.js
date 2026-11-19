@@ -96,6 +96,25 @@ async function run(browserType,engine,name,viewport){
     await home.waitFor({state:'visible',timeout:15000});
    }
   }else if(portrait&&viewport.width>=768&&viewport.height>=650){
+    // Owner-approved v16 has the four boards painted in the image; its
+    // separately clickable, accessible hits must not duplicate the boards.
+    if(await home.getAttribute('data-bc15-design')==='locked-v16'){
+      const rail=home.locator('.bc15-subject-signs[data-bc15-presentation="v16-painted"]');
+      await rail.waitFor({state:'visible',timeout:15000});
+      const entries=rail.locator('button.bc15-painted-subject:visible');
+      assert.equal(await entries.count(),4,'v16 portrait requires four interactive sign hits');
+      const rects=await entries.evaluateAll(nodes=>nodes.map(el=>{
+       const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,w:r.width,h:r.height};
+      }));
+      assert(rects.every(r=>r.w>=44&&r.h>=44&&r.left>=0&&r.right<=viewport.width+1),
+       'v16 sign touch targets are clipped: '+JSON.stringify(rects));
+      for(const spec of worlds){
+       await rail.locator('[data-bc15-subject="'+spec.id+'"]').click();
+       await page.locator(spec.root+':visible').waitFor({timeout:18000});
+       await page.evaluate(()=>showScreen('home'));
+       await home.waitFor({state:'visible',timeout:15000});
+      }
+    }else{
     // The LOCKED portrait master has no painted left-hand signs. Its four
     // fully live oak signs are the primary route and must be tested as such.
     const rail=home.locator('.bc15-subject-signs[data-bc15-presentation="live"]');
@@ -128,6 +147,7 @@ async function run(browserType,engine,name,viewport){
       await page.locator(spec.root+':visible').waitFor({timeout:18000});
       await page.evaluate(()=>showScreen('home'));
       await home.waitFor({state:'visible',timeout:15000});
+    }
     }
   }else if(portrait&&viewport.width<=700){
     // A separate clean phone derivative has the same real oak navigation as
