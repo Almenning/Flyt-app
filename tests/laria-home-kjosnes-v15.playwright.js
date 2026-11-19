@@ -461,7 +461,7 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   const svg='<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="2732"><rect width="100%" height="100%" fill="#2b6d84"/><text x="70" y="160" fill="white" font-size="64">TEST FIXTURE ONLY — NOT APPROVED ART</text></svg>';
   const sha=crypto.createHash('sha256').update(svg).digest('hex');
-  const ui={logo:[.08,.04,.27,.1],subjects:[.03,.28,.28,.28],journey:[.33,.70,.34,.1],nav:[.03,.86,.94,.1],adult:[.9,.04,.06,.06],liveCopy:[.34,.17,.5,.1],ambient:{sun:[.6,.2,.1,.1],water:[.4,.45,.2,.1],journeyGlow:[.52,.68,.1,.1]},signBoards:[[.03,.28,.27,.05],[.03,.35,.27,.05],[.03,.42,.27,.05],[.03,.49,.27,.05]]};
+  const ui=ownerCatalog.portrait.ui;
   const manifest={status:'approved',source:'./assets/home-v15/__test-only-portrait-master.webp',sha256:broken?'0'.repeat(64):sha,width:2048,height:2732,ui};
   await page.route('**/assets/home-v15/grovanova-ipad-portrait-master.json',route=>{diagnostics.manifestHits++;return route.fulfill({contentType:'application/json',body:JSON.stringify(manifest)});});
   await page.route('**/assets/home-v15/__test-only-portrait-master.webp',route=>{diagnostics.imageHits++;return route.fulfill({contentType:'image/svg+xml',body:svg});});
@@ -549,12 +549,7 @@ async function runLandscapeMasterFixture(engine,label,broken=false,viewport={wid
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   const svg='<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1536"><rect width="100%" height="100%" fill="#246b77"/><text x="90" y="180" font-size="60" fill="white">TEST FIXTURE ONLY / NOT APPROVED ART</text></svg>';
   const sha=crypto.createHash('sha256').update(svg).digest('hex');
-  const ui={logo:[.035,.042,.247,.153],subjects:[.022,.322,.215,.337],
-    journey:[.030,.77,.310,.123],nav:[.575,.040,.375,.132],
-    adult:[.92,.198,.059,.08],liveCopy:[.083,.197,.350,.103],
-    signBoards:[[.026,.326,.210,.071],[.026,.412,.210,.071],
-      [.026,.498,.210,.071],[.026,.584,.210,.071]],
-    ambient:{sun:[.38,.30,.18,.18],water:[.36,.54,.55,.22],journeyGlow:[.07,.74,.23,.13]}};
+  const ui=ownerCatalog.landscape.ui;
   const manifest={status:'approved',source:'./assets/home-v15/__test-only-landscape-master.webp',
     sha256:broken?'0'.repeat(64):sha,width:2048,height:1536,ui};
   await page.route('**/assets/home-v15/grovanova-ipad-landscape-master.json',
