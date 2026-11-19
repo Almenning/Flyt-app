@@ -155,6 +155,9 @@ function reset(host){
 async function activate(host,{portrait,isCurrent}){
  // Isolated legacy-renderer tests only. Never set by the app itself.
  if(window.__LARIA_QA_SKIP_V16===true)return false;
+ // Separate owner-approved PR preview. Old Home remains the production baseline
+ // until exact-device QA and explicit merge/publication permission are complete.
+ if(new URLSearchParams(location.search).get('lariaV16')!=='1')return false;
  if(!host||!window.matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches)return false;
  const orientation=portrait?'portrait':'landscape';
  const m=await metadata();
