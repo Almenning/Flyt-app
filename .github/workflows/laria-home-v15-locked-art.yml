@@ -6,6 +6,11 @@ on:
       - 'laer-litt-mer/home-kjosnes-v15.js'
       - 'laer-litt-mer/home-kjosnes-v15.css'
       - 'laer-litt-mer/assets/home-v15/**'
+      - 'laer-litt-mer/assets/home-v16/**'
+      - 'laer-litt-mer/laria-grovanova-v16.js'
+      - 'laer-litt-mer/laria-grovanova-v16.css'
+      - 'tests/laria-grovanova-v16.playwright.js'
+      - 'tests/laria-grovanova-v16-approved.test.cjs'
       - 'tests/laria-home-kjosnes-v15.playwright.js'
       - '.github/workflows/laria-home-v15-locked-art.yml'
   workflow_dispatch:
@@ -29,7 +34,10 @@ jobs:
       - name: Verify Home renderer and test syntax
         run: |
           node --check laer-litt-mer/home-kjosnes-v15.js
+          node --check laer-litt-mer/laria-grovanova-v16.js
           node --check tests/laria-home-kjosnes-v15.playwright.js
+          node --check tests/laria-grovanova-v16.playwright.js
+          node --test tests/laria-grovanova-v16-approved.test.cjs
       - name: Serve exact PR version
         run: python3 -m http.server 8765 --directory . > /tmp/laria-home-http.log 2>&1 &
       - name: Verify locked artwork, living greeting bubble, navigation and saved child progress
@@ -37,6 +45,11 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           HOME_V15_SCREENSHOTS: /tmp/laria-home-v15
         run: node tests/laria-home-kjosnes-v15.playwright.js
+      - name: Review owner-approved Grovanova v16 in REAL Chromium and WebKit
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          HOME_V15_SCREENSHOTS: /tmp/laria-home-v15
+        run: node tests/laria-grovanova-v16.playwright.js
       - name: Emit review-sized iPad screenshots for PR 250
         if: ${{ github.event.pull_request.number == 250 }}
         shell: bash
