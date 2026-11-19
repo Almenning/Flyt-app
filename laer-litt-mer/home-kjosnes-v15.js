@@ -9,6 +9,38 @@ const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1
 // remain intact and continue to serve as the safe fallback.
 const CLEAN_TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
 const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
+// Owner-locked v16 painted iPad scenes. Preserve original Home sources.
+const IPAD_V16_MANIFEST='./assets/home-v15/laria-grovanova-v16-manifest.json';
+let activeV16Blob='';
+function clearV16Blob(){if(activeV16Blob){URL.revokeObjectURL(activeV16Blob);activeV16Blob='';}}
+function isUnitRect(v){return Array.isArray(v)&&v.length===4&&v.every(n=>typeof n==='number'&&Number.isFinite(n)&&n>=0&&n<=1)&&v[2]>0&&v[3]>0&&v[0]+v[2]<=1&&v[1]+v[3]<=1;}
+async function approvedV16(){
+ if(!isIpadHome())return null;
+ try{
+  const res=await fetch(IPAD_V16_MANIFEST,{cache:'no-store'});
+  if(!res.ok)return null;
+  const meta=await res.json(),item=meta?.[isPortrait()?'portrait':'landscape'];
+  if(meta.status!=='approved-preview'||!item)return null;
+  if(typeof item.source!=='string'||!/^\.\/assets\/home-v15\/[a-z0-9-]+\.webp$/i.test(item.source)||!/^[0-9a-f]{64}$/.test(item.sha256))return null;
+  if(item.width!==2048||item.height!==(isPortrait()?2732:1536))return null;
+  if(!item.ui||!['greeting','subjects','reise','continue','nav','adult'].every(k=>isUnitRect(item.ui[k])))return null;
+  if(!Array.isArray(item.ui.signBoards)||item.ui.signBoards.length!==4||!item.ui.signBoards.every(isUnitRect))return null;
+  return item;
+ }catch(_){return null;}
+}
+async function decodeV16Verified(item){
+ const res=await fetch(item.source,{cache:'no-store'});
+ if(!res.ok||!globalThis.crypto?.subtle)throw Error('v16-unavailable');
+ const bytes=await res.arrayBuffer();
+ const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(x=>x.toString(16).padStart(2,'0')).join('');
+ if(hash!==item.sha256)throw Error('v16-sha-mismatch');
+ const url=URL.createObjectURL(new Blob([bytes],{type:'image/webp'}));
+ try{
+  const image=await decoded(url);
+  if(image.width!==item.width||image.height!==item.height)throw Error('v16-dimensions-mismatch');
+  return {image,url};
+ }catch(e){URL.revokeObjectURL(url);throw e;}
+}
 let activeMasterSrc='';
 let activationEpoch=0;
 
@@ -138,7 +170,58 @@ function ensureHomeSignHits(host){
  return nav;
 }
 
+function mapV16Home(host,imgW,imgH,entry){
+ const bounds=host.getBoundingClientRect(),viewport={width:bounds.width,height:bounds.height};
+ const ratio=Math.max(bounds.width/imgW,bounds.height/imgH);
+ const box={left:(bounds.width-imgW*ratio)/2,top:(bounds.height-imgH*ratio)/2,width:imgW*ratio,height:imgH*ratio};
+ const ui=entry.ui;
+ const signNav=ensureHomeSignHits(host);
+ signNav.hidden=false;
+ signNav.dataset.bc15Presentation='v16-painted';
+ signNav.querySelectorAll('button').forEach((b,i)=>place(b,box,ui.signBoards[i],viewport));
+ place(host.querySelector('.bc12-journey'),box,ui.continue,viewport);
+ const nav=host.querySelector('.bc12-nav');
+ place(nav,box,ui.nav,viewport);
+ const travel=nav?.querySelector('[data-camp="travel"]');
+ if(travel){travel.hidden=true;travel.tabIndex=-1;travel.setAttribute('aria-hidden','true');}
+ place(host.querySelector('.bc12-adult-entry'),box,ui.adult,viewport);
+ place(host.querySelector('.bc15-live-copy'),box,ui.greeting,viewport);
+ let reisen=host.querySelector('.bc16-reisen');
+ if(!reisen){
+  reisen=document.createElement('button');reisen.type='button';
+  reisen.className='bc16-reisen';reisen.setAttribute('aria-label','Reisen. Velg fagreise');
+  reisen.addEventListener('click',()=>{
+   let dialog=document.getElementById('bc16-journey-picker');
+   if(!dialog){
+    dialog=document.createElement('dialog');dialog.id='bc16-journey-picker';
+    dialog.setAttribute('aria-label','Velg fagreise');
+    dialog.innerHTML='<h2>Reisen</h2><p>Velg en fagreise</p>'+
+      [['norwegian','Norsk'],['math','Matte'],['english','Engelsk'],['geography','Geografi']].map(([id,label])=>
+      '<button type="button" data-bc16-subject="'+id+'">'+label+'</button>').join('')+
+      '<button type="button" data-bc16-close>Lukk</button>';
+    dialog.addEventListener('click',event=>{
+     const id=event.target.closest('[data-bc16-subject]')?.dataset.bc16Subject;
+     if(id){dialog.close();window.LARIA_HOME_OPEN_SUBJECT?.(id);}
+     if(event.target.closest('[data-bc16-close]'))dialog.close();
+    });
+    document.body.appendChild(dialog);
+   }
+   dialog.showModal();
+  });
+  host.appendChild(reisen);
+ }
+ place(reisen,box,ui.reise,viewport);
+ host.querySelector('.bc15-boats')?.remove();
+ host.querySelector('.bc15-ambient')?.remove();
+ host.classList.remove('bc15-ipad-fagmenu','bc15-landscape-bleed');
+ for(const [name,value] of [['left',box.left],['top',box.top],['width',box.width],['height',box.height]])
+  host.style.setProperty('--bc15-art-'+name,value+'px');
+ host.dataset.bc15Fit='v16-full-bleed-cover';
+ return box;
+}
+
 function mapControlsToArtwork(host,imgW,imgH,portrait){
+ if(host.dataset.bc15Design==='locked-v16')return mapV16Home(host,imgW,imgH,host.__bc16);
  const rect=host.getBoundingClientRect();
  const artAspect=imgW/imgH;
  const viewportAspect=rect.width/rect.height;
@@ -301,6 +384,7 @@ function syncLiveCopy(host){
 }
 
 function clearMappedControls(host){
+ host.querySelector('.bc16-reisen')?.remove();
  host.querySelector('.bc15-boats')?.remove();
  ['.bc14-subjects','.bc12-journey','.bc12-nav','.bc12-adult-entry',
    '.bc15-sun-glow','.bc15-water-glints','.bc15-journey-glow'].forEach(sel=>{
@@ -354,6 +438,8 @@ async function activate(){
    return false;
  }
  const portrait=isPortrait();
+ const v16=await approvedV16();
+ if(epoch!==activationEpoch||!host.isConnected||!host.closest('#home-screen.active')||portrait!==isPortrait())return false;
  const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
  const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
  const wantsClean=isIpadHome()||isPhone()||isShortPhoneLandscape();
@@ -364,19 +450,32 @@ async function activate(){
    // locked original. Never turn a missing asset into an empty Home stage.
    let cleanLoaded=false;
    let image;
-   if(wantsClean){
+   let newBlob='';
+   let v16active=null;
+   if(v16){
+    try{
+     const verified=await decodeV16Verified(v16);
+     image=verified.image;newBlob=verified.url;v16active=v16;cleanLoaded=true;
+    }catch(_){ /* Fail closed to existing locked Home */ }
+   }
+   if(!image&&wantsClean){
     try{image=await decoded(cleanMaster);cleanLoaded=true;}
     catch(_){image=await decoded(originalMaster);}
-   }else image=await decoded(originalMaster);
+   }else if(!image)image=await decoded(originalMaster);
    if(epoch!==activationEpoch || !host.isConnected ||
-      host!==document.querySelector('#home-screen .bc12') || portrait!==isPortrait())return false;
+      host!==document.querySelector('#home-screen .bc12') || portrait!==isPortrait()){
+     if(newBlob)URL.revokeObjectURL(newBlob);return false;
+   }
+   clearV16Blob();activeV16Blob=newBlob;
    activeMasterSrc=image.src;
    host.style.setProperty('--bc15-home-art','url("'+image.src+'")');
    host.classList.add('bc15-locked-home');
    host.classList.remove('bc15-pending','bc15-fallback');
-   host.dataset.bc15Asset=portrait?'phone-ready':'tablet-ready';
-   host.dataset.bc15Master=portrait?'portrait':'landscape';
-   host.dataset.bc15CardArt=cleanLoaded?'clean-candidate':'locked-original';
+   host.dataset.bc15Asset=v16active?'v16-'+(portrait?'portrait':'landscape')+'-approved':portrait?'phone-ready':'tablet-ready';
+   host.dataset.bc15Master=v16active?'v16-'+(portrait?'portrait':'landscape'):portrait?'portrait':'landscape';
+   host.dataset.bc15CardArt=v16active?'approved-painted-ui':cleanLoaded?'clean-candidate':'locked-original';
+   if(v16active){host.dataset.bc15Design='locked-v16';host.__bc16=v16active;}
+   else{delete host.dataset.bc15Design;delete host.__bc16;host.querySelector('.bc16-reisen')?.remove();}
    const oldRow=host.querySelector('.bc14-subjects');
    if(oldRow){
     oldRow.inert=cleanLoaded;
@@ -410,6 +509,7 @@ async function activate(){
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.querySelector('.bc15-subject-signs')?.remove();
+   clearV16Blob();delete host.dataset.bc15Design;delete host.__bc16;
    host.dataset.bc15Asset='missing';
    host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient,.bc15-boats').forEach(el=>el.remove());
    console.warn('[Læria Home v15] Locked master not activated.',err);
