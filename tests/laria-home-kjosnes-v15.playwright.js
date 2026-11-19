@@ -170,6 +170,7 @@ async function run(engine,label,viewport){
    });
    const page=await context.newPage(),errors=[];
    page.on('pageerror',e=>errors.push(e.message));
+   await page.addInitScript(()=>{window.__LARIA_QA_SKIP_V16=true;});
    await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
    await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
    await page.route('https://api.worldbank.org/**',r=>r.abort());
@@ -458,6 +459,7 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
   page.on('pageerror',e=>diagnostics.pageErrors.push(String(e.message).slice(0,400)));
   page.on('console',m=>{if(m.type()==='error')diagnostics.consoleErrors.push(m.text().slice(0,400));});
   page.on('requestfailed',req=>diagnostics.failedRequests.push({url:req.url().slice(-140),reason:req.failure()?.errorText}));
+  await page.addInitScript(()=>{window.__LARIA_QA_SKIP_V16=true;});
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   const svg='<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="2732"><rect width="100%" height="100%" fill="#2b6d84"/><text x="70" y="160" fill="white" font-size="64">TEST FIXTURE ONLY — NOT APPROVED ART</text></svg>';
   const sha=crypto.createHash('sha256').update(svg).digest('hex');
@@ -552,6 +554,7 @@ async function runLandscapeMasterFixture(engine,label,broken=false,viewport={wid
   const page=await context.newPage();
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
+  await page.addInitScript(()=>{window.__LARIA_QA_SKIP_V16=true;});
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   const svg='<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1536"><rect width="100%" height="100%" fill="#246b77"/><text x="90" y="180" font-size="60" fill="white">TEST FIXTURE ONLY / NOT APPROVED ART</text></svg>';
   const sha=crypto.createHash('sha256').update(svg).digest('hex');
@@ -647,6 +650,7 @@ async function runOwnerArtScreenshot(engine,label,orientation,broken=false){
   const page=await context.newPage();
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
+  await page.addInitScript(()=>{window.__LARIA_QA_SKIP_V16=true;});
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   const manifest={status:'approved',
     source:'./assets/home-v15/'+path.basename(item.path),
