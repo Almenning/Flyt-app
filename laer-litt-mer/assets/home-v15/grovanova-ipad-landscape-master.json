@@ -1,9 +1,92 @@
 {
   "status": "awaiting-app-screenshot-approval",
-  "source": null,
-  "sha256": null,
-  "width": 0,
-  "height": 0,
-  "ui": null,
-  "note": "Owner approved the 4:3 UI-free visual direction. No binary artwork is yet in GitHub, so release is intentionally disabled. Do not activate until exact WebP, SHA, UI anchors and actual iPad visual QA are verified."
+  "source": "./assets/home-v15/grovanova-ipad-landscape-candidate-20261118.webp",
+  "sha256": "30eff16608cfd778a900c3ba432c64a6484d47019e9f631d1595ef46a81df8fa",
+  "width": 2048,
+  "height": 1536,
+  "ui": {
+    "logo": [
+      0.035,
+      0.06,
+      0.247,
+      0.135
+    ],
+    "subjects": [
+      0.022,
+      0.322,
+      0.215,
+      0.337
+    ],
+    "journey": [
+      0.03,
+      0.77,
+      0.31,
+      0.123
+    ],
+    "nav": [
+      0.575,
+      0.06,
+      0.375,
+      0.12
+    ],
+    "adult": [
+      0.92,
+      0.198,
+      0.059,
+      0.08
+    ],
+    "liveCopy": [
+      0.083,
+      0.217,
+      0.35,
+      0.1
+    ],
+    "signBoards": [
+      [
+        0.026,
+        0.326,
+        0.21,
+        0.071
+      ],
+      [
+        0.026,
+        0.412,
+        0.21,
+        0.071
+      ],
+      [
+        0.026,
+        0.498,
+        0.21,
+        0.071
+      ],
+      [
+        0.026,
+        0.584,
+        0.21,
+        0.071
+      ]
+    ],
+    "ambient": {
+      "sun": [
+        0.38,
+        0.3,
+        0.18,
+        0.18
+      ],
+      "water": [
+        0.36,
+        0.54,
+        0.55,
+        0.22
+      ],
+      "journeyGlow": [
+        0.07,
+        0.74,
+        0.23,
+        0.13
+      ]
+    }
+  },
+  "note": "Exact owner-approved 2026-11-18 WebP staged and SHA verified. Activation remains blocked pending WebKit/Chromium real-art screenshots and owner approval of actual app layout."
 }
