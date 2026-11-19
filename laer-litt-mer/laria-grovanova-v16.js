@@ -196,7 +196,17 @@ async function activate(host,{portrait,isCurrent}){
  place(journey,box,v.ui.journey);
  const nav=host.querySelector('.bc12-nav');
  place(nav,box,v.ui.nav);
- place(host.querySelector('.bc12-adult-entry'),box,v.ui.adult);
+ const adult=host.querySelector('.bc12-adult-entry');
+ // The adult hold entry is not painted. Keep it genuinely circular and
+ // at least 44px, completely inside EVERY iPad crop including 820x1180.
+ if(adult){
+  const edge=16,size=46;
+  for(const [name,value] of Object.entries({
+    left:Math.max(edge,box.viewW-edge-size),top:edge,width:size,height:size
+  }))adult.style.setProperty(name,value+'px','important');
+  adult.style.setProperty('right','auto','important');
+  adult.style.setProperty('bottom','auto','important');
+ }
  const greeting=ensureGreeting(host);
  place(greeting,box,v.ui.greeting);
  syncGreeting(host);
