@@ -153,6 +153,8 @@ function reset(host){
  if(activeUrl){URL.revokeObjectURL(activeUrl);activeUrl='';}
 }
 async function activate(host,{portrait,isCurrent}){
+ // Isolated legacy-renderer tests only. Never set by the app itself.
+ if(window.__LARIA_QA_SKIP_V16===true)return false;
  if(!host||!window.matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches)return false;
  const orientation=portrait?'portrait':'landscape';
  const m=await metadata();
