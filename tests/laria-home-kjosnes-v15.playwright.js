@@ -505,6 +505,7 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
      const journey=el.querySelector('.bc12-journey');
      return {
        navImage:getComputedStyle(nav).backgroundImage,
+       artMask:getComputedStyle(el,'::after').webkitMaskImage,
        buttons:buttons.map(b=>({shadow:getComputedStyle(b).boxShadow,
          border:getComputedStyle(b).borderTopWidth,background:getComputedStyle(b).backgroundColor})),
        journeySmall:getComputedStyle(journey.querySelector('small')).display,
@@ -514,6 +515,7 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
      };
    });
    assert.match(polish.navImage,/gradient/,label+' approved UI needs a single warm navigation rail');
+   assert.equal(polish.artMask,'none',label+' clean full-bleed art must not inherit painted-master edge masks');
    assert(polish.buttons.every(b=>b.shadow==='none'&&b.border==='0px'),
      label+' five freestanding dashboard cards must not return: '+JSON.stringify(polish.buttons));
    assert.equal(polish.journeySmall,'none',label+' extra destination card must not be pasted below journey sign');
@@ -589,6 +591,7 @@ async function runLandscapeMasterFixture(engine,label,broken=false,viewport={wid
     const boards=[...el.querySelectorAll('.bc15-painted-subject')];
     const n=prop=>parseFloat(getComputedStyle(el).getPropertyValue(prop));
     return {nav:getComputedStyle(nav).backgroundImage,
+      artMask:getComputedStyle(el,'::after').webkitMaskImage,
       journeyText:getComputedStyle(journey.querySelector('span')).display,
       journeyExtra:getComputedStyle(journey.querySelector('small')).display,
       journeyTextBackground:getComputedStyle(journey.querySelector('span')).backgroundImage,
@@ -597,6 +600,7 @@ async function runLandscapeMasterFixture(engine,label,broken=false,viewport={wid
       dimensions:{w:el.clientWidth,h:el.clientHeight,artW:n('--bc15-art-width'),artH:n('--bc15-art-height')}};
    });
    assert.match(elements.nav,/gradient/,label+' navigation must use one shared background');
+   assert.equal(elements.artMask,'none',label+' approved landscape must not inherit painted art edge fades');
    assert.equal(elements.journeyText,'flex');
    assert.equal(elements.journeyExtra,'none',label+' duplicate journey sticker');
    assert.equal(elements.journeyTextBackground,'none',label+' legacy nested wooden sign must be transparent');
