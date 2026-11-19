@@ -94,6 +94,14 @@ body:has(.grade-band-young #home-screen.active .bc12){
       transparent calc(var(--bc15-art-left,0px) + var(--bc15-art-width,100%) + 2px))!important;
     filter:saturate(1.02) contrast(1.012)!important;
   }
+  /* The legacy horizontal feather belongs ONLY to narrow, painted phone art.
+     A newly approved UI-free 3:4 master is already cover-fitted to the iPad.
+     Masking its edges leaks the synthetic meadow/sky frame into the actual art. */
+  .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu[data-bc15-master="ipad-portrait-approved"]::after{
+    -webkit-mask-image:none!important;
+    mask-image:none!important;
+    filter:none!important;
+  }
   .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
   .bc15-subject-signs[data-bc15-presentation="live"] > .bc15-painted-subject{
     font-size:clamp(17px,2.1vw,22px)!important;
