@@ -180,6 +180,11 @@
  .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-portrait-approved"] .bc12-journey>span{
    display:flex!important;align-items:center!important;justify-content:center!important;
    width:100%!important;gap:12px!important;
+   /* Legacy Basecamp paints a second brown board on this inner span.
+      The outer button already owns the ONE real Læria wooden plank. */
+   background:none!important;border:0!important;border-radius:0!important;
+   box-shadow:none!important;filter:none!important;transform:none!important;
+   padding:0!important;margin:0!important;color:#3c2616!important;
    font:900 clamp(18px,2.5vw,28px)/1.05 var(--laria-ui-font,system-ui)!important;
    text-shadow:0 1px 0 #fff3d2!important;
  }
@@ -246,6 +251,11 @@
  .grade-band-young .bc12.bc15-locked-home[data-bc15-master="ipad-landscape-approved"] .bc12-journey>span{
    display:flex!important;align-items:center!important;justify-content:center!important;
    width:100%!important;gap:12px!important;
+   /* Legacy Basecamp paints a second brown board on this inner span.
+      The outer button already owns the ONE real Læria wooden plank. */
+   background:none!important;border:0!important;border-radius:0!important;
+   box-shadow:none!important;filter:none!important;transform:none!important;
+   padding:0!important;margin:0!important;color:#3c2616!important;
    font:900 clamp(18px,2.5vw,28px)/1.05 var(--laria-ui-font,system-ui)!important;
    text-shadow:0 1px 0 #fff3d2!important;
  }
