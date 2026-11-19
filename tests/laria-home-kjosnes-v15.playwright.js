@@ -508,7 +508,9 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
        buttons:buttons.map(b=>({shadow:getComputedStyle(b).boxShadow,
          border:getComputedStyle(b).borderTopWidth,background:getComputedStyle(b).backgroundColor})),
        journeySmall:getComputedStyle(journey.querySelector('small')).display,
-       journeySpan:getComputedStyle(journey.querySelector('span')).display
+       journeySpan:getComputedStyle(journey.querySelector('span')).display,
+       journeySpanArt:getComputedStyle(journey.querySelector('span')).backgroundImage,
+       journeySpanBorder:getComputedStyle(journey.querySelector('span')).borderTopWidth
      };
    });
    assert.match(polish.navImage,/gradient/,label+' approved UI needs a single warm navigation rail');
@@ -516,6 +518,8 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
      label+' five freestanding dashboard cards must not return: '+JSON.stringify(polish.buttons));
    assert.equal(polish.journeySmall,'none',label+' extra destination card must not be pasted below journey sign');
    assert.equal(polish.journeySpan,'flex',label+' journey sign label must be visible');
+   assert.equal(polish.journeySpanArt,'none',label+' inherited Basecamp inner plaque overlays the only journey sign');
+   assert.equal(polish.journeySpanBorder,'0px',label+' inherited Basecamp inner border draws a second sign');
 
    const targets=await home.locator('.bc15-subject-signs button').evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().height));
    assert(targets.every(h=>h>=44),label+' sign touch targets too small '+targets);
@@ -587,12 +591,16 @@ async function runLandscapeMasterFixture(engine,label,broken=false,viewport={wid
     return {nav:getComputedStyle(nav).backgroundImage,
       journeyText:getComputedStyle(journey.querySelector('span')).display,
       journeyExtra:getComputedStyle(journey.querySelector('small')).display,
+      journeyTextBackground:getComputedStyle(journey.querySelector('span')).backgroundImage,
+      journeyTextBorder:getComputedStyle(journey.querySelector('span')).borderTopWidth,
       signLabels:boards.map(x=>getComputedStyle(x.querySelector('.bc15-sign-name')).display),
       dimensions:{w:el.clientWidth,h:el.clientHeight,artW:n('--bc15-art-width'),artH:n('--bc15-art-height')}};
    });
    assert.match(elements.nav,/gradient/,label+' navigation must use one shared background');
    assert.equal(elements.journeyText,'flex');
    assert.equal(elements.journeyExtra,'none',label+' duplicate journey sticker');
+   assert.equal(elements.journeyTextBackground,'none',label+' legacy nested wooden sign must be transparent');
+   assert.equal(elements.journeyTextBorder,'0px',label+' duplicate sign border must be absent');
    assert(elements.signLabels.every(x=>x!=='none'),label+' live wooden signs are invisible');
    assert(elements.dimensions.artW>=elements.dimensions.w-.5&&elements.dimensions.artH>=elements.dimensions.h-.5,
      label+' approved landscape art must fill the iPad without letterboxing');
