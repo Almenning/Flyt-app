@@ -161,6 +161,48 @@ async function returnFromLockedJourney(page,screen,subject,label){
    label+' '+subject+' return may not recreate pasted-on progress plaque');
 }
 
+// Owner-approved, PAINTED v16 artwork is not the old no-card master.
+// Do not apply v15's landscape scenic-strip and boats assertions to it.
+async function validateV16(page,home,label,viewport,errors){
+ const orientation=viewport.width>viewport.height?'landscape':'portrait';
+ await page.waitForFunction(expect=>document.querySelector('#home-screen.active .bc12')?.dataset.bc15Asset==='v16-'+expect+'-approved',
+  orientation,{timeout:22000});
+ assert.equal(await home.getAttribute('data-bc15-design'),'locked-v16');
+ assert.equal(await home.getAttribute('data-bc15-fit'),'v16-full-bleed-cover');
+ const path='laria-grovanova-v16-'+orientation+'.webp';
+ const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
+ assert.match(art,/blob:/,label+' the signed artwork must be verified before display');
+ assert.equal(await home.locator('.bc15-boats').count(),0,label+' do not reuse old water anchors');
+ const signs=home.locator('.bc15-subject-signs button');
+ assert.equal(await signs.count(),4,label+' exactly four subject routes');
+ assert.equal(await home.locator('.bc12-nav button:visible').count(),4,label+' only four bottom tabs');
+ assert.equal(await home.locator('.bc12-nav [data-camp="travel"]:visible').count(),0);
+ assert.equal(await home.locator('.bc12-journey:visible').count(),1,label+' continue journey must be tappable');
+ assert.equal(await home.locator('.bc16-reisen:visible').count(),1,label+' Reise chooser must be separate');
+ const labels=await home.locator('.bc12-nav button:visible').evaluateAll(elements=>elements.map(x=>x.textContent.trim()));
+ assert.deepEqual(labels,['Hjem','Utforsk','Samlebok','Mine troll']);
+ const hitRects=await home.locator('.bc15-subject-signs button,.bc12-nav button:visible,.bc12-journey,.bc16-reisen').evaluateAll(elements=>
+  elements.map(el=>({label:el.getAttribute('aria-label')||el.textContent.trim(),w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})));
+ assert(hitRects.every(r=>r.w>=44&&r.h>=44),label+' touch targets too small '+JSON.stringify(hitRects));
+ const geometry=await home.evaluate(el=>{
+  const css=getComputedStyle(el),num=k=>parseFloat(css.getPropertyValue(k));
+  return {width:el.clientWidth,height:el.clientHeight,artWidth:num('--bc15-art-width'),artHeight:num('--bc15-art-height'),
+   opaqueBg:getComputedStyle(el,'::after').backgroundImage,mask:getComputedStyle(el,'::after').webkitMaskImage};
+ });
+ assert(geometry.artWidth>=geometry.width-.6&&geometry.artHeight>=geometry.height-.6,label+' full screen art leaves bars');
+ assert.equal(geometry.mask,'none',label+' legacy painted-image feather must not clip v16');
+ assert.match((await home.locator('.bc15-live-greeting').innerText()),/Testbarn/);
+ await home.locator('.bc16-reisen').click();
+ const dialog=page.locator('#bc16-journey-picker');
+ await dialog.waitFor({state:'visible',timeout:5000});
+ assert.equal(await dialog.locator('[data-bc16-subject]').count(),4,label+' Reise must show four real subjects');
+ await dialog.locator('[data-bc16-close]').click();
+ assert.equal(await dialog.isVisible(),false);
+ await page.screenshot({path:folder+'/'+label+'-v16-approved.png',fullPage:true});
+ assert.deepEqual(errors,[],label+' page errors');
+ console.log('[Grovanova v16]',label,'owner-locked artwork, routes, full bleed and UI verified',path);
+}
+
 async function run(engine,label,viewport){
  const browser=await engine.launch({headless:true,args:label.startsWith('chromium')?['--no-sandbox']:[]});
  try{
@@ -176,6 +218,13 @@ async function run(engine,label,viewport){
    const base=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria');
    await page.goto(base+'&home-v15='+label,{waitUntil:'domcontentloaded'});
 
+   if(label.includes('ipad')){
+    const home=page.locator('.bc12.bc15-locked-home');
+    await home.waitFor({state:'visible',timeout:20000});
+    await validateV16(page,home,label,viewport,errors);
+    await context.close();
+    return;
+   }
    const home=await homeReady(page,label);
    // Home is a fixed scene: page-level scroll and rubber-band bleed are not allowed.
    const viewportLock=await page.evaluate(()=>{
@@ -456,7 +505,10 @@ async function run(engine,label,viewport){
    ['safari-iphone',webkit,{width:390,height:844}],
    ['safari-ipad',webkit,{width:820,height:1180}],
    ['safari-ipad-pro',webkit,{width:1024,height:1366}],
-   ['safari-ipad-landscape',webkit,{width:1180,height:820}]
+   ['safari-ipad-landscape',webkit,{width:1180,height:820}],
+   ['safari-ipad-landscape-mini',webkit,{width:1024,height:768}],
+   ['chromium-ipad-pro',chromium,{width:1024,height:1366}],
+   ['chromium-ipad-landscape',chromium,{width:1180,height:820}]
  ].filter(([label])=>process.env.LARIA_IPAD_ONLY!=='1'||label.includes('ipad')))
   await run(engine,label,viewport);
 })().catch(e=>{console.error(e);process.exitCode=1});
