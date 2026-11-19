@@ -594,3 +594,13 @@
    mask-image:linear-gradient(to bottom,#bfbfbf 0,#000 10px,#000 100%);
  }
 }
+
+/* The original letterbox seam masks belong only to the old painted masters.
+   UI-free approved art covers the full screen with the exact decoded image;
+   never fade its top edge or expose synthetic scenic sidebars. */
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px){
+ .grade-band-young .bc12.bc15-locked-home[data-bc15-card-art="owner-approved-ui-free"]::after{
+   -webkit-mask-image:none!important;
+   mask-image:none!important;
+ }
+}
