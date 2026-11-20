@@ -51,3 +51,15 @@ test('historical originals remain exact and v16 never touches HverdagsOss',()=>{
  assert.match(source,/const PHONE_MASTER='\.\/assets\/home-v15\/kjosnes-home-phone\.webp/);
  assert.doesNotMatch(css,/^\.bc12(?:\\s|\\{|:)/m);
 });
+
+test('CSP allows verified Blob art images but not Blob scripts',()=>{
+ const html=read('laer-litt-mer/index.html');
+ const policy=html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1];
+ assert(policy,'Læria must declare a strict Content Security Policy');
+ const sections=Object.fromEntries(policy.split(';').map(v=>v.trim()).filter(Boolean).map(v=>{
+  const [name,...values]=v.split(/\s+/);return[name,values];
+ }));
+ assert(sections['img-src']?.includes('blob:'),'SHA-verified art must be displayable');
+ assert(!sections['script-src']?.includes('blob:'),'Blob URLs must not run as executable scripts');
+ assert(!sections['default-src']?.includes('blob:'));
+});
