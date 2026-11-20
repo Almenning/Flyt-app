@@ -1,0 +1,44 @@
+name: Læria – Storesøster wave in actual iPad app
+
+on:
+  pull_request:
+    paths:
+      - 'laer-litt-mer/laria-troll-runtime-v1.*'
+      - 'laer-litt-mer/laria-grovanova-v16.js'
+      - 'laer-litt-mer/assets/trollactor-motion/**'
+      - 'tests/laria-troll-motion*'
+      - '.github/workflows/laria-troll-motion-qa.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-troll-motion-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  motion-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Actual app motion, fallback and character selection
+        env:
+          TROLL_MOTION_QA_OUTPUT: /tmp/laria-troll-motion
+        run: node tests/laria-troll-motion.playwright.js
+      - name: Upload actual iPad motion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-troll-motion-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-troll-motion
+          if-no-files-found: warn
+          retention-days: 14

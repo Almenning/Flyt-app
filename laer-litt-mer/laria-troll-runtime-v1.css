@@ -81,6 +81,9 @@ html[data-laria-character-system="troll"] #world-screen .premium-globe-guide:not
 .laria-troll-actor[data-laria-troll-mood="support"]>.laria-premium-troll-art{
   animation:laria-troll-support 1.35s ease-in-out 1;
 }
+/* A reviewed AI motion file owns all movement for its short duration. The
+   V1 CSS transforms must not compound the animation frames. */
+.laria-troll-actor:is([data-laria-troll-sequence],[data-laria-troll-loading])>.laria-premium-troll-art{animation:none!important}
 
 @keyframes laria-troll-idle{
   0%,100%{transform:translateY(0) rotate(-.35deg) scale(1)}

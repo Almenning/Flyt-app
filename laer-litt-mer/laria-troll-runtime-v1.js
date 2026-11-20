@@ -13,6 +13,15 @@
     lillebror:Object.freeze({id:'lillebror',label:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'})
   });
   const DEFAULT='storesoster';
+  // AI motion is initially enabled only for the production-review URL. V1 is
+  // deliberately still the default source until this first in-app sequence is
+  // signed off on real iPad views.
+  const MOTION_REVIEW=new URLSearchParams(root.location.search).get('laria-troll-motion')==='1';
+  const MOTION=Object.freeze({
+    storesoster:Object.freeze({wave:Object.freeze({
+      src:'./assets/trollactor-motion/storesoster/wave-20261121.webp',duration:5250
+    })})
+  });
   const MOODS=new Set(['idle','wave','walking','think','hint','celebrate','support','curious']);
   const MOOD_MS=Object.freeze({wave:1050,walking:1000,think:1250,hint:1800,celebrate:1250,support:1500,curious:1100});
   const LINES=Object.freeze({
@@ -25,6 +34,7 @@
   });
   const IMAGE_SELECTORS=[
     '.bc12-fox > img',
+    '.bc15-v16-troll > img',
     '.dashboard-mascot[data-laria-legacy-troll] > img',
     '.top .avatar.profile-fox-avatar > img',
     '.locked-journey-profile > img',
@@ -50,6 +60,9 @@
   ].join(',');
 
   const timers=new WeakMap();
+  const motionRuns=new Map();
+  const motionAssets=new Map();
+  const reducedMotion=root.matchMedia?.('(prefers-reduced-motion: reduce)');
   const greeted=new WeakSet();
   let queued=false;
 
@@ -148,21 +161,121 @@
     const bubble=host?.querySelector?.(':scope > .laria-troll-speech');
     if(bubble)delete bubble.dataset.show;
   }
+  function motionFor(kind){
+    if(!MOTION_REVIEW||reducedMotion?.matches||!root.fetch||!root.URL?.createObjectURL)return null;
+    return MOTION[choice()]?.[kind]||null;
+  }
+  function clearMotion(host){
+    if(!host)return;
+    const run=motionRuns.get(host);
+    motionRuns.delete(host);
+    if(run)root.clearTimeout(run.loadingTimer);
+    delete host.dataset.lariaTrollSequence;
+    delete host.dataset.lariaTrollLoading;
+    const img=host.querySelector?.(':scope > img.laria-premium-troll-art');
+    if(img&&img.getAttribute('src')!==selected().src)img.setAttribute('src',selected().src);
+    if(run?.url)root.URL.revokeObjectURL(run.url);
+  }
+  function finishMood(host){
+    root.clearTimeout(timers.get(host));
+    timers.delete(host);
+    clearMotion(host);
+    host.dataset.lariaTrollMood='idle';
+    clearSpeech(host);
+  }
+  function motionBlob(src){
+    if(!motionAssets.has(src)){
+      const request=root.fetch(src).then(response=>{
+        if(!response.ok)throw new Error('Troll motion unavailable');
+        return response.blob();
+      }).catch(error=>{
+        motionAssets.delete(src);
+        throw error;
+      });
+      motionAssets.set(src,request);
+    }
+    return motionAssets.get(src);
+  }
+  function currentMotion(host,run){
+    return motionRuns.get(host)===run&&host.isConnected&&
+      run.id===choice()&&!reducedMotion?.matches;
+  }
+  async function loadMotion(host,run){
+    try{
+      const blob=await motionBlob(run.sequence.src);
+      if(!currentMotion(host,run))return;
+      // A fresh blob URL gives every play its own animation timeline, while
+      // the encoded bytes are fetched only once. Keep V1 visible until decode.
+      run.url=root.URL.createObjectURL(blob);
+      const next=run.original.cloneNode(false);
+      next.removeAttribute('srcset');
+      next.dataset.troll=run.id;
+      next.decoding='async';
+      await new Promise((resolve,reject)=>{
+        next.onload=resolve;
+        next.onerror=reject;
+        next.src=run.url;
+      });
+      if(next.decode)await next.decode();
+      next.onload=null;
+      next.onerror=null;
+      if(!currentMotion(host,run))return;
+      const visible=host.querySelector(':scope > img.laria-premium-troll-art');
+      if(!visible)return;
+      root.clearTimeout(run.loadingTimer);
+      delete host.dataset.lariaTrollLoading;
+      host.dataset.lariaTrollSequence=run.kind;
+      host.dataset.troll=run.id;
+      visible.replaceWith(next);
+      // Legacy callers supply short CSS mood durations. A decoded clip owns
+      // its full duration; a later reaction can still cancel it immediately.
+      timers.set(host,root.setTimeout(()=>finishMood(host),run.sequence.duration));
+    }catch(_){
+      if(motionRuns.get(host)===run){
+        motionAssets.delete(run.sequence.src);
+        finishMood(host);
+      }
+    }finally{
+      if(motionRuns.get(host)===run&&!currentMotion(host,run))finishMood(host);
+    }
+  }
+  function playMotion(host,kind){
+    const sequence=motionFor(kind);
+    const img=host?.querySelector?.(':scope > img.laria-premium-troll-art');
+    if(!sequence||!img||!host.isConnected)return false;
+    // Retired dashboards still exist in the DOM. Their delayed greeting must
+    // not download or decode an animation for a display:none companion.
+    if(host.getClientRects&&host.getClientRects().length===0)return false;
+    const run={id:choice(),kind,sequence,original:img,url:null};
+    motionRuns.set(host,run);
+    host.dataset.lariaTrollLoading=kind;
+    run.loadingTimer=root.setTimeout(()=>{
+      if(motionRuns.get(host)!==run)return;
+      motionAssets.delete(sequence.src);
+      finishMood(host);
+    },10000);
+    void loadMotion(host,run);
+    return true;
+  }
+  function stopMotions(){
+    for(const host of motionRuns.keys())finishMood(host);
+  }
   function mood(host,kind='idle',opts={}){
     if(!host||!MOODS.has(kind))return false;
     root.clearTimeout(timers.get(host));
+    timers.delete(host);
+    clearMotion(host);
+    const playing=playMotion(host,kind);
     host.dataset.lariaTrollMood=kind;
     if(opts.say!==false){
       const text=typeof opts.say==='string'?opts.say:line(kind);
       if(text)speech(host,text);
     }
-    if(kind!=='idle'){
-      timers.set(host,root.setTimeout(()=>{
-        if(!host.isConnected)return;
-        host.dataset.lariaTrollMood='idle';
-        clearSpeech(host);
-      },Number(opts.duration)||MOOD_MS[kind]||1200));
-    }else clearSpeech(host);
+    if(kind!=='idle'&&!playing){
+      const requested=Number(opts.duration);
+      const duration=Number.isFinite(requested)&&requested>0?requested:(MOOD_MS[kind]||1200);
+      timers.set(host,root.setTimeout(()=>finishMood(host),duration));
+    }else if(kind==='idle')clearSpeech(host);
     return true;
   }
 
@@ -186,6 +299,13 @@
   function syncImage(img){
     if(!img||!img.isConnected)return;
     const troll=selected(),parent=img.parentElement;
+    // The review sequence temporarily owns src. MutationObserver still sees
+    // that assignment, but must not immediately replace the animation with V1.
+    if(parent?.dataset?.lariaTrollSequence){
+      const run=motionRuns.get(parent);
+      if(run&&currentMotion(parent,run))return;
+      finishMood(parent);
+    }
     // The Home master is byte-locked. Change the separate DOM companion only,
     // never paint or overwrite anything into the original landscape.
     if(img.closest('#home-screen .bc15-locked-home')){
@@ -324,7 +444,11 @@
       }))refresh();
     }).observe(doc.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src','class']});
     root.addEventListener('resize',refresh,{passive:true});
-    doc.addEventListener('laria:troll-changed',refresh);
+    doc.addEventListener('laria:troll-changed',()=>{stopMotions();refresh();});
+    const onMotionPreference=()=>{if(reducedMotion?.matches)stopMotions();};
+    if(reducedMotion?.addEventListener)reducedMotion.addEventListener('change',onMotionPreference);
+    else reducedMotion?.addListener?.(onMotionPreference);
+    root.addEventListener('pagehide',stopMotions);
   }
 
   root.LARIA_TROLL_ACTOR=Object.freeze({
@@ -332,7 +456,8 @@
     choice,selected,
     source:id=>(TROLLS[id]||TROLLS[DEFAULT]).src,
     label:id=>(TROLLS[id]||TROLLS[DEFAULT]).label,
-    persistChoice,openChooser,refresh,mood
+    persistChoice,openChooser,refresh,mood,
+    motionReviewEnabled:()=>MOTION_REVIEW
   });
   root.LARIA_TROLL=root.LARIA_TROLL_ACTOR;
 
