@@ -881,8 +881,14 @@ async function finishSession(page){
       recordJourneySessionResult(finalResult);
       const final={complete:journeyProgress('math',2).complete,gradeCompleted:finalResult.gradeCompleted||null,gradeWin:state.journey.gradeWins['math:2']||null};
       renderSubjectJourney();
-      final.visiblePrizes=document.querySelectorAll('#journey-map .locked-journey-hotspot.state-complete').length;
-      final.replayable=document.querySelectorAll('#journey-map .locked-journey-hotspot.state-complete').length;
+      // The premium renderer uses earned trophy objects and finished live
+      // journey places, not the retired locked-hotspot presentation classes.
+      final.visiblePrizes=document.querySelectorAll(
+        '#journey-map .locked-journey-hotspot.state-complete, #journey-map .premium-world-prize'
+      ).length;
+      final.replayable=document.querySelectorAll(
+        '#journey-map .locked-journey-hotspot.state-complete, #journey-map .premium-place.is-done'
+      ).length;
 
       state.skillMastery=backup.skillMastery;state.skillEvidence=backup.skillEvidence;state.journey=backup.journey;state.lastMilestone=backup.lastMilestone;sessionScope=oldScope;saveState();renderAll();openSubject('math');
       return {first,final};

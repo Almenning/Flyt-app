@@ -52,6 +52,12 @@ beskytte den avtalte Læria-retningen mens appen ferdigstilles.
 - Bruk eksisterende Læria-logo, skilt og valgt TrollActor som selvstendige
   interaktive elementer. En ny ren bakgrunn skal ikke ha disse malt inn.
 
+## Nyere eiergodkjenning: Hjem v16 (19.11.2026)
+
+Produkteier har uttrykkelig godkjent den **eksakte** illustrasjonsduoen og knappehierarkiet dokumentert i `docs/LARIA-HOME-V16-LOCK-2026-11-19.md`. Dette er et avgrenset, nyere unntak fra v15s Hjem-kunstretning, bare for Hjem på iPad. Bevar tidligere v15-originaler som fallback, og ikke bruk v16 som presedens for nye illustrasjoner i andre fag.
+
+V16-bildene har **malte synlige UI-elementer**. Bevar pikslene uendret, bruk ekte tilgjengelige DOM-klikkflater over hvert godkjent skilt, og vær presis om at disse ikke er UI-frie bakgrunner. Reisen er en separat oversiktsfunksjon fra Fortsett reisen. Bunnmenyen har bare Hjem, Utforsk, Samlebok og Mine troll. Personaliser hilsen som live UI, og bak aldri inn de tre skogstrollene i kunstbildet. Ikke merge eller publiser uten eksplisitt godkjenning og grønne eksakt-head-tester.
+
 ## Enheter og kvalitet
 
 - Prioriter iPad først, deretter iPhone og desktop. Kontroller både stående og

@@ -71,10 +71,26 @@ const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
   await page.screenshot({path:`${screenshots}/${name}.png`,fullPage:true});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow');
 
+  // Image SHA validation is asynchronous: inspect the completed child view.
+  if(name.startsWith('ipad')||name==='desktop')await page.waitForFunction(()=>{
+   const h=document.querySelector('#home-screen.active .bc12');
+   return !!h&&!h.classList.contains('bc15-pending')&&
+    /^(ipad-v16-(portrait|landscape)|phone-ready|tablet-ready|missing)$/.test(h.dataset.bc15Asset||'');
+  },null,{timeout:30000});
+
   // A true clean iPad Home must not leave ANY of the four retired bottom
   // subject touch areas active. Phone and fallback continue to use them.
   const artState=await page.locator('.bc12.bc15-locked-home').getAttribute('data-bc15-card-art');
-  if(artState==='clean-candidate'){
+  if(artState==='owner-approved-v16-painted'){
+    assert.equal(await page.locator('.bc14-subject:visible').count(),0,
+      name+' v16 must hide retired subject hotspots');
+    assert.equal(await page.locator('.bc15-v16-signs button:visible').count(),4,
+      name+' v16 must expose four left-hand wooden signs');
+    assert.equal(await page.locator('.bc15-v16-troll:visible').count(),1,
+      name+' separate selected TrollActor missing');
+    assert.equal(await page.locator('.bc12-nav button:visible').count(),4,
+      name+' v16 must expose four bottom buttons');
+  }else if(artState==='clean-candidate'){
     assert.equal(await page.locator('.bc14-subject:visible').count(),0,
       name+' a retired bottom subject hotspot was left active');
     assert.equal(await page.locator('.bc15-subject-signs button:visible').count(),4,

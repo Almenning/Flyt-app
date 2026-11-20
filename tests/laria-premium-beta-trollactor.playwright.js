@@ -183,11 +183,32 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({
     state:'visible',timeout:18000
   });
-  assert.equal(
-    await page.locator('#home-screen .bc15-locked-home .laria-premium-troll-art:visible').count(),
-    0,
-    label+' Grovanova got an injected second troll'
-  );
+  // The owner-approved v16 image intentionally has no painted troll.
+  // ONE live character must appear on iPad; v15 fallback stays untouched.
+  const v16Ipad=width>=768&&width<=1366&&height>=650;
+  if(v16Ipad){
+    await page.waitForFunction(()=>{
+      const h=document.querySelector('#home-screen.active .bc12');
+      return h?.dataset.bc15Asset?.startsWith('ipad-v16-');
+    },null,{timeout:30000});
+    const actor=page.locator('#home-screen.active .bc15-v16-troll');
+    await actor.waitFor({state:'visible',timeout:10000});
+    const img=actor.locator('img.laria-premium-troll-art');
+    await img.evaluate(el=>el.decode());
+    const geometry=await metrics(page,'#home-screen.active .bc15-v16-troll');
+    inside(geometry,width,height,label+' live v16 TrollActor');
+    assert.equal(await actor.count(),1,label+' must show exactly one live troll');
+    assert.equal(await actor.getAttribute('data-troll'),'lillesoster',
+      label+' must honor the saved selected troll');
+    assert.match(await img.getAttribute('src'),/assets\/gangemagi-troll\/lillesoster\.webp$/,
+      label+' wrong troll artwork on the owner-approved v16 Home');
+    assert.equal(await page.locator('#home-screen.active .bc12-fox:visible').count(),0,
+      label+' legacy fox slot is still visible behind the new actor');
+  }else{
+    assert.equal(
+      await page.locator('#home-screen .bc15-locked-home .laria-premium-troll-art:visible').count(),0,
+      label+' v15 Home unexpectedly received a new character overlay');
+  }
   assert.equal(
     await page.evaluate(()=>window.LARIA_TROLL_ACTOR?.choice()),
     'lillesoster',

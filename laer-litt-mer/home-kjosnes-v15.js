@@ -9,13 +9,108 @@ const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1
 // remain intact and continue to serve as the safe fallback.
 const CLEAN_TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
 const CLEAN_PHONE_MASTER='./assets/home-v15/kjosnes-home-phone-no-bottom-cards-no-next-stop.webp?v=20261115-journey-wood-clean1';
+// The owner approved two specific UI-free Grovanova images on 18 Nov 2026.
+// BOTH manifests stay fail-closed until the exact exported WebP bytes are
+// imported, SHA-checked, and their actual iPad screens have been accepted.
+// Mere presence of a concept image or a source file must never activate it.
+// Continue to preserve all locked original art and app UI as safe fallbacks.
+// See docs/LARIA-GROVANOVA-APPROVED-CANDIDATES-2026-11-18.json.
+const IPAD_PORTRAIT_MANIFEST='./assets/home-v15/grovanova-ipad-portrait-master.json';
+// An independent approval gate for the owner's separately approved 4:3 artwork.
+const IPAD_LANDSCAPE_MANIFEST='./assets/home-v15/grovanova-ipad-landscape-master.json';
 let activeMasterSrc='';
+let activePortraitObjectUrl='';
 let activationEpoch=0;
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
 function isShortPhoneLandscape(){return matchMedia('(min-width:600px) and (max-width:1050px) and (max-height:580px) and (orientation:landscape)').matches}
 function isPortrait(){return matchMedia('(orientation:portrait)').matches}
 function isIpadHome(){return matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches}
+
+function isUnitRect(value){
+ return Array.isArray(value)&&value.length===4&&value.every(n=>typeof n==='number'&&n>=0&&n<=1)&&
+   value[2]>0&&value[3]>0&&value[0]+value[2]<=1&&value[1]+value[3]<=1;
+}
+// Retired v15 approval gates remain testable in isolated, explicit preview QA.
+ // The owner has adopted v16 for ordinary iPad Home: do not fire requests for
+ // the inactive v15 manifests during child navigation or WebKit page teardown.
+ // Turning on a future v15 master must require a separate deliberate code review.
+function legacyMasterReviewRequested(){
+ const params=new URLSearchParams(location.search);
+ return params.has('portrait-fixture')||params.has('landscape-fixture')||
+   params.has('owner-art-review');
+}
+async function approvedIpadPortraitMaster(){
+ if(!isIpadHome()||!isPortrait())return null;
+ if(!legacyMasterReviewRequested())return null;
+ let candidate;
+ try{
+  const response=await fetch(IPAD_PORTRAIT_MANIFEST,{cache:'no-store'});
+  if(!response.ok)throw Error('portrait-manifest-missing');
+  candidate=await response.json();
+ }catch(_){return null;}
+ if(!candidate||typeof candidate!=='object')return null;
+ const ui=candidate.ui;
+ const validUi=ui&&['logo','subjects','journey','nav','adult','liveCopy'].every(key=>isUnitRect(ui[key]))&&
+   ['sun','water','journeyGlow'].every(key=>isUnitRect(ui.ambient?.[key]))&&
+   Array.isArray(ui.signBoards)&&ui.signBoards.length===4&&ui.signBoards.every(isUnitRect);
+ const validSource=typeof candidate.source==='string'&&/^\.\/assets\/home-v15\/[a-z0-9_-]+\.webp$/i.test(candidate.source)&&
+   /^[a-f0-9]{64}$/i.test(candidate.sha256||'')&&candidate.width>=2048&&candidate.height>=2732;
+ return candidate.status==='approved'&&validSource&&validUi?candidate:null;
+}
+
+// Neither an absent file nor owner approval of a concept activates landscape.
+// The exact exported pixels, SHA and UI anchors must be reviewed in a real app.
+async function approvedIpadLandscapeMaster(){
+ if(!isIpadHome()||isPortrait())return null;
+ if(!legacyMasterReviewRequested())return null;
+ let candidate;
+ try{
+  const response=await fetch(IPAD_LANDSCAPE_MANIFEST,{cache:'no-store'});
+  if(!response.ok)throw Error('landscape-manifest-missing');
+  candidate=await response.json();
+ }catch(_){return null;}
+ if(!candidate||typeof candidate!=='object')return null;
+ const ui=candidate.ui;
+ const validUi=ui&&['logo','subjects','journey','nav','adult','liveCopy'].every(key=>isUnitRect(ui[key]))&&
+   ['sun','water','journeyGlow'].every(key=>isUnitRect(ui.ambient?.[key]))&&
+   Array.isArray(ui.signBoards)&&ui.signBoards.length===4&&ui.signBoards.every(isUnitRect);
+ const validSource=typeof candidate?.source==='string'&&/^\.\/assets\/home-v15\/[a-z0-9_-]+\.webp$/i.test(candidate.source)&&
+   /^[a-f0-9]{64}$/i.test(candidate.sha256||'')&&candidate.width>=2048&&candidate.height>=1536;
+ return candidate.status==='approved'&&validSource&&validUi?candidate:null;
+}
+
+function hex(bytes){return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');}
+async function verifiedPortraitDecoded(candidate){
+ const response=await fetch(candidate.source,{cache:'no-store'});
+ if(!response.ok||!globalThis.crypto?.subtle)throw Error('portrait-art-unavailable');
+ const bytes=await response.arrayBuffer();
+ const digest=hex(await globalThis.crypto.subtle.digest('SHA-256',bytes));
+ if(digest!==candidate.sha256)throw Error('portrait-art-sha-mismatch');
+ // Keep the verified response's image MIME type, including test-only SVG fixtures.
+ // Blob URLs with no content type cannot reliably decode SVG in WebKit.
+ const contentType=(response.headers.get('content-type')||'image/webp').split(';',1)[0].trim();
+ const objectUrl=URL.createObjectURL(new Blob([bytes],{type:contentType}));
+ try{
+  const image=await decoded(objectUrl);
+  if(image.width!==candidate.width||image.height!==candidate.height)
+   throw Error('portrait-art-dimensions-mismatch');
+  return {image,objectUrl};
+ }catch(error){URL.revokeObjectURL(objectUrl);throw error;}
+}
+function clearPortraitObjectUrl(){
+ if(activePortraitObjectUrl){URL.revokeObjectURL(activePortraitObjectUrl);activePortraitObjectUrl='';}
+}
+function syncApprovedPortraitLogo(host,portraitMaster,box,viewport){
+ let logo=host.querySelector('.bc15-approved-logo');
+ if(!portraitMaster){logo?.remove();return;}
+ if(!logo){
+  logo=document.createElement('img');logo.className='bc15-approved-logo';
+  logo.alt='Læria';logo.src='./assets/ui/laria-logo-from-grovanova.svg';
+  host.appendChild(logo);
+ }
+ place(logo,box,portraitMaster.ui.logo,viewport);
+}
 
 // Mine troll uses the ONE shared interactive selection of original
 // TrollActor characters; the former static art gallery is not navigation.
@@ -55,7 +150,7 @@ function syncHomeBoats(host,box,viewport,portrait){
  // Fail closed when a future approved UI-free portrait master takes over.
  // Old phone-art water coordinates are NOT valid on that new illustration.
  // Require independently reviewed water anchors before enabling boats there.
- if(!isIpadHome()||host.dataset.bc15Master==='ipad-portrait-approved'){
+ if(!isIpadHome()||host.dataset.bc15CardArt==='owner-approved-ui-free'){
   host.querySelector('.bc15-boats')?.remove();
   return;
  }
@@ -138,16 +233,24 @@ function ensureHomeSignHits(host){
  return nav;
 }
 
-function mapControlsToArtwork(host,imgW,imgH,portrait){
+function mapControlsToArtwork(host,imgW,imgH,portrait,approvedPortrait){
  const rect=host.getBoundingClientRect();
  const artAspect=imgW/imgH;
  const viewportAspect=rect.width/rect.height;
  const heightScale=rect.height/imgH;
  const maxWidthScale=(rect.width*(portrait?1:1.06))/imgW;
- // Preserve the locked mountain shape. Portrait must never crop the left/right
- // edges because the four subject cards and bottom navigation are part of the artwork.
- // Landscape may use at most 3% crop on each side; scenic fill absorbs spare space.
- const scale=artAspect>viewportAspect?Math.min(heightScale,maxWidthScale):heightScale;
+ // The historical painted masters MUST remain uncropped. Only a separately
+ // approved UI-free portrait may use restrained cover, within the artwork
+ // brief's protected 8% side / 5% top safe zones. This fills 820x1180 and
+ // 1024x1366 iPads without stretching, duplicated mountains or CSS filler.
+ const coverScale=Math.max(rect.width/imgW,heightScale);
+ const coverW=imgW*coverScale;
+ const coverH=imgH*coverScale;
+ const sideCrop=Math.max(0,(coverW-rect.width)/(2*coverW));
+ const verticalCrop=Math.max(0,(coverH-rect.height)/(2*coverH));
+ const approvedCover=!!approvedPortrait&&sideCrop<=.08&&verticalCrop<=.05;
+ const scale=approvedCover?coverScale:
+   artAspect>viewportAspect?Math.min(heightScale,maxWidthScale):heightScale;
  const phonePortrait=portrait&&rect.width<=700;
  const artWidth=imgW*scale;
  const artHeight=imgH*scale;
@@ -158,22 +261,25 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    left:(rect.width-artWidth)/2,
    // Phones keep the whole master and split spare height between sky and the
    // cream navigation continuation. Other layouts preserve the locked bottom alignment.
-   top:phonePortrait?spareY*.30:rect.height-artHeight
+   top:approvedCover?(rect.height-artHeight)/2:
+       phonePortrait?spareY*.30:rect.height-artHeight
  };
- host.dataset.bc15Fit=artAspect>viewportAspect?'safe-width':'safe-height';
+ host.dataset.bc15Fit=approvedCover?'approved-cover':
+   artAspect>viewportAspect?'safe-width':'safe-height';
  // A dedicated scenic-only strip fills top letterboxing in landscape iPad.
  // No art cropping, duplicated controls, or changed locked image pixels.
  host.classList.toggle('bc15-landscape-bleed',
    !portrait&&isIpadHome()&&box.top>18);
 
  const tabletPortrait=portrait&&rect.width>700;
- const layout=portrait?{
+ const lockedPortraitLayout={
    subjects:[.044,.728,.912,.135],
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
    liveCopy:tabletPortrait?[.03,.138,.62,.105]:[.00,.138,.62,.105]
- }:{
+ };
+ const layout=approvedPortrait?approvedPortrait.ui:portrait?lockedPortraitLayout:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
@@ -189,7 +295,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  // Map four separately tappable signboards onto the APPROVED master.
  // Coordinates are relative to the underlying image, not fixed pixels.
  const signs=ensureHomeSignHits(host);
- const liveIpadPortrait=isIpadHome()&&portrait;
+ const liveIpadPortrait=isIpadHome()&&(portrait||!!approvedPortrait);
  const livePhonePortrait=isPhone()&&portrait&&host.dataset.bc15CardArt==='clean-candidate';
  // Short landscape phones use the SAME clean, card-free master and painted
  // left oak signs as iPad landscape, without introducing a second menu.
@@ -200,7 +306,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  host.classList.toggle('bc15-phone-fagmenu',livePhonePortrait||cleanPhoneLandscape);
  signs.hidden=portrait&&!livePortrait;
  signs.dataset.bc15Presentation=livePortrait?'live':'painted';
- if(!portrait){
+ if(!portrait&&!approvedPortrait){
   const signBoxes=[
    [.012,.314,.170,.074], // Norsk
    [.012,.394,.170,.074], // Matte
@@ -219,7 +325,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
   const phoneRow0=.725;
   const phoneRow1=phoneRow0+(phoneBoardPx+phoneGapPx)/box.height;
   const phoneHeight=phoneBoardPx/box.height;
-  const signBoxes=livePhonePortrait?[
+  const signBoxes=approvedPortrait?approvedPortrait.ui.signBoards:livePhonePortrait?[
    [.050,phoneRow0,.425,phoneHeight], // Norsk
    [.525,phoneRow0,.425,phoneHeight], // Matte
    [.050,phoneRow1,.425,phoneHeight], // Engelsk
@@ -240,6 +346,8 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
   const top=Math.min(...boxes.map(b=>b.top));
   const right=Math.max(...boxes.map(b=>b.left+b.width));
   const bottom=Math.max(...boxes.map(b=>b.top+b.height));
+  // Both approved iPad orientations retain the same genuine two-post
+  // scaffold, aligned to the four independent wooden sign hit areas.
   signs.style.setProperty('--bc15-post-left',left+'px');
   signs.style.setProperty('--bc15-post-top',(top+8)+'px');
   signs.style.setProperty('--bc15-post-width',(right-left)+'px');
@@ -254,7 +362,11 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  place(host.querySelector('.bc12-adult-entry'),box,layout.adult,viewport);
  place(host.querySelector('.bc15-live-copy'),box,layout.liveCopy,viewport);
  const ambient=ensureAmbient(host);
- const ambientLayout=portrait?{
+ const ambientLayout=approvedPortrait?{
+   sun:approvedPortrait.ui.ambient.sun,
+   water:approvedPortrait.ui.ambient.water,
+   journey:approvedPortrait.ui.ambient.journeyGlow
+  }:portrait?{
    sun:[.69,.19,.24,.18],
    water:[.48,.43,.48,.25],
    journey:[.76,.612,.20,.112]
@@ -275,6 +387,12 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
 }
 
 function syncLiveCopy(host){
+ if(host.classList.contains('bc15-v16-locked')){
+  // The new portrait greeting uses actual child profile text; never leave
+  // the painted TEST name visible as the child's current identity.
+  window.LARIA_HOME_V16?.syncGreeting(host);
+  return;
+ }
  let live=host.querySelector('.bc15-live-copy');
  if(!live){
    live=document.createElement('div');
@@ -302,6 +420,8 @@ function syncLiveCopy(host){
 
 function clearMappedControls(host){
  host.querySelector('.bc15-boats')?.remove();
+ clearPortraitObjectUrl();
+ host.querySelector('.bc15-approved-logo')?.remove();
  ['.bc14-subjects','.bc12-journey','.bc12-nav','.bc12-adult-entry',
    '.bc15-sun-glow','.bc15-water-glints','.bc15-journey-glow'].forEach(sel=>{
    const el=host.querySelector(sel);if(!el)return;
@@ -334,26 +454,50 @@ async function activate(){
  host.classList.remove('bc15-ipad-fagmenu','bc15-phone-fagmenu','bc15-landscape-bleed');
  const youngBand=!!document.querySelector('.grade-band-young');
  if(!youngBand){
+   window.LARIA_HOME_V16?.deactivate(host);
    host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='ineligible';
-   host.querySelectorAll('.bc15-live-copy,.bc15-ambient,.bc15-boats').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-ambient').forEach(el=>el.remove());
    return false;
  }
  host.classList.add('bc15-capable');
  const detachedView=host.dataset.bc13View && host.dataset.bc13View!=='home';
  if((host.dataset.mode && host.dataset.mode!=='home') || detachedView){
+   window.LARIA_HOME_V16?.deactivate(host);
    host.classList.remove('bc15-locked-home','bc15-pending');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='inactive';
-   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient,.bc15-boats').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    return false;
  }
  const portrait=isPortrait();
+ // New art and 4+1 navigation were explicitly approved by the product owner.
+ // Try the exact SHA-locked illustrated scene first on iPad only. Failure
+ // falls back to the existing v15/PR255 image gates without touching progress.
+ const v16=window.LARIA_HOME_V16;
+ const current=()=>epoch===activationEpoch && host.isConnected &&
+   host===document.querySelector('#home-screen .bc12') &&
+   !!host.closest('#home-screen.active') && portrait===isPortrait();
+ if(isIpadHome()&&v16?.activate){
+  try{
+   if(await v16.activate(host,{portrait,isCurrent:current}))return true;
+  }catch(error){console.warn('[Læria Home v16] Using safe fallback',error);}
+ }
+ if(!current())return false;
+ v16?.deactivate(host);
+ let portraitMaster=await approvedIpadPortraitMaster();
+ let landscapeMaster=await approvedIpadLandscapeMaster();
+ let approvedMaster=portraitMaster||landscapeMaster;
+ // A previous fetch must not mutate Home after a rerender, orientation
+ // change or navigation away while the approval manifest was loading.
+ if(epoch!==activationEpoch||!host.isConnected||
+    host!==document.querySelector('#home-screen .bc12')||
+    !host.closest('#home-screen.active')||portrait!==isPortrait())return false;
  const originalMaster=portrait?PHONE_MASTER:TABLET_MASTER;
  const cleanMaster=portrait?CLEAN_PHONE_MASTER:CLEAN_TABLET_MASTER;
  const wantsClean=isIpadHome()||isPhone()||isShortPhoneLandscape();
@@ -364,19 +508,42 @@ async function activate(){
    // locked original. Never turn a missing asset into an empty Home stage.
    let cleanLoaded=false;
    let image;
-   if(wantsClean){
+   let nextPortraitObjectUrl='';
+   if(approvedMaster){
+    try{
+     const verified=await verifiedPortraitDecoded(approvedMaster);
+     image=verified.image;
+     // Do not own/revoke a Blob URL until this activation wins the race.
+     nextPortraitObjectUrl=verified.objectUrl;
+     cleanLoaded=true;
+    }catch(_){
+     // A damaged, missing or wrongly exported future master is never allowed
+     // to blank Home. Fall back to the same locked source used today.
+     approvedMaster=null;
+     try{image=await decoded(cleanMaster);cleanLoaded=true;}
+     catch(_){image=await decoded(originalMaster);}
+
+    }
+   }else if(wantsClean){
     try{image=await decoded(cleanMaster);cleanLoaded=true;}
     catch(_){image=await decoded(originalMaster);}
    }else image=await decoded(originalMaster);
    if(epoch!==activationEpoch || !host.isConnected ||
-      host!==document.querySelector('#home-screen .bc12') || portrait!==isPortrait())return false;
+      host!==document.querySelector('#home-screen .bc12') ||
+      !host.closest('#home-screen.active')||portrait!==isPortrait()){
+     if(nextPortraitObjectUrl)URL.revokeObjectURL(nextPortraitObjectUrl);
+     return false;
+   }
    activeMasterSrc=image.src;
    host.style.setProperty('--bc15-home-art','url("'+image.src+'")');
+   clearPortraitObjectUrl();
+   activePortraitObjectUrl=nextPortraitObjectUrl;
    host.classList.add('bc15-locked-home');
    host.classList.remove('bc15-pending','bc15-fallback');
-   host.dataset.bc15Asset=portrait?'phone-ready':'tablet-ready';
-   host.dataset.bc15Master=portrait?'portrait':'landscape';
+   host.dataset.bc15Asset=approvedMaster?(portrait?'ipad-portrait-approved':'ipad-landscape-approved'):portrait?'phone-ready':'tablet-ready';
+   host.dataset.bc15Master=approvedMaster?(portrait?'ipad-portrait-approved':'ipad-landscape-approved'):portrait?'portrait':'landscape';
    host.dataset.bc15CardArt=cleanLoaded?'clean-candidate':'locked-original';
+   if(approvedMaster)host.dataset.bc15CardArt='owner-approved-ui-free';
    const oldRow=host.querySelector('.bc14-subjects');
    if(oldRow){
     oldRow.inert=cleanLoaded;
@@ -384,7 +551,8 @@ async function activate(){
     else oldRow.removeAttribute('aria-hidden');
    }
    syncLiveCopy(host);
-   mapControlsToArtwork(host,image.width,image.height,portrait);
+   const artBox=mapControlsToArtwork(host,image.width,image.height,portrait,approvedMaster);
+   syncApprovedPortraitLogo(host,approvedMaster,artBox,{width:host.clientWidth,height:host.clientHeight});
 
    const trollNav=host.querySelector('.bc12-nav [data-camp="wardrobe"]');
    if(trollNav){
@@ -411,7 +579,7 @@ async function activate(){
    clearMappedControls(host);
    host.querySelector('.bc15-subject-signs')?.remove();
    host.dataset.bc15Asset='missing';
-   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient,.bc15-boats').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    console.warn('[Læria Home v15] Locked master not activated.',err);
    return false;
  }

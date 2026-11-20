@@ -15,7 +15,9 @@
    display:none!important
  }
 }
-@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+/* Live wood is required on both approved UI-free iPad scene variants.
+   Legacy landscape still uses only invisible taps on its painted boards. */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px){
  .grade-band-young .bc12.bc15-locked-home.bc15-ipad-fagmenu
  .bc15-subject-signs[data-bc15-presentation="live"]{
    display:block!important;z-index:19!important;overflow:visible!important;
