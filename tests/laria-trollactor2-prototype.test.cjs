@@ -36,3 +36,19 @@ test('Storesøster source-exact master uses the locked V1 bytes and stays outsid
  assert.match(script,/'ownerApproved': False, 'readyForRuntime': False/);
  assert.doesNotMatch(script,/os\.system\(|subprocess\.|git push|ownerApproved': True/);
 });
+
+test('source-based Storesøster arm study preserves locked neutral pose and cannot pass art gate',()=>{
+ const script=fs.readFileSync(path.join(__dirname,'..','scripts','laria-storesoster-v1-arm-source-study.py'),'utf8');
+ assert.match(script,/LOCKED_SHA256 = 'b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89'/);
+ assert.match(script,/LOCKED_BLOB = 'a8fba47e272e2856bd78b92fb262146506e828ed'/);
+ assert.match(script,/if reconstructed\.tobytes\(\) != src\.tobytes\(\)/,
+   'neutral image must reconstruct exactly from disjoint source layers');
+ assert.match(script,/ImageChops\.multiply\(left, right\)/,
+   'candidate masks must not own the same source pixels');
+ assert.match(script,/'complete_second_arm':False/);
+ assert.match(script,/'head_and_face_separated':False/);
+ assert.match(script,/'underpainted_occluded_anatomy':False/);
+ assert.match(script,/'ownerApproved':False,'readyForRuntime':False/);
+ assert.match(script,/'artGate':'BLOCKED'/);
+ assert.doesNotMatch(script,/assets\/trollactor2\/storesoster-v2\/approved\//);
+});
