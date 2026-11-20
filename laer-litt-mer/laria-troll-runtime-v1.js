@@ -336,6 +336,13 @@
   });
   root.LARIA_TROLL=root.LARIA_TROLL_ACTOR;
 
+  // Technical lab only. Loading it dynamically avoids changing the production
+  // component tree, artwork, selection or saved progress for ordinary users.
+  if(new URLSearchParams(root.location.search).get('trollactor2-prototype')==='1'){
+    const css=doc.createElement('link');css.rel='stylesheet';css.href='./trollactor2-prototype.css?v=20261120-prototype1';doc.head.appendChild(css);
+    const script=doc.createElement('script');script.src='./trollactor2-prototype.js?v=20261120-prototype1';script.defer=true;doc.head.appendChild(script);
+  }
+
   if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
 })(window);
