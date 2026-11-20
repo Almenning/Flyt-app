@@ -48,7 +48,7 @@ async function run(engine,label,viewport){
  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
  await page.route('https://api.worldbank.org/**',r=>r.abort());
  try{
-  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&navqa='+label,{waitUntil:'domcontentloaded'});
+  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&lariaV16=0&navqa='+label,{waitUntil:'domcontentloaded'}); // legacy Travel map-board QA; approved default v16 Reisen tested separately
   await page.locator('.bc12:not([hidden])').waitFor({timeout:16000});
   await page.waitForFunction(()=>document.querySelector('.bc12[data-bc13-bound="true"]')&&document.querySelector('.bc12-nav button'));
   await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});

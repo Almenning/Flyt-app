@@ -67,6 +67,14 @@ function assertTap(r,label){
 
 async function verifyBasecamp(page,label,width,height){
   await page.locator('.bc12').waitFor({state:'visible'});
+  if(width>=768&&width<=1366&&height>=650){
+    await page.waitForFunction(()=>{
+      const h=document.querySelector('#home-screen.active .bc12');
+      const dir=matchMedia('(orientation:portrait)').matches?'portrait':'landscape';
+      return h?.dataset.bc15Asset==='ipad-v16-'+dir;
+    },null,{timeout:30000});
+  }
+  const v16=await page.locator('.bc12').evaluate(el=>el.classList.contains('bc15-v16-locked'));
   assert.equal(await page.locator('.bc12-nav button').count(),5,label+' Basecamp must show five real navigation targets');
   // The fifth destination is still the saved character/wardrobe control.
   // Tallvika's troll rollout may rename its visible label to "Mine troll",
@@ -91,8 +99,22 @@ async function verifyBasecamp(page,label,width,height){
     assertTap(challenge,label+' challenge');
   }
 
+  if(v16){
+    const reisen=await rect(page,'.bc15-v16-reisen');
+    assertInViewport(reisen,width,height,label+' v16 Reisen');
+    assertTap(reisen,label+' v16 Reisen');
+    assert.equal(await page.locator('.bc12-nav [data-camp="travel"]').isVisible(),false,
+      label+' Reisen must not be duplicated in the footer');
+    await page.locator('.bc15-v16-reisen').tap();
+    const routes=page.locator('#bc15-v16-journey-dialog[open]');
+    await routes.waitFor({state:'visible',timeout:10000});
+    assert.equal(await routes.locator('.bc15-v16-journey-choices button').count(),4,
+      label+' v16 Reisen must show the four subject journeys');
+    await routes.locator('.bc15-v16-dialog-close').tap();
+  }
   for(const sel of ['.bc12-nav [data-camp="home"]','.bc12-nav [data-camp="travel"]','.bc12-nav [data-camp="explore"]','.bc12-nav [data-camp="collection"]','.bc12-nav [data-camp="wardrobe"]']){
-    if(lockedHome&&sel.includes('[data-camp="home"]')&&width>height){
+    if(v16&&sel.includes('[data-camp="travel"]'))continue;
+    if(lockedHome&&!v16&&sel.includes('[data-camp="home"]')&&width>height){
       assert.equal(await page.locator(sel).isVisible(),false,
         label+' landscape locked Home should not expose duplicate Home target');
       continue;
