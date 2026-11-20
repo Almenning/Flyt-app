@@ -20,3 +20,19 @@ test('candidate art can never replace the locked V1 production character',()=>{
  assert.equal(fs.existsSync(path.join(root,'assets','trollactor2','storesoster-v2','approved')),false,
    'an owner-approved runtime layer pack has not been delivered yet');
 });
+
+
+test('Storesøster source-exact master uses the locked V1 bytes and stays outside runtime',()=>{
+ const crypto=require('node:crypto');
+ const source=fs.readFileSync(path.join(root,'assets','gangemagi-troll','storesoster.webp'));
+ assert.equal(crypto.createHash('sha256').update(source).digest('hex'),
+  'b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89',
+  'locked V1 original bytes changed');
+ const script=fs.readFileSync(path.join(__dirname,'..','scripts','laria-storesoster-source-exact-master.py'),'utf8');
+ assert.match(script,/SOURCE_GIT_SHA1 = 'a8fba47e272e2856bd78b92fb262146506e828ed'/);
+ assert.match(script,/SOURCE_SHA256 = 'b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89'/);
+ assert.match(script,/Image\.Resampling\.NEAREST/);
+ assert.match(script,/recovered\.tobytes\(\) != image\.tobytes\(\)/);
+ assert.match(script,/'ownerApproved': False, 'readyForRuntime': False/);
+ assert.doesNotMatch(script,/os\.system\(|subprocess\.|git push|ownerApproved': True/);
+});
