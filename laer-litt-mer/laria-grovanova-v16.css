@@ -83,6 +83,32 @@
   outline:4px solid #fff0a5!important;outline-offset:-2px!important;
   opacity:.29!important;background:#fff2a8!important;
  }
+
+ /* Only the existing chosen TrollActor is drawn above the unmodified art. */
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll{
+  display:flex!important;position:absolute!important;z-index:28!important;
+  right:8.5%!important;bottom:14%!important;
+  width:clamp(90px,14vw,164px)!important;height:clamp(154px,18vh,246px)!important;
+  align-items:flex-end!important;justify-content:center!important;
+  padding:0!important;margin:0!important;border:0!important;
+  background:transparent!important;box-shadow:none!important;
+  opacity:1!important;overflow:visible!important;cursor:pointer!important;
+  pointer-events:auto!important;touch-action:manipulation!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll > img.laria-premium-troll-art{
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center bottom!important;
+  opacity:1!important;visibility:visible!important;
+  filter:drop-shadow(0 6px 5px rgba(24,40,34,.32))!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked[data-bc15-v16-orientation="landscape"] .bc15-v16-troll{
+  right:5.5%!important;bottom:21%!important;
+  width:clamp(84px,10.4vw,132px)!important;height:clamp(122px,23vh,172px)!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll:focus-visible{
+  outline:3px solid #fff1ae!important;outline-offset:3px!important;border-radius:16px!important;
+ }
  /* The portrait illustration contains a temporary name; cover only its
     printed greeting panel with a live, personalized accessible DOM label.
     The mountain, signs and all art outside this exact panel are unchanged. */

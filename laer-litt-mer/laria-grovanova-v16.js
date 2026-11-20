@@ -143,10 +143,45 @@ function syncGreeting(host){
  const label=host.querySelector('.bc15-v16-greeting-name');
  if(label)label.textContent=name;
 }
+
+function syncTroll(host){
+ const actor=host?.querySelector('.bc15-v16-troll');
+ if(!actor)return;
+ const companion=window.LARIA_TROLL_ACTOR;
+ const id=companion?.choice?.()||'storesoster';
+ const src=companion?.source?.(id)||'./assets/gangemagi-troll/storesoster.webp';
+ const label=companion?.label?.(id)||'Storesøster';
+ const img=actor.querySelector('img');
+ actor.dataset.troll=id;
+ actor.setAttribute('aria-label',label+' er med deg. Trykk for å vinke.');
+ if(img&&img.getAttribute('src')!==src)img.setAttribute('src',src);
+ if(img)img.dataset.troll=id;
+}
+function ensureTroll(host){
+ let actor=host.querySelector('.bc15-v16-troll');
+ if(!actor){
+  // One living DOM character, never baked into the owner's locked artwork.
+  actor=document.createElement('button');
+  actor.type='button';
+  actor.className='bc15-v16-troll laria-troll-host laria-troll-actor';
+  actor.dataset.lariaTrollMood='idle';
+  const img=document.createElement('img');
+  img.className='laria-premium-troll-art';
+  img.alt='';
+  img.loading='eager';
+  img.decoding='async';
+  img.setAttribute('aria-hidden','true');
+  actor.appendChild(img);
+  actor.addEventListener('click',()=>window.LARIA_TROLL_ACTOR?.mood?.(actor,'wave',{say:false}));
+  host.appendChild(actor);
+ }
+ syncTroll(host);
+ return actor;
+}
 function reset(host){
  host?.classList.remove('bc15-v16-locked');
  host?.removeAttribute('data-bc15-v16-orientation');
- host?.querySelectorAll('.bc15-v16-signs,.bc15-v16-reisen,.bc15-v16-greeting')
+ host?.querySelectorAll('.bc15-v16-signs,.bc15-v16-reisen,.bc15-v16-greeting,.bc15-v16-troll')
   .forEach(node=>node.remove());
  const dialog=document.getElementById('bc15-v16-journey-dialog');
  if(dialog?.open)dialog.close();
@@ -213,8 +248,13 @@ async function activate(host,{portrait,isCurrent}){
  const greeting=ensureGreeting(host);
  place(greeting,box,v.ui.greeting);
  syncGreeting(host);
+ ensureTroll(host);
  if(old&&old!==activeUrl)URL.revokeObjectURL(old);
  return true;
 }
+document.addEventListener('laria:troll-changed',()=>{
+ const home=document.querySelector('#home-screen .bc12.bc15-v16-locked');
+ if(home)syncTroll(home);
+});
 window.LARIA_HOME_V16={activate,deactivate:reset,syncGreeting,readOnlyManifest:()=>cachedManifest};
 })();

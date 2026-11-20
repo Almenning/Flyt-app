@@ -38,6 +38,7 @@ async function run(engine,name,viewport,corrupt=false){
   if(corrupt){
    assert.equal(await home.locator('.bc15-v16-sign').count(),0,'bad SHA must remove v16 signs');
    assert.equal(await home.locator('.bc15-v16-greeting').count(),0,'bad SHA must remove live v16 greeting');
+   assert.equal(await home.locator('.bc15-v16-troll').count(),0,'bad SHA must remove v16 actor');
    assert.equal(await home.getAttribute('data-bc15-premium-art'),'blocked');
   }else{
    assert.equal(await home.getAttribute('data-bc15-card-art'),'owner-approved-v16-painted');
@@ -70,6 +71,23 @@ async function run(engine,name,viewport,corrupt=false){
    assert.equal(layout.mask,'none','full-screen art must not inherit legacy edge masks');
    assert(layout.aw>=layout.vw-.5&&layout.ah>=layout.vh-.5,'image must cover full screen');
    assert(layout.signs.every(x=>x.width>=44&&x.height>=44),'accessible sign targets >=44px');
+
+   const actor=home.locator('.bc15-v16-troll');
+   assert.equal(await actor.count(),1,'v16 must display exactly one live TrollActor');
+   await actor.locator('img').evaluate(img=>img.decode());
+   const troll=await actor.evaluate(el=>{
+    const img=el.querySelector('img'),r=el.getBoundingClientRect();
+    const nav=el.closest('.bc12').querySelector('.bc12-nav').getBoundingClientRect();
+    const style=getComputedStyle(el);
+    return {id:el.dataset.troll,source:img.getAttribute('src'),decoded:img.naturalWidth>0,
+     width:r.width,height:r.height,bottom:r.bottom,navTop:nav.top,
+     visible:style.display!=='none'&&style.visibility!=='hidden'};
+   });
+   assert.equal(troll.id,'storesoster','the selected default troll was not loaded');
+   assert.match(troll.source,/storesoster\\.webp$/);
+   assert(troll.decoded&&troll.visible&&troll.width>=44&&troll.height>=44,
+    'TrollActor must be a decoded visible separate image: '+JSON.stringify(troll));
+   assert(troll.bottom<=troll.navTop+4,'the actor cannot overlap the footer: '+JSON.stringify(troll));
    const fname=name+'-v16-'+orientation+(corrupt?'-sha-fallback':'')+'.png';
    if(!corrupt)await page.screenshot({path:path.join(folder,fname),fullPage:true});
    await home.locator('.bc15-v16-reisen').click();
@@ -78,6 +96,22 @@ async function run(engine,name,viewport,corrupt=false){
    assert.equal(await dialog.locator('.bc15-v16-journey-choices button').count(),4);
    await dialog.locator('.bc15-v16-dialog-close').click();
    assert.equal(await dialog.isVisible(),false);
+   await actor.click();
+   assert.equal(await actor.getAttribute('data-laria-troll-mood'),'wave','TrollActor tap must wave');
+   await home.locator('.bc12-nav [data-camp="wardrobe"]').click();
+   const chooser=page.locator('#laria-premium-troll-dialog');
+   await chooser.waitFor({state:'visible',timeout:10000});
+   await chooser.locator('[data-troll-choice="lillesoster"]').click();
+   await page.waitForFunction(()=>document.querySelector('.bc15-v16-troll')?.dataset.troll==='lillesoster');
+   assert.match(await actor.locator('img').getAttribute('src'),/lillesoster\\.webp$/);
+   await chooser.waitFor({state:'hidden',timeout:10000});
+   await home.locator('.bc15-v16-sign[data-bc15-subject="norwegian"]').click();
+   await page.locator('#subject-screen.active #eggenipa-world').waitFor({state:'visible',timeout:20000});
+   await page.locator('#eggenipa-world [data-eg="home"]').click();
+   await page.waitForFunction(()=>document.querySelector('#home-screen.active .bc12')?.dataset.bc15Asset===
+     'ipad-v16-'+(matchMedia('(orientation:portrait)').matches?'portrait':'landscape'),null,{timeout:30000});
+   assert.equal(await home.locator('.bc15-v16-troll').getAttribute('data-troll'),'lillesoster',
+    'selected TrollActor must survive the return from Norsk');
   }
   assert.deepEqual(errors,[],name+' JS exceptions');
   console.log('[Læria v16] '+name+' '+orientation+(corrupt?' invalid SHA fallback':' owner-locked full-screen')+' OK');
