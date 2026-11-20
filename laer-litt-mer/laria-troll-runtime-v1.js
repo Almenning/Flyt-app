@@ -342,6 +342,12 @@
     const css=doc.createElement('link');css.rel='stylesheet';css.href='./trollactor2-prototype.css?v=20261120-prototype1';doc.head.appendChild(css);
     const script=doc.createElement('script');script.src='./trollactor2-prototype.js?v=20261120-prototype1';script.defer=true;doc.head.appendChild(script);
   }
+  // The production layer engine ships inert until an approved, verified art pack
+  // is explicitly connected. It never replaces the locked V1 character by itself.
+  if(new URLSearchParams(root.location.search).get('trollactor2-layered')==='1'){
+    const css=doc.createElement('link');css.rel='stylesheet';css.href='./trollactor2-layered.css?v=20261120-layered1';doc.head.appendChild(css);
+    const script=doc.createElement('script');script.src='./trollactor2-layered.js?v=20261120-layered1';script.defer=true;doc.head.appendChild(script);
+  }
 
   if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
