@@ -384,6 +384,7 @@ function syncLiveCopy(host){
 }
 
 function clearMappedControls(host){
+ clearV16Blob();
  host.querySelector('.bc16-reisen')?.remove();
  host.querySelector('.bc15-boats')?.remove();
  ['.bc14-subjects','.bc12-journey','.bc12-nav','.bc12-adult-entry',
