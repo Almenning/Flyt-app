@@ -38,6 +38,14 @@ Den synlige «Hei, Testbarn!»-teksten dekkes av en egen live-hilsen med barnet 
 
 Båter fra PR #254 skal ikke kopieres til den nye bildekilden med gamle vannkoordinater.
 
+## Standardvisning i appen når PR-en godkjennes
+
+Når denne PR-en eksplisitt merges, åpnes Hjem v16 **automatisk på iPad** (stående og liggende). Barnet skal ikke måtte bruke en skjult `lariaV16=1`-parameter. Ved korrupt eller manglende art, ugyldig SHA-256, feil dimensjoner eller feil dekoding aktiveres den låste, fungerende v15-fallbacken.
+
+`?lariaV16=0` er bare en kontrollert avbryter for å kunne kvalitetssikre gammel Hjem på iPad, og skal ikke eksponeres i vanlig navigasjon. Ekte appskjermbilder og funksjonelle tester kjøres uten `lariaV16=1`; den tidligere v15-regresjonskoden kan bruke `lariaV16=0` for å verifisere fallback.
+
+**Gjeldende status:** Hjem v16 er låst og implementert på PR-grenen, men PR-en er fortsatt et utkast. Ingen nye Hjem-bilder er publisert fra `main` inntil code review, eksakt-head QA og eksplisitt merge-/publiseringsgodkjenning er fullført.
+
 ## QA, aktivering og publisering
 
 1. SHA-256 og dekodet WebP-størrelse må stemme.
