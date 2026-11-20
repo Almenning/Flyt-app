@@ -31,8 +31,18 @@ function isUnitRect(value){
  return Array.isArray(value)&&value.length===4&&value.every(n=>typeof n==='number'&&n>=0&&n<=1)&&
    value[2]>0&&value[3]>0&&value[0]+value[2]<=1&&value[1]+value[3]<=1;
 }
+// Retired v15 approval gates remain testable in isolated, explicit preview QA.
+ // The owner has adopted v16 for ordinary iPad Home: do not fire requests for
+ // the inactive v15 manifests during child navigation or WebKit page teardown.
+ // Turning on a future v15 master must require a separate deliberate code review.
+function legacyMasterReviewRequested(){
+ const params=new URLSearchParams(location.search);
+ return params.has('portrait-fixture')||params.has('landscape-fixture')||
+   params.has('owner-art-review');
+}
 async function approvedIpadPortraitMaster(){
  if(!isIpadHome()||!isPortrait())return null;
+ if(!legacyMasterReviewRequested())return null;
  let candidate;
  try{
   const response=await fetch(IPAD_PORTRAIT_MANIFEST,{cache:'no-store'});
@@ -53,6 +63,7 @@ async function approvedIpadPortraitMaster(){
 // The exact exported pixels, SHA and UI anchors must be reviewed in a real app.
 async function approvedIpadLandscapeMaster(){
  if(!isIpadHome()||isPortrait())return null;
+ if(!legacyMasterReviewRequested())return null;
  let candidate;
  try{
   const response=await fetch(IPAD_LANDSCAPE_MANIFEST,{cache:'no-store'});

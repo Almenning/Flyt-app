@@ -18,8 +18,12 @@ async function run(engine,name,viewport,corrupt=false){
  try{
   const context=await browser.newContext({viewport,hasTouch:true,serviceWorkers:'block'});
   const page=await context.newPage();
-  const errors=[];
+  const errors=[],legacyProbeRequests=[];
   page.on('pageerror',e=>errors.push(e.message));
+  page.on('request',req=>{
+   if(/grovanova-ipad-(portrait|landscape)-master\\.json/.test(req.url()))
+    legacyProbeRequests.push(req.url());
+  });
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   const orientation=viewport.height>viewport.width?'portrait':'landscape';
   if(corrupt){
@@ -84,7 +88,7 @@ async function run(engine,name,viewport,corrupt=false){
      visible:style.display!=='none'&&style.visibility!=='hidden'};
    });
    assert.equal(troll.id,'storesoster','the selected default troll was not loaded');
-   assert.match(troll.source,/storesoster\\.webp$/);
+   assert.match(troll.source,/storesoster\.webp$/);
    assert(troll.decoded&&troll.visible&&troll.width>=44&&troll.height>=44,
     'TrollActor must be a decoded visible separate image: '+JSON.stringify(troll));
    assert(troll.bottom<=troll.navTop+4,'the actor cannot overlap the footer: '+JSON.stringify(troll));
@@ -103,7 +107,7 @@ async function run(engine,name,viewport,corrupt=false){
    await chooser.waitFor({state:'visible',timeout:10000});
    await chooser.locator('[data-troll-choice="lillesoster"]').click();
    await page.waitForFunction(()=>document.querySelector('.bc15-v16-troll')?.dataset.troll==='lillesoster');
-   assert.match(await actor.locator('img').getAttribute('src'),/lillesoster\\.webp$/);
+   assert.match(await actor.locator('img').getAttribute('src'),/lillesoster\.webp$/);
    await chooser.waitFor({state:'hidden',timeout:10000});
    await home.locator('.bc15-v16-sign[data-bc15-subject="norwegian"]').click();
    await page.locator('#subject-screen.active #eggenipa-world').waitFor({state:'visible',timeout:20000});
@@ -113,6 +117,7 @@ async function run(engine,name,viewport,corrupt=false){
    assert.equal(await home.locator('.bc15-v16-troll').getAttribute('data-troll'),'lillesoster',
     'selected TrollActor must survive the return from Norsk');
   }
+  assert.deepEqual(legacyProbeRequests,[],name+' must not probe retired v15 approval manifests');
   assert.deepEqual(errors,[],name+' JS exceptions');
   console.log('[Læria v16] '+name+' '+orientation+(corrupt?' invalid SHA fallback':' owner-locked full-screen')+' OK');
   await context.close();
