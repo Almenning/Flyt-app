@@ -192,13 +192,14 @@ async function validateV16(page,home,label,viewport,errors){
  assert(geometry.artWidth>=geometry.width-.6&&geometry.artHeight>=geometry.height-.6,label+' full screen art leaves bars');
  assert.equal(geometry.mask,'none',label+' legacy painted-image feather must not clip v16');
  assert.match((await home.locator('.bc15-live-greeting').innerText()),/Testbarn/);
+ await page.screenshot({path:folder+'/'+label+'-v16-approved.png',fullPage:true});
  await home.locator('.bc16-reisen').click();
  const dialog=page.locator('#bc16-journey-picker');
  await dialog.waitFor({state:'visible',timeout:5000});
  assert.equal(await dialog.locator('[data-bc16-subject]').count(),4,label+' Reise must show four real subjects');
  await dialog.locator('[data-bc16-close]').click();
  assert.equal(await dialog.isVisible(),false);
- await page.screenshot({path:folder+'/'+label+'-v16-approved.png',fullPage:true});
+
  assert.deepEqual(errors,[],label+' page errors');
  console.log('[Grovanova v16]',label,'owner-locked artwork, routes, full bleed and UI verified',path);
 }
