@@ -1,0 +1,50 @@
+name: "Læria Home v16 – Mac and iPad visual QA"
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/home-kjosnes-v15.js'
+      - 'laer-litt-mer/laria-grovanova-v16.js'
+      - 'laer-litt-mer/laria-grovanova-v16.css'
+      - 'laer-litt-mer/assets/home-v16/**'
+      - 'tests/laria-grovanova-v16.playwright.js'
+      - 'tests/laria-grovanova-v16-approved.test.cjs'
+      - '.github/workflows/laria-home-v16-mac.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: laria-home-v16-mac-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  mac-ipad-visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Validate exact v16 image contract and browser tests
+        run: |
+          node --check laer-litt-mer/laria-grovanova-v16.js
+          node --check tests/laria-grovanova-v16.playwright.js
+          node --test tests/laria-grovanova-v16-approved.test.cjs
+      - name: Serve the exact pull request
+        run: python3 -m http.server 8765 --directory . > /tmp/laria-v16-mac-http.log 2>&1 &
+      - name: Test real Mac viewport geometry and unchanged iPad layouts (Chromium and WebKit)
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          HOME_V15_SCREENSHOTS: /tmp/laria-home-v16-mac
+        run: node tests/laria-grovanova-v16.playwright.js
+      - name: Store actual browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-v16-mac-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-home-v16-mac
+          retention-days: 14
+          if-no-files-found: warn
