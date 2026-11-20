@@ -174,7 +174,7 @@ async function run(engine,label,viewport){
    await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
    await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
    await page.route('https://api.worldbank.org/**',r=>r.abort());
-   const base=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria');
+   const base=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&lariaV16=0';
    await page.goto(base+'&home-v15='+label,{waitUntil:'domcontentloaded'});
 
    const home=await homeReady(page,label);
@@ -467,7 +467,7 @@ async function runPortraitMasterFixture(engine,label,broken=false,viewport={widt
   const manifest={status:'approved',source:'./assets/home-v15/__test-only-portrait-master.webp',sha256:broken?'0'.repeat(64):sha,width:2048,height:2732,ui};
   await page.route('**/assets/home-v15/grovanova-ipad-portrait-master.json',route=>{diagnostics.manifestHits++;return route.fulfill({contentType:'application/json',body:JSON.stringify(manifest)});});
   await page.route('**/assets/home-v15/__test-only-portrait-master.webp',route=>{diagnostics.imageHits++;return route.fulfill({contentType:'image/svg+xml',body:svg});});
-  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&portrait-fixture='+label,{waitUntil:'domcontentloaded'});
+  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&lariaV16=0'+'&portrait-fixture='+label,{waitUntil:'domcontentloaded'});
   const home=page.locator('.bc12.bc15-locked-home');await home.waitFor({state:'visible',timeout:20000});
   // Diagnose activation failures from actual browser state instead of a blind
   // thirty-second timeout. This fixture must not silently pass on the fallback.
@@ -565,7 +565,7 @@ async function runLandscapeMasterFixture(engine,label,broken=false,viewport={wid
     route=>route.fulfill({contentType:'application/json',body:JSON.stringify(manifest)}));
   await page.route('**/assets/home-v15/__test-only-landscape-master.webp',
     route=>route.fulfill({contentType:'image/svg+xml',body:svg}));
-  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&landscape-fixture='+label,
+  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&lariaV16=0'+'&landscape-fixture='+label,
     {waitUntil:'domcontentloaded'});
   const home=page.locator('.bc12.bc15-locked-home');
   await home.waitFor({state:'visible',timeout:20000});
@@ -658,7 +658,7 @@ async function runOwnerArtScreenshot(engine,label,orientation,broken=false){
     width:item.width,height:item.height,ui:item.ui};
   await page.route('**/assets/home-v15/grovanova-ipad-'+orientation+'-master.json',
     route=>route.fulfill({contentType:'application/json',body:JSON.stringify(manifest)}));
-  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+
+  await page.goto((process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&lariaV16=0'+
     '&owner-art-review='+label,{waitUntil:'domcontentloaded'});
   const home=page.locator('.bc12.bc15-locked-home');
   await home.waitFor({state:'visible',timeout:20000});
