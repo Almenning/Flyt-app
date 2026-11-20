@@ -46,3 +46,23 @@ python3 scripts/laria-storesoster-v1-arm-source-study.py \
 ```
 
 **Beslutning:** V1 forblir aktiv. Ingen kandidatressurser lagt under `approved/`. PR #258 skal ikke merges eller publiseres. All fremdrift i denne runden er kildetro forberedelse og feilkartlegging, **ikke** ferdig animasjon.
+
+## Underpaint-eksperiment: geometriske hull tettet, kunstport fortsatt stengt
+
+Kildebasert utvidelse er nå implementert i `scripts/laria-storesoster-v1-underpaint-experiment.py`. Den bruker to eksplisitt **ikke-godkjente** OpenCV-metoder (Telea og Navier–Stokes) til å generere en skjult teksturflate som bare dekker hull når den venstre, synlige V1-armen roteres. Skriptet krever `Pillow`, `numpy` og `opencv-python-headless`, og endrer verken originalillustrasjonen eller runtime.
+
+### Målte funn, original 512 × 1024
+
+| Rotasjon | Uten underlag: manglende kildesilhuett | Med Telea-underlag | Med Navier–Stokes-underlag |
+| --- | ---: | ---: | ---: |
+| −12° | 2 248 | 0 | 0 |
+| −6° | 1 164 | 0 | 0 |
+| 0° | 0 | 0 | 0 |
+| +6° | 1 169 | 0 | 0 |
+| +12° | 2 249 | 0 | 0 |
+
+Sammensatt nøytralpositur ble byteverifisert mot originalens RGBA-piksler med begge underlag. En skadet originalfil avvises av kildekontrollen. Alle outputfiler merkes `artGate: BLOCKED`, `ownerApproved: false` og `readyForRuntime: false`.
+
+**Disse målingene sier bare at kildens tidligere synlige silhuett nå er tildekket**. De bekrefter *ikke* korrekte anatomi-/skulderskjøter, malestil eller velfungerende reell armbevegelse. Side-ved-side-prøver viser fortsatt feil ved skulder, hår og håndledd. Ingen overføring til `approved/` eller publisering er gjort. Originalens 512 × 1024 oppløsning setter dessuten en reell grense for hvor mye detaljert artikulasjon som kan avledes uten ny tegning.
+
+**Neste obligatoriske kunstleveranse:** Manuelt tegnet skjult skulder, fullstendig andre arm og overmalte overganger for en kort, troverdig vinke-animasjon. Hvis kunstnerisk identitet ikke kan bevares, skal Port A forbli stengt. Ikke gjenta flere generiske inpainting-varianter og kalle dem ferdig animasjonskunst.
