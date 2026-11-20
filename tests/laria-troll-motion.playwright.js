@@ -24,9 +24,12 @@ const seed={version:7,progressSchemaVersion:3,
   profile:{grade:2,onboarded:true,name:'Prøvebarn',avatar:'girl',setupVersion:2,tallvikaTroll:'storesoster'},
   mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
   preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
-  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+  journey:{nodes:{'math:2:talldalen':{attempts:1}},gradeWins:{},viewGrades:{},chapterProgress:{}},
+  answerLog:[{at:1,subject:'math',correct:true,countsForLearning:true,questionKey:'motion-qa-math-1'}],
+  sessionLog:[],activeSession:null};
 const results=[];
-function git(args){try{return execFileSync('git',args,{cwd:repo,encoding:'utf8'}).trim();}catch(_){return null;}}
+function git(args){try{return execFileSync('git',['-c','safe.directory='+repo,...args],
+  {cwd:repo,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();}catch(_){return null;}}
 const source={commit:git(['rev-parse','HEAD']),branch:git(['branch','--show-current']),
   worktreeStatus:git(['status','--porcelain','--untracked-files=all']),files:{}};
 for(const file of ['laer-litt-mer/index.html','laer-litt-mer/laria-troll-runtime-v1.js',
@@ -140,16 +143,38 @@ async function openHome(page,base,review){
 async function runCase(browser,engine,base,name,viewport,options,check){
   const folder=path.join(out,engine+'-'+name);fs.mkdirSync(folder,{recursive:true});
   const record={engine,browserVersion:browser.version(),case:name,viewport,review:options.review!==false,
-    reducedMotion:options.reducedMotion||'no-preference',status:'running',screenshots:[],waveRequests:0,errors:[]};
+    reducedMotion:options.reducedMotion||'no-preference',status:'running',phase:'opening-home',
+    screenshots:[],waveRequests:0,waveRequestEvents:[],errors:[]};
   results.push(record);save();
   const context=await browser.newContext({viewport,hasTouch:true,isMobile:true,deviceScaleFactor:1,
     serviceWorkers:'block',reducedMotion:record.reducedMotion,
     ...(options.video?{recordVideo:{dir:folder,size:viewport}}:{})});
   await context.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
+  await context.addInitScript(()=>{
+    const originalFetch=window.fetch;
+    window.__lariaMotionFetchEvidence=[];
+    window.fetch=function(input){
+      const url=typeof input==='string'?input:(input?.url||String(input));
+      if(/\/trollactor-motion\/storesoster\/wave-20261121\.webp/.test(url)){
+        window.__lariaMotionFetchEvidence.push({atMs:performance.now(),url,stack:new Error().stack,
+          hosts:[...document.querySelectorAll('[data-laria-troll-loading]')].map(host=>{
+            const r=host.getBoundingClientRect(),style=getComputedStyle(host);
+            return {className:host.className,activeScreen:host.closest('.screen.active')?.id||null,
+              display:style.display,visibility:style.visibility,opacity:style.opacity,
+              rect:{x:r.x,y:r.y,width:r.width,height:r.height}};
+          })});
+      }
+      return originalFetch.apply(this,arguments);
+    };
+  });
   const page=await context.newPage();
+  const startedAt=Date.now();
   const releases=[];
   page.on('pageerror',error=>record.errors.push(error.message));
-  page.on('request',request=>{if(waveRequest.test(request.url()))record.waveRequests++;});
+  page.on('request',request=>{if(waveRequest.test(request.url())){
+    record.waveRequests++;
+    record.waveRequestEvents.push({phase:record.phase,atMs:Date.now()-startedAt,type:request.resourceType()});
+  }});
   await page.route('https://raw.githubusercontent.com/**',route=>route.abort());
   await page.route('https://api.worldbank.org/**',route=>route.abort());
   const capture=async label=>{
@@ -160,6 +185,7 @@ async function runCase(browser,engine,base,name,viewport,options,check){
   try{
     if(options.setup)await options.setup(page,record,releases);
     record.url=await openHome(page,base,record.review);
+    record.phase='ready';
     const before=await progress(page);
     await check({page,record,capture,actor:page.locator(actorSelector),releases});
     assert.deepEqual(await progress(page),before,'wave interactions must preserve synthetic learning progress');
@@ -172,6 +198,7 @@ async function runCase(browser,engine,base,name,viewport,options,check){
     console.error('[troll-motion] '+engine+' '+name+' FAIL '+error.message);
   }finally{
     for(const release of releases)release();
+    record.fetchEvidence=await page.evaluate(()=>window.__lariaMotionFetchEvidence||[]).catch(()=>[]);
     const video=page.video();
     await context.close();
     if(video){const file=path.join(folder,'app-recording.webm');await video.saveAs(file);record.video=path.relative(out,file);}
@@ -225,13 +252,18 @@ async function guards(browser,engine,base){
   await runCase(browser,engine,base,'asset-failure-and-retry',viewport,{setup:async page=>{
     await page.route(wavePattern,route=>fail?route.abort():route.continue());
   }},async({page,record,actor,capture})=>{
+    const beforeClick=record.waveRequests;
+    record.requestsBeforeManualClick=beforeClick;
+    assert.ok(beforeClick<=1,'at most one automatic welcome may precede the manual click');
+    record.phase='first-manual-click';
     const failed=page.waitForEvent('requestfailed',{predicate:request=>waveRequest.test(request.url())});
     await actor.click();await failed;
     await page.waitForFunction(selector=>document.querySelector(selector)?.dataset.lariaTrollMood==='idle',actorSelector);
     await assertStatic(page);await capture('failed-asset-v1');
-    assert.equal(record.waveRequests,1);
+    assert.equal(record.waveRequests,beforeClick+1,'one manual click must attempt exactly one fetch');
+    record.phase='manual-retry';
     fail=false;await actor.click();await waitWave(page);
-    assert.equal(record.waveRequests,2,'a failed load must be retryable');
+    assert.equal(record.waveRequests,beforeClick+2,'a failed load must retry exactly once on the next click');
     await capture('recovered-wave');
   });
   for(const cancel of [false,true]){
@@ -263,6 +295,7 @@ async function guards(browser,engine,base){
   }
 }
 (async()=>{
+  assert.match(source.commit||'',/^[a-f0-9]{40}$/,'QA evidence must identify the actual checked-out commit');
   const local=process.env.QA_URL?null:await serve();
   const base=process.env.QA_URL||local.url;
   try{
