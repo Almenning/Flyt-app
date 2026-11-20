@@ -1,9 +1,10 @@
 /* Læria Hjem v16, explicitly approved by the product owner 19 Nov 2026.
    The exact illustrated buttons in these two locked pictures are VISUAL ONLY.
    Semantic focusable DOM hit targets sit at the corresponding pixel positions.
-   All rules are restricted to iPad v16. Legacy Home, iPhone and subjects
-   remain untouched. Do not treat the painted art as a UI-free master. */
-@media(min-width:768px) and (max-width:1366px) and (min-height:650px){
+   Only activated v16 Home uses these rules. The separate desktop layout
+   fits the entire approved source; legacy Home, iPhone, and subject worlds
+   remain untouched. Do not treat painted art as a UI-free master. */
+@media(min-width:768px) and (min-height:650px){
  .grade-band-young .bc12.bc15-v16-locked{
   position:relative!important;overflow:hidden!important;isolation:isolate!important;
   background:#235c7b!important;
@@ -151,6 +152,25 @@
  }
  .grade-band-young .bc12.bc15-v16-locked .bc12-adult-entry::after{
   content:"🔒"!important;display:block!important;font-size:clamp(18px,2.1vw,26px)!important;
+ }
+}
+
+/* Mac/desktop: keep the 4:3 owner-approved landscape artwork fully visible.
+   The gradient is a neutral surrounding stage, NOT replacement painting.
+   All painted UI is inside the contain rectangle; JS maps exact pixels.
+   This block never applies to touch iPads, even with a connected trackpad. */
+@media(min-width:1024px) and (min-height:650px){
+ .grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="desktop"]{
+  width:100%!important;height:100dvh!important;max-height:none!important;
+  min-height:100svh!important;overflow:hidden!important;
+  background:radial-gradient(ellipse 85% 95% at 50% 32%,
+   #82afc3 0%,#4a7b91 43%,#305c70 75%,#193744 100%)!important;
+ }
+ .grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="desktop"] .bc15-v16-troll{
+  right:auto!important;bottom:auto!important;
+ }
+ .grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="desktop"] .bc12-adult-entry{
+  right:auto!important;bottom:auto!important;
  }
 }
 /* The separate Reis(e)oversikt is a real, keyboard accessible route chooser.

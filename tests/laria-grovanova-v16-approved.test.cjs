@@ -55,6 +55,10 @@ test('approved v16 image does not bake living troll character, and never changes
  assert.doesNotMatch(render,/\blocalStorage\.setItem\b|\bstate\.(?:progress|completed|profile)\s*=/);
  assert.doesNotMatch(render,/store(?:Session|Progress)\s*\(/);
  assert.match(render,/LARIA_TROLL_ACTOR|LARIA_HOME_OPEN_SUBJECT/);
+ assert.match(render,/supportsDesktop/);
+ assert.match(render,/Math\.min\(r\.width\/imgW,r\.height\/imgH\)/);
+ assert.match(old,/v16\?\.supportsDesktop\?\.\(\)/);
+ assert.match(css,/data-bc15-v16-device="desktop"/);
  assert.match(render,/querySelector\('\.bc15-boats'\)\?\.remove\(\)/);
  assert.match(css,/\.bc12\.bc15-v16-locked/);
 });

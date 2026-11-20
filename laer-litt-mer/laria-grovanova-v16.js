@@ -11,6 +11,13 @@ let activeUrl='';
 let cachedManifest=null;
 let manifestPromise=null;
 
+// A Mac/desktop browser has no touch digitizer. This discriminates it from
+// iPads with large viewports (and iPads connected to a trackpad), preserving
+// the owner's existing iPad cover composition pixel for pixel.
+function supportsDesktop(){
+ return matchMedia('(min-width:1024px) and (min-height:650px)').matches &&
+   navigator.maxTouchPoints===0;
+}
 function unitRect(r){
  return Array.isArray(r)&&r.length===4&&r.every(Number.isFinite)&&
  r[0]>=0&&r[1]>=0&&r[2]>0&&r[3]>0&&r[0]+r[2]<=1&&r[1]+r[3]<=1;
@@ -50,9 +57,12 @@ async function verifiedImage(v){
   return {url,width:image.naturalWidth,height:image.naturalHeight};
  }catch(e){URL.revokeObjectURL(url);throw e;}
 }
-function coverBox(host,imgW,imgH,portrait){
+function artBox(host,imgW,imgH,desktop){
  const r=host.getBoundingClientRect();
- const scale=Math.max(r.width/imgW,r.height/imgH);
+ // Desktop "contain" preserves every painted pixel and keeps all live hit
+ // regions aligned. iPad remains EXACTLY the already approved "cover" fit.
+ const scale=desktop?Math.min(r.width/imgW,r.height/imgH):
+   Math.max(r.width/imgW,r.height/imgH);
  const width=imgW*scale,height=imgH*scale;
  return {left:(r.width-width)/2,top:(r.height-height)/2,width,height,viewW:r.width,viewH:r.height};
 }
@@ -181,6 +191,7 @@ function ensureTroll(host){
 function reset(host){
  host?.classList.remove('bc15-v16-locked');
  host?.removeAttribute('data-bc15-v16-orientation');
+ host?.removeAttribute('data-bc15-v16-device');
  host?.querySelectorAll('.bc15-v16-signs,.bc15-v16-reisen,.bc15-v16-greeting,.bc15-v16-troll')
   .forEach(node=>node.remove());
  const dialog=document.getElementById('bc15-v16-journey-dialog');
@@ -196,7 +207,10 @@ async function activate(host,{portrait,isCurrent}){
  // children must discover to see their approved Home. Failure still falls back
  // to the unmodified SHA-locked v15 master.
  if(new URLSearchParams(location.search).get('lariaV16')==='0')return false;
- if(!host||!window.matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches)return false;
+ const desktop=supportsDesktop();
+ const ipad=window.matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches;
+ if(!host||!(ipad||desktop))return false;
+ const device=desktop?'desktop':'ipad';
  const orientation=portrait?'portrait':'landscape';
  const m=await metadata();
  const v=m?.variants?.[orientation];
@@ -210,18 +224,19 @@ async function activate(host,{portrait,isCurrent}){
  host.style.setProperty('--bc15-home-art','url("'+image.url+'")');
  host.classList.add('bc15-locked-home','bc15-capable','bc15-v16-locked');
  host.classList.remove('bc15-pending','bc15-fallback','bc15-landscape-bleed','bc15-ipad-fagmenu','bc15-phone-fagmenu');
- host.dataset.bc15Asset='ipad-v16-'+orientation;
- host.dataset.bc15Master='ipad-v16-'+orientation;
+ host.dataset.bc15Asset=device+'-v16-'+orientation;
+ host.dataset.bc15Master=device+'-v16-'+orientation;
  host.dataset.bc15CardArt='owner-approved-v16-painted';
  host.dataset.bc15PremiumArt='owner-approved-layout';
- host.dataset.bc15Fit='approved-cover';
+ host.dataset.bc15Fit=desktop?'approved-contain':'approved-cover';
  host.dataset.bc15V16Orientation=orientation;
+ host.dataset.bc15V16Device=device;
  const oldSubjectRow=host.querySelector('.bc14-subjects');
  if(oldSubjectRow){oldSubjectRow.inert=true;oldSubjectRow.setAttribute('aria-hidden','true');}
  host.querySelector('.bc15-subject-signs')?.setAttribute('hidden','');
  host.querySelector('.bc15-approved-logo')?.remove();
  host.querySelector('.bc15-boats')?.remove();
- const box=coverBox(host,image.width,image.height,portrait);
+ const box=artBox(host,image.width,image.height,desktop);
  host.style.setProperty('--bc15-art-left',box.left+'px');
  host.style.setProperty('--bc15-art-top',box.top+'px');
  host.style.setProperty('--bc15-art-width',box.width+'px');
@@ -238,17 +253,31 @@ async function activate(host,{portrait,isCurrent}){
  // The adult hold entry is not painted. Keep it genuinely circular and
  // at least 44px, completely inside EVERY iPad crop including 820x1180.
  if(adult){
-  const edge=16,size=46;
-  for(const [name,value] of Object.entries({
-    left:Math.max(edge,box.viewW-edge-size),top:edge,width:size,height:size
-  }))adult.style.setProperty(name,value+'px','important');
-  adult.style.setProperty('right','auto','important');
-  adult.style.setProperty('bottom','auto','important');
+  if(desktop){
+   // Keep adult access on the same visible image instead of in a side band.
+   place(adult,box,v.ui.adult);
+   adult.style.setProperty('width',Math.max(46,box.width*v.ui.adult[2])+'px','important');
+   adult.style.setProperty('height',Math.max(46,box.height*v.ui.adult[3])+'px','important');
+  }else{
+   const edge=16,size=46;
+   for(const [name,value] of Object.entries({
+     left:Math.max(edge,box.viewW-edge-size),top:edge,width:size,height:size
+   }))adult.style.setProperty(name,value+'px','important');
+   adult.style.setProperty('right','auto','important');
+   adult.style.setProperty('bottom','auto','important');
+  }
  }
  const greeting=ensureGreeting(host);
  place(greeting,box,v.ui.greeting);
  syncGreeting(host);
- ensureTroll(host);
+ const troll=ensureTroll(host);
+ if(desktop){
+  // Troll is a separate live DOM actor. Anchor it to the visible scene
+  // above the illustrated footer, not to the desktop browser window.
+  const portraitTroll=[.77,.65,.12,.17];
+  const landscapeTroll=[.79,.59,.11,.20];
+  place(troll,box,portrait?portraitTroll:landscapeTroll);
+ }
  if(old&&old!==activeUrl)URL.revokeObjectURL(old);
  return true;
 }
@@ -256,5 +285,5 @@ document.addEventListener('laria:troll-changed',()=>{
  const home=document.querySelector('#home-screen .bc12.bc15-v16-locked');
  if(home)syncTroll(home);
 });
-window.LARIA_HOME_V16={activate,deactivate:reset,syncGreeting,readOnlyManifest:()=>cachedManifest};
+window.LARIA_HOME_V16={activate,deactivate:reset,supportsDesktop,syncGreeting,readOnlyManifest:()=>cachedManifest};
 })();
