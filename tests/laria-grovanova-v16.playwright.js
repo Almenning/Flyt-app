@@ -21,7 +21,7 @@ async function run(engine,name,viewport,corrupt=false){
   const errors=[],legacyProbeRequests=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('request',req=>{
-   if(/grovanova-ipad-(portrait|landscape)-master\\.json/.test(req.url()))
+   if(/grovanova-ipad-(portrait|landscape)-master\.json/.test(req.url()))
     legacyProbeRequests.push(req.url());
   });
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
