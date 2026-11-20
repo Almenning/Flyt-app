@@ -155,9 +155,12 @@ function reset(host){
 async function activate(host,{portrait,isCurrent}){
  // Isolated legacy-renderer tests only. Never set by the app itself.
  if(window.__LARIA_QA_SKIP_V16===true)return false;
- // Separate owner-approved PR preview. Old Home remains the production baseline
- // until exact-device QA and explicit merge/publication permission are complete.
- if(new URLSearchParams(location.search).get('lariaV16')!=='1')return false;
+ // This owner-approved scene is the DEFAULT iPad Home once this PR is
+ // explicitly merged. It remains completely absent from production until then.
+ // ?lariaV16=0 is an opt-out for legacy-regression QA, not a requirement
+ // children must discover to see their approved Home. Failure still falls back
+ // to the unmodified SHA-locked v15 master.
+ if(new URLSearchParams(location.search).get('lariaV16')==='0')return false;
  if(!host||!window.matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches)return false;
  const orientation=portrait?'portrait':'landscape';
  const m=await metadata();
