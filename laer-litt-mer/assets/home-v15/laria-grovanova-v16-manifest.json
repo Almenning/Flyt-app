@@ -1,0 +1,145 @@
+{
+  "status": "approved-preview",
+  "approval": "Owner explicitly locked both 2026-11-19 scene designs. Preview enabled only on this unmerged branch; all older Home assets retained.",
+  "warning": "Painted UI includes static greeting and labels. v16 uses real accessible hit targets and overlays the live greeting. Does not qualify as a UI-free art master.",
+  "portrait": {
+    "source": "./assets/home-v15/laria-grovanova-v16-portrait.webp",
+    "sha256": "c842e8e901300d1506594ef6e39929611743fc64ff1eb02254b8643059963421",
+    "width": 2048,
+    "height": 2732,
+    "ui": {
+      "greeting": [
+        0.056,
+        0.148,
+        0.475,
+        0.08
+      ],
+      "subjects": [
+        0.032,
+        0.312,
+        0.304,
+        0.264
+      ],
+      "reise": [
+        0.33,
+        0.56,
+        0.365,
+        0.116
+      ],
+      "continue": [
+        0.232,
+        0.685,
+        0.55,
+        0.1
+      ],
+      "nav": [
+        0.028,
+        0.858,
+        0.944,
+        0.105
+      ],
+      "adult": [
+        0.922,
+        0.028,
+        0.052,
+        0.043
+      ],
+      "signBoards": [
+        [
+          0.034,
+          0.312,
+          0.3,
+          0.065
+        ],
+        [
+          0.034,
+          0.379,
+          0.3,
+          0.063
+        ],
+        [
+          0.034,
+          0.446,
+          0.3,
+          0.063
+        ],
+        [
+          0.034,
+          0.515,
+          0.3,
+          0.063
+        ]
+      ]
+    }
+  },
+  "landscape": {
+    "source": "./assets/home-v15/laria-grovanova-v16-landscape.webp",
+    "sha256": "c39d374c8d9972a389d120ab15a1c81352158dc78a716fc7259fc31f95ce035e",
+    "width": 2048,
+    "height": 1536,
+    "ui": {
+      "greeting": [
+        0.047,
+        0.185,
+        0.34,
+        0.095
+      ],
+      "subjects": [
+        0.03,
+        0.249,
+        0.246,
+        0.455
+      ],
+      "reise": [
+        0.365,
+        0.515,
+        0.29,
+        0.168
+      ],
+      "continue": [
+        0.31,
+        0.69,
+        0.391,
+        0.096
+      ],
+      "nav": [
+        0.028,
+        0.819,
+        0.946,
+        0.151
+      ],
+      "adult": [
+        0.939,
+        0.028,
+        0.05,
+        0.07
+      ],
+      "signBoards": [
+        [
+          0.03,
+          0.254,
+          0.244,
+          0.1
+        ],
+        [
+          0.03,
+          0.368,
+          0.244,
+          0.1
+        ],
+        [
+          0.03,
+          0.481,
+          0.244,
+          0.1
+        ],
+        [
+          0.03,
+          0.592,
+          0.244,
+          0.106
+        ]
+      ]
+    }
+  }
+}
