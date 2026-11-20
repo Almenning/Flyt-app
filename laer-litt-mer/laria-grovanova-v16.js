@@ -16,7 +16,9 @@ let manifestPromise=null;
 // the owner's existing iPad cover composition pixel for pixel.
 function supportsDesktop(){
  return matchMedia('(min-width:1024px) and (min-height:650px)').matches &&
-   navigator.maxTouchPoints===0;
+   (navigator.maxTouchPoints||0)===0 &&
+   !('ontouchstart' in window) &&
+   matchMedia('(hover:hover) and (pointer:fine)').matches;
 }
 function unitRect(r){
  return Array.isArray(r)&&r.length===4&&r.every(Number.isFinite)&&

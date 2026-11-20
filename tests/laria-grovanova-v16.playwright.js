@@ -33,7 +33,15 @@ async function run(engine,name,viewport,corrupt=false,desktop=false){
     await route.fulfill({contentType:'application/json',body:JSON.stringify(body)});
    });
   }
-  await page.goto(url+'&v16-review='+name,{waitUntil:'domcontentloaded'}); // assert default iPad Home, not a hidden preview flag
+  await page.goto(url+'&v16-review='+name,{waitUntil:'domcontentloaded'}); // assert default approved Home, no hidden preview flag
+  const deviceProfile=await page.evaluate(()=>({
+   touchPoints:navigator.maxTouchPoints||0,
+   touchEvent:'ontouchstart' in window,
+   pointerFine:matchMedia('(pointer:fine)').matches,
+   hover:matchMedia('(hover:hover)').matches,
+   desktop:window.LARIA_HOME_V16?.supportsDesktop?.()||false
+  }));
+  console.log('[Læria v16 device] '+name+' '+JSON.stringify(deviceProfile));
   const home=page.locator('#home-screen .bc12');
   await home.waitFor({state:'visible',timeout:25000});
   const expected=corrupt?(orientation==='portrait'?'phone-ready':'tablet-ready'):
