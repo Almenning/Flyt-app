@@ -26,7 +26,8 @@ test('iPad Home removes four bottom cards without changing locked original art',
    'iPad Home must use the wood-retouched version without the static next-stop line');
  assert.doesNotMatch(script,/next\.textContent=type/,
    'No dynamic sticker may be reinstated over the wood sign');
- assert.match(script,/dataset\.bc15CardArt=cleanLoaded/);
+ assert.match(script,/dataset\.bc15CardArt=v16active\?'approved-painted-ui':cleanLoaded/,
+   'legacy clean art remains available while locked v16 is separately recognized');
  assert.match(script,/oldRow\.inert=cleanLoaded/);
  assert.match(script,/window\.LARIA_HOME_OPEN_SUBJECT/);
  assert.match(basecamp,/window\.LARIA_HOME_OPEN_SUBJECT=openHomeSubject/);
