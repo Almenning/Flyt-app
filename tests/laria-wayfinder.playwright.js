@@ -5,7 +5,7 @@ const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
-const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
+const url=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&lariaV16=0'; // test the historical v15 subjects separately from the approved v16 Home
 const out=process.env.LARIA_WAYFINDER_SHOTS||'/tmp/laria-wayfinder';
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Treskilt QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 const worlds=[
