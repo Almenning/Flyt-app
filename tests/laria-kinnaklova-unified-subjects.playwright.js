@@ -62,7 +62,7 @@ async function checkNav(page,selector,viewport,title){
  }
 }
 async function visit(page,url,subject){
- await page.goto(url+'?app=laria&unified-qa='+subject,{waitUntil:'domcontentloaded'});
+ await page.goto(url+'?app=laria&lariaV16=0&unified-qa='+subject,{waitUntil:'domcontentloaded'}); // isolate subject templates from the separate v16 Home rollout
  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
  await openHomeSubject(page,subject);
 }
