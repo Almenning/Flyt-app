@@ -29,7 +29,7 @@ async function run(engine,name,viewport,corrupt=false){
     await route.fulfill({contentType:'application/json',body:JSON.stringify(body)});
    });
   }
-  await page.goto(url+'&lariaV16=1&v16-review='+name,{waitUntil:'domcontentloaded'});
+  await page.goto(url+'&v16-review='+name,{waitUntil:'domcontentloaded'}); // assert default iPad Home, not a hidden preview flag
   const home=page.locator('#home-screen .bc12');
   await home.waitFor({state:'visible',timeout:25000});
   const expected=corrupt?(orientation==='portrait'?'phone-ready':'tablet-ready'):'ipad-v16-'+orientation;
