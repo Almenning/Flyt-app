@@ -20,28 +20,21 @@ module.exports=async function openHomeSubject(page,id){
  const v16=home.locator('.bc15-v16-signs .bc15-v16-sign[data-bc15-subject="'+id+'"]');
  const rail=home.locator('.bc15-subject-signs:not([hidden]) [data-bc15-subject="'+id+'"]');
  const original=home.locator('.bc14-subjects:not([inert]) .bc14-subject[data-camp="subject-'+id+'"]');
- // Some transitions mount the rail just after the data marker is updated.
- // The waiter deliberately accepts only a rendered, enabled user-facing route.
- await page.waitForFunction(subject=>{
-   const h=document.querySelector('#home-screen.active .bc12.bc15-locked-home');
-   if(!h)return false;
-   const selectors=[
-     '.bc15-v16-signs .bc15-v16-sign[data-bc15-subject="'+subject+'"]',
-     '.bc15-subject-signs:not([hidden]) [data-bc15-subject="'+subject+'"]',
-     '.bc14-subjects:not([inert]) .bc14-subject[data-camp="subject-'+subject+'"]'
-   ];
-   return selectors.some(selector=>{
-     const el=h.querySelector(selector);
-     if(!el||el.disabled||el.closest('[inert],[hidden]'))return false;
-     const style=getComputedStyle(el),r=el.getBoundingClientRect();
-     return style.display!=='none'&&style.visibility!=='hidden'&&r.width>0&&r.height>0;
-   });
- },id,{timeout:26000});
- if(await v16.isVisible()){
+ // The child-facing rails sometimes remount after returning from another
+ // subject. Wait for the rail first. The old cards may briefly become visible
+ // during paint, but are intentionally inert in the final premium scene.
+ if(await v16.count()&&await v16.isVisible()){
    await v16.click({timeout:26000});
- }else if(await rail.isVisible()){
-   await rail.click({timeout:26000});
- }else{
-   await original.click({timeout:26000});
+   return;
  }
+ try{
+   await rail.waitFor({state:'visible',timeout:12000});
+   await rail.click({timeout:18000});
+   return;
+ }catch(error){
+   // Never activate a retired photo-card if the wooden rail is present.
+   if(await rail.count())throw error;
+ }
+ await original.waitFor({state:'visible',timeout:15000});
+ await original.click({timeout:15000});
 };
