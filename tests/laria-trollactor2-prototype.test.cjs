@@ -52,3 +52,19 @@ test('source-based Storesøster arm study preserves locked neutral pose and cann
  assert.match(script,/'artGate':'BLOCKED'/);
  assert.doesNotMatch(script,/assets\/trollactor2\/storesoster-v2\/approved\//);
 });
+
+
+test('source-based V1 shoulder underpaint is diagnostic only and blocks runtime use',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const experiment=fs.readFileSync(path.join(__dirname,'..','scripts','laria-storesoster-v1-underpaint-experiment.py'),'utf8');
+ assert.match(experiment,/SOURCE_SHA = 'b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89'/);
+ assert.match(experiment,/if hashlib\.sha256\(data\)\.hexdigest\(\) != SOURCE_SHA:/);
+ assert.match(experiment,/if results\[0\]\.tobytes\(\) != original\.tobytes\(\):/);
+ assert.match(experiment,/cv2\.INPAINT_TELEA/);
+ assert.match(experiment,/cv2\.INPAINT_NS/);
+ assert.match(experiment,/'ownerApproved': False, 'readyForRuntime': False/);
+ assert.match(experiment,/'underlyingAnatomyArtistApproved': False/);
+ assert.match(experiment,/'artGate': 'BLOCKED'/);
+ assert.doesNotMatch(experiment,/assets\/trollactor2\/storesoster-v2\/approved\//);
+ assert.doesNotMatch(experiment,/['"]ownerApproved['"]\s*:\s*True/);
+});
