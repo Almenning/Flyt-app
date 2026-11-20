@@ -45,6 +45,8 @@ test('iPad-only SHA checked Home v16 is wired, with untouched legacy fallback',(
  assert.match(css,/data-camp="home"/);
  assert.match(css,/bc15-v16-greeting/);
  assert.match(css,/bc15-v16-signs/);
+ assert(css.includes('#home-screen.active .bc12.bc15-v16-locked .bc15-v16-troll.laria-troll-host'),
+  'owner-approved v16 actor must override legacy Home troll-hide specificity');
  assert.match(css,/bc15-v16-locked::after/);
  assert(entry.indexOf('laria-grovanova-v16.js')<entry.indexOf('home-kjosnes-v15.js'));
  assert(entry.indexOf('laria-grovanova-v16.css')>entry.indexOf('laria-viewport-premium-v1.css'));
