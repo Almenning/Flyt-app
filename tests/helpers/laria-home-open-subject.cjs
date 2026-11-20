@@ -45,12 +45,48 @@ module.exports=async function openHomeSubject(page,id){
    return;
  }
  try{
-   await rail.waitFor({state:'visible',timeout:12000});
+   // The rail is rebuilt asynchronously after the legacy WebP decodes. In
+   // WebKit, a briefly visible node is not proof of a tappable finished sign.
+   // Verify its real on-screen hit area before exercising the child's route.
+   await page.waitForFunction(subject=>{
+     const host=document.querySelector('#home-screen.active .bc12.bc15-locked-home');
+     const nav=host?.querySelector('.bc15-subject-signs:not([hidden])');
+     const target=nav?.querySelector('[data-bc15-subject="'+subject+'"]');
+     if(!target||host.classList.contains('bc15-pending'))return false;
+     const style=getComputedStyle(target),rect=target.getBoundingClientRect();
+     if(style.display==='none'||style.visibility!=='visible'||
+        rect.width<44||rect.height<44)return false;
+     const centerX=rect.left+rect.width/2,centerY=rect.top+rect.height/2;
+     if(centerX<0||centerY<0||centerX>=innerWidth||centerY>=innerHeight)return false;
+     const hit=document.elementFromPoint(centerX,centerY);
+     return hit===target||target.contains(hit);
+   },id,{timeout:18000});
    await rail.click({timeout:18000});
    return;
  }catch(error){
-   // Never activate a retired photo-card if the wooden rail is present.
-   if(await rail.count())throw error;
+   // Fail with a concrete Safari paint/hit-test snapshot, never force-click
+   // an invisible or covered sign and claim the child can use it.
+   if(await rail.count()){
+     const debug=await page.evaluate(subject=>{
+       const home=document.querySelector('#home-screen.active .bc12');
+       const nav=home?.querySelector('.bc15-subject-signs');
+       const target=nav?.querySelector('[data-bc15-subject="'+subject+'"]');
+       const style=target?getComputedStyle(target):null;
+       const rect=target?.getBoundingClientRect();
+       const cx=rect?rect.left+rect.width/2:0,cy=rect?rect.top+rect.height/2:0;
+       const hit=rect?document.elementFromPoint(cx,cy):null;
+       return {asset:home?.dataset.bc15Asset,master:home?.dataset.bc15Master,
+         presentation:nav?.dataset.bc15Presentation,navHidden:nav?.hidden,
+         homeClasses:home?.className,rect:rect?.toJSON(),
+         display:style?.display,visibility:style?.visibility,
+         pointerEvents:style?.pointerEvents,opacity:style?.opacity,
+         hit:hit?.outerHTML?.slice(0,300),
+         activeScreens:[...document.querySelectorAll('.screen.active')].map(x=>x.id),
+         viewport:{width:innerWidth,height:innerHeight}};
+     },id);
+     throw new Error('Læria real subject sign not tappable: '+
+       JSON.stringify(debug)+'; '+error.message);
+   }
  }
  await original.waitFor({state:'visible',timeout:15000});
  await original.click({timeout:15000});
