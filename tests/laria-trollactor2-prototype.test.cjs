@@ -8,7 +8,15 @@ test('TrollActor 2 prototype is isolated and preserves Storesøster source art',
 });
 test('layered engine requires a complete approved Storesøster asset pack',()=>{
  assert.match(layered,/identity==='storesoster'/);assert.match(layered,/requiredAssets:REQUIRED/);assert.match(layered,/validPack/);
- assert.match(layered,/assets\/trollactor2\/storesoster-v2/);assert.match(layeredCss,/prefers-reduced-motion/);
+ assert.match(layered,/ownerApproved===true/);assert.match(layered,/storesoster-v2-layer-pack-1/);
+ assert.match(layered,/assets\/trollactor2\/storesoster-v2\/approved/);assert.match(layeredCss,/prefers-reduced-motion/);
  assert.match(layered,/\['idle','wave','think','help','celebrate','encourage'\]/);
  assert.doesNotMatch(layered,/localStorage|persistChoice|saveState/);
+});
+test('candidate art can never replace the locked V1 production character',()=>{
+ const runtime=fs.readFileSync(path.join(root,'laria-troll-runtime-v1.js'),'utf8');
+ assert.match(runtime,/gangemagi-troll\/storesoster\.webp/);
+ assert.doesNotMatch(runtime,/assets\/trollactor2\/storesoster-v2\//);
+ assert.equal(fs.existsSync(path.join(root,'assets','trollactor2','storesoster-v2','approved')),false,
+   'an owner-approved runtime layer pack has not been delivered yet');
 });
