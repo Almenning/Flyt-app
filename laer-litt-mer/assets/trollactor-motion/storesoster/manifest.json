@@ -19,6 +19,15 @@
       "height": 540,
       "bytes": 2855904,
       "sha256": "ee17da9e1e6d2ba9679084bf53ea620de9375996e7272063c887f18ac50c013b"
+    },
+    "idle": {
+      "filename": "idle-blink-reuse-20261121.webp",
+      "duration_ms": 5500,
+      "loop_count": 0,
+      "width": 264,
+      "height": 540,
+      "bytes": 2740274,
+      "sha256": "6fa47c4fda92f5e72b8ecdf0e9bcdd91ae575eebb2b8760b19dcf65e3d9d6387"
     }
   }
 }

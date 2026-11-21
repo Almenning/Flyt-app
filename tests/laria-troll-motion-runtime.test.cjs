@@ -336,19 +336,58 @@ test('timeout, a detached host or a newly hidden scene cannot attach late images
 });
 
 test('idle loops on only one main companion, keeps one timeline and resumes after a reaction',async()=>{
-  const h=harness({clips:['idle','wave'],main:true}),other=h.addMain();
+  const h=harness({manifest:manifestWithPoster(['idle','wave']),main:true}),other=h.addMain();
+  await h.flush();await h.decoded();
+  const poster=h.api.source('storesoster');
+  assert.equal(h.host.img.src,poster,'verified neutral stays visible until idle has decoded');
+  assert.equal(h.host.dataset.lariaTrollPoster,'storesoster');
+  await h.decoded();
+  assert.equal(h.host.dataset.lariaTrollSequence,'idle');
+  assert.equal(other.dataset.lariaTrollSequence,undefined);
+  const idle=h.host.img.src;h.advance(30000);await h.flush();
+  assert.equal(h.host.img.src,idle);assert.equal(h.urls.length,2);
+  h.api.mood(h.host,'wave',{say:false});
+  assert.equal(h.host.img.src,poster,'wave loading restores the matching neutral');
+  assert.deepEqual(h.revoked,[idle]);
+  await tick();await h.decoded();
+  assert.equal(h.host.dataset.lariaTrollSequence,'wave');
+  const wave=h.host.img.src;
+  h.advance(5249);assert.equal(h.host.img.src,wave,'idle must not shorten the complete wave');
+  h.advance(1);assert.equal(h.host.img.src,poster);
   await h.flush();await h.decoded();
   assert.equal(h.host.dataset.lariaTrollSequence,'idle');
-  assert.equal(other.img.src,art('storesoster'));
-  const idle=h.host.img.src;h.advance(30000);await h.flush();
-  assert.equal(h.host.img.src,idle);assert.equal(h.urls.length,1);
-  h.api.mood(h.host,'wave',{say:false});await tick();await h.decoded();
-  assert.equal(h.host.dataset.lariaTrollSequence,'wave');
-  h.advance(5250);await h.flush();await h.decoded();
-  assert.equal(h.host.dataset.lariaTrollSequence,'idle');
   assert.notEqual(h.host.img.src,idle);
-  assert.equal(h.assetRequests().filter(src=>src.includes('idle-')).length,1);
+  assert.deepEqual(h.requests,[base+'manifest.json',base+'poster-20261121.webp',
+    base+'idle-20261121.webp',base+'wave-20261121.webp']);
+  assert.deepEqual(h.revoked,[idle,wave]);
+  assert.deepEqual(h.urls.filter(url=>!h.revoked.includes(url)),[poster,h.host.img.src],
+    'only the reusable neutral and the current idle own live URLs');
   assert.equal(h.saves(),0);
+});
+
+test('poster-backed idle suspends and resumes without refetching or retaining stopped timelines',async()=>{
+  for(const reason of ['reduce','hidden','pagehide']){
+    const h=harness({manifest:manifestWithPoster(['idle']),main:true});
+    await h.flush();await h.decoded();await h.decoded();
+    const poster=h.api.source('storesoster'),idle=h.host.img.src;
+    assert.equal(h.host.dataset.lariaTrollSequence,'idle');
+    if(reason==='reduce')await h.reduce(true);
+    else if(reason==='hidden')await h.visibility(true);
+    else h.pagehide();
+    h.advance(30000);await h.flush();
+    assert.equal(h.host.img.src,poster,reason);
+    assert.equal(h.host.dataset.lariaTrollSequence,undefined,reason);
+    assert.deepEqual(h.revoked,[idle],reason);
+    if(reason==='reduce')await h.reduce(false);
+    else if(reason==='hidden')await h.visibility(false);
+    else h.pageshow();
+    await h.flush();await h.decoded();
+    assert.equal(h.host.dataset.lariaTrollSequence,'idle',reason);
+    assert.notEqual(h.host.img.src,idle,reason);
+    assert.deepEqual(h.requests,[base+'manifest.json',base+'poster-20261121.webp',base+'idle-20261121.webp']);
+    assert.deepEqual(h.urls.filter(url=>!h.revoked.includes(url)),[poster,h.host.img.src]);
+    assert.equal(h.saves(),0);assert.equal(h.state.score,42);
+  }
 });
 
 test('idle does not run on thumbnails and stops when its scene becomes hidden',async()=>{
@@ -693,7 +732,7 @@ test('a timed-out poster is retried and its late result cannot replace the succe
 
 test('a declared poster never triggers requests in ordinary or initially reduced-motion mode',async()=>{
   for(const options of [{review:false},{reduce:true}]){
-    const h=harness({...options,manifest:manifestWithPoster(['wave']),main:true});
+    const h=harness({...options,manifest:manifestWithPoster(['idle','wave']),main:true});
     h.api.mood(h.host,'wave',{say:false});await h.flush();
     assert.deepEqual(h.requests,[]);
     assert.equal(h.api.source('storesoster'),art('storesoster'));

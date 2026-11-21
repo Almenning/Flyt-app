@@ -48,6 +48,7 @@ if(poster){
 const wavePath='/assets/trollactor-motion/storesoster/'+manifest.clips.wave.filename;
 const wavePattern='**'+wavePath+'*';
 const waveRequest={test:url=>new URL(url).pathname.endsWith(wavePath)};
+const idlePath=manifest.clips.idle?'/assets/trollactor-motion/storesoster/'+manifest.clips.idle.filename:null;
 const posterPath=poster?'/assets/trollactor-motion/storesoster/'+poster.filename:null;
 const duration=manifest.clips.wave.duration_ms;
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8',
@@ -72,7 +73,7 @@ for(const file of ['laer-litt-mer/index.html','laer-litt-mer/laria-troll-runtime
   'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css',
   'laer-litt-mer/assets/home-v16/laria-grovanova-v16-approved.json',
   motionRoot+'manifest.json',
-  motionRoot+manifest.clips.wave.filename.replace(/\.webp$/,'.json'),
+  ...Object.values(manifest.clips).map(clip=>motionRoot+clip.filename.replace(/\.webp$/,'.json')),
   ...(poster?[motionRoot+poster.filename,motionRoot+poster.filename.replace(/\.webp$/,'.json')]:[]),
   'tests/laria-troll-motion.playwright.js',
   ...Object.values(manifest.clips).map(clip=>motionRoot+clip.filename)]){
@@ -192,7 +193,8 @@ async function choose(page,id){
   await dialog.waitFor({state:'visible'});
   await dialog.locator('[data-troll-choice="'+id+'"]').click();
   await dialog.waitFor({state:'hidden'});
-  await assertStatic(page,id);
+  if(id==='storesoster')await assertRest(page);
+  else await assertStatic(page,id);
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),id);
 }
 async function openHome(page,base,review,reducedMotion,waitForPoster=true){
@@ -341,12 +343,14 @@ async function runCase(browser,engine,base,name,viewport,options,check){
     record.finishedAt=new Date().toISOString();save();
   }
 }
-async function normal({page,record,capture,actor}){
+async function normal(context){
+  const {page,record,capture,actor}=context;
   const baseline=await assertRest(page);
   assert.ok(baseline.box.x>=0&&baseline.box.y>=0&&baseline.box.right<=record.viewport.width&&
     baseline.box.bottom<=record.viewport.height,'actor must be inside the viewport');
   assert.ok(baseline.box.bottom<=baseline.navTop+4,'actor must remain above the bottom navigation');
   await capture('01-rest-before');
+  if(idlePath)await idleCycle(context,actorSelector,'home-idle-before-wave');
   await actor.click();
   const first=await waitWave(page),started=Date.now();
   record.firstWave=first;
@@ -360,11 +364,17 @@ async function normal({page,record,capture,actor}){
   await atElapsed(page,started,3600);
   await assertWave(page);
   await capture('04-wave-late');
-  await assertRest(page);
+  const resumed=await assertRest(page);
   record.firstVisibleDurationMs=Date.now()-started;
   assert.ok(record.firstVisibleDurationMs>=duration-400,'clip ended before its advertised duration');
   media.wave.fullDurationVerified=true;
   await capture('05-rest-after');
+  if(idlePath){
+    assert.notEqual(resumed.src,baseline.src,'idle must start a fresh timeline after the wave');
+    assert.notEqual(resumed.src,first.src,'returning to idle must replace the completed wave');
+    record.idleWaveIdle={before:baseline,wave:first,after:resumed};
+    await idleCycle(context,actorSelector,'home-idle-after-wave');
+  }
   await actor.click();
   const second=await waitWave(page),restarted=Date.now();
   assert.notEqual(second.src,first.src,'repeat play needs a fresh image URL to restart');
@@ -392,6 +402,8 @@ async function normal({page,record,capture,actor}){
   await assertRest(page);
   record.characterSwitches=['storesoster','lillesoster','lillebror','storesoster'];
   assert.equal(record.waveRequests,1,'the decoded clip should reuse one downloaded asset');
+  if(idlePath)assert.equal(record.motionRequests.filter(request=>request.path.endsWith(idlePath)).length,1,
+    'idle must reuse one verified download across loops, reactions and character changes');
 }
 async function observeCelebrateLayout(page,selector,label){
   await page.evaluate(({selector,label})=>{
@@ -541,22 +553,26 @@ async function noHiddenMotion(page,screenId){
       !screen.querySelector('[data-laria-troll-sequence],[data-laria-troll-loading]');
   },screenId,{timeout:12000});
 }
-async function idleCycle({page,record,capture},selector){
+async function idleCycle({page,record,capture},selector,label='idle-loop'){
+  // Legacy scene hosts schedule their welcome at 120ms. Let that reaction
+  // begin before requiring one uninterrupted idle cycle after its completion.
+  if(idlePath)await page.waitForTimeout(160);
   const start=await assertRest(page,selector);
   if(media.idle.status!=='available'){
     record.idleLoop={animation:'missing-v1-fallback',actor:start};return;
   }
-  await capture('idle-loop-start');
+  await capture(label+'-start');
   await page.waitForTimeout(media.idle.duration_ms+250);
   const end=await readActor(page,selector);
   assert.equal(end.sequence,'idle','rest must keep the real idle loop running');
   assert.equal(end.src,start.src,'idle loops within the same decoded image, without restarting its URL');
   assert.equal(await page.locator('.screen.active [data-laria-troll-sequence="idle"]:visible').count(),1,
     'only one scene companion may run idle');
-  record.idleLoop={animation:'played-through-loop',durationMs:media.idle.duration_ms,
+  record.idleLoop={phase:label,animation:'played-through-loop',durationMs:media.idle.duration_ms,
     start,end};
+  (record.idleLoops||=[]).push(record.idleLoop);
   media.idle.fullDurationVerified=true;
-  await capture('idle-loop-after-cycle');
+  await capture(label+'-after-cycle');
 }
 async function gangemagiLayout(page){
   return page.evaluate(()=>{
@@ -798,9 +814,14 @@ async function guards(browser,engine,base){
         await capture('poster-retry-wave');
         await assertRest(page);
         const restored=await readActor(page);
-        assert.equal(restored.poster,'storesoster','wave completion must keep the matching clean neutral image');
-        await capture('poster-after-wave');
-        record.posterRecovery={failedSource:original.src,restoredPoster:restored.poster};
+        const neutral=await page.evaluate(()=>window.LARIA_TROLL_ACTOR.source('storesoster'));
+        assert.match(neutral,/^blob:/,'explicit retry must retain the verified matching neutral image');
+        if(idlePath){
+          assert.equal(restored.sequence,'idle','successful recovery must resume the registered idle loop');
+          assert.notEqual(restored.src,neutral,'the playing idle and its neutral fallback own separate URLs');
+        }else assert.equal(restored.poster,'storesoster','wave completion must keep the matching clean neutral image');
+        await capture('rest-after-poster-retry');
+        record.posterRecovery={failedSource:original.src,restoredNeutral:neutral,restoredSequence:restored.sequence};
       });
   }
   let fail=true;

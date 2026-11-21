@@ -4,14 +4,17 @@ Dato: 21. november 2026. Fortsettelse av PR #258 fra `410db1c`.
 
 ## Ærlig leveransestatus
 
-**Én av seks animasjonssekvenser er registrert for vurdering: wave.**
-Teknisk støtte for de øvrige tilstandene er ikke det samme som ferdige videoer.
+**To avspillinger er registrert for vurdering: wave og en avledet blink-idle.**
+Det er fortsatt bare én original AI-generert sekvens. Idle bruker uendrede
+helfigurbilder fra den nøytrale blinkdelen i vinket; den er ikke en ny
+AI-generert pusteanimasjon. Teknisk støtte for øvrige tilstander er ikke
+det samme som ferdige videoer.
 Vanlig app bruker fortsatt original V1. Vurderingsmodus krever
 `?laria-troll-motion=1`. Ingen merge eller publisering er utført.
 
 | Designnavn | Appens navn | Faktisk medieklipp | Reell hendelse |
 |---|---|---|---|
-| idle | idle | Mangler ren, akseptabel eksport | Synlig hovedfigur i ro |
+| idle | idle | Avledet blink, 5500 ms løkke; ingen ny generering | Synlig hovedfigur i ro |
 | wave | wave | Verifisert 5250 ms WebP | Trykk på trollet / velkomst |
 | think | think | Kvoteavvist | Fjerne et bær i Gangemagi |
 | help | hint | Kvoteavvist | Norsk-hint og Gangemagi-hint |
@@ -19,8 +22,9 @@ Vanlig app bruker fortsatt original V1. Vurderingsmodus krever
 | encourage | support | Mangler ren, akseptabel eksport | Feil oppgavesvar |
 
 `curious` kan bruke et registrert think-klipp. `walking` beholder eksisterende
-CSS-bevegelse. Manglende media beholder originalfigur og eksisterende CSS;
-de erstattes ikke med kopier av vinket eller tomme filer.
+CSS-bevegelse. Manglende reaksjoner beholder originalfigur og eksisterende
+CSS; de registreres ikke som ferdige med kopier av hele vinket eller tomme
+filer. Blinkvarianten nedenfor bruker bare bilder før armen begynner å vinke.
 
 ## Det som er implementert
 
@@ -29,8 +33,7 @@ de erstattes ikke med kopier av vinket eller tomme filer.
   En manglende tilstand blokkerer ikke det eksisterende vinket.
 - Avspilling bevarer V1 mens filen lastes og dekodes, og bruker hele den
   faktisk eksporterte klipplengden. Bytebuffer gjenbrukes ved nytt vink.
-- Idle kan bruke én innebygd løkke på den synlige hovedfiguren når en ekte
-  idle-fil blir registrert. Profilminiatyrer og skjulte figurer er utelatt.
+- Idle bruker én innebygd blinkløkke på den synlige hovedfiguren. Profilminiatyrer og skjulte figurer er utelatt.
   Skjult scene/dokument, sidebytte, redusert bevegelse og trollbytte stanser
   avspillingen. Feilet idle gir ingen automatisk nedlastingsløkke.
 - Den ekte Norsk-hintknappen utløser hint, og lukking avslutter reaksjonen.
@@ -47,6 +50,38 @@ de erstattes ikke med kopier av vinket eller tomme filer.
   ikke lagt oppå figurens egen bevegelse. Regnestykket får reservert plass.
 - Scriptversjonene i index.html er oppdatert. Eksisterende service worker
   bruker allerede nettverk først for JS og JSON.
+
+## Kostnadsfri blink som hvile i vurderingsmodus
+
+Brukerens ekstrabudsjett er **0 kroner**. `idle-blink-reuse-20261121.webp`
+er den samme filen som ble levert som separat blinkprøve; ingen ny
+bildefremstilling eller videogenerering er utført ved appintegrasjonen.
+
+Kilderamme 0–8 fra `wave-groundcut-20261121.webp` spilles fremover, deretter
+7–0 baklengs. Siste valgte kilderamme begynner ved 750 ms og slutter ved
+833 ms, før hånden forlater hoften. Åpningen av øynene er dermed den
+opprinnelige lukkebevegelsen i revers. Hun er tilbake i nøytral positur ved
+1416 ms, etterfulgt av en pause til syklusen er 5500 ms.
+
+Alle 17 dekodede RGBA-rammer er pikselidentiske med de angitte kilderammene.
+Første og siste ramme er identiske. Det er ingen nye ansikts- eller
+kroppspiksler, kroppsdelslag, deformering eller interpolering. Filen er
+264 × 540, 2 740 274 byte, har uendelig løkke og SHA-256
+`6fa47c4fda92f5e72b8ecdf0e9bcdd91ae575eebb2b8760b19dcf65e3d9d6387`.
+
+Manifestet aktiverer klippet bare gjennom eksisterende opt-in-vurderingsmodus.
+Et trykk avbryter hvilen og spiller hele vinket. Avspilleren går deretter
+tilbake til hvile og gjenbruker allerede verifiserte filer. Manglende eller
+feilet idle beholder den statiske figuren og skal ikke gi en automatisk
+nedlastingsløkke. Lillesøster og Lillebror får ikke nye klipp av denne endringen.
+
+Provenans og nøyaktig tidskart ligger i `idle-blink-reuse-20261121.json` ved
+siden av filen. `scripts/laria-prepare-storesoster-blink.py` kan gjenskape
+blinkprøven fra det eksisterende rensede vinket i en separat eksportmappe.
+
+Dette er en **enkel blinkende hvilevariant til visuell vurdering**. En ny,
+selvstendig pustesyklus, de fire øvrige reaksjonene og klipp for de to andre
+trollene er fortsatt ikke levert. Vurderingsmodus er ikke produksjonsgodkjenning.
 
 ## Renset vink med matchende hvilebilde
 
@@ -86,7 +121,7 @@ var dokumentert. Dette er ikke lenger en blokkering.
 
 Den opprinnelige wave-genereringen er HeyGen Video 1,
 `9c03420d22f14bd186d313de5612b4e7`, seed `982016847`.
-De nye jobbene bruker samme original som både første og siste bilde.
+Forsøkene nedenfor brukte samme original som både første og siste bilde.
 
 - Idle-jobb `cf5752616a1d48f2a2055451f5e4568b` fullførte, men råfilen har
   leverandørvannmerke over fotområdet og uønskede animerte blå linjer mot
@@ -102,8 +137,9 @@ Råvideoene er bevart uendret under `tools/laria_art/inputs/`; de ligger ikke
 i appens kunstmappe og er ikke registrert i manifestet. Fullstendige
 prompter, innstillinger, jobb-ID-er, kildehashverdier og avslagsgrunner
 finnes i `storesoster-motion-generation-20261121.json` i samme mappe.
-Videre medieproduksjon trenger tilgjengelig videokvote og rene eksporter
-som faktisk består identitets- og bevegelseskontrollen.
+Produksjon av nye, uavhengige AI-sekvenser trenger tilgjengelig videokvote
+og rene eksporter som består identitets- og bevegelseskontrollen. Den
+avledede blinkvarianten ovenfor trenger ingen ny generering eller kvote.
 
 ## Kontroll og bevis
 
@@ -117,7 +153,15 @@ figurer, retur til Storesøster uten ny videonedlasting, feil i hvilebildet
 og nytt manuelt forsøk. Norsk/Gangemagi har 8 handlingsscenarioer.
 Den bruker ekte knapper og skiller læringsregistrering ved svar fra hint
 og andre handlinger som skal bevare progresjon. Results.json fører
-mediedekning separat: 1/6 registrerte klipp og fem manglende.
+mediedekning separat: 2/6 registrerte avspillinger og fire manglende for
+Storesøster. Idle er avledet fra wave, ikke en andre original AI-sekvens.
+
+Ved innkoblingen består 565/565 Node-tester, inkludert 33 målrettede
+atferdstester. Nettlesertesten måler nå en hel idle-syklus både før og etter
+et faktisk vink på Hjem, og krever én filnedlasting gjennom løkker,
+reaksjoner og trollbytter. Retur fra feil i posteren kontrolleres med
+verifisert nøytralt bilde og gjenopptatt idle. Runtime og CSS er uendret i
+denne innkoblingen.
 
 Resultater må leses fra kjøringen for siste leverte commit. Denne teksten
 påstår ikke at en kjøring som ennå ikke er avsluttet har bestått. Grønne
