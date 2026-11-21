@@ -41,14 +41,31 @@ async function metadata(){
  cachedManifest=m;
  return m;
 }
+// Keep only SHA-verified source bytes in this page session. Reactivations
+// (resize, route return, rerender) must not repeatedly download and hash a
+// full-resolution Home image. Each activation still owns its own object URL.
+const verifiedBytes=new Map();
 async function verifiedImage(v){
  if(!crypto?.subtle)return null;
- const response=await fetch(v.source,{cache:'no-store'});
- if(!response.ok)throw Error('v16 image missing');
- const bytes=await response.arrayBuffer();
- const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),
-  x=>x.toString(16).padStart(2,'0')).join('');
- if(digest!==v.sha256)throw Error('v16 image SHA mismatch');
+ const key=v.source+'#'+v.sha256;
+ let pending=verifiedBytes.get(key);
+ if(!pending){
+  pending=(async()=>{
+   const response=await fetch(v.source,{cache:'no-store'});
+   if(!response.ok)throw Error('v16 image missing');
+   const bytes=await response.arrayBuffer();
+   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),
+    x=>x.toString(16).padStart(2,'0')).join('');
+   if(digest!==v.sha256)throw Error('v16 image SHA mismatch');
+   return bytes;
+  })();
+  verifiedBytes.set(key,pending);
+ }
+ let bytes;
+ try{bytes=await pending;}catch(error){
+  if(verifiedBytes.get(key)===pending)verifiedBytes.delete(key);
+  throw error;
+ }
  const url=URL.createObjectURL(new Blob([bytes],{type:'image/webp'}));
  try{
   const image=await new Promise((resolve,reject)=>{
@@ -57,7 +74,11 @@ async function verifiedImage(v){
   if(image.naturalWidth!==v.width||image.naturalHeight!==v.height)
    throw Error('v16 pixel dimensions mismatch');
   return {url,width:image.naturalWidth,height:image.naturalHeight};
- }catch(e){URL.revokeObjectURL(url);throw e;}
+ }catch(error){
+  URL.revokeObjectURL(url);
+  if(verifiedBytes.get(key)===pending)verifiedBytes.delete(key);
+  throw error;
+ }
 }
 function artBox(host,imgW,imgH,desktop){
  const r=host.getBoundingClientRect();
