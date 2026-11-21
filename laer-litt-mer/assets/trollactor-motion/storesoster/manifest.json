@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "status": "review-only",
+  "identity": "storesoster",
+  "identity_sha256": "b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89",
+  "clips": {
+    "wave": {
+      "filename": "wave-20261121.webp",
+      "duration_ms": 5250,
+      "loop_count": 1,
+      "width": 264,
+      "height": 540,
+      "bytes": 2778318,
+      "sha256": "0fb331e923b0acb00de28555ab4ccf21c7b876d759c4c019297a980da0b308cb"
+    }
+  }
+}

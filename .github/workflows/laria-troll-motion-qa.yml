@@ -1,10 +1,12 @@
-name: Læria – Storesøster wave in actual iPad app
+name: Læria – Storesøster motion in actual iPad app
 
 on:
   pull_request:
     paths:
       - 'laer-litt-mer/laria-troll-runtime-v1.*'
       - 'laer-litt-mer/laria-grovanova-v16.js'
+      - 'laer-litt-mer/laria-task-scene-v15.js'
+      - 'laer-litt-mer/multiplication-gangemagi-v1.js'
       - 'laer-litt-mer/assets/trollactor-motion/**'
       - 'tests/laria-troll-motion*'
       - '.github/workflows/laria-troll-motion-qa.yml'
@@ -18,9 +20,14 @@ concurrency:
 
 jobs:
   motion-review:
+    name: Actual iPad motion (${{ matrix.scope }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container: mcr.microsoft.com/playwright:v1.62.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        scope: [wave, flows]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,15 +37,16 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Actual app motion, fallback and character selection
+      - name: Actual app motion and learning interactions
         env:
           TROLL_MOTION_QA_OUTPUT: /tmp/laria-troll-motion
+          TROLL_MOTION_QA_MODE: ${{ matrix.scope }}
         run: node tests/laria-troll-motion.playwright.js
       - name: Upload actual iPad motion evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: laria-troll-motion-${{ github.event.pull_request.head.sha || github.sha }}
+          name: laria-troll-motion-${{ matrix.scope }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: /tmp/laria-troll-motion
           if-no-files-found: warn
           retention-days: 14

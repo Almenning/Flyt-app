@@ -1,0 +1,143 @@
+{
+  "created_at": "2026-11-21",
+  "identity": {
+    "file": "laer-litt-mer/assets/gangemagi-troll/storesoster.webp",
+    "sha256": "b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89",
+    "asset_id": "5f0c8facb5f84631ab74a506db70cc1a",
+    "public_source_commit": "630b98b467cdb8a7e5a8050099c9a0b77e12e7c1"
+  },
+  "existing_wave": {
+    "video_id": "9c03420d22f14bd186d313de5612b4e7",
+    "model": "heygen-video-1",
+    "seed": 982016847
+  },
+  "jobs": {
+    "idle": {
+      "request": {
+        "image": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "endImage": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "model": "heygen-video-1",
+        "prompt": "Create a silent full-body character animation asset for the Læria children's learning app from the supplied locked Storesøster original. The supplied first and last images are the same original: match both exactly in design, framing and neutral pose. Keep the same face, green-brown eyes, brown wavy hair, purple flower headband, pointed ears, purple and green leaf dress, brown cross-body bag, knitted socks and detailed brown flower boots. One character only. Keep the camera perfectly locked: no zoom, pan, crop, cuts, rotation, scale change or reframing. Keep both feet firmly planted at the original positions and the whole head, hands and boots within the frame. Maintain the original lighting and simple background throughout. Do not add props, scenery, particles, text, speech, singing, music or sound. Preserve hand and finger anatomy; the other hand and bag remain in the original position. The movement must be gentle and readable at small app size. Begin in the exact supplied neutral hand-on-hip pose, perform just the specified action, and finish in the same neutral pose.\nACTION — CALM IDLE, 6 seconds: a relaxed slow breath visible only subtly through shoulders and chest, one natural soft blink, and an almost imperceptible friendly head inclination. Both hands remain in their original poses throughout. No waving, talking or bobbing up and down. Smooth continuous motion with matched calm first and last frames, suitable for a seamless repeating idle loop. Return completely to the original neutral expression and posture by the final second.",
+        "duration": 6,
+        "promptEnhancement": "quality",
+        "resolution": "1080p",
+        "seed": 982016847
+      },
+      "status": "completed",
+      "video_id": "cf5752616a1d48f2a2055451f5e4568b",
+      "error_code": null,
+      "app_acceptance": "rejected",
+      "source_file": "tools/laria_art/inputs/storesoster-idle-source-20261121.mp4",
+      "source_sha256": "b232f3deecb976f5a3e0f6bc6c8fc249069119bcf0f5a46e368bcb49bae2abf0",
+      "measured_video_duration_s": 6.583333,
+      "width": 704,
+      "height": 1440,
+      "delivered_with_provider_watermark": true,
+      "rejection_reasons": [
+        "Provider watermark overlaps the feet/ground region.",
+        "Unrequested animated blue lines and black background; idle is not a clean neutral loop ready for the app."
+      ]
+    },
+    "think": {
+      "request": {
+        "image": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "endImage": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "model": "heygen-video-1",
+        "prompt": "Create a silent full-body character animation asset for the Læria children's learning app from the supplied locked Storesøster original. The supplied first and last images are the same original: match both exactly in design, framing and neutral pose. Keep the same face, green-brown eyes, brown wavy hair, purple flower headband, pointed ears, purple and green leaf dress, brown cross-body bag, knitted socks and detailed brown flower boots. One character only. Keep the camera perfectly locked: no zoom, pan, crop, cuts, rotation, scale change or reframing. Keep both feet firmly planted at the original positions and the whole head, hands and boots within the frame. Maintain the original lighting and simple background throughout. Do not add props, scenery, particles, text, speech, singing, music or sound. Preserve hand and finger anatomy; the other hand and bag remain in the original position. The movement must be gentle and readable at small app size. Begin in the exact supplied neutral hand-on-hip pose, perform just the specified action, and finish in the same neutral pose.\nACTION — THINKING, 5 seconds: she gently tips her head a few degrees, briefly looks thoughtfully upward with a small curious eyebrow lift, then looks back at the viewer with a tiny knowing smile. Hands stay in their original positions. No puzzled distress or speech. Return to the exact original neutral pose and expression by the final second.",
+        "duration": 5,
+        "promptEnhancement": "quality",
+        "resolution": "1080p",
+        "seed": 982016847
+      },
+      "status": "rejected",
+      "video_id": null,
+      "error_code": "insufficient_credit"
+    },
+    "hint": {
+      "request": {
+        "image": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "endImage": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "model": "heygen-video-1",
+        "prompt": "Create a silent full-body character animation asset for the Læria children's learning app from the supplied locked Storesøster original. The supplied first and last images are the same original: match both exactly in design, framing and neutral pose. Keep the same face, green-brown eyes, brown wavy hair, purple flower headband, pointed ears, purple and green leaf dress, brown cross-body bag, knitted socks and detailed brown flower boots. One character only. Keep the camera perfectly locked: no zoom, pan, crop, cuts, rotation, scale change or reframing. Keep both feet firmly planted at the original positions and the whole head, hands and boots within the frame. Maintain the original lighting and simple background throughout. Do not add props, scenery, particles, text, speech, singing, music or sound. Preserve hand and finger anatomy; the other hand and bag remain in the original position. The movement must be gentle and readable at small app size. Begin in the exact supplied neutral hand-on-hip pose, perform just the specified action, and finish in the same neutral pose.\nACTION — OFFERING A HELPFUL HINT, 5 seconds: her free hand on the viewer's left leaves her hip, makes one small warm open-palm offering gesture at waist-to-chest height, then returns naturally to the original hand-on-hip position. She maintains kind eye contact and a reassuring smile. Do not point at a screen element or create an object. The other arm and bag stay still. Finish in the exact original pose.",
+        "duration": 5,
+        "promptEnhancement": "quality",
+        "resolution": "1080p",
+        "seed": 982016847
+      },
+      "status": "rejected",
+      "video_id": null,
+      "error_code": "insufficient_credit"
+    },
+    "celebrate": {
+      "request": {
+        "image": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "endImage": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "model": "heygen-video-1",
+        "prompt": "Create a silent full-body character animation asset for the Læria children's learning app from the supplied locked Storesøster original. The supplied first and last images are the same original: match both exactly in design, framing and neutral pose. Keep the same face, green-brown eyes, brown wavy hair, purple flower headband, pointed ears, purple and green leaf dress, brown cross-body bag, knitted socks and detailed brown flower boots. One character only. Keep the camera perfectly locked: no zoom, pan, crop, cuts, rotation, scale change or reframing. Keep both feet firmly planted at the original positions and the whole head, hands and boots within the frame. Maintain the original lighting and simple background throughout. Do not add props, scenery, particles, text, speech, singing, music or sound. Preserve hand and finger anatomy; the other hand and bag remain in the original position. The movement must be gentle and readable at small app size. Begin in the exact supplied neutral hand-on-hip pose, perform just the specified action, and finish in the same neutral pose.\nACTION — QUIET CELEBRATION AFTER A CORRECT ANSWER, 5 seconds: her smile brightens with delight, and the free hand on the viewer's left makes one small celebratory fist lift near her shoulder with a happy nod. Keep the boots fixed to the ground; no jump, dance, clapping, waving, confetti or body bounce. Lower the hand naturally back onto her hip and finish in the original neutral pose.",
+        "duration": 5,
+        "promptEnhancement": "quality",
+        "resolution": "1080p",
+        "seed": 982016847
+      },
+      "status": "rejected",
+      "video_id": null,
+      "error_code": "insufficient_credit"
+    },
+    "support": {
+      "request": {
+        "image": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "endImage": {
+          "type": "asset_id",
+          "asset_id": "5f0c8facb5f84631ab74a506db70cc1a"
+        },
+        "model": "heygen-video-1",
+        "prompt": "Create a silent full-body character animation asset for the Læria children's learning app from the supplied locked Storesøster original. The supplied first and last images are the same original: match both exactly in design, framing and neutral pose. Keep the same face, green-brown eyes, brown wavy hair, purple flower headband, pointed ears, purple and green leaf dress, brown cross-body bag, knitted socks and detailed brown flower boots. One character only. Keep the camera perfectly locked: no zoom, pan, crop, cuts, rotation, scale change or reframing. Keep both feet firmly planted at the original positions and the whole head, hands and boots within the frame. Maintain the original lighting and simple background throughout. Do not add props, scenery, particles, text, speech, singing, music or sound. Preserve hand and finger anatomy; the other hand and bag remain in the original position. The movement must be gentle and readable at small app size. Begin in the exact supplied neutral hand-on-hip pose, perform just the specified action, and finish in the same neutral pose.\nACTION — GENTLE ENCOURAGEMENT AFTER AN INCORRECT ANSWER, 5 seconds: she makes one slow reassuring nod toward the viewer, with a warm patient smile and a very small friendly head inclination. Her free hand briefly softens into a low open-hand gesture close to the hip and returns to the original position. Convey 'we can try again' without sadness, shaking her head, talking, large gestures or a thumbs-up. Finish in the exact original neutral pose.",
+        "duration": 5,
+        "promptEnhancement": "quality",
+        "resolution": "1080p",
+        "seed": 982016847
+      },
+      "status": "completed",
+      "video_id": "890114f25fad4d0892433b15a7bb724e",
+      "error_code": null,
+      "app_acceptance": "rejected",
+      "source_file": "tools/laria_art/inputs/storesoster-support-source-20261121.mp4",
+      "source_sha256": "5a65da562f0f8fcbd2efbddee4869db40b1e5c3f87b7e6ba054f144401707bce",
+      "measured_video_duration_s": 5.166667,
+      "width": 704,
+      "height": 1440,
+      "delivered_with_provider_watermark": true,
+      "rejection_reasons": [
+        "Provider watermark overlaps the feet/ground region.",
+        "Opposite arm opens into a broad gesture; mouth opens despite silent gentle support brief."
+      ]
+    }
+  }
+}

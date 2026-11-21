@@ -133,6 +133,10 @@
       message.textContent=step?norskHintCopy(q,step):'';
       guide.setAttribute('aria-expanded',String(step>0));
       guide.setAttribute('aria-label',step===0?'Få et hint':step===1?'Få et hint til':'Skjul hint');
+      // The existing hint owns its text. The companion only accompanies this
+      // real action; closing the hint also cancels its previous gesture.
+      window.LARIA_TROLL_ACTOR?.mood?.(wrap.querySelector('.task-troll-companion'),
+        step?'hint':'idle',{say:false});
     });
   }
 

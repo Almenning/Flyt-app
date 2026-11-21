@@ -13,15 +13,13 @@
     lillebror:Object.freeze({id:'lillebror',label:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'})
   });
   const DEFAULT='storesoster';
-  // AI motion is initially enabled only for the production-review URL. V1 is
-  // deliberately still the default source until this first in-app sequence is
-  // signed off on real iPad views.
+  // Motion remains opt-in. The manifest registers actual reviewed files;
+  // absent or invalid clips leave the original character and CSS available.
   const MOTION_REVIEW=new URLSearchParams(root.location.search).get('laria-troll-motion')==='1';
-  const MOTION=Object.freeze({
-    storesoster:Object.freeze({wave:Object.freeze({
-      src:'./assets/trollactor-motion/storesoster/wave-20261121.webp',duration:5250
-    })})
-  });
+  const MOTION_ROOT='./assets/trollactor-motion/storesoster/';
+  const MOTION_IDENTITY_SHA='b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89';
+  const MOTION_KINDS=new Set(['idle','wave','think','hint','celebrate','support']);
+  const MOOD_ALIASES=Object.freeze({help:'hint',encourage:'support'});
   const MOODS=new Set(['idle','wave','walking','think','hint','celebrate','support','curious']);
   const MOOD_MS=Object.freeze({wave:1050,walking:1000,think:1250,hint:1800,celebrate:1250,support:1500,curious:1100});
   const LINES=Object.freeze({
@@ -58,13 +56,24 @@
     '.journey-player-v4 > img',
     '.journey-player-v5 > img'
   ].join(',');
+  // Profile pictures and menu thumbnails are deliberately absent. A loop
+  // belongs to one visible scene companion, never every copy of the artwork.
+  const MAIN_ACTORS=[
+    '.bc15-v16-troll','.bc12-fox','.dashboard-mascot[data-laria-legacy-troll]',
+    '.tv-actor-touch','.eg-companion-actor','.ki-companion-actor','.gv-troll',
+    '.task-fox-companion','.gm-fox-art','.gm-book-fox-art',
+    '.locked-journey-traveler','.fr2-guide','.fr4-scene-fox','.mp-mascot',
+    '.mp-pick-mentor','.word-hunt-top','.premium-globe-header'
+  ].join(',');
 
   const timers=new WeakMap();
   const motionRuns=new Map();
   const motionAssets=new Map();
   const reducedMotion=root.matchMedia?.('(prefers-reduced-motion: reduce)');
   const greeted=new WeakSet();
-  let queued=false;
+  const idlePaused=new WeakSet();
+  let queued=false,lifecycleQueued=false,pageSuspended=false;
+  let manifestRequest=null,manifestClips=null,idleUnavailable=false;
 
   function profile(){
     try{
@@ -161,9 +170,65 @@
     const bubble=host?.querySelector?.(':scope > .laria-troll-speech');
     if(bubble)delete bubble.dataset.show;
   }
-  function motionFor(kind){
-    if(!MOTION_REVIEW||reducedMotion?.matches||!root.fetch||!root.URL?.createObjectURL)return null;
-    return MOTION[choice()]?.[kind]||null;
+  function motionAllowed(){
+    return MOTION_REVIEW&&choice()==='storesoster'&&!reducedMotion?.matches&&
+      !doc.hidden&&!pageSuspended&&!!root.fetch&&!!root.URL?.createObjectURL&&
+      !!root.crypto?.subtle&&!!root.Blob;
+  }
+  function visibleHost(host){
+    if(!host?.isConnected||doc.hidden||pageSuspended)return false;
+    if(host.getClientRects&&host.getClientRects().length===0)return false;
+    if(host.closest?.('[hidden],[inert]'))return false;
+    const screen=host.closest?.('.screen');
+    if(screen&&!screen.classList.contains('active'))return false;
+    for(let node=host;node&&node!==doc;node=node.parentElement){
+      const style=root.getComputedStyle?.(node);
+      if(style&&(style.display==='none'||style.visibility==='hidden'||
+        style.visibility==='collapse'||style.opacity==='0'))return false;
+    }
+    return true;
+  }
+  function readManifest(value){
+    if(value?.version!==1||value.status!=='review-only'||value.identity!=='storesoster'||
+      value.identity_sha256!==MOTION_IDENTITY_SHA||!value.clips||typeof value.clips!=='object'){
+      throw new Error('Invalid troll motion manifest');
+    }
+    const clips={};
+    for(const kind of MOTION_KINDS){
+      const entry=value.clips[kind];
+      // Validate each entry separately: a missing unfinished state must never
+      // disable the existing, independently verified wave.
+      if(!entry||!/^[-a-z0-9]+\.webp$/.test(entry.filename)||
+        !/^[a-f0-9]{64}$/.test(entry.sha256)||
+        !Number.isInteger(entry.duration_ms)||entry.duration_ms<100||entry.duration_ms>30000||
+        !Number.isInteger(entry.bytes)||entry.bytes<1||entry.bytes>20*1024*1024||
+        !Number.isInteger(entry.width)||entry.width<1||entry.width>2048||
+        !Number.isInteger(entry.height)||entry.height<1||entry.height>2048||
+        entry.loop_count!==(kind==='idle'?0:1))continue;
+      clips[kind]=Object.freeze({...entry,src:MOTION_ROOT+entry.filename});
+    }
+    return Object.freeze(clips);
+  }
+  function motionManifest(){
+    if(!manifestRequest){
+      const request=root.fetch(MOTION_ROOT+'manifest.json',{cache:'no-cache'})
+        .then(response=>{
+          if(!response.ok)throw new Error('Troll motion manifest unavailable');
+          return response.json();
+        }).then(value=>{
+          const clips=readManifest(value);
+          if(manifestRequest===request){
+            manifestClips=clips;
+            if(!clips.idle)idleUnavailable=true;
+          }
+          return clips;
+        }).catch(error=>{
+          if(manifestRequest===request)manifestRequest=null;
+          throw error;
+        });
+      manifestRequest=request;
+    }
+    return manifestRequest;
   }
   function clearMotion(host){
     if(!host)return;
@@ -176,33 +241,68 @@
     if(img&&img.getAttribute('src')!==selected().src)img.setAttribute('src',selected().src);
     if(run?.url)root.URL.revokeObjectURL(run.url);
   }
-  function finishMood(host){
+  function finishMood(host,resumeIdle=true){
     root.clearTimeout(timers.get(host));
     timers.delete(host);
     clearMotion(host);
     host.dataset.lariaTrollMood='idle';
     clearSpeech(host);
+    if(resumeIdle)scheduleLifecycle();
   }
-  function motionBlob(src){
-    if(!motionAssets.has(src)){
-      const request=root.fetch(src).then(response=>{
+  function motionKey(sequence){return sequence.src+'|'+sequence.sha256+'|'+sequence.bytes;}
+  function motionBlob(sequence){
+    const key=motionKey(sequence);
+    if(!motionAssets.has(key)){
+      const request=root.fetch(sequence.src).then(async response=>{
         if(!response.ok)throw new Error('Troll motion unavailable');
-        return response.blob();
+        const bytes=await response.arrayBuffer();
+        if(bytes.byteLength!==sequence.bytes)throw new Error('Troll motion size mismatch');
+        const digest=await root.crypto.subtle.digest('SHA-256',bytes);
+        const hash=Array.from(new Uint8Array(digest),value=>value.toString(16).padStart(2,'0')).join('');
+        if(hash!==sequence.sha256)throw new Error('Troll motion hash mismatch');
+        return new root.Blob([bytes],{type:'image/webp'});
       }).catch(error=>{
-        motionAssets.delete(src);
+        if(motionAssets.get(key)===request)motionAssets.delete(key);
         throw error;
       });
-      motionAssets.set(src,request);
+      motionAssets.set(key,request);
     }
-    return motionAssets.get(src);
+    return motionAssets.get(key);
   }
   function currentMotion(host,run){
-    return motionRuns.get(host)===run&&host.isConnected&&
-      run.id===choice()&&!reducedMotion?.matches;
+    return motionRuns.get(host)===run&&run.id===choice()&&
+      motionAllowed()&&visibleHost(host);
+  }
+  function cssDuration(kind,options){
+    const requested=Number(options?.duration);
+    return Number.isFinite(requested)&&requested>0?requested:(MOOD_MS[kind]||1200);
+  }
+  function cssFallback(host,run){
+    if(motionRuns.get(host)!==run)return;
+    clearMotion(host);
+    if(run.kind!=='idle')timers.set(host,root.setTimeout(()=>finishMood(host),run.fallbackDuration));
+  }
+  function failMotion(host,run){
+    if(motionRuns.get(host)!==run)return;
+    if(run.sequence){
+      const key=motionKey(run.sequence);
+      if(motionAssets.get(key)===run.assetRequest)motionAssets.delete(key);
+    }else if(manifestRequest===run.manifestRequest)manifestRequest=null;
+    if(run.clipKind==='idle')idleUnavailable=true;
+    // A failure leaves V1 on screen. Observer refreshes must not turn an
+    // unavailable loop into repeated downloads; another explicit action may retry.
+    idlePaused.add(host);
+    finishMood(host,false);
   }
   async function loadMotion(host,run){
     try{
-      const blob=await motionBlob(run.sequence.src);
+      run.manifestRequest=motionManifest();
+      const clips=await run.manifestRequest;
+      if(!currentMotion(host,run))return;
+      run.sequence=clips[run.clipKind];
+      if(!run.sequence){cssFallback(host,run);return;}
+      run.assetRequest=motionBlob(run.sequence);
+      const blob=await run.assetRequest;
       if(!currentMotion(host,run))return;
       // A fresh blob URL gives every play its own animation timeline, while
       // the encoded bytes are fetched only once. Keep V1 visible until decode.
@@ -219,63 +319,88 @@
       if(next.decode)await next.decode();
       next.onload=null;
       next.onerror=null;
+      if(next.naturalWidth!==run.sequence.width||next.naturalHeight!==run.sequence.height){
+        throw new Error('Troll motion dimensions mismatch');
+      }
       if(!currentMotion(host,run))return;
       const visible=host.querySelector(':scope > img.laria-premium-troll-art');
       if(!visible)return;
       root.clearTimeout(run.loadingTimer);
       delete host.dataset.lariaTrollLoading;
-      host.dataset.lariaTrollSequence=run.kind;
+      host.dataset.lariaTrollSequence=run.clipKind;
       host.dataset.troll=run.id;
       visible.replaceWith(next);
       // Legacy callers supply short CSS mood durations. A decoded clip owns
       // its full duration; a later reaction can still cancel it immediately.
-      timers.set(host,root.setTimeout(()=>finishMood(host),run.sequence.duration));
-    }catch(_){
-      if(motionRuns.get(host)===run){
-        motionAssets.delete(run.sequence.src);
-        finishMood(host);
+      if(run.sequence.loop_count!==0){
+        timers.set(host,root.setTimeout(()=>finishMood(host),run.sequence.duration_ms));
       }
+    }catch(_){
+      failMotion(host,run);
     }finally{
-      if(motionRuns.get(host)===run&&!currentMotion(host,run))finishMood(host);
+      if(motionRuns.get(host)===run&&!currentMotion(host,run))finishMood(host,false);
     }
   }
-  function playMotion(host,kind){
-    const sequence=motionFor(kind);
+  function playMotion(host,kind,options={}){
+    const clipKind=kind==='curious'?'think':kind;
     const img=host?.querySelector?.(':scope > img.laria-premium-troll-art');
-    if(!sequence||!img||!host.isConnected)return false;
-    // Retired dashboards still exist in the DOM. Their delayed greeting must
-    // not download or decode an animation for a display:none companion.
-    if(host.getClientRects&&host.getClientRects().length===0)return false;
-    const run={id:choice(),kind,sequence,original:img,url:null};
+    if(!motionAllowed()||!MOTION_KINDS.has(clipKind)||!img||!visibleHost(host))return false;
+    if(manifestClips&&!manifestClips[clipKind])return false;
+    if(clipKind==='idle'&&(idleUnavailable||idlePaused.has(host)||host!==idleHost()))return false;
+    const run={id:choice(),kind,clipKind,sequence:null,original:img,url:null,
+      fallbackDuration:cssDuration(kind,options)};
     motionRuns.set(host,run);
-    host.dataset.lariaTrollLoading=kind;
+    host.dataset.lariaTrollLoading=clipKind;
     run.loadingTimer=root.setTimeout(()=>{
-      if(motionRuns.get(host)!==run)return;
-      motionAssets.delete(sequence.src);
-      finishMood(host);
+      failMotion(host,run);
     },10000);
     void loadMotion(host,run);
     return true;
   }
   function stopMotions(){
-    for(const host of motionRuns.keys())finishMood(host);
+    for(const host of motionRuns.keys())finishMood(host,false);
+  }
+  function idleHost(){
+    const hosts=Array.from(doc.querySelectorAll(MAIN_ACTORS)).filter(host=>
+      visibleHost(host)&&host.querySelector(':scope > img.laria-premium-troll-art'));
+    return hosts.find(host=>{
+      const run=motionRuns.get(host);
+      return run&&run.clipKind!=='idle';
+    })||hosts[0]||null;
+  }
+  function reconcileMotions(){
+    lifecycleQueued=false;
+    const active=motionAllowed()?idleHost():null;
+    for(const [host,run] of motionRuns){
+      if(!currentMotion(host,run)||(run.clipKind==='idle'&&host!==active))finishMood(host,false);
+    }
+    if(active&&!motionRuns.has(active)&&!timers.has(active)&&
+      (!active.dataset.lariaTrollMood||active.dataset.lariaTrollMood==='idle')){
+      playMotion(active,'idle');
+    }
+  }
+  function scheduleLifecycle(){
+    if(lifecycleQueued)return;
+    lifecycleQueued=true;
+    (root.requestAnimationFrame||root.setTimeout)(reconcileMotions);
   }
   function mood(host,kind='idle',opts={}){
+    kind=MOOD_ALIASES[kind]||kind;
     if(!host||!MOODS.has(kind))return false;
     root.clearTimeout(timers.get(host));
     timers.delete(host);
     clearMotion(host);
-    const playing=playMotion(host,kind);
+    idlePaused.delete(host);
+    const playing=playMotion(host,kind,opts);
     host.dataset.lariaTrollMood=kind;
     if(opts.say!==false){
       const text=typeof opts.say==='string'?opts.say:line(kind);
       if(text)speech(host,text);
     }
     if(kind!=='idle'&&!playing){
-      const requested=Number(opts.duration);
-      const duration=Number.isFinite(requested)&&requested>0?requested:(MOOD_MS[kind]||1200);
-      timers.set(host,root.setTimeout(()=>finishMood(host),duration));
+      timers.set(host,root.setTimeout(()=>finishMood(host),cssDuration(kind,opts)));
     }else if(kind==='idle')clearSpeech(host);
+    scheduleLifecycle();
     return true;
   }
 
@@ -374,6 +499,7 @@
     if(doc.documentElement.style.getPropertyValue('--laria-selected-troll')!==artUrl)
       doc.documentElement.style.setProperty('--laria-selected-troll',artUrl);
     syncLegacyHomeCopy();
+    scheduleLifecycle();
   }
   function refresh(){
     if(queued)return;
@@ -437,18 +563,33 @@
     bindInteractions();
     new MutationObserver(changes=>{
       if(changes.some(change=>{
-        if(change.type==='attributes')return change.target?.matches?.(IMAGE_SELECTORS);
+        if(change.type==='attributes')return ['src','class'].includes(change.attributeName)&&change.target?.matches?.(IMAGE_SELECTORS);
         return Array.from(change.addedNodes||[]).some(node=>
           node.nodeType===1&&(node.matches?.(IMAGE_SELECTORS)||node.querySelector?.(IMAGE_SELECTORS))
         );
       }))refresh();
-    }).observe(doc.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src','class']});
+      if(changes.some(change=>{
+        if(change.type==='childList')return change.removedNodes?.length||Array.from(change.addedNodes||[]).some(node=>
+          node.nodeType===1&&(node.matches?.(MAIN_ACTORS)||node.querySelector?.(MAIN_ACTORS)));
+        return change.attributeName!=='src'&&(change.target?.matches?.('.screen,'+MAIN_ACTORS)||
+          change.target?.querySelector?.(MAIN_ACTORS)||
+          Array.from(motionRuns.keys()).some(host=>change.target===host||change.target?.contains?.(host)));
+      }))scheduleLifecycle();
+    }).observe(doc.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src','class','style','hidden','inert']});
     root.addEventListener('resize',refresh,{passive:true});
     doc.addEventListener('laria:troll-changed',()=>{stopMotions();refresh();});
-    const onMotionPreference=()=>{if(reducedMotion?.matches)stopMotions();};
+    const onMotionPreference=()=>{
+      if(reducedMotion?.matches)stopMotions();
+      else scheduleLifecycle();
+    };
     if(reducedMotion?.addEventListener)reducedMotion.addEventListener('change',onMotionPreference);
     else reducedMotion?.addListener?.(onMotionPreference);
-    root.addEventListener('pagehide',stopMotions);
+    doc.addEventListener('visibilitychange',()=>{
+      if(doc.hidden)stopMotions();
+      else scheduleLifecycle();
+    });
+    root.addEventListener('pagehide',()=>{pageSuspended=true;stopMotions();});
+    root.addEventListener('pageshow',()=>{pageSuspended=false;scheduleLifecycle();});
   }
 
   root.LARIA_TROLL_ACTOR=Object.freeze({
