@@ -216,13 +216,59 @@ async function runCase(browser,engine,base,name,viewport,options,check){
   const folder=path.join(out,engine+'-'+name);fs.mkdirSync(folder,{recursive:true});
   const record={engine,browserVersion:browser.version(),case:name,viewport,review:options.review!==false,
     reducedMotion:options.reducedMotion||'no-preference',status:'running',phase:'opening-home',
-    screenshots:[],waveRequests:0,waveRequestEvents:[],motionRequests:[],reactions:[],errors:[]};
+    screenshots:[],waveRequests:0,waveRequestEvents:[],motionRequests:[],motionRequestResults:[],reactions:[],errors:[]};
   results.push(record);save();
   const context=await browser.newContext({viewport,hasTouch:true,isMobile:true,deviceScaleFactor:1,
     serviceWorkers:'block',reducedMotion:record.reducedMotion,
     ...(options.video?{recordVideo:{dir:folder,size:viewport}}:{})});
   await context.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
   await context.addInitScript(()=>{
+    // Passive bounded diagnostics only. Native return values and promises,
+    // decoding, source setters, timeouts and application state stay unchanged.
+    const loadEvidence=window.__lariaMotionLoadEvidence=[];
+    window.__lariaMotionLoadEvidenceDropped=0;
+    const noteLoad=(event,details)=>{
+      if(loadEvidence.length<400)loadEvidence.push({atMs:performance.now(),event,...details});
+      else window.__lariaMotionLoadEvidenceDropped++;
+    };
+    const blobInfo=new Map();
+    const nativeCreateURL=URL.createObjectURL,nativeRevokeURL=URL.revokeObjectURL;
+    URL.createObjectURL=function(blob){
+      const url=Reflect.apply(nativeCreateURL,this,arguments);
+      if(blob?.type==='image/webp'){
+        const info={bytes:blob.size,mimeType:blob.type};
+        if(blobInfo.size<200)blobInfo.set(url,info);
+        noteLoad('blob-created',{url,...info});
+      }
+      return url;
+    };
+    URL.revokeObjectURL=function(url){
+      const result=Reflect.apply(nativeRevokeURL,this,arguments);
+      if(blobInfo.has(url)){
+        noteLoad('blob-revoked',{url,...blobInfo.get(url)});blobInfo.delete(url);
+      }
+      return result;
+    };
+    const nativeDecode=HTMLImageElement.prototype.decode;
+    if(nativeDecode)HTMLImageElement.prototype.decode=function(){
+      const url=this.getAttribute('src'),info=blobInfo.get(url);
+      const observed=!!info&&this.classList.contains('laria-premium-troll-art');
+      const snapshot=()=>({url,...info,connected:this.isConnected,complete:this.complete,
+        width:this.naturalWidth,height:this.naturalHeight});
+      // The runtime calls native decode only after the detached image's load
+      // event. This marks that boundary without intercepting src or onload.
+      if(observed)noteLoad('decode-start',snapshot());
+      let result;
+      try{result=Reflect.apply(nativeDecode,this,arguments);}
+      catch(error){
+        if(observed)noteLoad('decode-throw',{...snapshot(),name:error?.name,message:String(error?.message||error).slice(0,200)});
+        throw error;
+      }
+      if(observed)result.then(
+        ()=>noteLoad('decode-resolved',snapshot()),
+        error=>noteLoad('decode-rejected',{...snapshot(),name:error?.name,message:String(error?.message||error).slice(0,200)}));
+      return result;
+    };
     const originalFetch=window.fetch;
     window.__lariaMotionFetchEvidence=[];
     window.fetch=function(input){
@@ -281,6 +327,7 @@ async function runCase(browser,engine,base,name,viewport,options,check){
   });
   const page=await context.newPage();
   const startedAt=Date.now();
+  record.requestObservationTimeOriginMs=startedAt;
   const releases=[];
   page.on('pageerror',error=>record.errors.push(error.message));
   page.on('request',request=>{
@@ -291,6 +338,15 @@ async function runCase(browser,engine,base,name,viewport,options,check){
       record.waveRequestEvents.push({phase:record.phase,atMs:Date.now()-startedAt,type:request.resourceType()});
     }
   });
+  const requestResult=(event,request,status=null)=>{
+    if(!/\/assets\/trollactor-motion\//.test(request.url()))return;
+    if(record.motionRequestResults.length>=400){record.motionRequestResultsDropped=(record.motionRequestResultsDropped||0)+1;return;}
+    record.motionRequestResults.push({event,phase:record.phase,atMs:Date.now()-startedAt,
+      path:new URL(request.url()).pathname,status,timing:request.timing(),failure:request.failure()?.errorText||null});
+  };
+  page.on('response',response=>requestResult('response',response.request(),response.status()));
+  page.on('requestfinished',request=>requestResult('finished',request));
+  page.on('requestfailed',request=>requestResult('failed',request));
   await page.route('https://raw.githubusercontent.com/**',route=>route.abort());
   await page.route('https://api.worldbank.org/**',route=>route.abort());
   const capture=async label=>{
@@ -334,6 +390,14 @@ async function runCase(browser,engine,base,name,viewport,options,check){
     console.error('[troll-motion] '+engine+' '+name+' FAIL '+error.message);
   }finally{
     for(const release of releases)release();
+    record.loadDiagnostics=await page.evaluate(()=>({timeOriginMs:performance.timeOrigin,
+      events:window.__lariaMotionLoadEvidence||[],dropped:window.__lariaMotionLoadEvidenceDropped||0,
+      resources:performance.getEntriesByType('resource').filter(entry=>
+        /\/assets\/trollactor-motion\/[^/]+\/[^/?]+\.webp(?:\?|$)/.test(entry.name)).slice(-100).map(entry=>({
+          path:new URL(entry.name).pathname,initiatorType:entry.initiatorType,startTime:entry.startTime,
+          responseStart:entry.responseStart,responseEnd:entry.responseEnd,duration:entry.duration,
+          transferSize:entry.transferSize,encodedBodySize:entry.encodedBodySize,decodedBodySize:entry.decodedBodySize}))
+    })).catch(error=>({collectionError:error.message}));
     record.fetchEvidence=await page.evaluate(()=>window.__lariaMotionFetchEvidence||[]).catch(()=>[]);
     record.actorEvidence=await page.evaluate(()=>window.__lariaTrollEvidence||[]).catch(()=>[]);
     record.callEvidence=await page.evaluate(()=>window.__lariaTrollCallEvidence||[]).catch(()=>[]);

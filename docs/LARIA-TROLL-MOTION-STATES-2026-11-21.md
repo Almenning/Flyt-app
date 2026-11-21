@@ -35,7 +35,9 @@ filer. Blinkvarianten nedenfor bruker bare bilder før armen begynner å vinke.
   faktisk eksporterte klipplengden. Bytebuffer gjenbrukes ved nytt vink.
 - Idle bruker én innebygd blinkløkke på den synlige hovedfiguren. Profilminiatyrer og skjulte figurer er utelatt.
   Skjult scene/dokument, sidebytte, redusert bevegelse og trollbytte stanser
-  avspillingen. Feilet idle gir ingen automatisk nedlastingsløkke.
+  avspillingen. Feilet idle gir ingen automatisk nedlastingsløkke. En ny
+  uttrykkelig reaksjon kan prøve registrert idle igjen etter reaksjonen,
+  også når det matchende hvilebildet først var utilgjengelig.
 - Den ekte Norsk-hintknappen utløser hint, og lukking avslutter reaksjonen.
   Eksisterende hinttekst og læringsdata er bevart.
 - Gangemagis nyrendrede figur sender sin faktiske reaksjon til spilleren.
@@ -156,12 +158,22 @@ og andre handlinger som skal bevare progresjon. Results.json fører
 mediedekning separat: 2/6 registrerte avspillinger og fire manglende for
 Storesøster. Idle er avledet fra wave, ikke en andre original AI-sekvens.
 
-Ved innkoblingen består 565/565 Node-tester, inkludert 33 målrettede
+Ved første innkobling bestod 565/565 Node-tester, inkludert 33 målrettede
 atferdstester. Nettlesertesten måler nå en hel idle-syklus både før og etter
 et faktisk vink på Hjem, og krever én filnedlasting gjennom løkker,
 reaksjoner og trollbytter. Retur fra feil i posteren kontrolleres med
-verifisert nøytralt bilde og gjenopptatt idle. Runtime og CSS er uendret i
-denne innkoblingen.
+verifisert nøytralt bilde og gjenopptatt idle.
+
+Den første nettleserrunden avdekket at en tidligere feil i hvilebildet
+kunne sperre blinket også etter et vellykket manuelt vink. Oppfølgingen
+gjenåpner registrert idle ved en uttrykkelig reaksjon og har en egen
+regresjonstest for hele forløpet. Automatisk polling av feilende media er
+fortsatt sperret. CSS og alle bildefiler er uendret i denne rettelsen.
+
+WebKit hadde også treg første innlasting på stående iPad. Testene fører
+derfor passive, avgrensede målinger av ferdige nettverksforespørsler,
+blob-URL-er og native bildedekoding. Disse endrer ikke appens kilder,
+avspilling, tidsgrenser eller kravene til bestått kontroll.
 
 Resultater må leses fra kjøringen for siste leverte commit. Denne teksten
 påstår ikke at en kjøring som ennå ikke er avsluttet har bestått. Grønne

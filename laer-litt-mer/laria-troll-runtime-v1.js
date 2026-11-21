@@ -487,7 +487,11 @@
     root.clearTimeout(timers.get(host));
     timers.delete(host);
     clearMotion(host);
-    motionCatalogs.get(choice())?.idlePaused.delete(host);
+    const catalog=motionCatalogs.get(choice());
+    catalog?.idlePaused.delete(host);
+    // A new explicit reaction may retry a registered idle after a load failure.
+    // Observer reconciliation and missing manifest entries remain bounded.
+    if(catalog?.clips?.idle)catalog.idleUnavailable=false;
     const playing=playMotion(host,kind,opts);
     host.dataset.lariaTrollMood=kind;
     if(opts.say!==false){

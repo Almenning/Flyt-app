@@ -642,6 +642,38 @@ test('remounting main actors does not automatically retry a failed poster-only p
   assert.equal(posterCalls,2,'an explicit reaction can retry the poster');
 });
 
+test('an explicit wave retry restores registered idle after its matching poster failed',async()=>{
+  let posterAvailable=false;
+  const h=harness({main:true,manifest:manifestWithPoster(['idle','wave']),fetcher:src=>{
+    if(src.includes('/poster-')&&!posterAvailable)return Promise.reject(new Error('poster unavailable'));
+    return Promise.resolve(responseFor(src.includes('/poster-')?'poster':src.includes('/idle-')?'idle':'wave'));
+  }});
+  await h.flush();
+  assert.equal(h.host.img.src,art('storesoster'));
+  assert.equal(h.host.dataset.lariaTrollSequence,undefined);
+  for(let count=0;count<3;count++){h.advance(20000);await h.changed();}
+  assert.deepEqual(h.requests,[base+'manifest.json',base+'poster-20261121.webp'],
+    'observer refreshes must not retry a failed idle poster');
+  posterAvailable=true;
+  h.api.mood(h.host,'wave',{say:false});await tick();await h.decoded();await h.decoded();
+  const poster=h.api.source('storesoster'),wave=h.host.img.src;
+  assert.equal(h.host.dataset.lariaTrollSequence,'wave');
+  h.advance(5250);await h.flush();
+  assert.equal(h.host.img.src,poster);
+  assert.equal(h.host.dataset.lariaTrollLoading,'idle',
+    'successful explicit recovery must allow the registered idle to load after the wave');
+  await h.decoded();
+  assert.equal(h.host.dataset.lariaTrollSequence,'idle');
+  const idle=h.host.img.src;
+  for(let count=0;count<3;count++){h.advance(20000);await h.changed();}
+  assert.equal(h.host.img.src,idle);
+  assert.deepEqual(h.requests,[base+'manifest.json',base+'poster-20261121.webp',base+'poster-20261121.webp',
+    base+'wave-20261121.webp',base+'idle-20261121.webp']);
+  assert.deepEqual(h.revoked,[wave]);
+  assert.deepEqual(h.urls.filter(url=>!h.revoked.includes(url)),[poster,idle]);
+  assert.equal(h.saves(),0);assert.equal(h.state.score,42);
+});
+
 test('declaring a malformed matching poster blocks paired clips instead of ignoring that poster',async()=>{
   for(const alter of [m=>m.poster=null,m=>m.poster.filename='../poster.webp',
     m=>m.poster.sha256='invalid',m=>m.poster.width=0]){
