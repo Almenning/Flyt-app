@@ -705,6 +705,8 @@ function finish(ctx,w,h,s){
   ctx.fillStyle=lowerGlow;ctx.fillRect(0,0,w,h);
 }
 function premiumDraw(){
+  // Keep inactive screens wired without enqueueing hidden canvas raster work.
+  if(!screen.classList.contains('active'))return;
   /* The discovery globe is an opt-in paint experiment. Some legacy resize
      observers call this renderer directly (rather than via window.drawGlobe),
      so honour the isolated preview before touching the shared canvas. */
@@ -786,6 +788,7 @@ function install(){
   window.__lariaGlobeClassicDraw=baseDraw;
 
   const routedDraw=function(){
+    if(!screen.classList.contains('active'))return;
     /* The classic-mode router captures the old renderer by closure. It can be
        called directly by selection, resize and atlas transitions, bypassing
        window.drawGlobe. Delegate only on the explicit isolated preview. */
@@ -876,7 +879,10 @@ function install(){
 
   window.__lariaGlobeV25Installed=true;
   screen.dataset.globeVersion='30';
-  requestAnimationFrame(()=>{try{resizeGlobe();routedDraw()}catch(_){}});
+  requestAnimationFrame(()=>{
+    if(!screen.classList.contains('active'))return;
+    try{resizeGlobe();routedDraw()}catch(_){}
+  });
   return true;
 }
 function seed(){

@@ -1,0 +1,500 @@
+{
+  "title": "Storesøster – blink fra eksisterende animasjon",
+  "status": "review-only",
+  "method": "Retain complete source frames 0–8, then play frames 7–0 in reverse; neutral frame holds make one 5500 ms cycle. No warping, interpolation, body-part layers or new pixels in the transparent asset.",
+  "new_ai_idle": false,
+  "external_generations": 0,
+  "source": {
+    "path": "laer-litt-mer/assets/trollactor-motion/storesoster/wave-groundcut-20261121.webp",
+    "sha256": "ee17da9e1e6d2ba9679084bf53ea620de9375996e7272063c887f18ac50c013b",
+    "duration_ms": 5250,
+    "frames": 62,
+    "selected_last_frame": 8,
+    "selected_last_frame_start_ms": 750,
+    "selected_last_frame_end_ms": 833,
+    "selected_frames_visually_checked_before_arm_departure": true
+  },
+  "animation": {
+    "file": "idle-blink-reuse-20261121.webp",
+    "sha256": "6fa47c4fda92f5e72b8ecdf0e9bcdd91ae575eebb2b8760b19dcf65e3d9d6387",
+    "bytes": 2740274,
+    "width": 264,
+    "height": 540,
+    "duration_ms": 5500,
+    "loop_count": 0,
+    "loop_meaning": "infinite",
+    "lossless": true,
+    "all_decoded_rgba_pixels_exact": true,
+    "first_last_decoded_rgba_identical": true,
+    "frames": 17
+  },
+  "frame_mapping": [
+    {
+      "output_segment": 0,
+      "output_start_ms": 0,
+      "output_duration_ms": 167,
+      "source_frame": 0,
+      "source_start_ms": 0,
+      "source_duration_ms": 167,
+      "direction": "forward",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 1,
+      "output_start_ms": 167,
+      "output_duration_ms": 83,
+      "source_frame": 1,
+      "source_start_ms": 167,
+      "source_duration_ms": 83,
+      "direction": "forward",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 2,
+      "output_start_ms": 250,
+      "output_duration_ms": 83,
+      "source_frame": 2,
+      "source_start_ms": 250,
+      "source_duration_ms": 83,
+      "direction": "forward",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 3,
+      "output_start_ms": 333,
+      "output_duration_ms": 84,
+      "source_frame": 3,
+      "source_start_ms": 333,
+      "source_duration_ms": 84,
+      "direction": "forward",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 4,
+      "output_start_ms": 417,
+      "output_duration_ms": 83,
+      "source_frame": 4,
+      "source_start_ms": 417,
+      "source_duration_ms": 83,
+      "direction": "forward",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 5,
+      "output_start_ms": 500,
+      "output_duration_ms": 83,
+      "source_frame": 5,
+      "source_start_ms": 500,
+      "source_duration_ms": 83,
+      "direction": "forward",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 6,
+      "output_start_ms": 583,
+      "output_duration_ms": 84,
+      "source_frame": 6,
+      "source_start_ms": 583,
+      "source_duration_ms": 84,
+      "direction": "forward",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 7,
+      "output_start_ms": 667,
+      "output_duration_ms": 83,
+      "source_frame": 7,
+      "source_start_ms": 667,
+      "source_duration_ms": 83,
+      "direction": "forward",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 8,
+      "output_start_ms": 750,
+      "output_duration_ms": 83,
+      "source_frame": 8,
+      "source_start_ms": 750,
+      "source_duration_ms": 83,
+      "direction": "forward",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 9,
+      "output_start_ms": 833,
+      "output_duration_ms": 83,
+      "source_frame": 7,
+      "source_start_ms": 667,
+      "source_duration_ms": 83,
+      "direction": "reverse",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 10,
+      "output_start_ms": 916,
+      "output_duration_ms": 84,
+      "source_frame": 6,
+      "source_start_ms": 583,
+      "source_duration_ms": 84,
+      "direction": "reverse",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 11,
+      "output_start_ms": 1000,
+      "output_duration_ms": 83,
+      "source_frame": 5,
+      "source_start_ms": 500,
+      "source_duration_ms": 83,
+      "direction": "reverse",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 12,
+      "output_start_ms": 1083,
+      "output_duration_ms": 83,
+      "source_frame": 4,
+      "source_start_ms": 417,
+      "source_duration_ms": 83,
+      "direction": "reverse",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 13,
+      "output_start_ms": 1166,
+      "output_duration_ms": 84,
+      "source_frame": 3,
+      "source_start_ms": 333,
+      "source_duration_ms": 84,
+      "direction": "reverse",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 14,
+      "output_start_ms": 1250,
+      "output_duration_ms": 83,
+      "source_frame": 2,
+      "source_start_ms": 250,
+      "source_duration_ms": 83,
+      "direction": "reverse",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 15,
+      "output_start_ms": 1333,
+      "output_duration_ms": 83,
+      "source_frame": 1,
+      "source_start_ms": 167,
+      "source_duration_ms": 83,
+      "direction": "reverse",
+      "added_neutral_pause_ms": 0
+    },
+    {
+      "output_segment": 16,
+      "output_start_ms": 1416,
+      "output_duration_ms": 4084,
+      "source_frame": 0,
+      "source_start_ms": 0,
+      "source_duration_ms": 167,
+      "direction": "reverse",
+      "added_neutral_pause_ms": 3917
+    }
+  ],
+  "encoded_verification": [
+    {
+      "encoded_frame": 0,
+      "start_ms": 0,
+      "duration_ms": 167,
+      "source_frames": [
+        0
+      ]
+    },
+    {
+      "encoded_frame": 1,
+      "start_ms": 167,
+      "duration_ms": 83,
+      "source_frames": [
+        1
+      ]
+    },
+    {
+      "encoded_frame": 2,
+      "start_ms": 250,
+      "duration_ms": 83,
+      "source_frames": [
+        2
+      ]
+    },
+    {
+      "encoded_frame": 3,
+      "start_ms": 333,
+      "duration_ms": 84,
+      "source_frames": [
+        3
+      ]
+    },
+    {
+      "encoded_frame": 4,
+      "start_ms": 417,
+      "duration_ms": 83,
+      "source_frames": [
+        4
+      ]
+    },
+    {
+      "encoded_frame": 5,
+      "start_ms": 500,
+      "duration_ms": 83,
+      "source_frames": [
+        5
+      ]
+    },
+    {
+      "encoded_frame": 6,
+      "start_ms": 583,
+      "duration_ms": 84,
+      "source_frames": [
+        6
+      ]
+    },
+    {
+      "encoded_frame": 7,
+      "start_ms": 667,
+      "duration_ms": 83,
+      "source_frames": [
+        7
+      ]
+    },
+    {
+      "encoded_frame": 8,
+      "start_ms": 750,
+      "duration_ms": 83,
+      "source_frames": [
+        8
+      ]
+    },
+    {
+      "encoded_frame": 9,
+      "start_ms": 833,
+      "duration_ms": 83,
+      "source_frames": [
+        7
+      ]
+    },
+    {
+      "encoded_frame": 10,
+      "start_ms": 916,
+      "duration_ms": 84,
+      "source_frames": [
+        6
+      ]
+    },
+    {
+      "encoded_frame": 11,
+      "start_ms": 1000,
+      "duration_ms": 83,
+      "source_frames": [
+        5
+      ]
+    },
+    {
+      "encoded_frame": 12,
+      "start_ms": 1083,
+      "duration_ms": 83,
+      "source_frames": [
+        4
+      ]
+    },
+    {
+      "encoded_frame": 13,
+      "start_ms": 1166,
+      "duration_ms": 84,
+      "source_frames": [
+        3
+      ]
+    },
+    {
+      "encoded_frame": 14,
+      "start_ms": 1250,
+      "duration_ms": 83,
+      "source_frames": [
+        2
+      ]
+    },
+    {
+      "encoded_frame": 15,
+      "start_ms": 1333,
+      "duration_ms": 83,
+      "source_frames": [
+        1
+      ]
+    },
+    {
+      "encoded_frame": 16,
+      "start_ms": 1416,
+      "duration_ms": 4084,
+      "source_frames": [
+        0
+      ]
+    }
+  ],
+  "limitations": [
+    "Reopening the eyes reverses an existing closing motion; it is not a separately generated performance.",
+    "This provides one blink and a neutral pause, not a new breathing or six-state animation.",
+    "Review-only asset; integration does not grant production or visual owner approval."
+  ],
+  "versions": {
+    "pillow": "13.0.0",
+    "numpy": "2.3.5"
+  },
+  "kind": "idle-blink-reuse",
+  "identity": "storesoster",
+  "identity_sha256": "b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89",
+  "identity_path": "laer-litt-mer/assets/gangemagi-troll/storesoster.webp",
+  "new_breathing_cycle": false,
+  "rgba_source_verification": [
+    {
+      "encoded_frame": 0,
+      "source_frame": 0,
+      "output_start_ms": 0,
+      "duration_ms": 167,
+      "whole_rgba_sha256": "1ca6da5e6421b3070be0af9e56c475f7b08d6064f6e168a45ebca8eb95e972a2",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 1,
+      "source_frame": 1,
+      "output_start_ms": 167,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "d6bc7a6952cc1e54b51f7e5fc82dc541a8932b54c00b9b096a571735a15ebe52",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 2,
+      "source_frame": 2,
+      "output_start_ms": 250,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "53c779fabe3aed0ed3c9af9c3a15c60a57557b4372e44d850929aecd9e228c0e",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 3,
+      "source_frame": 3,
+      "output_start_ms": 333,
+      "duration_ms": 84,
+      "whole_rgba_sha256": "da7b74999422a88297774da2c5d35f6b8e2d8f2c2fd8364483a962f8047c3d93",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 4,
+      "source_frame": 4,
+      "output_start_ms": 417,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "a5fbe7cd10541a55220242a548081c63092fffd553605a561b83fc378719654f",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 5,
+      "source_frame": 5,
+      "output_start_ms": 500,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "a488861a88d8cc29e786012cf46bc3bcabe2fd7ca9a9683ab22ac594c6c97b89",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 6,
+      "source_frame": 6,
+      "output_start_ms": 583,
+      "duration_ms": 84,
+      "whole_rgba_sha256": "ce3dac985926ecc03b904affae873de065726bc1187b6cb3fbd73c6a42f9afe8",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 7,
+      "source_frame": 7,
+      "output_start_ms": 667,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "1c13d38fbfa6fff0ae489d938a4247fd38f25f72d82dff402b5de6655b7c3e46",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 8,
+      "source_frame": 8,
+      "output_start_ms": 750,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "9af7b8e7ece8577ed49f7a270cdd9f1c4afa2e211b686b51c30cc7f525536ba8",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 9,
+      "source_frame": 7,
+      "output_start_ms": 833,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "1c13d38fbfa6fff0ae489d938a4247fd38f25f72d82dff402b5de6655b7c3e46",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 10,
+      "source_frame": 6,
+      "output_start_ms": 916,
+      "duration_ms": 84,
+      "whole_rgba_sha256": "ce3dac985926ecc03b904affae873de065726bc1187b6cb3fbd73c6a42f9afe8",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 11,
+      "source_frame": 5,
+      "output_start_ms": 1000,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "a488861a88d8cc29e786012cf46bc3bcabe2fd7ca9a9683ab22ac594c6c97b89",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 12,
+      "source_frame": 4,
+      "output_start_ms": 1083,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "a5fbe7cd10541a55220242a548081c63092fffd553605a561b83fc378719654f",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 13,
+      "source_frame": 3,
+      "output_start_ms": 1166,
+      "duration_ms": 84,
+      "whole_rgba_sha256": "da7b74999422a88297774da2c5d35f6b8e2d8f2c2fd8364483a962f8047c3d93",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 14,
+      "source_frame": 2,
+      "output_start_ms": 1250,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "53c779fabe3aed0ed3c9af9c3a15c60a57557b4372e44d850929aecd9e228c0e",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 15,
+      "source_frame": 1,
+      "output_start_ms": 1333,
+      "duration_ms": 83,
+      "whole_rgba_sha256": "d6bc7a6952cc1e54b51f7e5fc82dc541a8932b54c00b9b096a571735a15ebe52",
+      "all_rgba_pixels_equal_to_source": true
+    },
+    {
+      "encoded_frame": 16,
+      "source_frame": 0,
+      "output_start_ms": 1416,
+      "duration_ms": 4084,
+      "whole_rgba_sha256": "1ca6da5e6421b3070be0af9e56c475f7b08d6064f6e168a45ebca8eb95e972a2",
+      "all_rgba_pixels_equal_to_source": true
+    }
+  ],
+  "output_sha256": "6fa47c4fda92f5e72b8ecdf0e9bcdd91ae575eebb2b8760b19dcf65e3d9d6387",
+  "width": 264,
+  "height": 540,
+  "duration_ms": 5500,
+  "loop_count": 0,
+  "bytes": 2740274,
+  "encoded_frames": 17
+}

@@ -411,6 +411,8 @@ async function capture(browserType,label,viewport){
       const canvas=document.getElementById('globe-canvas'),w=canvas._cssW,h=canvas._cssH,s=Math.min(w,h);
       const previous={lon:globeLon,lat:globeLat,zoom:globeZoom};
       globeLon=15;globeLat=18;globeZoom=1.25;
+      // Require fresh evidence from this active draw, not an earlier premium frame.
+      delete window.__LARIA_GLOBE_RENDER_SOURCE;
       window.drawGlobe();
       const x=w*.57,y=h*.46,anchor=globeInverse(x,y);
       globeZoom=3.2;

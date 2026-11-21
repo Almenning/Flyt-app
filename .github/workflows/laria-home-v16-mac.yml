@@ -9,6 +9,7 @@ on:
       - 'laer-litt-mer/assets/home-v16/**'
       - 'tests/laria-grovanova-v16.playwright.js'
       - 'tests/laria-grovanova-v16-approved.test.cjs'
+      - 'tests/laria-home-troll-placement-review.playwright.js'
       - '.github/workflows/laria-home-v16-mac.yml'
   workflow_dispatch:
 permissions:
@@ -32,6 +33,7 @@ jobs:
         run: |
           node --check laer-litt-mer/laria-grovanova-v16.js
           node --check tests/laria-grovanova-v16.playwright.js
+          node --check tests/laria-home-troll-placement-review.playwright.js
           node --test tests/laria-grovanova-v16-approved.test.cjs
       - name: Serve the exact pull request
         run: python3 -m http.server 8765 --directory . > /tmp/laria-v16-mac-http.log 2>&1 &
@@ -40,6 +42,11 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           HOME_V15_SCREENSHOTS: /tmp/laria-home-v16-mac
         run: node tests/laria-grovanova-v16.playwright.js
+      - name: Capture review-only larger Storesøster placements on actual iPad Home
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          TROLL_PLACEMENT_SCREENSHOTS: /tmp/laria-home-v16-mac/troll-placement-preview
+        run: node tests/laria-home-troll-placement-review.playwright.js
       - name: Store actual browser screenshots
         if: always()
         uses: actions/upload-artifact@v4

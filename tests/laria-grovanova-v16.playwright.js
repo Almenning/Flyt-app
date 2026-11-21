@@ -18,9 +18,11 @@ async function run(engine,name,viewport,corrupt=false,desktop=false){
  try{
   const context=await browser.newContext({viewport,hasTouch:!desktop,serviceWorkers:'block'});
   const page=await context.newPage();
-  const errors=[],legacyProbeRequests=[];
+  const errors=[],legacyProbeRequests=[],homeArtRequests=[];
+  const coldStartAt=Date.now();
   page.on('pageerror',e=>errors.push(e.message));
   page.on('request',req=>{
+   if(/\/assets\/home-v16\/laria-grovanova-v16-(portrait|landscape)\.webp(?:\?|$)/.test(req.url()))homeArtRequests.push(req.url());
    if(/grovanova-ipad-(portrait|landscape)-master\.json/.test(req.url()))
     legacyProbeRequests.push(req.url());
   });
@@ -48,6 +50,8 @@ async function run(engine,name,viewport,corrupt=false,desktop=false){
    (desktop?'desktop':'ipad')+'-v16-'+orientation;
   await page.waitForFunction(value=>document.querySelector('#home-screen .bc12')?.dataset.bc15Asset===value,
    expected,{timeout:30000});
+  const homeReadyMs=Date.now()-coldStartAt;
+  console.log('[Læria v16 cold-start] '+name+' '+orientation+' '+homeReadyMs+'ms to approved-or-fallback Home');
   if(corrupt){
    assert.equal(await home.locator('.bc15-v16-sign').count(),0,'bad SHA must remove v16 signs');
    assert.equal(await home.locator('.bc15-v16-greeting').count(),0,'bad SHA must remove live v16 greeting');
@@ -149,6 +153,9 @@ async function run(engine,name,viewport,corrupt=false,desktop=false){
      desktop?'desktop':'ipad',{timeout:30000});
    assert.equal(await home.locator('.bc15-v16-troll').getAttribute('data-troll'),'lillesoster',
     'selected TrollActor must survive the return from Norsk');
+   assert.equal(homeArtRequests.length,1,
+    'Home v16 image must be fetched and SHA-verified only once per same-orientation session: '+JSON.stringify(homeArtRequests));
+   console.log('[Læria v16 cached-return] '+name+' verified Home image requests: '+homeArtRequests.length);
   }
   assert.deepEqual(legacyProbeRequests,[],name+' must not probe retired v15 approval manifests');
   assert.deepEqual(errors,[],name+' JS exceptions');

@@ -2406,8 +2406,8 @@
   <link rel="stylesheet" href="./multiplication-pick-material-v5.css?v=20261009-premium-art5c" />
   <link rel="stylesheet" href="./multiplication-pick-vessels-v6.css?v=20261009-world-vessels6a" />
   <link rel="stylesheet" href="./multiplication-pick-closeup-v7.css?v=20261009-closeup-parity7a" />
-  <link rel="stylesheet" href="./multiplication-gangemagi-v1.css?v=20261107-gangemagi-release38" />
-  <link rel="stylesheet" href="./gangemagi-dagens-oppdrag-v1.css?v=20261023-gangemagi-release37" />
+  <link rel="stylesheet" href="./multiplication-gangemagi-v1.css?v=20261107-gangemagi-release38-troll-motion-owner2-20261121" />
+  <link rel="stylesheet" href="./gangemagi-dagens-oppdrag-v1.css?v=20261023-gangemagi-release37-troll-clearance2-20261121" />
   <link rel="stylesheet" href="./gangemagi-markedsbok-approved-v2.css?v=20261017-approved2" />
   <!-- Journey / Bokskogen -->
   <link rel="stylesheet" href="./bokskogen-world.css?v=20261006-assets1" />
@@ -2441,7 +2441,7 @@
   <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261107-geo-no-duplicate1" />
   <link rel="stylesheet" href="./laria-fox-identity.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-fox-presence.css?v=20261027-nordlys-troll1" />
-  <link rel="stylesheet" href="./laria-troll-runtime-v1.css?v=20261107-premium-beta5" />
+  <link rel="stylesheet" href="./laria-troll-runtime-v1.css?v=20261121-troll-speech-clearance" />
   <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
   <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261027-nordlys-troll1" />
   <link rel="stylesheet" href="./laria-country-detail-premium-v1.css?v=20261015-story3-curated1" />
@@ -6573,7 +6573,9 @@ function drawGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
   ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;
   for(const lat of [-60,-30,0,30,60]){ctx.beginPath();const pts=[];for(let lon=-180;lon<=180;lon+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts,w,h);ctx.stroke()}
   for(let lon=-180;lon<180;lon+=30){ctx.beginPath();const pts=[];for(let lat=-85;lat<=85;lat+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts,w,h);ctx.stroke()}
-  for(const country of WORLD_COUNTRIES){if(!country.geometry)continue;ctx.beginPath();for(const poly of geometryPolygons(country.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring,w,h)}}ctx.fillStyle=country.id===globeSelected?'#FFD869':globeCountryColor(country);ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=globeZoom>2?1.05:.75;ctx.fill();ctx.stroke()}
+  let paintedCountryGeometry=false;
+  for(const country of WORLD_COUNTRIES){if(!country.geometry)continue;let hasPolygon=false;ctx.beginPath();for(const poly of geometryPolygons(country.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring,w,h);if(ring.length>=3)hasPolygon=true}}ctx.fillStyle=country.id===globeSelected?'#FFD869':globeCountryColor(country);ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=globeZoom>2?1.05:.75;ctx.fill();ctx.stroke();if(hasPolygon)paintedCountryGeometry=true}
+  if(paintedCountryGeometry)window.__LARIA_GLOBE_RENDER_SOURCE='country-geometry';
   for(const country of WORLD_COUNTRIES){if(!isTinyCountry(country)&&country.id!==globeSelected)continue;const p=globeProject(country.lon,country.lat,w,h);if(!p)continue;const selected=country.id===globeSelected;ctx.beginPath();ctx.arc(p[0],p[1],selected?6:Math.min(4.2,2.7+globeZoom*.28),0,Math.PI*2);ctx.fillStyle=selected?'#FFD869':'#FFF7C8';ctx.fill();ctx.strokeStyle='rgba(69,82,105,.35)';ctx.lineWidth=1;ctx.stroke()}
   for(const country of WORLD_COUNTRIES)drawMasteryMarker(ctx,country,w,h);
   const pulsing=drawGlobePulse(ctx,w,h);
@@ -7187,7 +7189,7 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./multiplication-pick-play-v1.js?v=20261011-personalfox2" defer></script>
 <script src="./multiplication-premium-v2.js?v=20261025-tallvika-one-tap-return1" defer></script>
 <script src="./multiplication-gangemagi-engine-v1.js?v=20261017-markedsbok1" defer></script>
-<script src="./multiplication-gangemagi-v1.js?v=20261025-tallvika-one-tap-return1" defer></script>
+<script src="./multiplication-gangemagi-v1.js?v=20261121-troll-motion1" defer></script>
 <!-- Journey / Bokskogen -->
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-learning-system-v1.js?v=20261016-language-system1" defer></script>
@@ -7220,9 +7222,9 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261026-norsk-no-map1" defer></script>
 <script src="./norsk-object-extras-v1.js?v=20261026-all-early-norsk1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261107-kinnaklova-reading2-a11y2" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261107-kinnaklova-reading2-a11y2-troll-motion-20261121" defer></script>
 <script src="./laria-fox-presence.js?v=20261027-nordlys-troll1" defer></script>
-<script src="./laria-troll-runtime-v1.js?v=20261107-premium-beta3" defer></script>
+<script src="./laria-troll-runtime-v1.js?v=20261121-character-motion3" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
