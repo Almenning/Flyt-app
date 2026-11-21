@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const fs=require('node:fs');
 const path=require('node:path');
+const vm=require('node:vm');
 const root=path.resolve(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const manifest=JSON.parse(read('laer-litt-mer/assets/home-v16/laria-grovanova-v16-approved.json'));
@@ -61,4 +62,36 @@ test('approved v16 image does not bake living troll character, and never changes
  assert.match(css,/data-bc15-v16-device="desktop"/);
  assert.match(render,/querySelector\('\.bc15-boats'\)\?\.remove\(\)/);
  assert.match(css,/\.bc12\.bc15-v16-locked/);
+});
+test('Home greeting only mutates for changed child text and preserves the fallback',()=>{
+ const window={};
+ vm.runInNewContext(render,{window,document:{addEventListener(){}}});
+ let heading={textContent:'  Hei, Prøvebarn!  '};
+ let text='Hei, Prøvebarn!';
+ const mutations=[];
+ let label={
+  get textContent(){return text;},
+  // Count every write, including identical values: replacing textContent
+  // creates the child-list mutation that schedules Home's next live sync.
+  set textContent(value){mutations.push(value);text=value;}
+ };
+ const host={querySelector:selector=>selector==='.bc12-heading h1'?heading:label};
+ const sync=()=>window.LARIA_HOME_V16.syncGreeting(host);
+ for(let i=0;i<5;i++)sync();
+ assert.deepEqual(mutations,[],'unchanged greetings must not sustain the observer loop');
+
+ heading.textContent='  Hei, Ada!  ';
+ for(let i=0;i<5;i++)sync();
+ assert.equal(text,'Hei, Ada!');
+ assert.deepEqual(mutations,['Hei, Ada!'],'a changed child name is written once');
+
+ heading.textContent=' \n ';
+ for(let i=0;i<5;i++)sync();
+ assert.equal(text,'Hei, eventyrer!');
+ assert.deepEqual(mutations,['Hei, Ada!','Hei, eventyrer!']);
+ heading=null;
+ sync();
+ assert.equal(mutations.length,2,'a missing heading keeps the same fallback without a write');
+ label=null;
+ assert.doesNotThrow(sync,'a not-yet-mounted greeting is still harmless');
 });

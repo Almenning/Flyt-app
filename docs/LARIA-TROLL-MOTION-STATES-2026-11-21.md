@@ -173,9 +173,9 @@ fortsatt sperret. CSS og alle bildefiler er uendret i denne rettelsen.
 WebKit hadde også treg første innlasting på stående iPad. Testene fører
 derfor passive, avgrensede målinger av ferdige nettverksforespørsler,
 blob-URL-er og native bildedekoding. Kjøring `44933817255` målte omtrent
-13,6 sekunders venting før den første idle-responsen var ferdig, uten at
-idle-bildedekoding hadde startet. Den nøyaktige årsaken til forsinkelsen
-i kald WebKit-oppstart er ikke isolert.
+13,6 sekunder fra observert idle-forespørsel til levering, uten at
+idle-bildedekoding hadde startet. Dette inkluderer kø og oppstart;
+målingen isolerer ikke nettverksoverføring som årsak.
 
 Bakgrunns-idle får derfor en samlet, hard lastefrist på 20 sekunder for
 manifest, hvilebilde og klipp. Øvrige reaksjoner beholder 10 sekunder.
@@ -184,6 +184,16 @@ kontrollerer treg, vellykket idle; stopp ved fristen uten nye automatiske
 forsøk; og avbrudd før sen innlasting kan overta etter vink, trollbytte,
 redusert bevegelse, skjult side eller pagehide. Nettlesertestens
 20-sekunders ventekrav er uendret.
+
+Videre kontroll fant en konkret oppdateringsløkke på Hjem: `syncGreeting`
+skrev identisk hilsentekst, som utløste live-copy-observeren og dermed
+neste `syncGreeting`. Troll-runtime reagerte også på tekstutskiftingen.
+Hilsenen skrives nå bare når innholdet faktisk endres. En regresjon kjører
+den ekte funksjonen og kontrollerer null skrivinger ved uendret navn,
+én oppdatering ved nytt navn og bevart fallback ved tom eller manglende
+overskrift. Kunst, layout, hilsentekst og observerfiltrering er bevart.
+Faktisk nettleserkontroll må vise hvor mye av oppstartsforsinkelsen denne
+rettelsen fjerner; løkkefunnet alene dokumenterer ikke hele tidskostnaden.
 
 Resultater må leses fra kjøringen for siste leverte commit. Denne teksten
 påstår ikke at en kjøring som ennå ikke er avsluttet har bestått. Grønne
