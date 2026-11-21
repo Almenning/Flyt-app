@@ -172,8 +172,18 @@ fortsatt sperret. CSS og alle bildefiler er uendret i denne rettelsen.
 
 WebKit hadde også treg første innlasting på stående iPad. Testene fører
 derfor passive, avgrensede målinger av ferdige nettverksforespørsler,
-blob-URL-er og native bildedekoding. Disse endrer ikke appens kilder,
-avspilling, tidsgrenser eller kravene til bestått kontroll.
+blob-URL-er og native bildedekoding. Kjøring `44933817255` målte omtrent
+13,6 sekunders venting før den første idle-responsen var ferdig, uten at
+idle-bildedekoding hadde startet. Den nøyaktige årsaken til forsinkelsen
+i kald WebKit-oppstart er ikke isolert.
+
+Bakgrunns-idle får derfor en samlet, hard lastefrist på 20 sekunder for
+manifest, hvilebilde og klipp. Øvrige reaksjoner beholder 10 sekunder.
+Det nøytrale bildet vises under ventingen. Tre målrettede regresjoner
+kontrollerer treg, vellykket idle; stopp ved fristen uten nye automatiske
+forsøk; og avbrudd før sen innlasting kan overta etter vink, trollbytte,
+redusert bevegelse, skjult side eller pagehide. Nettlesertestens
+20-sekunders ventekrav er uendret.
 
 Resultater må leses fra kjøringen for siste leverte commit. Denne teksten
 påstår ikke at en kjøring som ennå ikke er avsluttet har bestått. Grønne

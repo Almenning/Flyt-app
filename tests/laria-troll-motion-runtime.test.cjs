@@ -365,6 +365,71 @@ test('idle loops on only one main companion, keeps one timeline and resumes afte
   assert.equal(h.saves(),0);
 });
 
+test('background idle can finish a cold startup load beyond the reaction budget',async()=>{
+  const network=deferred(),h=harness({manifest:manifestWithPoster(['idle']),main:true,
+    fetcher:src=>src.includes('/idle-')?network.promise:Promise.resolve(responseFor('poster'))});
+  await h.flush();await h.decoded();
+  const poster=h.api.source('storesoster');
+  h.advance(13600);await h.changed();
+  assert.equal(h.host.img.src,poster,'the verified neutral remains visible during slow startup');
+  assert.equal(h.host.dataset.lariaTrollLoading,'idle');
+  assert.equal(h.host.dataset.lariaTrollSequence,undefined);
+  network.resolve(responseFor('idle'));await tick();await h.decoded();
+  const idle=h.host.img.src;
+  assert.equal(h.host.dataset.lariaTrollSequence,'idle');
+  h.advance(30000);await h.flush();
+  assert.equal(h.host.img.src,idle,'the loading deadline must not stop a decoded loop');
+  assert.deepEqual(h.requests,[base+'manifest.json',base+'poster-20261121.webp',base+'idle-20261121.webp']);
+  assert.deepEqual(h.urls,[poster,idle]);assert.deepEqual(h.revoked,[]);
+  assert.equal(h.saves(),0);assert.equal(h.state.score,42);
+});
+
+test('background idle has a hard 20 second loading deadline without automatic retries or late attachment',async()=>{
+  for(const phase of ['network','decode']){
+    const network=deferred(),h=harness({manifest:manifestWithPoster(['idle']),main:true,
+      fetcher:src=>src.includes('/idle-')?network.promise:Promise.resolve(responseFor('poster'))});
+    await h.flush();await h.decoded();
+    const poster=h.api.source('storesoster');
+    if(phase==='decode'){network.resolve(responseFor('idle'));await tick();}
+    h.advance(19999);await h.changed();
+    assert.equal(h.host.img.src,poster,phase);
+    assert.equal(h.host.dataset.lariaTrollLoading,'idle',phase);
+    h.advance(1);await h.flush();
+    assert.equal(h.host.dataset.lariaTrollLoading,undefined,phase);
+    for(let count=0;count<3;count++){h.advance(20000);await h.changed();}
+    if(phase==='network'){network.resolve(responseFor('idle'));await tick();}
+    else await h.decoded();
+    await h.changed();
+    assert.equal(h.host.img.src,poster,phase);
+    assert.equal(h.host.dataset.lariaTrollSequence,undefined,phase);
+    assert.deepEqual(h.requests,[base+'manifest.json',base+'poster-20261121.webp',base+'idle-20261121.webp'],phase);
+    assert.deepEqual(h.urls.filter(url=>!h.revoked.includes(url)),[poster],phase);
+    assert.equal(h.saves(),0);assert.equal(h.state.score,42);
+  }
+});
+
+test('a delayed idle cannot attach after a reaction, character change or lifecycle cancellation',async()=>{
+  for(const reason of ['reaction','choice','reduce','hidden','pagehide']){
+    const network=deferred(),h=harness({manifest:manifestWithPoster(['idle','wave']),main:true,
+      fetcher:src=>src.includes('/idle-')?network.promise:
+        Promise.resolve(responseFor(src.includes('/poster-')?'poster':'wave'))});
+    await h.flush();await h.decoded();h.advance(12000);
+    assert.equal(h.host.dataset.lariaTrollLoading,'idle',reason);
+    if(reason==='reaction'){h.api.mood(h.host,'wave',{say:false});await tick();await h.decoded();}
+    else if(reason==='choice'){h.api.persistChoice('lillesoster');await h.flush();}
+    else if(reason==='reduce')await h.reduce(true);
+    else if(reason==='hidden')await h.visibility(true);
+    else h.pagehide();
+    const current=h.host.img.src,urls=h.urls.length;
+    network.resolve(responseFor('idle'));await tick();await h.flush();
+    assert.equal(h.host.img.src,current,reason);
+    assert.equal(h.host.dataset.lariaTrollSequence,reason==='reaction'?'wave':undefined,reason);
+    assert.equal(h.urls.length,urls,'cancelled idle bytes must not create a playback URL: '+reason);
+    assert.equal(h.requests.filter(src=>src===base+'idle-20261121.webp').length,1,reason);
+    assert.equal(h.saves(),reason==='choice'?1:0);assert.equal(h.state.score,42);
+  }
+});
+
 test('poster-backed idle suspends and resumes without refetching or retaining stopped timelines',async()=>{
   for(const reason of ['reduce','hidden','pagehide']){
     const h=harness({manifest:manifestWithPoster(['idle']),main:true});

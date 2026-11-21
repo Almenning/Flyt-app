@@ -447,9 +447,11 @@
       fallbackDuration:cssDuration(kind,options)};
     motionRuns.set(host,run);
     host.dataset.lariaTrollLoading=clipKind;
+    // Background idle tolerates a cold startup while the neutral stays visible;
+    // explicit reactions retain their shorter loading budget.
     run.loadingTimer=root.setTimeout(()=>{
       failMotion(host,run);
-    },10000);
+    },clipKind==='idle'?20000:10000);
     void loadMotion(host,run);
     return true;
   }
