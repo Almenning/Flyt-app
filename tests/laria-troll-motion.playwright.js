@@ -222,9 +222,86 @@ async function runCase(browser,engine,base,name,viewport,options,check){
     serviceWorkers:'block',reducedMotion:record.reducedMotion,
     ...(options.video?{recordVideo:{dir:folder,size:viewport}}:{})});
   await context.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
-  await context.addInitScript(()=>{
+  await context.addInitScript(({profileStartup})=>{
     // Passive bounded diagnostics only. Native return values and promises,
     // decoding, source setters, timeouts and application state stay unchanged.
+    let profileCallback=(_kind,callback)=>callback;
+    if(profileStartup){
+      const startedAt=performance.now(),until=startedAt+45000;
+      const stats=window.__lariaStartupProfile={startedAt,until,
+        method:'Synchronous callback elapsed time, including nested/native/layout work; group totals may overlap.',
+        groups:[],slowCallbacks:[],overflowRegistrations:0,
+        frames:{count:0,maxGapMs:0,slowGaps:[]},heartbeat:{count:0,maxGapMs:0,slowGaps:[]}};
+      const groups=new Map(),callbacks=new WeakMap(),wrapped=new WeakSet();
+      const largest=(list,item,key,limit)=>{
+        if(list.length<limit)list.push(item);
+        else{
+          let min=0;for(let i=1;i<list.length;i++)if(list[i][key]<list[min][key])min=i;
+          if(item[key]>list[min][key])list[min]=item;
+        }
+      };
+      const gap=(summary,atMs)=>{
+        if(summary.lastAtMs!==undefined&&atMs!==summary.lastAtMs){
+          const gapMs=atMs-summary.lastAtMs;
+          summary.maxGapMs=Math.max(summary.maxGapMs,gapMs);
+          if(gapMs>=500)largest(summary.slowGaps,{fromMs:summary.lastAtMs,toMs:atMs,gapMs},'gapMs',12);
+        }
+        if(atMs!==summary.lastAtMs){summary.count++;summary.lastAtMs=atMs;}
+      };
+      const groupFor=(kind,callback)=>{
+        const key=kind+'|'+callback.name+'|'+Function.prototype.toString.call(callback);
+        if(groups.has(key))return groups.get(key);
+        if(groups.size>=100){
+          stats.overflowRegistrations++;
+          return groups.get('overflow');
+        }
+        const group={id:stats.groups.length,kind,name:callback.name||'(anonymous)',
+          firstRegisteredAtMs:performance.now(),firstRegistrationStack:String(new Error().stack||'').slice(0,2400),
+          count:0,totalMs:0,maxMs:0};
+        groups.set(key,group);stats.groups.push(group);return group;
+      };
+      const overflow={id:0,kind:'overflow',name:'Callbacks beyond the group limit',count:0,totalMs:0,maxMs:0};
+      groups.set('overflow',overflow);stats.groups.push(overflow);
+      profileCallback=(kind,callback)=>{
+        if(typeof callback!=='function'||wrapped.has(callback)||performance.now()>until)return callback;
+        let byKind=callbacks.get(callback);
+        if(!byKind){byKind=new Map();callbacks.set(callback,byKind);}
+        if(byKind.has(kind))return byKind.get(kind);
+        const group=groupFor(kind,callback);
+        const measured=function(){
+          const atMs=performance.now();
+          if(atMs>until)return Reflect.apply(callback,this,arguments);
+          if(kind==='app-rAF')gap(stats.frames,arguments[0]);
+          try{return Reflect.apply(callback,this,arguments);}
+          finally{
+            const durationMs=performance.now()-atMs;
+            group.count++;group.totalMs+=durationMs;group.maxMs=Math.max(group.maxMs,durationMs);
+            group.firstAtMs??=atMs;group.lastAtMs=atMs;
+            if(durationMs>=16)largest(stats.slowCallbacks,{groupId:group.id,atMs,durationMs},'durationMs',48);
+          }
+        };
+        wrapped.add(measured);byKind.set(kind,measured);return measured;
+      };
+      const nativeObserver=window.MutationObserver,nativeFrame=window.requestAnimationFrame;
+      window.MutationObserver=new Proxy(nativeObserver,{construct(target,args,newTarget){
+        if(typeof args[0]!=='function')return Reflect.construct(target,args,newTarget);
+        const forwarded=[...args];forwarded[0]=profileCallback('app-mutation',args[0]);
+        return Reflect.construct(target,forwarded,newTarget);
+      }});
+      window.requestAnimationFrame=function(callback){
+        if(typeof callback!=='function')return Reflect.apply(nativeFrame,this,arguments);
+        const forwarded=[...arguments];forwarded[0]=profileCallback('app-rAF',callback);
+        return Reflect.apply(nativeFrame,this,forwarded);
+      };
+      const nativeTimeout=window.setTimeout;
+      stats.heartbeat.lastAtMs=startedAt;
+      const beat=()=>{
+        const atMs=performance.now();gap(stats.heartbeat,atMs);
+        if(atMs<until)Reflect.apply(nativeTimeout,window,[beat,250]);
+        else stats.heartbeat.stoppedAtMs=atMs;
+      };
+      Reflect.apply(nativeTimeout,window,[beat,250]);
+    }
     const loadEvidence=window.__lariaMotionLoadEvidence=[];
     window.__lariaMotionLoadEvidenceDropped=0;
     const noteLoad=(event,details)=>{
@@ -288,7 +365,7 @@ async function runCase(browser,engine,base,name,viewport,options,check){
     // mutate app state, inject a character or synthesize a gameplay event.
     window.__lariaTrollEvidence=[];
     const ids=new WeakMap(),previous=new WeakMap();let nextId=1;
-    function snapshot(host){
+    const snapshot=profileCallback('test-snapshot',function actorSnapshot(host){
       if(!host?.matches?.('.laria-troll-host'))return;
       const img=host.querySelector('img.laria-premium-troll-art');
       if(!img)return;
@@ -305,10 +382,10 @@ async function runCase(browser,engine,base,name,viewport,options,check){
       if(previous.get(host)===key)return;
       previous.set(host,key);
       window.__lariaTrollEvidence.push({atMs:performance.now(),...value});
-    }
+    });
     function start(){
       document.querySelectorAll('.laria-troll-host').forEach(snapshot);
-      new MutationObserver(changes=>{
+      new MutationObserver(profileCallback('test-mutation',function actorMutationObserver(changes){
         const hosts=new Set();
         for(const change of changes){
           const parent=change.target.nodeType===1?change.target:change.target.parentElement;
@@ -320,11 +397,11 @@ async function runCase(browser,engine,base,name,viewport,options,check){
           }
         }
         hosts.forEach(snapshot);
-      }).observe(document.documentElement,{subtree:true,childList:true,attributes:true,
+      })).observe(document.documentElement,{subtree:true,childList:true,attributes:true,
         attributeFilter:['data-laria-troll-mood','data-laria-troll-loading','data-laria-troll-sequence','src']});
     }
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  });
+  },{profileStartup:engine==='webkit'&&['ipad-portrait','norsk-ipad-portrait'].includes(name)});
   const page=await context.newPage();
   const startedAt=Date.now();
   record.requestObservationTimeOriginMs=startedAt;
@@ -392,6 +469,7 @@ async function runCase(browser,engine,base,name,viewport,options,check){
     for(const release of releases)release();
     record.loadDiagnostics=await page.evaluate(()=>({timeOriginMs:performance.timeOrigin,
       events:window.__lariaMotionLoadEvidence||[],dropped:window.__lariaMotionLoadEvidenceDropped||0,
+      startupProfile:window.__lariaStartupProfile||null,
       resources:performance.getEntriesByType('resource').filter(entry=>
         /\/assets\/trollactor-motion\/[^/]+\/[^/?]+\.webp(?:\?|$)/.test(entry.name)).slice(-100).map(entry=>({
           path:new URL(entry.name).pathname,initiatorType:entry.initiatorType,startTime:entry.startTime,
