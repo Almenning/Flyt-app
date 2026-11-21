@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "status": "review-only",
+  "identity": "storesoster",
+  "identity_sha256": "b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89",
+  "poster": {
+    "filename": "poster-groundcut-20261121.webp",
+    "width": 512,
+    "height": 1024,
+    "bytes": 440106,
+    "sha256": "d1ee0caa8efbca77d2a118eb0b14f31d36e7dced5fa89b157c2cd5efa3e9d681"
+  },
+  "clips": {
+    "wave": {
+      "filename": "wave-groundcut-20261121.webp",
+      "duration_ms": 5250,
+      "loop_count": 1,
+      "width": 264,
+      "height": 540,
+      "bytes": 2855904,
+      "sha256": "ee17da9e1e6d2ba9679084bf53ea620de9375996e7272063c887f18ac50c013b"
+    }
+  }
+}

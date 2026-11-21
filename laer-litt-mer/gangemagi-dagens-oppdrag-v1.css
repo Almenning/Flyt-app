@@ -235,7 +235,8 @@
   height:clamp(180px,25vw,340px);
   filter:drop-shadow(0 11px 9px #52361f5c);
 }
-.gm-shell[data-gm-mode="mission"] .gm-fox-art,
+/* Only the artwork fills its host. Applying height:100% to the host itself
+   overrides its authored clamp height and collapses around an absolute img. */
 .gm-shell[data-gm-mode="mission"] .gm-fox-art>svg.laria-fox-wardrobe-art{
   min-width:0;
   min-height:0;
@@ -852,6 +853,23 @@
   .gm-shell[data-gm-mode="mission"] .gm-math{
     min-height:76px;
     box-shadow:0 5px 7px #6140223d,0 0 0 2px #fff4d558;
+  }
+}
+
+/* Tall iPads use the existing left guide column at its authored width.
+   Keep speech in that column and give maths/reward a real 32px separation
+   for the actor's image movement, including after the fruit supply disappears.
+   Explicit side margins also
+   avoid the older unitless clamp(0,...) shorthand being discarded. */
+@media(min-width:900px) and (min-height:951px){
+  .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
+    margin-left:0;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-math,
+  .gm-shell[data-gm-mode="mission"] .gm-celebration{
+    width:calc(100% - clamp(150px,22vw,300px) - 32px);
+    margin-left:auto;
+    margin-right:0;
   }
 }
 

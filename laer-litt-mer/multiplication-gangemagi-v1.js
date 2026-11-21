@@ -190,6 +190,14 @@
    // Animation is a one-render signal, not persistent gameplay state.
    // Hint, speech and other re-renders must not replay the previous berry pop.
    justAddedGroup=-1;
+   // Rendering replaces the actor node. Forward this real activity state to
+   // the shared player once the new scene is visible, without changing the
+   // engine, stored progress or Gangemagi's own spoken guidance.
+   const companion=root.querySelector('.gm-fox-art');
+   if(companion)requestAnimationFrame(()=>{
+     if(companion.isConnected)window.LARIA_TROLL_ACTOR?.mood?.(companion,
+       companion.dataset.lariaTrollMood||'idle',{say:false});
+   });
  }
  function bookFoxMessage(){
    const n=state.wins.length;

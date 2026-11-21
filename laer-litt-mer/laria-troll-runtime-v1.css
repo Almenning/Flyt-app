@@ -81,6 +81,9 @@ html[data-laria-character-system="troll"] #world-screen .premium-globe-guide:not
 .laria-troll-actor[data-laria-troll-mood="support"]>.laria-premium-troll-art{
   animation:laria-troll-support 1.35s ease-in-out 1;
 }
+/* A reviewed AI motion file owns all movement for its short duration. The
+   V1 CSS transforms must not compound the animation frames. */
+.laria-troll-actor:is([data-laria-troll-sequence],[data-laria-troll-loading])>.laria-premium-troll-art{animation:none!important}
 
 @keyframes laria-troll-idle{
   0%,100%{transform:translateY(0) rotate(-.35deg) scale(1)}
@@ -203,8 +206,22 @@ html[data-laria-character-system="troll"] #world-screen .premium-globe-guide:not
 #session-screen.task-scene .task-fox-companion.laria-troll-host{
   width:clamp(62px,16vw,104px)!important;height:clamp(116px,30vw,198px)!important;
   aspect-ratio:1/2!important;pointer-events:none!important;
+  /* The image owns its shadow. A second filter surface on the parent can
+     clip a transformed child's crown in WebKit. */
+  filter:none!important;
 }
 #session-screen.task-scene .task-fox-companion.laria-troll-host>.laria-premium-troll-art{visibility:visible!important}
+/* Illustrated tablet tasks need room above the whole jumping figure for
+   speech. Move picture and actor down together so the bubble also stays
+   below the question, rather than covering either the prompt or the hair. */
+@media(min-width:700px) and (min-height:700px){
+  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+    .task-visual-companion-stage:has(.task-troll-companion){padding-top:40px}
+  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+    .task-visual-companion-stage>.task-troll-companion{top:83px!important}
+  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+    .task-visual-companion-stage>.task-troll-companion>.laria-troll-speech{bottom:calc(100% + 36px)}
+}
 /* The retired fox-presence stylesheet deliberately hides the legacy profile image
    inside illustrated young tasks. TrollActor reuses that DOM anchor, so its
    premium art must explicitly win that older, more-specific selector. */

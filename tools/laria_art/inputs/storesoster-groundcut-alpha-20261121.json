@@ -1,0 +1,60 @@
+{
+  "status": "review-only",
+  "kind": "registered-grayscale-alpha-reference",
+  "created_at": "2026-11-21",
+  "file": "storesoster-groundcut-alpha-20261121.png",
+  "sha256": "e8fb4db19462bc4181802be737d894edaab206872d8566eec9ffdfe4eca2e57b",
+  "width": 440,
+  "height": 900,
+  "mode": "L",
+  "bytes": 22167,
+  "identity": {
+    "file": "laer-litt-mer/assets/gangemagi-troll/storesoster.webp",
+    "sha256": "b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89",
+    "immutable": true
+  },
+  "source_video": {
+    "file": "tools/laria_art/inputs/storesoster-wave-source-20261120.mp4",
+    "sha256": "554ceabb70e7202a615672311357d740e80466a07467035bdc2deee42db5337a",
+    "rgb_repainted": false
+  },
+  "alpha_extraction_reference": {
+    "provider": "image_gen",
+    "file": "exec-7664a1cf-32c2-423d-88ef-3fb2c0e8f440.png",
+    "sha256": "1a61b93366a28f6395894befc38ac86d00e859acb64a40d7fbcfa9c4db8141f5",
+    "width": 887,
+    "height": 1774,
+    "use": "Alpha only. Generated RGB was used only to find registration features and is never app character art."
+  },
+  "registration": {
+    "method": "SIFT boot-detail matches followed by estimateAffinePartial2D/RANSAC; inverse warp of alpha with linear interpolation",
+    "matched_features": 91,
+    "inliers": 87,
+    "generated_coordinates_from_original": [
+      [
+        1.001881483730752,
+        -0.0010404412154028913,
+        0.5818079656810982
+      ],
+      [
+        0.0010404412154028913,
+        1.001881483730752,
+        -0.8483196891479029
+      ]
+    ],
+    "inlier_residual_median_px": 0.4841962158679962,
+    "inlier_residual_p95_px": 1.8197338581085205
+  },
+  "mask_construction": {
+    "working_size": [
+      440,
+      900
+    ],
+    "resize": "Pillow LANCZOS",
+    "unchanged_original_upper_rows": 620,
+    "lower_alpha": "minimum of original alpha and registered generated extraction alpha; no dilation",
+    "dense_generated_to_original_flow": "Rejected; not used because it distorted the ground boundary."
+  },
+  "review": "First/middle/last source and encoded frames reviewed for boots, soles, decorations, hair and hands. All 63 source frames checked for boot-core opacity and removed ground core. Matching neutral poster needed to avoid a ground patch appearing on entry/return.",
+  "reproduction": "The stored registered grayscale matte makes video and poster preparation deterministic with the recorded dependencies; no new AI generation is required."
+}

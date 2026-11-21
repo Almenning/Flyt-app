@@ -164,9 +164,10 @@ function syncTroll(host){
  const src=companion?.source?.(id)||'./assets/gangemagi-troll/storesoster.webp';
  const label=companion?.label?.(id)||'Storesøster';
  const img=actor.querySelector('img');
+ const playing=actor.dataset.lariaTrollSequence&&img?.dataset.troll===id;
  actor.dataset.troll=id;
  actor.setAttribute('aria-label',label+' er med deg. Trykk for å vinke.');
- if(img&&img.getAttribute('src')!==src)img.setAttribute('src',src);
+ if(img&&!playing&&img.getAttribute('src')!==src)img.setAttribute('src',src);
  if(img)img.dataset.troll=id;
 }
 function ensureTroll(host){
