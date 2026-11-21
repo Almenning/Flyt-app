@@ -26,11 +26,11 @@ const options={
   landscape:{width:'clamp(124px,11vw,170px)',height:'28vh',right:'8%',bottom:'20%'}
  },
  b:{
-  portrait:{width:'clamp(170px,19.1vw,210px)',height:'29.2vh',right:'1.5%',bottom:'13%'},
+  portrait:{width:'clamp(170px,19.1vw,210px)',height:'29.2vh',right:'1.5%',bottom:'14%'},
   landscape:{width:'clamp(142px,12.6vw,190px)',height:'32.2vh',right:'6%',bottom:'20%'}
  },
  c:{
-  portrait:{width:'clamp(187px,21vw,226px)',height:'31.8vh',right:'.5%',bottom:'12.5%'},
+  portrait:{width:'clamp(187px,21vw,226px)',height:'31.8vh',right:'.5%',bottom:'14%'},
   landscape:{width:'clamp(150px,13.8vw,200px)',height:'35.6vh',right:'5%',bottom:'19.8%'}
  }
 };
