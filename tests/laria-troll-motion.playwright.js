@@ -58,6 +58,7 @@ const source={commit:git(['rev-parse','HEAD']),branch:git(['branch','--show-curr
 for(const file of ['laer-litt-mer/index.html','laer-litt-mer/laria-troll-runtime-v1.js',
   'laer-litt-mer/laria-troll-runtime-v1.css','laer-litt-mer/laria-grovanova-v16.js',
   'laer-litt-mer/laria-task-scene-v15.js','laer-litt-mer/multiplication-gangemagi-v1.js',
+  'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css',
   'laer-litt-mer/assets/home-v16/laria-grovanova-v16-approved.json',
   motionRoot+'manifest.json',
   'laer-litt-mer/assets/trollactor-motion/storesoster/wave-20261121.webp',
@@ -429,6 +430,36 @@ async function idleCycle({page,record,capture},selector){
   media.idle.fullDurationVerified=true;
   await capture('idle-loop-after-cycle');
 }
+async function gangemagiLayout(page){
+  return page.evaluate(()=>{
+    const screen=document.querySelector('#multiplication-lab-screen.active');
+    const measure=selector=>{
+      const element=screen.querySelector(selector),box=element.getBoundingClientRect();
+      let visible=box.width>0&&box.height>0;
+      for(let node=element;node&&visible;node=node.parentElement){
+        const style=getComputedStyle(node);
+        if(style.display==='none'||style.visibility==='hidden'||style.opacity==='0')visible=false;
+      }
+      return {visible,rect:{left:box.left,right:box.right,top:box.top,bottom:box.bottom,
+        width:box.width,height:box.height}};
+    };
+    return {measuredAtMs:performance.now(),actor:measure('.gm-fox-art'),
+      speech:measure('.gm-fox-bubble'),math:measure('.gm-math')};
+  });
+}
+function assertGangemagiClearance(layout,phase){
+  layout.minimumGap=8;layout.clearances={};
+  assert.ok(layout.math.visible,phase+' calculation must remain visible');
+  for(const key of ['actor','speech']){
+    assert.ok(layout[key].visible,phase+' '+key+' must remain visible');
+    const guide=layout[key].rect,math=layout.math.rect;
+    const gaps={left:math.left-guide.right,right:guide.left-math.right,
+      above:math.top-guide.bottom,below:guide.top-math.bottom};
+    layout.clearances[key]={...gaps,best:Math.max(...Object.values(gaps))};
+    assert.ok(layout.clearances[key].best>=layout.minimumGap,
+      phase+' '+key+' needs at least '+layout.minimumGap+'px clear space from the calculation: '+JSON.stringify(gaps));
+  }
+}
 async function question(page){
   return page.evaluate(()=>{
     const q=sessionQuestions[qIndex];
@@ -580,6 +611,8 @@ async function gangemagiFlow(context){
   const beforeHint=await game();
   await reaction(context,gangemagiActorSelector,'gangemagi-hint','hint',()=>
     page.locator('#multiplication-lab-screen.active [data-gm-action="hint"]').click(),true);
+  record.hintLayout=await gangemagiLayout(page);
+  assertGangemagiClearance(record.hintLayout,'hint');
   assert.deepEqual(await game(),beforeHint,'a game hint must not move berries or award a flower');
   assert.deepEqual(await progress(page),beforeProgress,'Gangemagi preparation and hints must preserve assessed learning progress');
   for(let group=0;group<3;group++)for(let berry=0;berry<3;berry++){
@@ -594,7 +627,9 @@ async function gangemagiFlow(context){
   assert.equal((await page.locator('#multiplication-lab-screen.active .gm-math-equation').innerText()).trim(),'3 × 3 = 9');
   await page.locator('#multiplication-lab-screen.active .gm-celebration').waitFor({state:'visible'});
   record.game={initial,complete};
+  record.completionLayout=await gangemagiLayout(page);
   await capture('gangemagi-earned-flower');
+  assertGangemagiClearance(record.completionLayout,'completed');
   await page.locator('#multiplication-lab-screen.active [data-gm-action="back"]').click();
   await page.locator('#tallvika-world:visible').waitFor();
   await noHiddenMotion(page,'multiplication-lab-screen');

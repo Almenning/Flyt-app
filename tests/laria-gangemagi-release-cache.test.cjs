@@ -7,15 +7,15 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'laer-litt-mer/index.html'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'laer-litt-mer/sw.js'), 'utf8');
-// The authored styles retain their visual release; the host sizing fix and
-// TrollActor event wiring have new cache keys. Test each real asset URL
+// The authored styles retain their visual release; guide sizing/clearance
+// and TrollActor event wiring have new cache keys. Test each real asset URL
 // instead of incorrectly requiring all assets to share the same cache key.
 const version = '20261107-gangemagi-release38';
 const approvedVisualVersion = '20261023-gangemagi-release37';
 const suffix = '-gangemagi-premium-20261023-release37';
 const releases = Object.freeze({
   'multiplication-gangemagi-v1.css': version,
-  'gangemagi-dagens-oppdrag-v1.css': approvedVisualVersion+'-troll-host-20261121',
+  'gangemagi-dagens-oppdrag-v1.css': approvedVisualVersion+'-troll-clearance-20261121',
   'multiplication-gangemagi-v1.js': '20261121-troll-motion1'
 });
 const assets = Object.keys(releases);

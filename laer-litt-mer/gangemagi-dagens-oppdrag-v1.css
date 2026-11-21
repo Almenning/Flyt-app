@@ -856,6 +856,22 @@
   }
 }
 
+/* Tall iPads use the existing left guide column at its authored width.
+   Keep speech in that column and give maths/reward a real 16px separation,
+   including after the fruit supply disappears. Explicit side margins also
+   avoid the older unitless clamp(0,...) shorthand being discarded. */
+@media(min-width:900px) and (min-height:951px){
+  .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
+    margin-left:0;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-math,
+  .gm-shell[data-gm-mode="mission"] .gm-celebration{
+    width:calc(100% - clamp(150px,22vw,300px) - 16px);
+    margin-left:auto;
+    margin-right:0;
+  }
+}
+
 /* iPad portrait: board and market stay broad; the fox becomes an obvious
    upright companion without covering a basket. */
 @media(min-width:700px) and (max-width:899px) and (min-height:700px){
