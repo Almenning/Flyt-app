@@ -195,6 +195,22 @@ overskrift. Kunst, layout, hilsentekst og observerfiltrering er bevart.
 Faktisk nettleserkontroll må vise hvor mye av oppstartsforsinkelsen denne
 rettelsen fjerner; løkkefunnet alene dokumenterer ikke hele tidskostnaden.
 
+Den avgrensede oppstartsprofilen i kjøring `44936570445` viste en pause på
+24 132 ms i en 250 ms timer på første WebKit-portrett. De målte synkrone
+observer-, rAF- og testcallbackene brukte til sammen 728 ms over 45 sekunder,
+inkludert overlapp. Troll-runtime sine største `sync`- og `reconcileMotions`-
+kall var henholdsvis 2 og 4 ms. Profilen dekker ikke alle oppgavetyper og
+beviser derfor ikke alene en bestemt native nettleserfeil.
+
+To globetegninger ble køet ved begynnelsen av pausen, selv om Kloden var
+skjult. Skjult canvas falt da tilbake til hele viewportens dimensjoner.
+Tegneinngangene og den første resize/tegnepakken hopper nå over en inaktiv
+Kloden-skjerm. Installering, kontrollkoblinger og valgt land beholdes;
+eksisterende aktiveringsobserver utfører resize og maling når Kloden åpnes.
+Dette fjerner konkret unødvendig bakgrunnsarbeid. Effekten på oppstarten
+måles med samme profiler, frister og nettleserkrav; årsakssammenheng skal
+ikke hevdes før den faktiske kjøringen dokumenterer den.
+
 Resultater må leses fra kjøringen for siste leverte commit. Denne teksten
 påstår ikke at en kjøring som ennå ikke er avsluttet har bestått. Grønne
 flyttester godkjenner ikke manglende kunst, fysisk iPad eller hele utgivelsen.

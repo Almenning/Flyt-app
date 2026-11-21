@@ -68,6 +68,7 @@ const source={commit:git(['rev-parse','HEAD']),branch:git(['branch','--show-curr
   worktreeStatus:git(['status','--porcelain','--untracked-files=all']),files:{}};
 for(const file of ['laer-litt-mer/index.html','laer-litt-mer/laria-troll-runtime-v1.js',
   'laer-litt-mer/laria-troll-runtime-v1.css','laer-litt-mer/laria-grovanova-v16.js',
+  'laer-litt-mer/globe-v25-renderer.js',
   'laer-litt-mer/laria-task-scene-v15.js','laer-litt-mer/multiplication-gangemagi-v1.js',
   'laer-litt-mer/multiplication-gangemagi-v1.css',
   'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css',
