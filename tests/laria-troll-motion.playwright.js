@@ -517,6 +517,16 @@ async function reaction({page,record,capture},selector,label,kind,action,require
     media[clipKind].fullDurationVerified=true;
   }else{
     entry.actor=await assertStatic(page,'storesoster',selector);
+    if(observeLayout){
+      // Let the passive sampler observe a real jump-peak frame before
+      // expensive screenshot work in WebKit can interrupt that window.
+      try{
+        await page.waitForFunction(label=>window.__lariaCelebrateLayouts?.[label]?.samples.some(
+          frame=>frame.animationProgress>=.2&&frame.animationProgress<=.4),label,{timeout:3000});
+      }finally{
+        entry.celebrationLayout=await page.evaluate(label=>window.__lariaCelebrateLayouts[label],label);
+      }
+    }
     await capture(label+'-v1-fallback');
     // A missing clip is not an animation success. The real semantic reaction
     // and the preserved V1 source are the separate, reviewable result.
