@@ -235,7 +235,8 @@
   height:clamp(180px,25vw,340px);
   filter:drop-shadow(0 11px 9px #52361f5c);
 }
-.gm-shell[data-gm-mode="mission"] .gm-fox-art,
+/* Only the artwork fills its host. Applying height:100% to the host itself
+   overrides its authored clamp height and collapses around an absolute img. */
 .gm-shell[data-gm-mode="mission"] .gm-fox-art>svg.laria-fox-wardrobe-art{
   min-width:0;
   min-height:0;
