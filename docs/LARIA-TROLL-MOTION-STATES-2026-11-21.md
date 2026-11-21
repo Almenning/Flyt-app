@@ -211,6 +211,22 @@ Dette fjerner konkret unødvendig bakgrunnsarbeid. Effekten på oppstarten
 måles med samme profiler, frister og nettleserkrav; årsakssammenheng skal
 ikke hevdes før den faktiske kjøringen dokumenterer den.
 
+Den kontrollerte oppfølgingen `44937325293`, commit `2757d38`, bestod 8/8
+læringsscenarioer. Første WebKit-portrett viste idle ved 6841 ms, 269 ms
+etter at idle-lastingen startet. Største målte timerpause var 1270 ms;
+den tidligere pausen på 24 132 ms ble ikke observert. Den innledende
+rAF-forsinkelsen på 5631 ms består. Resultatet støtter effekten av å stoppe
+skjult globemaling, men er ikke bevis på øyeblikkelig oppstart eller fysisk
+iPad Safari. Den nye målingen varte til scenarioet avsluttet ved rundt
+20 sekunder, mot den eldre profilens 45 sekunder.
+
+En separat klodekontroll avdekket samtidig at klassisk tegning hadde
+lent seg på en gammel kildeindikator fra skjult premium-maling. Klassisk
+modus bruker allerede ekte landpolygoner. Den rapporterer nå denne kilden
+ved sin egen polygonmaling, og nettlesertesten fjerner den gamle indikatoren
+før den kontrollerte tegningen. Ingen ekstra bakgrunnsmaling eller endring
+av land, farger og geometri innføres for å oppfylle kontrollen.
+
 Resultater må leses fra kjøringen for siste leverte commit. Denne teksten
 påstår ikke at en kjøring som ennå ikke er avsluttet har bestått. Grønne
 flyttester godkjenner ikke manglende kunst, fysisk iPad eller hele utgivelsen.

@@ -6573,7 +6573,9 @@ function drawGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
   ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;
   for(const lat of [-60,-30,0,30,60]){ctx.beginPath();const pts=[];for(let lon=-180;lon<=180;lon+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts,w,h);ctx.stroke()}
   for(let lon=-180;lon<180;lon+=30){ctx.beginPath();const pts=[];for(let lat=-85;lat<=85;lat+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts,w,h);ctx.stroke()}
-  for(const country of WORLD_COUNTRIES){if(!country.geometry)continue;ctx.beginPath();for(const poly of geometryPolygons(country.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring,w,h)}}ctx.fillStyle=country.id===globeSelected?'#FFD869':globeCountryColor(country);ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=globeZoom>2?1.05:.75;ctx.fill();ctx.stroke()}
+  let paintedCountryGeometry=false;
+  for(const country of WORLD_COUNTRIES){if(!country.geometry)continue;let hasPolygon=false;ctx.beginPath();for(const poly of geometryPolygons(country.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring,w,h);if(ring.length>=3)hasPolygon=true}}ctx.fillStyle=country.id===globeSelected?'#FFD869':globeCountryColor(country);ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=globeZoom>2?1.05:.75;ctx.fill();ctx.stroke();if(hasPolygon)paintedCountryGeometry=true}
+  if(paintedCountryGeometry)window.__LARIA_GLOBE_RENDER_SOURCE='country-geometry';
   for(const country of WORLD_COUNTRIES){if(!isTinyCountry(country)&&country.id!==globeSelected)continue;const p=globeProject(country.lon,country.lat,w,h);if(!p)continue;const selected=country.id===globeSelected;ctx.beginPath();ctx.arc(p[0],p[1],selected?6:Math.min(4.2,2.7+globeZoom*.28),0,Math.PI*2);ctx.fillStyle=selected?'#FFD869':'#FFF7C8';ctx.fill();ctx.strokeStyle='rgba(69,82,105,.35)';ctx.lineWidth=1;ctx.stroke()}
   for(const country of WORLD_COUNTRIES)drawMasteryMarker(ctx,country,w,h);
   const pulsing=drawGlobePulse(ctx,w,h);
