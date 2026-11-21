@@ -184,7 +184,7 @@
     if(!Object.hasOwn(MOTION_SOURCES,id))return null;
     const source=MOTION_SOURCES[id];
     if(!motionCatalogs.has(id))motionCatalogs.set(id,{id,source,
-      request:null,clips:null,assets:new Map(),posterTask:null,posterReady:null,
+      request:null,clips:null,assets:new Map(),posterEntry:null,posterTask:null,posterReady:null,posterUnavailable:false,
       idleUnavailable:false,idlePaused:new WeakSet()});
     return motionCatalogs.get(id);
   }
@@ -245,6 +245,7 @@
           const manifest=readManifest(value,catalog);
           if(catalog.request===request){
             catalog.clips=manifest.clips;
+            catalog.posterEntry=manifest.poster;
             if(!manifest.clips.idle)catalog.idleUnavailable=true;
           }
           return manifest;
@@ -350,9 +351,13 @@
         if(catalog.posterTask!==task)throw new Error('Obsolete troll poster');
         if(catalog.posterReady)root.URL.revokeObjectURL(catalog.posterReady.url);
         catalog.posterReady={key,url:task.url};
+        catalog.posterUnavailable=false;
         catalog.posterTask=null;
         return catalog.posterReady;
-      }catch(error){discardPoster(catalog,task);throw error;}
+      }catch(error){
+        if(catalog.posterTask===task)catalog.posterUnavailable=true;
+        discardPoster(catalog,task);throw error;
+      }
     })();
     return task;
   }
@@ -372,7 +377,10 @@
   function failMotion(host,run){
     if(motionRuns.get(host)!==run)return;
     const catalog=run.catalog;
-    if(run.posterTask)discardPoster(catalog,run.posterTask);
+    if(run.posterTask){
+      if(catalog.posterTask===run.posterTask)catalog.posterUnavailable=true;
+      discardPoster(catalog,run.posterTask);
+    }
     if(run.sequence){
       const key=motionKey(run.sequence);
       if(catalog.assets.get(key)===run.assetRequest)catalog.assets.delete(key);
@@ -430,8 +438,11 @@
     const img=host?.querySelector?.(':scope > img.laria-premium-troll-art');
     if(!motionAllowed(id)||!MOTION_KINDS.has(clipKind)||!img||!visibleHost(host))return false;
     const catalog=motionCatalog(id);
-    if(catalog.clips&&!catalog.clips[clipKind])return false;
-    if(clipKind==='idle'&&(catalog.idleUnavailable||catalog.idlePaused.has(host)||host!==idleHost()))return false;
+    // A retired scene may have cached the manifest before preparing its
+    // poster. The next main actor still needs that neutral even without idle.
+    const preparePoster=clipKind==='idle'&&catalog.posterEntry&&!catalog.posterReady&&!catalog.posterUnavailable;
+    if(catalog.clips&&!catalog.clips[clipKind]&&!preparePoster)return false;
+    if(clipKind==='idle'&&((catalog.idleUnavailable&&!preparePoster)||catalog.idlePaused.has(host)||host!==idleHost()))return false;
     const run={id,catalog,kind,clipKind,sequence:null,original:img,url:null,
       fallbackDuration:cssDuration(kind,options)};
     motionRuns.set(host,run);
@@ -461,6 +472,7 @@
     }
     if(active&&!motionRuns.has(active)&&!timers.has(active)&&
       (!active.dataset.lariaTrollMood||active.dataset.lariaTrollMood==='idle')){
+      restoreNeutral(active);
       playMotion(active,'idle');
     }
   }

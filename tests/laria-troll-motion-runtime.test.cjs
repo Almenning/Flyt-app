@@ -560,6 +560,49 @@ test('a matching poster can provide the neutral figure while an idle clip is sti
   assert.deepEqual(h.requests,[base+'manifest.json',base+'poster-20261121.webp']);
 });
 
+test('a new main actor prepares its poster after a retired actor cached a manifest without idle',async()=>{
+  const pending=deferred(),h=harness({main:true,manifestFetcher:()=>pending.promise});
+  await h.flush();
+  h.host.visible=false;
+  pending.resolve({ok:true,json:async()=>manifestWithPoster(['wave'])});await tick();
+  assert.deepEqual(h.requests,[base+'manifest.json'],'the retired actor must not prepare media');
+  const next=h.addMain();await h.changed();
+  assert.equal(h.images.length,1,'the new visible actor must prepare the required neutral without an idle clip');
+  await h.decoded();await h.flush();
+  const poster=next.img.src;
+  assert.equal(next.dataset.lariaTrollPoster,'storesoster');
+  assert.equal(next.dataset.lariaTrollSequence,undefined);
+  assert.equal(poster,h.api.source('storesoster'));
+  next.visible=false;
+  const later=h.addMain();await h.changed();
+  assert.equal(later.img.src,poster,'later visible actors must adopt the cached neutral even without idle media');
+  assert.equal(later.dataset.lariaTrollPoster,'storesoster');
+  assert.deepEqual(h.requests,[base+'manifest.json',base+'poster-20261121.webp']);
+  assert.equal(h.urls.length,1);
+});
+
+test('remounting main actors does not automatically retry a failed poster-only preparation',async()=>{
+  let allowRetry=false,posterCalls=0;
+  const h=harness({main:true,manifest:manifestWithPoster(['wave']),fetcher:src=>{
+    if(src.includes('/poster-')){
+      posterCalls++;
+      if(!allowRetry)return Promise.reject(new Error('poster unavailable'));
+      return Promise.resolve(responseFor('poster'));
+    }
+    return Promise.resolve(responseFor('wave'));
+  }});
+  await h.flush();let active=h.host;
+  for(let count=0;count<3;count++){
+    active.visible=false;active=h.addMain();await h.changed();
+    assert.equal(active.img.src,art('storesoster'));
+  }
+  assert.equal(posterCalls,1,'new hosts must not turn a failed poster into repeated requests');
+  allowRetry=true;
+  h.api.mood(active,'wave',{say:false});await tick();await h.decoded();await h.decoded();
+  assert.equal(active.dataset.lariaTrollSequence,'wave');
+  assert.equal(posterCalls,2,'an explicit reaction can retry the poster');
+});
+
 test('declaring a malformed matching poster blocks paired clips instead of ignoring that poster',async()=>{
   for(const alter of [m=>m.poster=null,m=>m.poster.filename='../poster.webp',
     m=>m.poster.sha256='invalid',m=>m.poster.width=0]){
