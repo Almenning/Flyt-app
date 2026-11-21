@@ -393,12 +393,89 @@ async function normal({page,record,capture,actor}){
   record.characterSwitches=['storesoster','lillesoster','lillebror','storesoster'];
   assert.equal(record.waveRequests,1,'the decoded clip should reuse one downloaded asset');
 }
+async function observeCelebrateLayout(page,selector,label){
+  await page.evaluate(({selector,label})=>{
+    const observations=window.__lariaCelebrateLayouts||=Object.create(null);
+    const observation=observations[label]={startedAtMs:null,done:false,samples:[]};
+    const deadline=setTimeout(()=>{observation.done=true;observation.timedOut=true;},12000);
+    const measure=element=>{
+      if(!element)return null;
+      const box=element.getBoundingClientRect(),style=getComputedStyle(element);
+      if(!box.width||!box.height||style.display==='none'||style.visibility==='hidden')return null;
+      return {rect:{left:box.left,right:box.right,top:box.top,bottom:box.bottom},
+        opacity:Number(style.opacity),filter:style.filter,transform:style.transform};
+    };
+    const sample=()=>{
+      if(observation.done)return;
+      const host=document.querySelector(selector),img=host?.querySelector('img.laria-premium-troll-art');
+      const now=performance.now();
+      if(host?.dataset.lariaTrollMood==='celebrate'&&img?.complete&&img.naturalWidth>0){
+        if(observation.startedAtMs===null)observation.startedAtMs=now;
+        const animation=img.getAnimations().find(item=>item.animationName==='laria-troll-celebrate');
+        const speech=host.querySelector('.laria-troll-speech');
+        const card=host.closest('.laria-task-card');
+        observation.samples.push({atMs:now-observation.startedAtMs,
+          illustratedNorwegianTablet:matchMedia('(min-width:700px) and (min-height:700px)').matches&&
+            !!host.closest('#session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] .task-visual-companion-stage'),
+          host:measure(host),art:measure(img),animationTimeMs:animation?.currentTime??null,
+          animationProgress:animation?.effect.getComputedTiming().progress??null,
+          speech:speech?.dataset.show==='true'?measure(speech):null,
+          task:card?Object.fromEntries(['.question','.learning-passage','.task-interaction'].map(
+            name=>[name,measure(card.querySelector(name))])):null});
+      }
+      if(observation.startedAtMs!==null&&now-observation.startedAtMs>=1300){
+        observation.done=true;clearTimeout(deadline);return;
+      }
+      // Read after the app's animation-frame placement callbacks, without
+      // changing the mood, playback time or child-facing event sequence.
+      requestAnimationFrame(()=>setTimeout(sample,0));
+    };
+    requestAnimationFrame(()=>setTimeout(sample,0));
+  },{selector,label});
+}
+async function assertCelebrateLayout(page,entry,selector){
+  await page.waitForFunction(label=>window.__lariaCelebrateLayouts?.[label]?.done,
+    entry.action,{timeout:5000});
+  const layout=await page.evaluate(label=>window.__lariaCelebrateLayouts[label],entry.action);
+  entry.celebrationLayout=layout;
+  assert.ok(!layout.timedOut,entry.action+' must finish its passive layout observation');
+  assert.ok(layout.samples.some(frame=>frame.animationProgress>=.2&&frame.animationProgress<=.4),
+    entry.action+' must measure the actual CSS celebration near its jump peak');
+  // Parent-filter clipping in WebKit is not represented by DOM rectangles.
+  // Preserve both computed filters and the existing in-reaction screenshot
+  // for visual review; do not require transparent image margins inside a host.
+  if(selector!==taskActorSelector)return;
+  layout.clearanceScope='Illustrated young Norwegian task stage on tablet-sized viewports only';
+  const scoped=layout.samples.filter(frame=>frame.illustratedNorwegianTablet);
+  layout.clearanceChecked=scoped.length>0;
+  if(!layout.clearanceChecked)return;
+  layout.tailPixels=7;layout.minimumArtGap=2;
+  const visible=scoped.filter(frame=>frame.speech?.opacity>.1&&frame.art);
+  assert.ok(visible.length>0,entry.action+' must observe visible contextual speech');
+  for(const frame of visible){
+    frame.artGap=frame.art.rect.top-frame.speech.rect.bottom-layout.tailPixels;
+    frame.taskGaps=Object.fromEntries(Object.entries(frame.task||{}).filter(([,target])=>target).map(
+      ([name,target])=>[name,Math.max(target.rect.left-frame.speech.rect.right,
+        frame.speech.rect.left-target.rect.right,target.rect.top-frame.speech.rect.bottom-layout.tailPixels,
+        frame.speech.rect.top-target.rect.bottom)]));
+  }
+  layout.minimumObservedArtGap=Math.min(...visible.map(frame=>frame.artGap));
+  assert.ok(layout.minimumObservedArtGap>=layout.minimumArtGap,
+    entry.action+' speech including its tail must clear the full moving art by 2px: '+layout.minimumObservedArtGap);
+  assert.ok(visible.every(frame=>Object.hasOwn(frame.taskGaps,'.question')),
+    entry.action+' must measure the adjacent question');
+  for(const frame of visible)for(const [name,gap] of Object.entries(frame.taskGaps)){
+    assert.ok(gap>=0,entry.action+' speech must not cover '+name+' during celebration: '+gap);
+  }
+}
 async function reaction({page,record,capture},selector,label,kind,action,requireCall=false){
   const marker=await page.evaluate(()=>window.__lariaTrollEvidence.length);
   const callMarker=await page.evaluate(()=>window.__lariaTrollCallEvidence?.length||0);
   const screen=selector.startsWith('#session-screen')?'session-screen':'multiplication-lab-screen';
   const hostClass=screen==='session-screen'?'task-troll-companion':'gm-fox-art';
   record.phase=label;
+  const observeLayout=kind==='celebrate'&&media.celebrate.status==='missing';
+  if(observeLayout)await observeCelebrateLayout(page,selector,label);
   await action();
   await page.waitForFunction(({marker,screen,hostClass,kind})=>
     window.__lariaTrollEvidence.slice(marker).some(event=>event.screen===screen&&
@@ -444,6 +521,7 @@ async function reaction({page,record,capture},selector,label,kind,action,require
     // A missing clip is not an animation success. The real semantic reaction
     // and the preserved V1 source are the separate, reviewable result.
   }
+  if(observeLayout)await assertCelebrateLayout(page,entry,selector);
   return entry;
 }
 async function noHiddenMotion(page,screenId){

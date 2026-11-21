@@ -14,7 +14,7 @@ const version = '20261107-gangemagi-release38';
 const approvedVisualVersion = '20261023-gangemagi-release37';
 const suffix = '-gangemagi-premium-20261023-release37';
 const releases = Object.freeze({
-  'multiplication-gangemagi-v1.css': version+'-troll-motion-owner-20261121',
+  'multiplication-gangemagi-v1.css': version+'-troll-motion-owner2-20261121',
   'gangemagi-dagens-oppdrag-v1.css': approvedVisualVersion+'-troll-clearance2-20261121',
   'multiplication-gangemagi-v1.js': '20261121-troll-motion1'
 });

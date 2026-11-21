@@ -75,6 +75,10 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-fox-art{position:relative;height:158px;width:147px;display:grid;place-items:end center;filter:drop-shadow(0 10px 9px #44452d3d);transform-origin:50% 100%}
 .gm-fox-art>img{max-width:100%;max-height:100%;object-fit:contain}
 .gm-fox-art.laria-troll-actor,.gm-book-fox-art.laria-troll-actor{position:relative}
+/* WebKit clips the moving child's crown at the filtered host's top edge.
+   TrollActor already owns a shadow on its image; leave its parent unfiltered
+   so the full character can move beyond the neutral host without cropping. */
+.gm-shell[data-gm-mode] .gm-fox-art.laria-troll-actor{filter:none}
 .gm-fox-art.laria-troll-actor>.gm-troll-art,
 .gm-book-fox-art.laria-troll-actor>.gm-troll-art{
  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
