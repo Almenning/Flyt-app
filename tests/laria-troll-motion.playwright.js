@@ -58,6 +58,7 @@ const source={commit:git(['rev-parse','HEAD']),branch:git(['branch','--show-curr
 for(const file of ['laer-litt-mer/index.html','laer-litt-mer/laria-troll-runtime-v1.js',
   'laer-litt-mer/laria-troll-runtime-v1.css','laer-litt-mer/laria-grovanova-v16.js',
   'laer-litt-mer/laria-task-scene-v15.js','laer-litt-mer/multiplication-gangemagi-v1.js',
+  'laer-litt-mer/multiplication-gangemagi-v1.css',
   'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css',
   'laer-litt-mer/assets/home-v16/laria-grovanova-v16-approved.json',
   motionRoot+'manifest.json',
@@ -435,22 +436,25 @@ async function gangemagiLayout(page){
     const screen=document.querySelector('#multiplication-lab-screen.active');
     const measure=selector=>{
       const element=screen.querySelector(selector),box=element.getBoundingClientRect();
+      const animation=getComputedStyle(element);
       let visible=box.width>0&&box.height>0;
       for(let node=element;node&&visible;node=node.parentElement){
         const style=getComputedStyle(node);
         if(style.display==='none'||style.visibility==='hidden'||style.opacity==='0')visible=false;
       }
-      return {visible,rect:{left:box.left,right:box.right,top:box.top,bottom:box.bottom,
+      return {visible,animationName:animation.animationName,animationDuration:animation.animationDuration,
+        rect:{left:box.left,right:box.right,top:box.top,bottom:box.bottom,
         width:box.width,height:box.height}};
     };
     return {measuredAtMs:performance.now(),actor:measure('.gm-fox-art'),
+      actorImage:measure('.gm-fox-art>img.gm-troll-art.laria-premium-troll-art'),
       speech:measure('.gm-fox-bubble'),math:measure('.gm-math')};
   });
 }
 function assertGangemagiClearance(layout,phase){
   layout.minimumGap=8;layout.clearances={};
   assert.ok(layout.math.visible,phase+' calculation must remain visible');
-  for(const key of ['actor','speech']){
+  for(const key of ['actor','actorImage','speech']){
     assert.ok(layout[key].visible,phase+' '+key+' must remain visible');
     const guide=layout[key].rect,math=layout.math.rect;
     const gaps={left:math.left-guide.right,right:guide.left-math.right,

@@ -7,6 +7,7 @@ on:
       - 'laer-litt-mer/laria-grovanova-v16.js'
       - 'laer-litt-mer/laria-task-scene-v15.js'
       - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'laer-litt-mer/multiplication-gangemagi-v1.css'
       - 'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css'
       - 'laer-litt-mer/assets/trollactor-motion/**'
       - 'tests/laria-troll-motion*'
