@@ -1,0 +1,28 @@
+{
+  "status": "review-only",
+  "identity_sha256": "b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89",
+  "source_video_sha256": "554ceabb70e7202a615672311357d740e80466a07467035bdc2deee42db5337a",
+  "output_sha256": "ee17da9e1e6d2ba9679084bf53ea620de9375996e7272063c887f18ac50c013b",
+  "width": 264,
+  "height": 540,
+  "decoded_frames": 63,
+  "encoded_frames": 62,
+  "duration_ms": 5250,
+  "bytes": 2855904,
+  "loop_count": 1,
+  "minimum_boot_core_alpha": 252,
+  "minimum_right_boot_core_alpha": 252,
+  "method": "Pinned ground-free original alpha tracked by backward DIS flow; source video RGB retained",
+  "versions": {
+    "opencv": "5.1.0",
+    "pillow": "13.0.0",
+    "numpy": "2.3.5"
+  },
+  "ground_matte_sha256": "e8fb4db19462bc4181802be737d894edaab206872d8566eec9ffdfe4eca2e57b",
+  "unchanged_reference_upper_rows": 620,
+  "source_video_rgb_retained_before_resampling_and_encoding": true,
+  "minimum_tracked_ground_core_removed_fraction": 1.0,
+  "minimum_source_left_boot_core_alpha": 252,
+  "minimum_source_right_boot_core_alpha": 252,
+  "matching_poster_sha256": "d1ee0caa8efbca77d2a118eb0b14f31d36e7dced5fa89b157c2cd5efa3e9d681"
+}

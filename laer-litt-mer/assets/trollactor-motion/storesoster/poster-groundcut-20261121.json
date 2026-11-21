@@ -1,0 +1,14 @@
+{
+  "status": "review-only",
+  "kind": "neutral-poster",
+  "identity_sha256": "b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89",
+  "ground_matte_sha256": "e8fb4db19462bc4181802be737d894edaab206872d8566eec9ffdfe4eca2e57b",
+  "output_sha256": "d1ee0caa8efbca77d2a118eb0b14f31d36e7dced5fa89b157c2cd5efa3e9d681",
+  "width": 512,
+  "height": 1024,
+  "bytes": 440106,
+  "lossless": true,
+  "visible_original_rgb_pixel_exact": true,
+  "unchanged_original_upper_rows": 706,
+  "method": "Original identity RGB with registered lower alpha only; immutable identity retained"
+}

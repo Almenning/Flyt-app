@@ -4,7 +4,7 @@ Dato: 21. november 2026. Fortsettelse av PR #258 fra `410db1c`.
 
 ## Ærlig leveransestatus
 
-**Én av seks animasjonssekvenser er godkjent for vurderingsmanifestet: wave.**
+**Én av seks animasjonssekvenser er registrert for vurdering: wave.**
 Teknisk støtte for de øvrige tilstandene er ikke det samme som ferdige videoer.
 Vanlig app bruker fortsatt original V1. Vurderingsmodus krever
 `?laria-troll-motion=1`. Ingen merge eller publisering er utført.
@@ -37,8 +37,43 @@ de erstattes ikke med kopier av vinket eller tomme filer.
   Eksisterende hinttekst og læringsdata er bevart.
 - Gangemagis nyrendrede figur sender sin faktiske reaksjon til spilleren.
   Spillmotor, bær, kurver, taletekster og lagringslogikk er uendret.
+- Hver registrerte figur har egen manifestinnlasting, verifisert filbuffer
+  og feiltilstand. Bare Storesøster har faktiske mediefiler. Lillesøster og
+  Lillebror beholder originalfigurene uten å be om manglende filer. Et sent
+  svar fra en tidligere figur kan ikke overta etter trollbytte.
+- Ugyldige lagrede figurnavn faller tilbake til Storesøster. Arvede
+  objektnavn som `constructor` godtas ikke som figurvalg og lagres ikke.
+- TrollActor eier bevegelsen i Gangemagi; den gamle vertsanimasjonen blir
+  ikke lagt oppå figurens egen bevegelse. Regnestykket får reservert plass.
 - Scriptversjonene i index.html er oppdatert. Eksisterende service worker
   bruker allerede nettverk først for JS og JSON.
+
+## Renset vink med matchende hvilebilde
+
+Den lyse bakken under og mellom støvlene er fjernet fra en ny, separat
+review-variant. `wave-groundcut-20261121.webp` har samme bevegelse og
+varighet som første vink; dette er ikke en ny animasjonstilstand.
+
+En transparent uttrekking fra bildeverktøyet er brukt bare som alfakilde.
+Masken er registrert mot den låste originalen med én affin transformasjon.
+Ingen genererte ansikts-, hår-, hånd- eller klespiksler er brukt. Selve
+videoen bruker fortsatt RGB fra den opprinnelige kildevideoen. Øvre 620 av
+900 rader av referansemasken er uendret. Begge støveltå-kjernene har minst
+252/255 alfa gjennom alle kilderammer, og kontrollområdet for bakken er
+fjernet i samtlige 63 rammer.
+
+`poster-groundcut-20261121.webp` er et matchende, statisk hvilebilde.
+Det bevarer originalens synlige RGB pikselidentisk, og de første 706
+RGBA-radene er helt uendret. Den låste originalfilen er bevart.
+Vinket og hvilebildet må brukes sammen slik at bakken ikke kommer tilbake
+ved avslutning. Et deklarert hvilebilde skal være integritetskontrollert og
+dekodet før den tilhørende animasjonen kan spilles. Feil beholder originalen.
+
+Masken, provenansen og den reproduserbare behandlingen ligger i
+`tools/laria_art/inputs/storesoster-groundcut-alpha-20261121.*` og
+`scripts/laria-prepare-storesoster-wave.py`. Begge nye filer er gjenskapt
+med identiske hashverdier; kjøring uten ny maske gir fortsatt det tidligere
+vinket byteidentisk. Det tidligere vinket og dets metadata er beholdt.
 
 ## Medieproduksjon og den konkrete blokkeringen
 
@@ -76,8 +111,10 @@ Runtime har målrettede atferdstester for manifest, integritet, fallback,
 repetisjon, avbrudd, sen respons og idle-livssyklus. Mockede enhetstester er
 ikke bevis på levert idle-kunst.
 
-Den faktiske nettleserkontrollen er delt i wave og flows: 14 wave-scenarioer
-og 8 Norsk/Gangemagi-scenarioer, med Chromium og WebKit i begge iPad-retninger.
+Den faktiske nettleserkontrollen er delt i wave og flows, med Chromium og
+WebKit i begge iPad-retninger. Den omfatter også bytte mellom alle tre
+figurer, retur til Storesøster uten ny videonedlasting, feil i hvilebildet
+og nytt manuelt forsøk. Norsk/Gangemagi har 8 handlingsscenarioer.
 Den bruker ekte knapper og skiller læringsregistrering ved svar fra hint
 og andre handlinger som skal bevare progresjon. Results.json fører
 mediedekning separat: 1/6 registrerte klipp og fem manglende.

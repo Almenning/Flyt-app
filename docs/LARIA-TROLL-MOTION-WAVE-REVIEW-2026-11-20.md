@@ -8,6 +8,13 @@ produksjonspublisering er gitt gjennom dette dokumentet.
 
 ## Hva som er endret
 
+Nyere oppfølging samme dato er beskrevet i
+`LARIA-TROLL-MOTION-STATES-2026-11-21.md`: vurderingsmanifestet bruker nå
+det rensede vinket `wave-groundcut-20261121.webp` sammen med et matchende,
+verifisert hvilebilde. Begge bevarer den opprinnelige figuren; bare nedre
+alfakanal er renset. Beskrivelsen nedenfor dokumenterer første eksport og
+den første faktiske nettleserkontrollen, ikke siste teststatus.
+
 Den tidligere lokale committen `ad0ee96` inneholdt første vink, men var ikke
 med i GitHub-grenen. Endringene er nå videreført fra PR-ens oppdaterte
 `2a4d02f` og rettet. Den nye strategien bruker én ferdig animasjonssekvens;

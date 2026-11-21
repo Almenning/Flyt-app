@@ -37,8 +37,18 @@ const media=Object.fromEntries(motionKinds.map(kind=>{
   assert.equal(clip.loop_count,kind==='idle'?0:1,kind+' playback loop contract');
   return [kind,{status:'available',decodedPlaybackObserved:false,fullDurationVerified:false,...clip}];
 }));
-const wavePattern='**/assets/trollactor-motion/storesoster/wave-20261121.webp*';
-const waveRequest=/\/assets\/trollactor-motion\/storesoster\/wave-20261121\.webp(?:[?#]|$)/;
+const poster=manifest.poster||null;
+if(poster){
+  assert.match(poster.filename,/^[a-z0-9][a-z0-9._-]*\.webp$/,'safe poster filename');
+  const bytes=fs.readFileSync(path.join(repo,motionRoot,poster.filename));
+  assert.equal(bytes.length,poster.bytes,'poster metadata must match its actual file size');
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),poster.sha256,
+    'poster metadata must identify the actual cutout bytes');
+}
+const wavePath='/assets/trollactor-motion/storesoster/'+manifest.clips.wave.filename;
+const wavePattern='**'+wavePath+'*';
+const waveRequest={test:url=>new URL(url).pathname.endsWith(wavePath)};
+const posterPath=poster?'/assets/trollactor-motion/storesoster/'+poster.filename:null;
 const duration=manifest.clips.wave.duration_ms;
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8',
   '.css':'text/css; charset=utf-8','.json':'application/json','.webp':'image/webp',
@@ -62,15 +72,15 @@ for(const file of ['laer-litt-mer/index.html','laer-litt-mer/laria-troll-runtime
   'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css',
   'laer-litt-mer/assets/home-v16/laria-grovanova-v16-approved.json',
   motionRoot+'manifest.json',
-  'laer-litt-mer/assets/trollactor-motion/storesoster/wave-20261121.webp',
-  'laer-litt-mer/assets/trollactor-motion/storesoster/wave-20261121.json',
+  motionRoot+manifest.clips.wave.filename.replace(/\.webp$/,'.json'),
+  ...(poster?[motionRoot+poster.filename,motionRoot+poster.filename.replace(/\.webp$/,'.json')]:[]),
   'tests/laria-troll-motion.playwright.js',
   ...Object.values(manifest.clips).map(clip=>motionRoot+clip.filename)]){
   const absolute=path.join(repo,file);
   source.files[file]=fs.existsSync(absolute)?crypto.createHash('sha256').update(fs.readFileSync(absolute)).digest('hex'):null;
 }
 source.dirty=source.worktreeStatus!=='';
-const report={createdAt:new Date().toISOString(),source,mode,media,
+const report={createdAt:new Date().toISOString(),source,mode,media,poster,
   mediaCoverage:{registeredClips:motionKinds.filter(kind=>media[kind].status==='available'),
     missingClips:motionKinds.filter(kind=>media[kind].status==='missing'),
     registeredCount:motionKinds.filter(kind=>media[kind].status==='available').length,requiredCount:6},
@@ -115,6 +125,7 @@ async function readActor(page,selector=actorSelector){
     const img=el.querySelector('img.laria-premium-troll-art'),box=el.getBoundingClientRect();
     const nav=el.closest('.bc12')?.querySelector('.bc12-nav')?.getBoundingClientRect();
     return {id:el.dataset.troll,sequence:el.dataset.lariaTrollSequence||null,mood:el.dataset.lariaTrollMood,
+      poster:el.dataset.lariaTrollPoster||img?.dataset.lariaTrollPoster||null,
       loading:el.dataset.lariaTrollLoading||null,
       src:img?.getAttribute('src'),decoded:!!img?.complete&&img.naturalWidth>0,
       width:img?.naturalWidth,height:img?.naturalHeight,
@@ -125,17 +136,29 @@ async function assertStatic(page,id='storesoster',selector=actorSelector){
   await page.waitForFunction(({selector,id})=>{
     const el=document.querySelector(selector),img=el?.querySelector('img.laria-premium-troll-art');
     return el?.dataset.troll===id&&!el.dataset.lariaTrollSequence&&img?.complete&&img.naturalWidth>0&&
-      img.getAttribute('src')?.endsWith('/'+id+'.webp');
+      (img.getAttribute('src')?.endsWith('/gangemagi-troll/'+id+'.webp')||
+        ((el.dataset.lariaTrollPoster||img.dataset.lariaTrollPoster)===id&&img.getAttribute('src')?.startsWith('blob:')));
   },{selector,id},{timeout:12000});
   const state=await readActor(page,selector);
   assert.equal(state.id,id);
   assert.equal(state.sequence,null);
   assert.ok(state.decoded,'V1 fallback must be decoded');
-  assert.match(state.src,new RegExp('/gangemagi-troll/'+id+'\\.webp$'));
+  if(state.poster){
+    assert.ok(poster&&id==='storesoster','only the registered verified neutral poster is allowed');
+    assert.equal(state.poster,id);assert.match(state.src,/^blob:/);
+    assert.equal(state.width,poster.width);assert.equal(state.height,poster.height);
+  }else assert.match(state.src,new RegExp('/gangemagi-troll/'+id+'\\.webp$'));
   return state;
 }
 async function assertRest(page,selector=actorSelector){
-  if(media.idle.status!=='available')return assertStatic(page,'storesoster',selector);
+  if(media.idle.status!=='available'){
+    if(poster)await page.waitForFunction(selector=>{
+      const host=document.querySelector(selector),img=host?.querySelector('img.laria-premium-troll-art');
+      return !host?.dataset.lariaTrollSequence&&
+        (host?.dataset.lariaTrollPoster||img?.dataset.lariaTrollPoster)==='storesoster';
+    },selector,{timeout:20000});
+    return assertStatic(page,'storesoster',selector);
+  }
   await page.waitForFunction(selector=>{
     const el=document.querySelector(selector),img=el?.querySelector('img.laria-premium-troll-art');
     return el?.dataset.troll==='storesoster'&&el.dataset.lariaTrollSequence==='idle'&&
@@ -172,7 +195,7 @@ async function choose(page,id){
   await assertStatic(page,id);
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),id);
 }
-async function openHome(page,base,review,reducedMotion){
+async function openHome(page,base,review,reducedMotion,waitForPoster=true){
   const url=new URL(base);url.searchParams.set('app','laria');
   if(review)url.searchParams.set('laria-troll-motion','1');else url.searchParams.delete('laria-troll-motion');
   await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:60000});
@@ -183,7 +206,7 @@ async function openHome(page,base,review,reducedMotion){
   },null,{timeout:30000});
   await page.locator(actorSelector).waitFor({state:'visible'});
   assert.equal(await page.locator(actorSelector).count(),1,'exactly one actual Hjem actor');
-  if(review&&reducedMotion!=='reduce')await assertRest(page);
+  if(review&&reducedMotion!=='reduce'&&waitForPoster)await assertRest(page);
   else await assertStatic(page);
   return url.href;
 }
@@ -202,7 +225,7 @@ async function runCase(browser,engine,base,name,viewport,options,check){
     window.__lariaMotionFetchEvidence=[];
     window.fetch=function(input){
       const url=typeof input==='string'?input:(input?.url||String(input));
-      if(/\/trollactor-motion\/storesoster\/wave-20261121\.webp/.test(url)){
+      if(/\/trollactor-motion\/storesoster\/wave-[^/]+\.webp/.test(url)){
         window.__lariaMotionFetchEvidence.push({atMs:performance.now(),url,stack:new Error().stack,
           hosts:[...document.querySelectorAll('[data-laria-troll-loading]')].map(host=>{
             const r=host.getBoundingClientRect(),style=getComputedStyle(host);
@@ -275,7 +298,7 @@ async function runCase(browser,engine,base,name,viewport,options,check){
   };
   try{
     if(options.setup)await options.setup(page,record,releases);
-    record.url=await openHome(page,base,record.review,record.reducedMotion);
+    record.url=await openHome(page,base,record.review,record.reducedMotion,options.waitForPoster!==false);
     if(options.observeCalls){
       await page.evaluate(()=>{
         const original=window.LARIA_TROLL_ACTOR;
@@ -352,6 +375,22 @@ async function normal({page,record,capture,actor}){
   await capture('07-choice-during-playback');
   await page.waitForTimeout(duration);
   await assertStatic(page,'lillesoster');
+  const beforeOtherTrolls=record.motionRequests.length;
+  await actor.click();
+  await assertStatic(page,'lillesoster');
+  await choose(page,'lillebror');
+  await actor.click();
+  await assertStatic(page,'lillebror');
+  await capture('08-lillebror-original');
+  assert.equal(record.motionRequests.length,beforeOtherTrolls,
+    'the two trolls without reviewed media must not request nonexistent clips or catalogs');
+  await choose(page,'storesoster');
+  await actor.click();
+  const returned=await waitWave(page);
+  assert.notEqual(returned.src,second.src,'returning to Storesøster must start a fresh playback');
+  await capture('09-storesoster-returned-wave');
+  await assertRest(page);
+  record.characterSwitches=['storesoster','lillesoster','lillebror','storesoster'];
   assert.equal(record.waveRequests,1,'the decoded clip should reuse one downloaded asset');
 }
 async function reaction({page,record,capture},selector,label,kind,action,requireCall=false){
@@ -648,10 +687,33 @@ async function guards(browser,engine,base){
   for(const [name,options] of [['default-v1',{review:false}],['reduced-motion',{reducedMotion:'reduce'}]]){
     await runCase(browser,engine,base,name,viewport,options,async({page,record,actor,capture})=>{
       await actor.click();await page.waitForTimeout(1700);await assertStatic(page);
+      assert.equal((await readActor(page)).poster,null,'guarded initial context must keep the locked V1 source');
       assert.equal(record.waveRequests,0,'guarded context must never fetch animated art');
       assert.equal(record.motionRequests.length,0,'guarded context must not fetch the motion manifest or any clip');
       await capture('static-v1');
     });
+  }
+  if(poster){
+    let failPoster=true;
+    await runCase(browser,engine,base,'poster-failure-and-retry',viewport,
+      {waitForPoster:false,setup:async page=>{
+        await page.route('**'+posterPath+'*',route=>failPoster?route.abort():route.continue());
+      }},async({page,record,actor,capture})=>{
+        await actor.click();
+        await page.waitForFunction(selector=>!document.querySelector(selector)?.dataset.lariaTrollLoading,actorSelector);
+        const original=await assertStatic(page);
+        assert.equal(original.poster,null,'failed neutral cutout must keep the immutable original');
+        assert.equal(record.waveRequests,0,'a clean wave must not play with an unavailable matching poster');
+        await capture('failed-poster-keeps-original');
+        failPoster=false;
+        await actor.click();await waitWave(page);
+        await capture('poster-retry-wave');
+        await assertRest(page);
+        const restored=await readActor(page);
+        assert.equal(restored.poster,'storesoster','wave completion must keep the matching clean neutral image');
+        await capture('poster-after-wave');
+        record.posterRecovery={failedSource:original.src,restoredPoster:restored.poster};
+      });
   }
   let fail=true;
   await runCase(browser,engine,base,'asset-failure-and-retry',viewport,{setup:async page=>{

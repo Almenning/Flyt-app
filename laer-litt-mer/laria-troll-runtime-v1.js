@@ -16,8 +16,12 @@
   // Motion remains opt-in. The manifest registers actual reviewed files;
   // absent or invalid clips leave the original character and CSS available.
   const MOTION_REVIEW=new URLSearchParams(root.location.search).get('laria-troll-motion')==='1';
-  const MOTION_ROOT='./assets/trollactor-motion/storesoster/';
-  const MOTION_IDENTITY_SHA='b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89';
+  // Register a character only when its real reviewed media exists. The other
+  // locked trolls keep V1 without requesting nonexistent manifests or clips.
+  const MOTION_SOURCES=Object.freeze({
+    storesoster:Object.freeze({root:'./assets/trollactor-motion/storesoster/',
+      identitySha:'b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89'})
+  });
   const MOTION_KINDS=new Set(['idle','wave','think','hint','celebrate','support']);
   const MOOD_ALIASES=Object.freeze({help:'hint',encourage:'support'});
   const MOODS=new Set(['idle','wave','walking','think','hint','celebrate','support','curious']);
@@ -68,12 +72,10 @@
 
   const timers=new WeakMap();
   const motionRuns=new Map();
-  const motionAssets=new Map();
+  const motionCatalogs=new Map();
   const reducedMotion=root.matchMedia?.('(prefers-reduced-motion: reduce)');
   const greeted=new WeakSet();
-  const idlePaused=new WeakSet();
   let queued=false,lifecycleQueued=false,pageSuspended=false;
-  let manifestRequest=null,manifestClips=null,idleUnavailable=false;
 
   function profile(){
     try{
@@ -81,13 +83,21 @@
     }catch(_){}
     try{return root.LARIA_TALLVIKA_BRIDGE?.state?.()?.profile||{};}catch(_){return {};}
   }
+  function knownTroll(id){return typeof id==='string'&&Object.hasOwn(TROLLS,id);}
   function choice(){
     const id=profile()?.tallvikaTroll;
-    return TROLLS[id]?id:DEFAULT;
+    return knownTroll(id)?id:DEFAULT;
   }
-  function selected(){return TROLLS[choice()];}
+  function neutralSource(id){
+    const troll=TROLLS[knownTroll(id)?id:DEFAULT];
+    return (MOTION_REVIEW&&motionCatalogs.get(troll.id)?.posterReady?.url)||troll.src;
+  }
+  function selected(){
+    const troll=TROLLS[choice()],src=neutralSource(troll.id);
+    return src===troll.src?troll:Object.freeze({...troll,src});
+  }
   function persistChoice(id){
-    if(!TROLLS[id])return false;
+    if(!knownTroll(id))return false;
     let saved=false;
     try{
       if(typeof state!=='undefined'&&state?.profile){
@@ -170,8 +180,16 @@
     const bubble=host?.querySelector?.(':scope > .laria-troll-speech');
     if(bubble)delete bubble.dataset.show;
   }
-  function motionAllowed(){
-    return MOTION_REVIEW&&choice()==='storesoster'&&!reducedMotion?.matches&&
+  function motionCatalog(id){
+    if(!Object.hasOwn(MOTION_SOURCES,id))return null;
+    const source=MOTION_SOURCES[id];
+    if(!motionCatalogs.has(id))motionCatalogs.set(id,{id,source,
+      request:null,clips:null,assets:new Map(),posterTask:null,posterReady:null,
+      idleUnavailable:false,idlePaused:new WeakSet()});
+    return motionCatalogs.get(id);
+  }
+  function motionAllowed(id=choice()){
+    return MOTION_REVIEW&&Object.hasOwn(MOTION_SOURCES,id)&&!reducedMotion?.matches&&
       !doc.hidden&&!pageSuspended&&!!root.fetch&&!!root.URL?.createObjectURL&&
       !!root.crypto?.subtle&&!!root.Blob;
   }
@@ -188,47 +206,73 @@
     }
     return true;
   }
-  function readManifest(value){
-    if(value?.version!==1||value.status!=='review-only'||value.identity!=='storesoster'||
-      value.identity_sha256!==MOTION_IDENTITY_SHA||!value.clips||typeof value.clips!=='object'){
+  function readManifest(value,catalog){
+    if(value?.version!==1||value.status!=='review-only'||value.identity!==catalog.id||
+      value.identity_sha256!==catalog.source.identitySha||!value.clips||typeof value.clips!=='object'){
       throw new Error('Invalid troll motion manifest');
     }
-    const clips={};
-    for(const kind of MOTION_KINDS){
-      const entry=value.clips[kind];
-      // Validate each entry separately: a missing unfinished state must never
-      // disable the existing, independently verified wave.
+    const mediaEntry=entry=>{
       if(!entry||!/^[-a-z0-9]+\.webp$/.test(entry.filename)||
         !/^[a-f0-9]{64}$/.test(entry.sha256)||
-        !Number.isInteger(entry.duration_ms)||entry.duration_ms<100||entry.duration_ms>30000||
         !Number.isInteger(entry.bytes)||entry.bytes<1||entry.bytes>20*1024*1024||
         !Number.isInteger(entry.width)||entry.width<1||entry.width>2048||
-        !Number.isInteger(entry.height)||entry.height<1||entry.height>2048||
+        !Number.isInteger(entry.height)||entry.height<1||entry.height>2048)return null;
+      return Object.freeze({...entry,src:catalog.source.root+entry.filename});
+    };
+    const poster=Object.hasOwn(value,'poster')?mediaEntry(value.poster):null;
+    // A declared poster is the matching neutral artwork for these clips.
+    // Ignoring an invalid one would visibly switch back to mismatched art.
+    if(Object.hasOwn(value,'poster')&&!poster)throw new Error('Invalid troll motion poster');
+    const clips={};
+    for(const kind of MOTION_KINDS){
+      const entry=mediaEntry(value.clips[kind]);
+      // Validate each entry separately: a missing unfinished state must never
+      // disable the existing, independently verified wave.
+      if(!entry||
+        !Number.isInteger(entry.duration_ms)||entry.duration_ms<100||entry.duration_ms>30000||
         entry.loop_count!==(kind==='idle'?0:1))continue;
-      clips[kind]=Object.freeze({...entry,src:MOTION_ROOT+entry.filename});
+      clips[kind]=entry;
     }
-    return Object.freeze(clips);
+    return Object.freeze({clips:Object.freeze(clips),poster});
   }
-  function motionManifest(){
-    if(!manifestRequest){
-      const request=root.fetch(MOTION_ROOT+'manifest.json',{cache:'no-cache'})
+  function motionManifest(catalog){
+    if(!catalog.request){
+      const request=root.fetch(catalog.source.root+'manifest.json',{cache:'no-cache'})
         .then(response=>{
           if(!response.ok)throw new Error('Troll motion manifest unavailable');
           return response.json();
         }).then(value=>{
-          const clips=readManifest(value);
-          if(manifestRequest===request){
-            manifestClips=clips;
-            if(!clips.idle)idleUnavailable=true;
+          const manifest=readManifest(value,catalog);
+          if(catalog.request===request){
+            catalog.clips=manifest.clips;
+            if(!manifest.clips.idle)catalog.idleUnavailable=true;
           }
-          return clips;
+          return manifest;
         }).catch(error=>{
-          if(manifestRequest===request)manifestRequest=null;
+          if(catalog.request===request)catalog.request=null;
           throw error;
         });
-      manifestRequest=request;
+      catalog.request=request;
     }
-    return manifestRequest;
+    return catalog.request;
+  }
+  function markNeutral(host,img,id){
+    const poster=MOTION_REVIEW&&motionCatalogs.get(id)?.posterReady;
+    if(poster&&img.getAttribute('src')===poster.url){
+      img.dataset.lariaTrollPoster=id;
+      if(host?.dataset)host.dataset.lariaTrollPoster=id;
+    }else{
+      delete img.dataset.lariaTrollPoster;
+      if(host?.dataset)delete host.dataset.lariaTrollPoster;
+    }
+  }
+  function restoreNeutral(host){
+    const img=host?.querySelector?.(':scope > img.laria-premium-troll-art');
+    if(!img)return;
+    const troll=selected();
+    if(img.getAttribute('src')!==troll.src)img.setAttribute('src',troll.src);
+    img.dataset.troll=troll.id;
+    markNeutral(host,img,troll.id);
   }
   function clearMotion(host){
     if(!host)return;
@@ -237,8 +281,7 @@
     if(run)root.clearTimeout(run.loadingTimer);
     delete host.dataset.lariaTrollSequence;
     delete host.dataset.lariaTrollLoading;
-    const img=host.querySelector?.(':scope > img.laria-premium-troll-art');
-    if(img&&img.getAttribute('src')!==selected().src)img.setAttribute('src',selected().src);
+    restoreNeutral(host);
     if(run?.url)root.URL.revokeObjectURL(run.url);
   }
   function finishMood(host,resumeIdle=true){
@@ -250,9 +293,9 @@
     if(resumeIdle)scheduleLifecycle();
   }
   function motionKey(sequence){return sequence.src+'|'+sequence.sha256+'|'+sequence.bytes;}
-  function motionBlob(sequence){
+  function motionBlob(sequence,catalog){
     const key=motionKey(sequence);
-    if(!motionAssets.has(key)){
+    if(!catalog.assets.has(key)){
       const request=root.fetch(sequence.src).then(async response=>{
         if(!response.ok)throw new Error('Troll motion unavailable');
         const bytes=await response.arrayBuffer();
@@ -262,16 +305,60 @@
         if(hash!==sequence.sha256)throw new Error('Troll motion hash mismatch');
         return new root.Blob([bytes],{type:'image/webp'});
       }).catch(error=>{
-        if(motionAssets.get(key)===request)motionAssets.delete(key);
+        if(catalog.assets.get(key)===request)catalog.assets.delete(key);
         throw error;
       });
-      motionAssets.set(key,request);
+      catalog.assets.set(key,request);
     }
-    return motionAssets.get(key);
+    return catalog.assets.get(key);
+  }
+  async function decodeMotionImage(original,entry,url){
+    const next=original.cloneNode(false);
+    next.removeAttribute('srcset');
+    delete next.dataset.lariaTrollPoster;
+    next.decoding='async';
+    try{
+      await new Promise((resolve,reject)=>{
+        next.onload=resolve;next.onerror=reject;next.src=url;
+      });
+      if(next.decode)await next.decode();
+      if(next.naturalWidth!==entry.width||next.naturalHeight!==entry.height){
+        throw new Error('Troll motion dimensions mismatch');
+      }
+      return next;
+    }finally{next.onload=null;next.onerror=null;}
+  }
+  function discardPoster(catalog,task){
+    if(catalog.posterTask!==task)return;
+    catalog.posterTask=null;
+    if(catalog.assets.get(task.key)===task.assetRequest)catalog.assets.delete(task.key);
+    if(task.url){root.URL.revokeObjectURL(task.url);task.url=null;}
+  }
+  function motionPoster(entry,catalog,original){
+    const key=motionKey(entry);
+    if(catalog.posterReady?.key===key)return {promise:Promise.resolve(catalog.posterReady)};
+    if(catalog.posterTask?.key===key)return catalog.posterTask;
+    if(catalog.posterTask)discardPoster(catalog,catalog.posterTask);
+    const task={key,url:null,assetRequest:motionBlob(entry,catalog)};
+    catalog.posterTask=task;
+    task.promise=(async()=>{
+      try{
+        const blob=await task.assetRequest;
+        if(catalog.posterTask!==task)throw new Error('Obsolete troll poster');
+        task.url=root.URL.createObjectURL(blob);
+        await decodeMotionImage(original,entry,task.url);
+        if(catalog.posterTask!==task)throw new Error('Obsolete troll poster');
+        if(catalog.posterReady)root.URL.revokeObjectURL(catalog.posterReady.url);
+        catalog.posterReady={key,url:task.url};
+        catalog.posterTask=null;
+        return catalog.posterReady;
+      }catch(error){discardPoster(catalog,task);throw error;}
+    })();
+    return task;
   }
   function currentMotion(host,run){
     return motionRuns.get(host)===run&&run.id===choice()&&
-      motionAllowed()&&visibleHost(host);
+      motionAllowed(run.id)&&visibleHost(host);
   }
   function cssDuration(kind,options){
     const requested=Number(options?.duration);
@@ -284,49 +371,45 @@
   }
   function failMotion(host,run){
     if(motionRuns.get(host)!==run)return;
+    const catalog=run.catalog;
+    if(run.posterTask)discardPoster(catalog,run.posterTask);
     if(run.sequence){
       const key=motionKey(run.sequence);
-      if(motionAssets.get(key)===run.assetRequest)motionAssets.delete(key);
-    }else if(manifestRequest===run.manifestRequest)manifestRequest=null;
-    if(run.clipKind==='idle')idleUnavailable=true;
+      if(catalog.assets.get(key)===run.assetRequest)catalog.assets.delete(key);
+    }else if(catalog.request===run.manifestRequest)catalog.request=null;
+    if(run.clipKind==='idle')catalog.idleUnavailable=true;
     // A failure leaves V1 on screen. Observer refreshes must not turn an
     // unavailable loop into repeated downloads; another explicit action may retry.
-    idlePaused.add(host);
+    catalog.idlePaused.add(host);
     finishMood(host,false);
   }
   async function loadMotion(host,run){
     try{
-      run.manifestRequest=motionManifest();
-      const clips=await run.manifestRequest;
+      run.manifestRequest=motionManifest(run.catalog);
+      const manifest=await run.manifestRequest;
       if(!currentMotion(host,run))return;
-      run.sequence=clips[run.clipKind];
+      run.sequence=manifest.clips[run.clipKind];
+      if(manifest.poster){
+        run.posterTask=motionPoster(manifest.poster,run.catalog,run.original);
+        await run.posterTask.promise;
+        if(!currentMotion(host,run))return;
+        restoreNeutral(host);
+      }
       if(!run.sequence){cssFallback(host,run);return;}
-      run.assetRequest=motionBlob(run.sequence);
+      run.assetRequest=motionBlob(run.sequence,run.catalog);
       const blob=await run.assetRequest;
       if(!currentMotion(host,run))return;
       // A fresh blob URL gives every play its own animation timeline, while
       // the encoded bytes are fetched only once. Keep V1 visible until decode.
       run.url=root.URL.createObjectURL(blob);
-      const next=run.original.cloneNode(false);
-      next.removeAttribute('srcset');
+      const next=await decodeMotionImage(run.original,run.sequence,run.url);
       next.dataset.troll=run.id;
-      next.decoding='async';
-      await new Promise((resolve,reject)=>{
-        next.onload=resolve;
-        next.onerror=reject;
-        next.src=run.url;
-      });
-      if(next.decode)await next.decode();
-      next.onload=null;
-      next.onerror=null;
-      if(next.naturalWidth!==run.sequence.width||next.naturalHeight!==run.sequence.height){
-        throw new Error('Troll motion dimensions mismatch');
-      }
       if(!currentMotion(host,run))return;
       const visible=host.querySelector(':scope > img.laria-premium-troll-art');
       if(!visible)return;
       root.clearTimeout(run.loadingTimer);
       delete host.dataset.lariaTrollLoading;
+      delete host.dataset.lariaTrollPoster;
       host.dataset.lariaTrollSequence=run.clipKind;
       host.dataset.troll=run.id;
       visible.replaceWith(next);
@@ -342,12 +425,14 @@
     }
   }
   function playMotion(host,kind,options={}){
+    const id=choice();
     const clipKind=kind==='curious'?'think':kind;
     const img=host?.querySelector?.(':scope > img.laria-premium-troll-art');
-    if(!motionAllowed()||!MOTION_KINDS.has(clipKind)||!img||!visibleHost(host))return false;
-    if(manifestClips&&!manifestClips[clipKind])return false;
-    if(clipKind==='idle'&&(idleUnavailable||idlePaused.has(host)||host!==idleHost()))return false;
-    const run={id:choice(),kind,clipKind,sequence:null,original:img,url:null,
+    if(!motionAllowed(id)||!MOTION_KINDS.has(clipKind)||!img||!visibleHost(host))return false;
+    const catalog=motionCatalog(id);
+    if(catalog.clips&&!catalog.clips[clipKind])return false;
+    if(clipKind==='idle'&&(catalog.idleUnavailable||catalog.idlePaused.has(host)||host!==idleHost()))return false;
+    const run={id,catalog,kind,clipKind,sequence:null,original:img,url:null,
       fallbackDuration:cssDuration(kind,options)};
     motionRuns.set(host,run);
     host.dataset.lariaTrollLoading=clipKind;
@@ -390,7 +475,7 @@
     root.clearTimeout(timers.get(host));
     timers.delete(host);
     clearMotion(host);
-    idlePaused.delete(host);
+    motionCatalogs.get(choice())?.idlePaused.delete(host);
     const playing=playMotion(host,kind,opts);
     host.dataset.lariaTrollMood=kind;
     if(opts.say!==false){
@@ -436,12 +521,14 @@
     if(img.closest('#home-screen .bc15-locked-home')){
       if(img.getAttribute('src')!==troll.src)img.setAttribute('src',troll.src);
       img.dataset.troll=troll.id;
+      markNeutral(parent,img,troll.id);
       return;
     }
     cleanLegacy(parent,img);
     // Reassigning an already identical src triggers the MutationObserver again
     // in WebKit. Avoid unbounded redraws and unnecessary WebP decodes on iPad.
     if(img.getAttribute('src')!==troll.src)img.setAttribute('src',troll.src);
+    markNeutral(parent,img,troll.id);
     img.removeAttribute('srcset');
     img.alt='';
     img.setAttribute('aria-hidden','true');
@@ -595,8 +682,8 @@
   root.LARIA_TROLL_ACTOR=Object.freeze({
     ids:Object.freeze(Object.keys(TROLLS)),
     choice,selected,
-    source:id=>(TROLLS[id]||TROLLS[DEFAULT]).src,
-    label:id=>(TROLLS[id]||TROLLS[DEFAULT]).label,
+    source:neutralSource,
+    label:id=>TROLLS[knownTroll(id)?id:DEFAULT].label,
     persistChoice,openChooser,refresh,mood,
     motionReviewEnabled:()=>MOTION_REVIEW
   });
