@@ -139,7 +139,19 @@ async function englishGuard(page,file){
   // This tests functional readiness, not product-owner visual approval.
   assert.equal(mode,'separate','Approved clean Kinnaklova must expose separate UI');
   const boards=scene.locator('.ki-painted-hit.laria-wayfinder.laria-wooden-sign');
-  assert.equal(await boards.count(),3,'UI-free English did not receive the new sign component');
+  // The three English boards are deliberately opt-in until visual owner
+  // approval. In normal mode, testing for mounted candidate art is a false
+  // release regression. Test the absent candidate AND the original three
+  // genuine action targets here. Dedicated English group CI tests its preview.
+  const reviewActive=new URL(page.url()).searchParams.get('lariaEnglishSignGroupCandidate')==='1';
+  if(!reviewActive){
+   assert.equal(await boards.count(),0,
+     'Unapproved English sign art must stay disabled in the ordinary app');
+   const actualLabels=await scene.locator('.ki-painted-hit.laria-wayfinder > .ki-plank-name').allTextContents();
+   assert.deepEqual(actualLabels.map(x=>x.trim()),['Words','Sentences','Reading'],
+     'Ordinary Kinnaklova has lost a real activity label');
+  }else{
+  assert.equal(await boards.count(),3,'UI-free English preview did not receive the new sign component');
   const labels=await boards.locator('.ki-plank-name').allTextContents();
   assert.deepEqual(labels.map(x=>x.trim()),['Words','Sentences','Reading'],
     'English activity labels changed during sign re-skin');
@@ -160,6 +172,7 @@ async function englishGuard(page,file){
      ml>=bl+4&&mr<=br-4&&mt>=bt-7&&mb<=bb+7&&
      tl>=mr+2&&tr<=br-6&&tt>=bt-7&&tb<=bb+7;
   }),'English words were visually clipped or covered by oak medallions: '+JSON.stringify(placement));
+  }
  } else {
   assert.equal(mode,'painted-pending-clean','Unapproved English art guard was removed');
   assert.equal(await scene.locator('.laria-wooden-sign').count(),0,
