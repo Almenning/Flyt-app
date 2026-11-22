@@ -39,9 +39,11 @@ async function candidateScene(page,subject,selector,file,w,h){
  const signs=rail.locator('button.laria-wooden-sign:visible');
  assert.equal(await signs.count(),3,subject+' must retain its three real activity routes');
  const measured=await signs.evaluateAll(nodes=>nodes.map(node=>{
-  const r=node.getBoundingClientRect(),s=getComputedStyle(node);
+  const r=node.getBoundingClientRect();
+  const surface=node.querySelector(':scope > .laria-wooden-sign-surface')||node;
+  const font=getComputedStyle(surface).fontFamily;
   const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
-  return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height,canTap:hit===node||node.contains(hit),font:s.fontFamily};
+  return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height,canTap:hit===node||node.contains(hit),font};
  }));
  assert.ok(measured.every(item=>item.width>=44&&item.height>=44&&item.canTap&&item.x>=-1&&item.right<=w+1&&item.y>=0&&item.bottom<=h+1),subject+' has clipped or unreachable sign: '+JSON.stringify(measured));
  assert.ok(measured.every(item=>/Georgia|Times New Roman/.test(item.font)),subject+' did not use the locked sign type family');
