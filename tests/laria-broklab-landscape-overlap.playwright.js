@@ -29,7 +29,8 @@ async function details(page){
    return {viewport:[innerWidth,innerHeight],scrollWidth:document.documentElement.scrollWidth,
      cake:rect('.fr5-build-target .fr2-pie-builder'),
      controls:a,tray:b,stage:rect('.fr6-workshop .fr6-stage'),
-     fraction:rect('.fr6-result .fr2-fraction'),overlapArea:intersection,
+     fraction:rect('.fr6-result .fr2-fraction'),
+     actor:rect('.fr5-fox-mentor .laria-premium-troll-art'),overlapArea:intersection,
      buttons:[...document.querySelectorAll('.fr6-workshop .fr6-controls button')].map(x=>{
        const r=x.getBoundingClientRect();return {width:r.width,height:r.height}}),
      actualTransform:getComputedStyle(document.querySelector('.fr6-workshop .fr6-controls')).transform};
@@ -68,6 +69,10 @@ const all=[];
        engine+' '+name+' controls still overlap loose cake pieces: '+JSON.stringify(after));
      assert.ok(after.controls.top>=0&&after.controls.bottom<=after.viewport[1],
        engine+' '+name+' adjustment controls outside first screen: '+JSON.stringify(after));
+     if(viewport.height<=900){
+       assert.ok(after.actor&&after.actor.height>150&&after.actor.height<=220,
+         engine+' '+name+' existing companion must be readable but not dominate: '+JSON.stringify(after.actor));
+     }
      assert.ok(after.cake.top>=0&&after.cake.bottom<=after.viewport[1],
        engine+' '+name+' cake not visible in first screen: '+JSON.stringify(after));
      assert.ok(after.buttons.length>=4&&after.buttons.every(b=>b.width>=44&&b.height>=44),
