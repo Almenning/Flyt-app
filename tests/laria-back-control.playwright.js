@@ -20,8 +20,17 @@ async function assertControl(page,expected){
   api:typeof window.LARIA_BACK_CONTROL,
   route:document.querySelector('.screen.active')?.id||null,
   controls:[...document.querySelectorAll('.laria-back-control')].map(control=>({
-   parent:control.parentElement?.id||null,display:getComputedStyle(control).display,
-   visibility:getComputedStyle(control).visibility,rect:control.getBoundingClientRect().toJSON()
+   parent:control.parentElement?.id||null,inline:control.getAttribute('style'),
+   parentDisplay:getComputedStyle(control.parentElement).display,
+   display:getComputedStyle(control).display,visibility:getComputedStyle(control).visibility,
+   rect:control.getBoundingClientRect().toJSON(),
+   matchingDisplayRules:[...document.styleSheets].flatMap(sheet=>{
+     try{return [...sheet.cssRules].filter(rule=>rule.selectorText&&rule.style?.getPropertyValue('display')&&
+       [...document.querySelectorAll('.laria-back-control')].some(el=>{try{return el.matches(rule.selectorText)}catch{return false}}))
+       .map(rule=>({selector:rule.selectorText,display:rule.style.getPropertyValue('display'),
+         priority:rule.style.getPropertyPriority('display'),from:sheet.href||'inline'}));}
+     catch{return [];}
+   }).slice(-30)
   }))
  }));
  console.log('BACK_RUNTIME',JSON.stringify(runtime));
