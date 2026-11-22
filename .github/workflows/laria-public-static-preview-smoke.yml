@@ -23,19 +23,19 @@ jobs:
         run: npm ci
       - name: Verify third-party static preview serves exact commit sources
         env:
-          PREVIEW_URL: https://raw.githack.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/index.html?app=laria
+          PREVIEW_URL: https://rawcdn.githack.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/index.html?app=laria
         run: |
           set -euo pipefail
           mkdir -p /tmp/laria-exact-preview
           curl --max-time 35 --retry 2 --retry-delay 2 -fLsS -D /tmp/laria-exact-preview/headers.txt "$PREVIEW_URL" -o /tmp/laria-exact-preview/index.html
           grep -q '<title>Læria</title>' /tmp/laria-exact-preview/index.html
           grep -qi 'text/html' /tmp/laria-exact-preview/headers.txt
-          curl --max-time 35 --retry 2 --retry-delay 2 -fLsS "https://raw.githack.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/laria-task-scene-v15.css" -o /tmp/laria-exact-preview/task-scene.css
+          curl --max-time 35 --retry 2 --retry-delay 2 -fLsS "https://rawcdn.githack.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/laria-task-scene-v15.css" -o /tmp/laria-exact-preview/task-scene.css
           grep -q 'task-scene' /tmp/laria-exact-preview/task-scene.css
           echo "PASS exact-commit HTML and CSS are served by preview proxy"
       - name: Check interactive Læria in Chromium and WebKit
         env:
-          PREVIEW_URL: https://raw.githack.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/index.html?app=laria
+          PREVIEW_URL: https://rawcdn.githack.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/index.html?app=laria
         run: |
           node - <<'NODE'
           const {chromium,webkit}=require('playwright');
