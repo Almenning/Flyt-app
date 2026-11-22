@@ -21,8 +21,9 @@ async function home(page,url,file,locked=true){
  const root=page.locator('#home-screen.active');
  await root.waitFor({state:'visible',timeout:30000});
  if(locked)assert.ok(await root.locator('[data-camp^="subject-"]').count()>=4,'Home must retain four real subject routes');
- const size=await root.evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth}));
- assert.ok(size.width>=44&&size.height>=44&&size.scroll<=innerWidth+2,'Home overflows the iPad viewport');
+ const size=await root.evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,
+  scroll:document.documentElement.scrollWidth,viewport:window.innerWidth}));
+ assert.ok(size.width>=44&&size.height>=44&&size.scroll<=size.viewport+2,'Home overflows the iPad viewport');
  await page.screenshot({path:path.join(OUT,file),animations:'disabled'});
 }
 async function baseline(page,url,file){
