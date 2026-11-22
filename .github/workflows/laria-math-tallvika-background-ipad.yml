@@ -1,0 +1,44 @@
+name: Læria math Tallvika iPad visual review
+on:
+  pull_request:
+    paths:
+      - 'laer-litt-mer/laria-task-scene-v15.css'
+      - 'tests/laria-math-tallvika-background-ipad.playwright.js'
+      - '.github/workflows/laria-math-tallvika-background-ipad.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ipad-math:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check actual locked artwork and screenshot script
+        run: |
+          node --check tests/laria-math-tallvika-background-ipad.playwright.js
+          test -s laer-litt-mer/assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp
+          test -s laer-litt-mer/assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp
+      - name: Start Læria and capture math questions on iPad
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_MATH_TALLVIKA_QA: /tmp/laria-math-tallvika-ipad
+        run: |
+          python3 -m http.server 8765 --directory . >/tmp/laria-math-http.log 2>&1 &
+          node tests/laria-math-tallvika-background-ipad.playwright.js
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-math-tallvika-ipad
+          path: /tmp/laria-math-tallvika-ipad
+          retention-days: 14
+          if-no-files-found: warn
