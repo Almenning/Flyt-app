@@ -267,10 +267,18 @@ async function testEngine(engine,name,device,viewport){
    const samePosts=await activities.evaluate(el=>getComputedStyle(el,'::before').backgroundImage);
    assert.match(samePosts,/laria-grovanova-signposts\.svg/,
      world.id+' activity menu uses a different post system');
-   const sameArrow=await activities.locator('.laria-wayfinder').first().evaluate(el=>
-     getComputedStyle(el.matches('.eg-scene-hit')?el.querySelector('span'):el).backgroundImage);
-   assert.match(sameArrow,/laria-light-arrow-sign\.svg/,
-     world.id+' activity menu uses a different arrow board');
+   const actualBoard=await activities.locator('.laria-wayfinder').first().evaluate(el=>{
+     const surface=el.matches('.eg-scene-hit')?el.querySelector(':scope > span'):el;
+     return {art:getComputedStyle(surface).backgroundImage,
+       locked:el.classList.contains('laria-wooden-sign')};
+   });
+   if(actualBoard.locked){
+     assert.match(actualBoard.art,/gradient/,
+       world.id+' approved carved wood disappeared from active activities');
+   }else{
+     assert.match(actualBoard.art,/laria-light-arrow-sign\\.svg/,
+       world.id+' legacy fallback arrow board changed unexpectedly');
+   }
    assert.equal(await plaque.getAttribute('aria-expanded'),'false');
    assert.equal(await activities.locator('.laria-wayfinder').count(),3,
      world.id+' must preserve all three live activity controls');
