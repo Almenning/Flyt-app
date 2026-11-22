@@ -7,6 +7,29 @@
 
 **Ny eierbeslutning 22.11.2026:** Lesekroken beholdes i nåværende apputgave. Visuelle alternativer A–D fra PR #261 er forkastet og skal ikke implementeres. Lesekroken er **ikke** automatisk fasit for alle andre fag. Oppstartsskjermen er også vurdert som tilfredsstillende og beholdes uendret. **Ikke redesign velfungerende skjermer uten et dokumentert problem.** Trollanimasjonene er fortsatt på pause.
 
+## Ny prioritering 22.11.2026: Matte først
+
+**Eierbeslutning:** Norsk er tilfredsstillende foreløpig, og skal ikke redesignes. Det er **Matte** som ikke oppleves som én helhet. Oppstart og Lesekroken beholdes også som tidligere bestemt. Trollanimasjoner er fortsatt på pause.
+
+### Faktiske funn fra samme kandidatbaserte iPad-skjermserie
+
+- **Tallvika** (låst hovedscene): detaljert fjord/natur, venstrestilt felles treskiltmeny og karakter som separat lag. Behold låst illustrasjon, skiltlogikk og eventyrenes innganger. Kontroll: [Tallvika – WebKit + Chromium](https://github.com/Almenning/Flyt-app/actions/runs/44949938274).
+- **Gangemagi**: varm, mer flat/tegnet markedsplass, egne overskrifter, tilbakeknapp, aktivitetskort og tre bunnknapper. Den pedagogiske kjerneinteraksjonen (fylle kurver med jordbær) bør **beholdes**, mens ramme, overskriftshierarki og navigasjon bør vurderes mot Tallvika. Kontroll: [Gangemagi QA](https://github.com/Almenning/Flyt-app/actions/runs/44949938317).
+- **Brøklab**: varm tre-/bakstedstil og korrekt brøklæring, men en helt tredje topp- og knappefamilie. På liggende iPad i WebKit-skjermbilde ligger tallkontrollene visuelt **over området med løse kakestykker**. Kode peker på en eksplisitt `translateY(-48px)` og `margin-bottom:-48px` for `fr6-controls` i `fraction-premium-v4.css` på stående bredde/liggende <=900 px høyde. Dette er et konkret rettingskandidat; et mindre/avgrenset panel må ikke skjule kakestykkene eller legge kontrollene nedenfor første skjerm uten test. Kontroll: [Brøklab QA](https://github.com/Almenning/Flyt-app/actions/runs/44949938193).
+- **Gangetabellen**: iPad-kontroll av den reelle 10×10-skjermen igangsatt i [PR #262](https://github.com/Almenning/Flyt-app/pull/262). **Ikke konkluder om denne skjermen før bildet er vurdert.**
+
+### Ny arbeidsrekkefølge
+
+1. Lag sammenlignbare iPad-bilder av Tallvika og alle tre aktivitetene på samme eksakte PR-head, stående og liggende, med faktisk navigasjon og retur til Tallvika.
+2. Definer **felles, avgrenset Matte-UI-kontrakt** for tilbakeknapp, Læria-identitet, overskrifter, panelmateriale, knappespesifikasjon, kontrast og progresjon. Behold ulike læringsspill og godkjent illustrasjonskunst; ikke mal om Gangemagi/Brøklab bare for å gjøre bildene like.
+3. Rett Brøklab-landskapets påviste kontrolloverlapp uten å skjule løse biter eller miste første-interaksjon, med WebKit/Chromium 1180×820 og 1366×1024. Dokumenter før/etter.
+4. Gjør **én** review-only visuell pilot på utvalgt aktivitet, med skjermbilder og faktisk funksjonstest; eier godkjenner før bred utrulling til øvrige Matte-flater.
+5. Norsk, Lesekroken, oppstart og trollanimasjonsarbeid er utenfor scope. Ingen merge eller publisering uten godkjenningsporter.
+
+### Hvorfor ikke en helt ny redesign
+
+Tallvika har allerede en godkjent visuell identitet. Læreverdien i jordbærkurvene og brøkkaken må ikke ofres for kosmetisk enhet. Vi retter først den **felles brukeropplevelsen** og de dokumenterte bruddene, ikke hele den kunstneriske innpakningen samtidig.
+
 ## 1. Ny arbeidsprioritering
 
 Trollanimasjonene er **satt på pause**. Behold identiteter og kildekunst, men ikke produser eller integrer nye TrollActor-klipp. PR #258 forblir draft, uten merge/publisering. De midlertidige størrelses-/plasseringsvariantene av Storesøster (A/B/C) er ikke godkjent produksjonsdesign.
