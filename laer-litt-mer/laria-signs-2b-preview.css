@@ -44,6 +44,49 @@
     letter-spacing: -0.025em !important;
   }
 
+  /* Each subject has legacy nested text rules with different specificity.
+   * Match the Home v16 carved lettering on the actual inner label as well as
+   * its parent button, in both Chromium and WebKit.
+   */
+  :root[data-laria-signs-2b="preview"]
+  #tallvika-world .tv-scene.laria-reference-layout-v1
+  > nav.laria-scene-navigation > .tv-sign.laria-wayfinder .tv-sign-label,
+  :root[data-laria-signs-2b="preview"]
+  #kinnaklova-world[data-ki-premium-art="approved"][data-ki-art="ready"]
+  .ki-stage.laria-reference-layout-v1
+  > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder .ki-plank-name {
+    font-family: var(--laria-2b-type) !important;
+    letter-spacing: -0.025em !important;
+  }
+
+  /* The Home v16 labels have a small dark-framed pictogram in the oak.
+   * The same single icon treatment is applied to each live activity.
+   * No extra overlay is created and the existing 30px button icon stays.
+   */
+  :root[data-laria-signs-2b="preview"]
+  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+      #tallvika-world .tv-scene.laria-reference-layout-v1,
+      #kinnaklova-world[data-ki-premium-art="approved"][data-ki-art="ready"] .ki-stage.laria-reference-layout-v1,
+      #laria-geography-world .gv-scene.laria-reference-layout-v1)
+  > nav.laria-scene-navigation .laria-reference-activity-icon {
+    box-sizing: border-box !important;
+    background: linear-gradient(180deg,#f6d08d,#c88743) !important;
+    border: 2px solid #72431f !important;
+    border-radius: 6px !important;
+    box-shadow: inset 0 1px 0 #ffefbd, 0 2px 2px #2e1a0a55 !important;
+    color: var(--laria-2b-ink) !important;
+  }
+  :root[data-laria-signs-2b="preview"]
+  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+      #tallvika-world .tv-scene.laria-reference-layout-v1,
+      #kinnaklova-world[data-ki-premium-art="approved"][data-ki-art="ready"] .ki-stage.laria-reference-layout-v1,
+      #laria-geography-world .gv-scene.laria-reference-layout-v1)
+  > nav.laria-scene-navigation .laria-reference-activity-icon svg {
+    width: 70% !important;
+    height: 70% !important;
+    stroke: #412914 !important;
+  }
+
   :root[data-laria-signs-2b="preview"]
   #tallvika-world .tv-scene.laria-reference-layout-v1 {
     --ref-natural-post-tail: clamp(2px, 0.7vh, 8px);
