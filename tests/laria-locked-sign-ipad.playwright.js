@@ -81,6 +81,33 @@ async function englishGuard(page,file){
  assert.equal(await scene.locator('.ki-painted-hit.laria-wayfinder').count(),3,
   'English lost its three original Words/Sentences/Reading action targets');
  if(art==='approved'){
+  // A mounted scene shell is NOT visual readiness. SHA validation and
+  // image.decode() are asynchronous. The former test took its English
+  // screenshot while the image was still CSS-hidden, producing a blank
+  // mint rectangle and cream lower screen even though CI was green.
+  // Do not silently approve a zero-art screenshot.
+  try {
+   await page.locator('#kinnaklova-world[data-ki-art="ready"] .ki-master:visible')
+    .waitFor({state:'visible',timeout:45000});
+  } catch(error) {
+   const diagnostic=await page.locator('#kinnaklova-world').evaluate(el=>({
+     art:el.dataset.kiArt,reason:el.dataset.kiArtReason,
+     premium:el.dataset.kiPremiumArt,
+     imageComplete:el.querySelector('.ki-master')?.complete,
+     naturalWidth:el.querySelector('.ki-master')?.naturalWidth
+   }));
+   throw Error('Kinnaklova art was not truly visible/decode-verified on iPad: '+JSON.stringify(diagnostic)+'; '+error.message);
+  }
+  const visibility=await scene.locator('.ki-master').evaluate(image=>{
+   const r=image.getBoundingClientRect(),s=getComputedStyle(image);
+   return {width:image.naturalWidth,height:image.naturalHeight,
+     rectW:r.width,rectH:r.height,visibility:s.visibility,opacity:s.opacity,
+     complete:image.complete};
+  });
+  assert.ok(visibility.complete&&visibility.width===1672&&visibility.height===941&&
+    visibility.rectW>200&&visibility.rectH>100&&visibility.visibility==='visible'&&
+    Number(visibility.opacity)>0,
+   'Kinnaklova background remains absent or blank: '+JSON.stringify(visibility));
   // The checked-in SHA-verified UI-free Kinnaklova is a separate art layer.
   // This tests functional readiness, not product-owner visual approval.
   assert.equal(mode,'separate','Approved clean Kinnaklova must expose separate UI');
