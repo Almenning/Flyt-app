@@ -67,6 +67,11 @@ async function captureScene(page,scene,filename,viewport,preview){
  }
  assert.ok(metrics.postBottom>metrics.buttons[2].bottom-30,
    scene.subject+' posts stop too far above last board');
+ if(preview&&scene.subject==='norwegian'&&viewport.width>viewport.height){
+  const fraction=metrics.postBottom/viewport.height;
+  assert.ok(fraction>=0.58&&fraction<=0.73,
+   'Eggenipa landscape post feet miss the grassy-bank clearance band: '+JSON.stringify({fraction,metrics,viewport}));
+ }
  if(preview){
   const icons=await rail.locator('.laria-wayfinder .laria-reference-activity-icon:visible')
    .evaluateAll(nodes=>nodes.map(el=>({border:getComputedStyle(el).borderTopWidth,
