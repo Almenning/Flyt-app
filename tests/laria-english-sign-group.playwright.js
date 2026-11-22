@@ -75,6 +75,27 @@ async function inspect(nav,viewport){
   'One continuous two-post image must belong to the rail');
  assert.ok(data.postHeight>data.rail[3]-data.rail[1]+18,
   'The two shared posts must extend beneath the third plank');
+ // Guard against false-green CSS changes: the first terrain-tail patch had
+ // lower specificity than the legacy rail and produced PIXEL-IDENTICAL images.
+ // These are conservative roof-clearance thresholds measured from the locked
+ // review scene at each of the five requested iPad viewports; not art approval.
+ const tailPx=data.rail[1]+data.postTop+data.postHeight-data.rail[3];
+ const footY=data.rail[3]+tailPx;
+ const portrait=viewport.height>viewport.width;
+ const compactLandscape=!portrait&&viewport.height<=850;
+ const minTail=portrait?60:compactLandscape?8:38;
+ const maxTail=portrait?90:compactLandscape?14:58;
+ assert.ok(tailPx>=minTail&&tailPx<=maxTail,
+  'The terrain-specific post tail was overridden by older CSS: '+
+  JSON.stringify({viewport,tailPx,minTail,maxTail}));
+ const roofTop={
+  '820x1180':575,'1024x1366':655,'1180x820':419,
+  '1024x768':385,'1366x1024':506
+ }[viewport.width+'x'+viewport.height];
+ assert.ok(Number.isFinite(roofTop)&&footY<=roofTop,
+  'Shared post feet intersect the locked church roof: '+
+  JSON.stringify({viewport,footY,roofTop}));
+ data.tailPx=tailPx;data.postFootY=footY;
  assert.equal(data.items.reduce((n,x)=>n+x.perButtonPosts,0),0,
   'Do not attach duplicate posts to individual signs');
  const widths=data.items.map(x=>x.width);
@@ -144,7 +165,9 @@ async function run(engine,name,device,viewport){
    }
    assert.deepEqual(errors,[],name+' '+device+' had runtime exceptions');
    await context.close();
-   return {engine:name,device,stageHeight:data.stageHeight,signs:data.items.map(x=>({
+   return {engine:name,device,stageHeight:data.stageHeight,
+    tailPx:data.tailPx,postFootY:data.postFootY,
+    signs:data.items.map(x=>({
     action:x.action,rect:x.rect,fontPx:x.fontPx}))};
   }catch(error){
    await page.screenshot({path:path.join(OUT,`${name}-${device}-FAIL.png`),fullPage:true}).catch(()=>{});
