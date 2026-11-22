@@ -88,11 +88,12 @@
    // The Words artwork is an owner-review candidate. It is limited to the
    // separate, SHA-verified Kinnaklova master and never enables the other
    // English signs or changes the default application.
+   const wordsArtVersion=new URLSearchParams(window.location.search).get('lariaWordsSignCandidate');
    const wordsCandidate=subject==='english'&&
-     new URLSearchParams(window.location.search).get('lariaWordsSignCandidate')==='1';
+     (wordsArtVersion==='1'||wordsArtVersion==='2');
    if(scene.dataset.lariaArtworkUi==='separate'){
      if(wordsCandidate)window.LariaWoodenSign?.mount?.(navigation,subject,
-       {only:['words'],sourceDerived:true});
+       {only:['words'],sourceDerived:true,sourceVariant:wordsArtVersion==='2'?3:2});
      else if(subject!=='english')window.LariaWoodenSign?.mount?.(navigation,subject);
    }
    // Preserve all activity action attributes, data-troll, individual landscape
