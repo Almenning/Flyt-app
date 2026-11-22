@@ -61,7 +61,7 @@ async function verify(engine,label,viewport){
      await page.locator('#session-screen.active').waitFor({timeout:16000});
      await page.locator('#close-session').click();
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world [data-eg="home"]').click();
+     await page.locator('#subject-screen.active > .laria-back-control:visible').click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
@@ -77,7 +77,7 @@ async function verify(engine,label,viewport){
      assert.equal(old.checkpoint?.passed,true,label+' saved Math checkpoint missing');
      assert.ok(old.progress.total>0&&old.next,label+' original Math progress unavailable');
      assert.equal(await tv.locator('[data-tv="next"]').isEnabled(),true);
-     await tv.locator('[data-tv="back"]').click();
+     await page.locator('#subject-screen.active > .laria-back-control:visible').click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
@@ -133,13 +133,13 @@ async function verify(engine,label,viewport){
      // The painted scene replaces the temporary utility bar once the clean
      // master reaches ready. Prefer the real visible hit area, avoiding a
      // loading-to-ready race where the utility button vanishes mid-click.
-     const paintedHome=ki.locator('.ki-painted-home');
+     const sharedHome=page.locator('#subject-screen.active > .laria-back-control:visible');
      await page.waitForFunction(()=>{
        const world=document.querySelector('#kinnaklova-world');
        return world?.dataset.kiArt==='ready'||world?.dataset.kiArt==='missing'||world?.dataset.kiArt==='unapproved';
      },null,{timeout:20000});
-     if(await paintedHome.isVisible())await paintedHome.click();
-     else await ki.locator('.ki-utility [data-ki="home"]').click();
+     assert.equal(await sharedHome.count(),1,label+' Kinnaklova must retain one shared return');
+     await sharedHome.click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});
      continue;
    }
@@ -206,10 +206,10 @@ async function verify(engine,label,viewport){
    if(subject==='norwegian'){
      // Preserve saved checkpoint data through Bokskogen -> Eggenipa -> Home.
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world [data-eg="home"]').click();
+     await page.locator('#subject-screen.active > .laria-back-control:visible').click();
    }else if(subject==='geography'){
      await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
-     await page.locator('#laria-geography-world [data-gv="home"]').click();
+     await page.locator('#geography-screen.active > .laria-back-control:visible').click();
    }
    await page.locator('#home-screen.active').waitFor({timeout:16000});
   }
