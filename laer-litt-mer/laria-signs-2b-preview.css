@@ -58,11 +58,11 @@
   > nav.laria-scene-navigation > button.tv-next-sign.laria-reference-next {
     position: absolute !important;
     inset: auto !important;
-    left: 8% !important;
-    top: calc(100% + clamp(18px, 2.2vh, 30px)) !important;
+    left: 11% !important;
+    top: calc(100% + clamp(75px, 8vh, 110px)) !important;
     bottom: auto !important;
     right: auto !important;
-    width: 84% !important;
+    width: 78% !important;
     height: clamp(48px, 5.2vh, 59px) !important;
     min-height: 48px !important;
     max-height: 59px !important;
@@ -70,6 +70,26 @@
     font-family: var(--laria-2b-type) !important;
     filter: drop-shadow(0 4px 3px #26180b77) !important;
     z-index: 2 !important;
+  }
+  /* This is ONE independent waymarker, not the fourth board on the
+   * common two-post support. The original legacy component drew two
+   * extra parallel posts with ::after; replace them with one short stake.
+   */
+  :root[data-laria-signs-2b="preview"]
+  #tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-next-sign.laria-reference-next::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    top: calc(100% - 6px) !important;
+    left: calc(50% - 7px) !important;
+    width: 14px !important;
+    height: clamp(22px, 3vh, 37px) !important;
+    background: linear-gradient(90deg,#734626 0%,#c99b5b 38%,#70421f 100%) !important;
+    clip-path: polygon(12% 0,88% 0,74% 100%,25% 100%) !important;
+    box-shadow: 2px 3px 3px #24180a55 !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
   }
   :root[data-laria-signs-2b="preview"]
   #tallvika-world .tv-scene.laria-reference-layout-v1
