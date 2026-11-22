@@ -292,7 +292,7 @@
  .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
  > nav.laria-scene-navigation.laria-english-group-rail {
  --ref-menu-width:clamp(286px,34vw,390px);
- --laria-group-tail:clamp(24px,4.5vh,60px);
+ --laria-group-tail:clamp(12px,2.2vh,26px);
  width:var(--ref-menu-width)!important;
  top:var(--laria-group-top,16%)!important;
  left:3%!important;right:auto!important;
@@ -308,6 +308,10 @@
  background:url("./assets/ui/laria-grovanova-signposts.svg") center/100% 100% no-repeat!important;
  z-index:-1!important;pointer-events:none!important;
  filter:drop-shadow(0 5px 4px #1d150b63)!important;
+ /* Softly bury the feet into the existing rocky/green slope. They must
+  * NOT end visibly in midair or sit on the painted church roof. */
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 83%,transparent 100%)!important;
+ mask-image:linear-gradient(to bottom,#000 0%,#000 83%,transparent 100%)!important;
 }
 #kinnaklova-world[data-ki-premium-art="approved"]
  .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
@@ -367,9 +371,9 @@
 }
 @media(min-width:768px) and (orientation:portrait){
  #kinnaklova-world[data-ki-premium-art="approved"]
- .ki-stage.laria-reference-layout-v1 { --laria-group-top:20%; }
+ .ki-stage.laria-reference-layout-v1 { --laria-group-top:17.5%; }
 }
 @media(min-width:768px) and (orientation:landscape){
  #kinnaklova-world[data-ki-premium-art="approved"]
- .ki-stage.laria-reference-layout-v1 { --laria-group-top:15%; }
+ .ki-stage.laria-reference-layout-v1 { --laria-group-top:max(74px,9.5%); }
 }
