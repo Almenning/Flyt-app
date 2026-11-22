@@ -48,6 +48,18 @@ async function candidateScene(page,subject,selector,file,w,h){
  assert.ok(measured.every(item=>item.width>=44&&item.height>=44&&item.canTap&&item.x>=-1&&item.right<=w+1&&item.y>=0&&item.bottom<=h+1),subject+' has clipped or unreachable sign: '+JSON.stringify(measured));
  assert.ok(measured.every(item=>/Georgia|Times New Roman/.test(item.font)),subject+' did not use the locked sign type family: '+JSON.stringify(measured));
  await page.screenshot({path:path.join(OUT,file),animations:'disabled'});
+ // Exercise the REAL subject Back button before opening the next subject.
+ // Reusing openHomeSubject without a return left the previous scene active,
+ // which falsely looked like a broken Home renderer on the second subject.
+ const back={
+  norwegian:'#eggenipa-world [data-eg="home"]:visible',
+  math:'#tallvika-world [data-tv="back"]:visible',
+  geography:'#laria-geography-world .gv-home:visible'
+ }[subject];
+ assert.ok(back,'Missing subject return route: '+subject);
+ await page.locator(back).first().click({timeout:20000});
+ await page.locator('#home-screen.active .bc12.bc15-locked-home')
+   .waitFor({state:'visible',timeout:30000});
 }
 async function englishGuard(page,file){
  await openHomeSubject(page,'english');
