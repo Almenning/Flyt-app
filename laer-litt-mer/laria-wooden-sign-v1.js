@@ -18,6 +18,11 @@
  function mount(rail,subject,options={}){
   if(!rail||rail.dataset.lariaWoodenSign==='v1')return;
   rail.dataset.lariaWoodenSign='v1';rail.classList.add('laria-wooden-sign-rail');
+  const englishGroup=options.illustratedGroup===true&&subject==='english';
+  if(englishGroup){
+   rail.classList.add('laria-english-group-rail');
+   rail.dataset.lariaEnglishGroup='review-v1';
+  }
   // The three activities share one rail. Tallvika's Next adventure is secondary.
   rail.querySelectorAll('button.laria-wayfinder').forEach(button=>{
    const action=actionFor(button),surface=surfaceFor(button),label=labelFor(button);
@@ -82,6 +87,64 @@
      medalNode.style.setProperty('background','url("./assets/ui/words-sign-candidate/'+(reviewV3?'words-abc-medallion-v3-REVIEW.png':'words-medallion-v2.png')+'") center/contain no-repeat','important');
      medalNode.style.setProperty('border','0','important');
      medalNode.style.setProperty('box-shadow','none','important');
+    }
+   }
+   if(englishGroup&&['words','sentences','reading'].includes(action)){
+    // Three REAL English action buttons, one illustrated plank family.
+    // Two supporting posts belong to the RAIL (its ::before image), never
+    // an individual button. The locked Kinnaklova image is left alone.
+    const boardAsset='./assets/ui/words-sign-candidate/words-plank-illustrated-v3-REVIEW.webp';
+    const badges={
+     words:'words-abc-medallion-v3-REVIEW.png',
+     sentences:'sentences-medallion-english-group-v1-REVIEW.png',
+     reading:'reading-medallion-english-group-v1-REVIEW.png'
+    };
+    button.classList.add('laria-english-group-board');
+    button.dataset.lariaEnglishSign='review-v1';
+    button.style.setProperty('background','url("'+boardAsset+'") center/100% 100% no-repeat','important');
+    button.style.setProperty('width','100%','important');
+    button.style.setProperty('height','auto','important');
+    button.style.setProperty('min-height','76px','important');
+    button.style.setProperty('aspect-ratio','1100 / 292','important');
+    button.style.setProperty('padding','0','important');
+    button.style.setProperty('border','0','important');
+    button.style.setProperty('box-shadow','none','important');
+    button.style.setProperty('filter','drop-shadow(0 5px 4px #21140777)','important');
+    const name=button.querySelector(':scope > .ki-plank-name');
+    const medal=button.querySelector(':scope > .laria-wooden-sign-medallion');
+    if(name){
+     name.style.setProperty('position','absolute','important');
+     name.style.setProperty('left','41%','important');
+     name.style.setProperty('right','5%','important');
+     name.style.setProperty('top','50%','important');
+     name.style.setProperty('width','auto','important');
+     name.style.setProperty('transform','translateY(-54%)','important');
+     name.style.setProperty('font','900 clamp(22px,2.6vw,32px)/1 Georgia,"Times New Roman",serif','important');
+     name.style.setProperty('letter-spacing','-.025em','important');
+     name.style.setProperty('color','#2d180d','important');
+     name.style.setProperty('text-shadow','0 1px 0 #ffe4ad,1px 2px 1px #6c381d55','important');
+     name.style.setProperty('text-align','center','important');
+     name.style.setProperty('white-space','nowrap','important');
+    }
+    if(medal){
+     medal.style.setProperty('position','absolute','important');
+     medal.style.setProperty('display','block','important');
+     medal.style.setProperty('left','16%','important');
+     medal.style.setProperty('top','50%','important');
+     medal.style.setProperty('width','22%','important');
+     medal.style.setProperty('height','auto','important');
+     medal.style.setProperty('aspect-ratio','1','important');
+     medal.style.setProperty('min-width','0','important');
+     medal.style.setProperty('max-width','none','important');
+     medal.style.setProperty('min-height','0','important');
+     medal.style.setProperty('max-height','none','important');
+     medal.style.setProperty('transform','translateY(-50%)','important');
+     medal.style.setProperty('background',
+       'url("./assets/ui/words-sign-candidate/'+badges[action]+'") center/contain no-repeat','important');
+     medal.style.setProperty('border','0','important');
+     medal.style.setProperty('border-radius','0','important');
+     medal.style.setProperty('box-shadow','none','important');
+     medal.querySelector('svg')?.style.setProperty('display','none','important');
     }
    }
    if(options.sourceDerived&&action==='words'&&!button.querySelector('.laria-words-sign-posts')){
