@@ -72,6 +72,13 @@
      medalNode.style.setProperty('max-height','none','important');
      medalNode.style.setProperty('aspect-ratio','1','important');
      medalNode.style.setProperty('left','16.3%','important');
+     // This SVG belongs to the retired CSS icon family. It visibly painted
+     // a white speech bubble over the locked source's illustrated ABC medal.
+     const oldSvg=medalNode.querySelector('svg');
+     if(oldSvg)oldSvg.style.setProperty('display','none','important');
+     medalNode.style.setProperty('background','url("./assets/ui/words-sign-candidate/words-medallion-v2.png") center/contain no-repeat','important');
+     medalNode.style.setProperty('border','0','important');
+     medalNode.style.setProperty('box-shadow','none','important');
     }
    }
    if(options.sourceDerived&&action==='words'&&!button.querySelector('.laria-words-sign-posts')){
