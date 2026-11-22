@@ -11,6 +11,37 @@ Bruker har **uttrykkelig godkjent** det genererte bildet `laria-sign-master-v1.p
 
 Det genererte bildet er et **referanseark med eksempler**, IKKE en ny bakgrunn, en prototype på hovedskjermens layout eller et ferdig sett knapper. Ikke legg alle gruppene fra arket på én skjerm. Hvert faktisk skilt er et selvstendig interaktivt DOM-element.
 
+## Identitet til det første skiltbildet – ikke generer et nytt Hjem
+
+**Verifisert 22.11.2026:** Brukerens første låste utsnitt
+`laria-originalreferanse.png` kommer faktisk fra den opprinnelige,
+låste **Grovanova Hjem v16 liggende**. Bildesammenligning med
+`laer-litt-mer/assets/home-v16/laria-grovanova-v16-landscape-original.png`
+ga 969 RANSAC-verifiserte bildetreff, et entydig
+utsnitt/perspektiv og snittavvik 5,54/255 etter oppskalering.
+
+Det senere, godkjente `laria-sign-master-v1.png` er et
+**variantark for andre menyskilt** med lignende material- og formstil.
+Disse variantene må visuelt harmonere med de fire **allerede riktige**
+Norsk/Matte/Engelsk/Geografi-skiltene på Hjem. De **låste, innmalte
+Home v16-skiltbildene er ikke en feil som må slettes** for å oppfylle
+skiltønsket. Hjems eksisterende fire semantiske
+`.bc15-v16-sign`-knapper og visuelt låst v16-bakgrunn beholdes.
+Det skal aldri tegnes en ny planke over en allerede innmalt plankeflate.
+
+**UI-fri Grovanova er IKKE lenger en forutsetning for
+skiltimplementeringen.** Separat maskerings-PR #274 kan vurderes i en
+framtidig fullstendig UI-separasjon, men er valgfri og **ikke
+produksjonsklar**. Et automatisk maskert forsøk endret ca. 54 % av
+originalbildet og gav synlig utsmøring i landskap; det er avvist.
+
+**Pilot etter avklaringen:** Hjem brukes som urørt
+visuell fasit og navigasjonsregresjon. Det **aktive kodearbeidet**
+fortsetter med Tallvika/Matte og Kinnaklova/Engelsk, deretter Norsk og
+Geografi. Bilder fra alle tre pilotscenene skal fortsatt leveres
+for faktisk iPad-vurdering; Hjem trenger ikke før-/etter på grunn av
+uendret v16-kunst. Kinnaklovas bildeport må vurderes separat.
+
 ## Grafisk standard som er låst
 - **Materiale:** varmt gyllent/honningfarget tre med synlig årringstruktur, variasjon i årringer/kanter, subtil glans, treskurd/utskårne detaljer. Ikke flat generisk oransje knapp.
 - **Form:** massiv horisontal treplanke, svakt asymmetrisk håndskåret kontur, skrå/avrundede ender med liten spiss, overflateskygge og dybde. **Ikke moderne kort**, ikke spiss/tunn pilform fra tidligere skiltversjoner.
@@ -39,7 +70,7 @@ Skriv *Words*, *Sentences* og *Reading* som faktiske DOM-tekster på tre separat
 
 Alle tre skilt skal være på **én felles venstrejustert to-stolpe-gruppe**, i **eksakt** den låste gyldne tre-, medaljong-, nagle- og serifstilen, uten gammel pilform og uten nye generiske UI-kort. Kinnaklovas låste fjell-/kirkeillustrasjon skal beholdes; stolper må stå i naturlig forgrunnsterreng og **aldri på kirketaket**. TrollActor skal være en separat levende figur uten skilt-/trollgrafikk malt inn i bakgrunnen.
 
-Piloten omfatter dermed **Hjem + Tallvika + Kinnaklova/Engelsk**. Work må vise konkrete før-/etterbilder av disse tre i iPad stående og liggende og innhente visuell eiergodkjenning av *alle tre* før bred utrulling. Dersom andre engelske aktiviteter også bruker skilt, skal de ved senere full utrulling bruke samme komponent med sine faktiske etiketter.
+Piloten omfatter dermed **Hjem som uendret bildefasit og regresjonskontroll + aktiv skiltimplementering i Tallvika og Kinnaklova/Engelsk**. Work skal vise reelle iPad-bilder av alle tre og før-/etter av de to fagene. Nye skilt krever visuell eiergodkjenning før bred utrulling. Dersom andre engelske aktiviteter også bruker skilt, skal de ved senere full utrulling bruke samme komponent med sine faktiske etiketter.
 
 Dette er **eksempler** på skiltutforming og navn. Alle eksisterende funksjoner i appen som navigeres via skilt skal få samme designfamilie, med korrekt faktisk tekst/ikon og eksisterende rute. Ikke fabrikkér nye funksjoner for å få arket til å stemme. Annen funksjonalitet (klassevelger, tilbakeknapp, premium, dialog) skal kun endres dersom den faktisk bruker skilt.
 
@@ -57,9 +88,9 @@ Dette er **eksempler** på skiltutforming og navn. Alle eksisterende funksjoner 
 
 **Port 1 – Bygg én skiltmaster:** Teknisk gjenbrukbar komponent og stilpakke fra referansearkets faktiske plankebredde, relieff, nagler, medaljong, font og to stolper. Lag variasjoner av ikon og tekst via data, ikke separate hardkodede skiltbilder. Lever reell forhåndsvisning med planke, tre ikoner og fire skilt. Krev visuell godkjenning før bred utrulling.
 
-**Port 2 – Pilot på Hjem + Tallvika + Kinnaklova/Engelsk:** Behold låst v16-lokalitet og fagillustrasjon. Sammenlign på reell iPad stående/liggende. Test alle tre engelske skiltene (Words, Sentences, Reading) med medaljongikoner, og lange etiketter i matte/engelsk, slik at skilt ikke dekker kirken, trollet eller fjellene. Engelsk er obligatorisk i piloten. Ikke skriv over dagens scener før eksplisitt godkjenning.
+**Port 2 – Hjem som låst fasit, pilotimplementering på Tallvika + Kinnaklova/Engelsk:** Behold Hjem v16 byte-for-byte og bevar de fire eksisterende trykkflatene; fagillustrasjonene skal også beholdes. Sammenlign på reell iPad stående/liggende. Test alle tre engelske skiltene (Words, Sentences, Reading) med medaljongikoner, og lange etiketter i matte/engelsk, slik at skilt ikke dekker kirken, trollet eller fjellene. Engelsk er obligatorisk i piloten. Ikke skriv over dagens scener før eksplisitt godkjenning.
 
-**Port 3 – Utrulling til samtlige skiltflommer:** Hjem, Reisen/Utforsk/Oppdrag, norsk, matte, engelsk, geografi, underfunksjoner og eksisterende skiltbasert retur/fortsett-flyt. Ett sentralt skilt-komponent-API og sceneankre. Ikke flere motstridende stilarter.
+**Port 3 – Utrulling til resterende skiltmenyer:** Behold Hjems allerede godkjente innmalte fagsskilt med semantiske DOM-trykkflater; bruk ny skiltkomponent i andre reelle skiltmenyer: Reisen/Utforsk/Oppdrag der aktuelt, norsk, matte, engelsk, geografi, underfunksjoner og eksisterende skiltbasert retur/fortsett-flyt. Ett sentralt skilt-komponent-API og sceneankre. Ikke flere motstridende stilarter.
 
 **Port 4 – QA:** Skjermbilder av alle berørte scener på **alle fem iPad-størrelser × Chromium/WebKit**, med før/etter-matrise. Bekreft skiltlikhet, naturlig forankring, ingen klipping, 44px treff, fokus, routing, ESC, progresjon, redusert bevegelse og ingen hvit overscroll. Dokumenter alle avvik før merge.
 
