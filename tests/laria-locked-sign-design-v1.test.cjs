@@ -72,3 +72,9 @@ test('Words candidate is raster artwork with DOM text and an explicit review gat
  assert.match(css,/\.ki-plank-name/);
  assert.match(doc,/data-ki="words"/);
 });
+
+test('Words candidate component CSS loads after legacy Kinnaklova facade CSS',()=>{
+ const html=fs.readFileSync(root+'laer-litt-mer/index.html','utf8');
+ assert.ok(html.indexOf('laria-kinnaklova-unified-v1.css')<html.indexOf('laria-wooden-sign-v1.css'),
+  'A gated Words candidate must not be restyled as the legacy arrow sign');
+});
