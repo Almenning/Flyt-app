@@ -200,7 +200,7 @@
    separate companion/settings controls in some viewport widths because it
    reserved space for only ONE right-hand button. Reserve room for both.
    The painting, sign art, TrollActor and learning state remain unchanged. */
-@media (min-width:701px) and (max-width:1400px) and (min-height:650px){
+@media (min-width:701px) and (min-height:650px){
   #tallvika-world .tv-scene-grade{
     box-sizing:border-box!important;
     position:absolute!important;
