@@ -27,7 +27,6 @@ const SCENES=[
  {subject:'math',root:'#tallvika-world .tv-scene.laria-reference-layout-v1',
   back:'#tallvika-world [data-tv="back"]:visible'}
 ];
-const rectToJson=r=>({x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom});
 async function captureScene(page,scene,filename,viewport,preview){
  await openHomeSubject(page,scene.subject);
  const root=page.locator(scene.root);
@@ -37,6 +36,7 @@ async function captureScene(page,scene,filename,viewport,preview){
  const rail=root.locator('nav.laria-scene-navigation:visible');
  await rail.waitFor({state:'visible',timeout:12000});
  const metrics=await rail.evaluate(node=>{
+  const rectToJson=r=>({x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom});
   const rect=node.getBoundingClientRect(),style=getComputedStyle(node,'::before');
   const buttons=[...node.querySelectorAll('.laria-wayfinder')].filter(el=>{
    const s=getComputedStyle(el);return s.visibility!=='hidden'&&s.display!=='none'
@@ -66,6 +66,7 @@ async function captureScene(page,scene,filename,viewport,preview){
  }
  if(preview&&scene.subject==='math'){
   const next=await root.locator('button.tv-next-sign.laria-reference-next').evaluate(node=>{
+   const rectToJson=r=>({x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom});
    const r=node.getBoundingClientRect(),s=getComputedStyle(node);
    return {rect:rectToJson(r),position:s.position,
     visibility:s.visibility,display:s.display};
