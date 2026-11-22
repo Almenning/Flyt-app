@@ -9,7 +9,7 @@
   --laria-2b-oak: url("./assets/ui/laria-light-arrow-sign.svg");
   --laria-2b-posts: url("./assets/ui/laria-grovanova-signposts.svg");
   --laria-2b-ink: #3d2715;
-  --laria-2b-type: Georgia, "Iowan Old Style", serif;
+  --laria-2b-type: "DejaVu Serif", "Liberation Serif", Georgia, serif;
   --laria-2b-focus: #fff6b4;
 }
 @media (min-width:768px) and (max-width:1366px) and (min-height:650px) {
