@@ -58,7 +58,8 @@ const question={subject:'math',type:'learning-choice',skill:'number-sense',
       const i=new Image();i.onload=()=>resolve([i.naturalWidth,i.naturalHeight]);i.onerror=reject;
       i.src='./assets/tallvika/'+name;
     }),filename);
-    assert.ok(img[0]>=800&&img[1]>=600,'Locked art not available');
+    const expectedSize=orientation==='portrait'?[720,1280]:[1440,810];
+    assert.deepEqual(img,expectedSize,'Locked Tallvika art dimensions differ');
     assert.deepEqual(errors,[],engine+' '+device+' browser errors');
     await page.screenshot({path:path.join(output,engine+'-'+device+'.png'),fullPage:false,animations:'disabled'});
     results.push({engine,device,source:filename,naturalSize:img,card:info.card});
