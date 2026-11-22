@@ -47,7 +47,7 @@ async function captureTask(page,engine,device,activity,first=false){
  if(first){
   await page.addStyleTag({content:'#session-screen.task-scene[data-task-subject="english"]{--task-world:url("./'+existing+'")!important}'});
   await page.waitForFunction(()=>getComputedStyle(document.querySelector('#session-screen.active')).getPropertyValue('--task-world').includes('engelsk-verden.png'));
-  const old=await page.evaluate(()=>new Promise((resolve,reject)=>{let image=new Image();image.onload=()=>resolve([image.naturalWidth,image.naturalHeight]);image.onerror=reject;image.src='./'+existing;}));
+  const old=await page.evaluate(imageFile=>new Promise((resolve,reject)=>{let image=new Image();image.onload=()=>resolve([image.naturalWidth,image.naturalHeight]);image.onerror=reject;image.src='./'+imageFile;}),existing);
   assert.ok(old[0]>300&&old[1]>200,'legacy world image failed to load');
   await page.screenshot({path:file(engine,device,activity+'-before'),fullPage:false,animations:'disabled'});
   await page.evaluate(()=>document.head.querySelectorAll('style').forEach(x=>{if(x.textContent?.includes('--task-world:url("./engelsk-verden.png")'))x.remove()}));

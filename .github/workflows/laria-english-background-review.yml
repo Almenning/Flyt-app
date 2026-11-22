@@ -4,6 +4,7 @@ on:
     paths:
       - 'laer-litt-mer/laria-task-scene-v15.css'
       - 'tests/laria-english-background-visual.playwright.js'
+      - 'tests/laria-subject-background-audit.playwright.js'
       - '.github/workflows/laria-english-background-review.yml'
   workflow_dispatch:
 permissions:
@@ -32,6 +33,21 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           ENGLISH_BACKGROUND_SCREENSHOTS: /tmp/laria-english-task-background
         run: node tests/laria-english-background-visual.playwright.js
+      - name: Audit all four subject task backgrounds and preview matching locked art
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_ALL_SUBJECT_BACKGROUNDS: /tmp/laria-all-subject-backgrounds
+        run: |
+          node --check tests/laria-subject-background-audit.playwright.js
+          node tests/laria-subject-background-audit.playwright.js
+      - name: Upload all four subject screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-all-subject-backgrounds
+          path: /tmp/laria-all-subject-backgrounds
+          retention-days: 14
+          if-no-files-found: warn
       - name: Upload screenshots and exact-head evidence
         if: always()
         uses: actions/upload-artifact@v4
