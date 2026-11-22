@@ -5,13 +5,13 @@
 **Referanse:** `main` ved oppstart `630b98b467cdb8a7e5a8050099c9a0b77e12e7c1`.  
 **Prosjektformål:** «Barn har lyst til å åpne Læria, foreldre har tillit.»
 
-**Ny eierbeslutning 22.11.2026:** Lesekroken beholdes i nåværende apputgave. Visuelle alternativer A–D fra PR #261 er forkastet og skal ikke implementeres. Lesekroken er **ikke** automatisk fasit for alle andre fag. Oppstartsskjermen er første forbedringsområde. Trollanimasjonene er fortsatt på pause.
+**Ny eierbeslutning 22.11.2026:** Lesekroken beholdes i nåværende apputgave. Visuelle alternativer A–D fra PR #261 er forkastet og skal ikke implementeres. Lesekroken er **ikke** automatisk fasit for alle andre fag. Oppstartsskjermen er også vurdert som tilfredsstillende og beholdes uendret. **Ikke redesign velfungerende skjermer uten et dokumentert problem.** Trollanimasjonene er fortsatt på pause.
 
 ## 1. Ny arbeidsprioritering
 
 Trollanimasjonene er **satt på pause**. Behold identiteter og kildekunst, men ikke produser eller integrer nye TrollActor-klipp. PR #258 forblir draft, uten merge/publisering. De midlertidige størrelses-/plasseringsvariantene av Storesøster (A/B/C) er ikke godkjent produksjonsdesign.
 
-Lærias neste leveranse er én samlet, rolig premiumopplevelse fra oppstart via Hjem og fagforsider til oppgave, mestring, samling og tilbake. Hjem v16 og allerede låste fagmotiver er **fasit for designretning**; illustrasjoner skal ikke byttes, regenereres eller males over av nye UI-etterligninger.
+Lærias neste leveranse er en **konkret kvalitetsgjennomgang av gjenstående flater**, fra Reisen/Utforsk og samling til fagaktiviteter, mestring og tilbakeflyt. Lesekroken og oppstart er vurdert av eier og skal ikke redesignes. Hjem v16 og allerede låste fagmotiver er **fasit for designretning**; illustrasjoner skal ikke byttes, regenereres eller males over av nye UI-etterligninger.
 
 Dette sporet holdes **atskilt** fra PR #258 og fra HverdagsOss. Ikke gjenbruk gamle, åpne redesign-PR-er ukritisk. Jobb fra oppdatert `main` i små, verifiserbare etapper.
 
@@ -43,11 +43,11 @@ Ikke bruk isolerte screenshots fra egne Samlebok- eller annen feature-PR som bev
 
 ## 3. De fem viktigste løftene i rekkefølge
 
-1. **Oppstart som faktisk hører hjemme i Læria.** Bruk eksisterende varmt treverk, krem og avrundede former fra Hjem/fag, samme logo og konsistent knappespråk; behold alle figurer, navn, klassevalg, validering og lokal lagring. Ikke tegn ny figur, ny bakgrunn eller nye fjell.
-2. **Behold Lesekroken som den er.** Ikke viderefør visuelle forslag fra PR #261, og ikke bruk den som tvungen mal for andre aktiviteter. Rett bare funksjonsfeil om slike faktisk oppdages.
-3. **Vurder særskilt andre aktivitetstyper ut fra faktiske skjermbilder.** Engelsk, Gangemagi, Brøklab og Geografi kan ha ulike pedagogiske oppsett, men må dele grunnleggende typografi, knappekvalitet og navigasjonslogikk. Ikke kopier Lesekroken ukritisk.
-4. **Undersøk og harmoniser mellomskjermer.** Skaff eksakt-head skjermbilder av Reisen, Utforsk, Samlebok, Mine troll og belønningsdialoger på iPad. Rett bare reelle stil- eller navigasjonsbrudd, og behold fungerende samlings-/progresjonslogikk.
-5. **Kvalitet og publiseringssperrer.** Verifiser 1024×1366, 820×1180, 1366×1024 og 1180×820 i WebKit/Chromium; ingen hvit overscroll, overlappende skilt, doble knapper, utilsiktet klipping eller falsk læringsprogresjon. Uavhengige kunstgodkjenninger/release-porter for Kinnaklova, Nordlysleiren og en faktisk barnetest må fortsatt gjennomføres.
+1. **Behold Lesekroken og oppstart uendret.** Eier har vurdert begge som tilfredsstillende. Ikke viderefør Lesekroken A–D fra PR #261, og ikke sett i gang ny oppstartsdesign uten konkret dokumentert feil.
+2. **Kontroller øvrige flater mot faktiske iPad-bilder.** Skaff eksakt-head-bilder av Reisen, Utforsk, Samlebok, Mine troll, belønninger, overgangene og tilbakeflyt. Ikke baser redesign på løse skisser.
+3. **Vurder øvrige aktiviteter hver for seg.** Engelsk, Gangemagi, Brøklab og Geografi kan bruke forskjellige pedagogiske oppsett, men bør ha gjenkjennelig navigasjon, lesbarhet og knappekvalitet. Ikke kopier Lesekroken ukritisk.
+4. **Rett påviste feil før kosmetikk.** Prioriter manglende funksjoner, feil navigasjon, dobbel UI, klipping, uheldig scrolling og alvorlige stilbrudd. Dokumenter før-bilde og konkret kriterium for hver endring; jobb skjerm for skjerm.
+5. **Bevar publiseringssperrene.** Verifiser 1024×1366, 820×1180, 1366×1024 og 1180×820 i WebKit/Chromium, og gjennomfør kunstgodkjenninger, reell barnetest og eksakt-head QA. Ikke likestill grønne tester med eiergodkjent premium.
 
 Denne prioriteringen gjelder **designarbeidet**, ikke tillatelse til å hoppe over eksisterende release-gates. Dersom UI-justering krever endret låst illustrasjon, stopp og krev ny visuell kildegodkjenning.
 
@@ -62,14 +62,14 @@ Denne prioriteringen gjelder **designarbeidet**, ikke tillatelse til å hoppe ov
 
 ## 5. Neste utførbare etappe og godkjenningsport
 
-**Første kodeleveranse:** én avgrenset PR fra oppdatert `main` som forbedrer **oppstartsskjermen**. Lesekroken, låste illustrasjoner, læringsinnhold og andre fag forblir uendret. Visuell forhåndsgodkjenning i begge iPad-retninger kreves før implementering utover en isolert prototype.
+**Første leveranse:** en evidensbasert oversikt fra oppdatert `main` over gjenstående **Reisen, Utforsk, Samlebok, Mine troll, belønninger og oppgaveoverganger**. Få med faktiske WebKit-skjermbilder i begge iPad-retninger. Identifiser de høyest prioriterte *konkrete* avvikene; foreslå først deretter en isolert feilretting. Ikke endre oppstart, Lesekroken, låste illustrasjoner eller animasjoner.
 
 Kriterier for pilotens «klar til visuell vurdering»:
 1. Før/etter-bilder fra **samme** PR-head, faktiske WebKit/Chromium-visninger iPad stående og liggende. Bilder merkes commit og enhet.
-2. Valg av navn, klassetrinn og låst trollkarakter, validering, tilgjengelighet, lagring og overgang til Hjem virker uten overlapping eller utilsiktet scrolling.
-3. Gjenbruk etablerte Læria-knapper, treverk og farger uten ny bakgrunnskunst eller doble navigasjonskontroller.
-4. Automatiske eksisterende innloggings-/oppstarts-, lagrings-, navigasjons- og feil-/offline-tester bestås; eventuelle røde tester beskrives presist.
-5. Eksplisitt eiergodkjenning av de faktiske iPad-bildene **før** endringene rulles videre til andre flater.
+2. Dokumenter konkret avvik og konsekvens før det foreslås kodeendring; ingen generell redesign av skjermflater eier er fornøyd med.
+3. Behold etablert navigasjon, låst kunst, lærerikt innhold, validering, lagring og tastatur-/berøringsfunksjon.
+4. Automatiske eksisterende tester for navigasjon, læringsprogresjon og offline/fallback bestås; røde tester beskrives presist.
+5. Vis reelle før/etter-bilder i begge iPad-retninger for eiergodkjenning **før** endringen rulles til andre flater.
 
 **Publisering:** Verken denne planen, en grønn oppstartspilot eller eldre grønn trolltest gir tillatelse til merge eller publisering. Siste beslutning tas etter samlet release-kontroll.
 
