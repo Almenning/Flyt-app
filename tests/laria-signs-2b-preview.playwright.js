@@ -76,12 +76,12 @@ async function captureScene(page,scene,filename,viewport,preview){
   // Compare a measured gap, not the older border-to-border expression.
   // The previous CI logged a ~26px positive gap but incorrectly failed
   // the direct relational assertion. Explicit numbers make this auditable.
-  const gapToPrimary=Number(next.rect.top)-Number(metrics.buttons[2].bottom);
+  const gapToPrimary=Number(next.rect.y)-Number(metrics.buttons[2].bottom);
   assert.ok(Number.isFinite(gapToPrimary)&&gapToPrimary>=7,
    'Next sign overlaps primary boards (gap='+gapToPrimary+'): '+JSON.stringify({metrics,next}));
-  assert.ok(metrics.postBottom<=next.rect.top+3,
+  assert.ok(metrics.postBottom<=next.rect.y+3,
    'Two shared posts still run through the secondary next sign: '+JSON.stringify({metrics,next}));
-  assert.ok(next.rect.left>=0&&next.rect.right<=viewport.width+2&&next.rect.bottom<=viewport.height+2,
+  assert.ok(next.rect.x>=0&&next.rect.right<=viewport.width+2&&next.rect.bottom<=viewport.height+2,
    'Secondary next sign is clipped on iPad '+JSON.stringify(next));
  }
  await page.screenshot({path:path.join(OUT,filename),animations:'disabled'});
