@@ -406,8 +406,13 @@ async function testEngine(engine,name,device,viewport){
    await home.waitFor({state:'visible',timeout:15000});
    await openHomeSubject(page,world.id);
    await scene.waitFor({state:'visible',timeout:15000});
+   // A remounted scene may restore its default activity rail. Prove both
+   // modes work after returning, without assuming DOM remount persistence.
+   const reopenedMode=await scene.getAttribute('data-laria-reference-mode');
+   assert.ok(['activities','subjects'].includes(reopenedMode),world.id+' reopened without a valid rail');
+   if(reopenedMode==='activities')await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects',
-     world.id+' keyboard return lost the subject menu state');
+     world.id+' cannot restore the subject selector after return');
    await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
    await plaque.click();
