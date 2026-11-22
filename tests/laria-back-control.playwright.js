@@ -35,6 +35,13 @@ async function assertControl(page,expected){
  }));
  console.log('BACK_RUNTIME',JSON.stringify(runtime));
  assert.equal(runtime.api,'object','shared return-control runtime did not boot: '+JSON.stringify(runtime));
+ const duplicate=await page.locator(
+   '#subject-screen.active #eggenipa-world [data-eg="home"]:visible, '+
+   '#subject-screen.active #tallvika-world [data-tv="back"]:visible, '+
+   '#subject-screen.active #kinnaklova-world [data-ki="home"]:visible, '+
+   '#geography-screen.active #laria-geography-world [data-gv="home"]:visible'
+ ).count();
+ assert.equal(duplicate,0,'painted legacy Home must never remain visible beside shared back control');
  const control=page.locator('.screen.active > .laria-back-control:visible');
  await control.waitFor({state:'visible',timeout:20000});
  assert.equal(await control.count(),1,'exactly one visible shared back control is required');

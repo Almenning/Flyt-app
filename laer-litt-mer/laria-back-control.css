@@ -24,10 +24,10 @@
 #complete-screen.active>.laria-back-control{display:inline-flex!important}
 /* Scene facades previously mounted their own Home hit-target. Keep their proven
    handlers in the DOM for the adapter, but present exactly one return action. */
-#subject-screen.active.tallvika-active [data-tv="back"],
-#subject-screen.active.eggenipa-active [data-eg="home"],
-#subject-screen.active.kinnaklova-active [data-ki="home"],
-#geography-screen.active.gv-visible [data-gv="home"],
+#subject-screen.active.tallvika-active #tallvika-world [data-tv="back"],
+#subject-screen.active.eggenipa-active #eggenipa-world [data-eg="home"],
+#subject-screen.active.kinnaklova-active #kinnaklova-world [data-ki="home"],
+#geography-screen.active.gv-visible #laria-geography-world [data-gv="home"],
 /* The facade deliberately hides all siblings except its painted world.
    Match the facade's :not(#world) specificity to keep the shared control
    available. Non-facade screens retain their native return buttons. */
@@ -43,6 +43,15 @@
 #subject-screen.active.tallvika-active>#subject-back,
 #subject-screen.active.kinnaklova-active>#subject-back,
 #geography-screen.active.gv-visible>#geography-back{display:none!important}
+/* Native painted return controls are retained for route adapters, but must
+   never intercept taps or appear as duplicate buttons next to the shared
+   control. Hide them in the actual transformed scene as well. */
+#subject-screen.active.tallvika-active #tallvika-world [data-tv="back"],
+#subject-screen.active.eggenipa-active #eggenipa-world [data-eg="home"],
+#subject-screen.active.kinnaklova-active #kinnaklova-world [data-ki="home"],
+#geography-screen.active.gv-visible #laria-geography-world [data-gv="home"]{
+  visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
 /* Unified visual standard for existing clickable return buttons. Keep all
    existing IDs, learning-state persistence and gesture handlers intact. */
 :is(#subject-back,#geography-back,#world-back,#continent-back,#detail-back,
