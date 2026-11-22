@@ -12,6 +12,16 @@
 .laria-back-control:focus-visible{outline:4px solid #fff4a9;outline-offset:3px}
 .laria-back-control:hover{filter:brightness(1.07)}
 .laria-back-control:active{transform:translateY(2px);box-shadow:0 1px 0 #53321f,0 4px 9px rgba(43,31,21,.28)}
+/* Subject facades intentionally hide unknown direct children. These explicit
+   screen selectors outrank that containment rule without reviving old UI. */
+#subject-screen.active>.laria-back-control,
+#geography-screen.active>.laria-back-control,
+#world-screen.active>.laria-back-control,
+#continent-screen.active>.laria-back-control,
+#fraction-lab-screen.active>.laria-back-control,
+#multiplication-lab-screen.active>.laria-back-control,
+#session-screen.active>.laria-back-control,
+#complete-screen.active>.laria-back-control{display:inline-flex!important}
 /* Scene facades previously mounted their own Home hit-target. Keep their proven
    handlers in the DOM for the adapter, but present exactly one return action. */
 #subject-screen.active.tallvika-active [data-tv="back"],
