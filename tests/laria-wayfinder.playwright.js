@@ -243,7 +243,7 @@ async function run(browserType,engine,name,viewport){
        spec.id+' lost the real carved-sign medallion');
      assert.equal(b.color,'rgb(46, 26, 12)',spec.id+' uses wrong carved-sign ink');
    } else {
-     assert.match(b.background,/laria-light-arrow-sign\\.svg/,
+     assert.match(b.background,/laria-light-arrow-sign\.svg/,
        spec.id+' fallback arrow artwork unexpectedly changed');
    }
    // Kinn now uses the certified UI-free image and the SAME left-hand
