@@ -256,7 +256,12 @@ async function testEngine(engine,name,device,viewport){
    }
    const liveHome=scene.locator('[data-laria-component="home"]');
    assert.equal(await liveHome.count(),1,'original round Home control must remain');
-   assert.equal(await liveHome.isVisible(),true,'original Home control is hidden');
+   assert.equal(await liveHome.isVisible(),false,'retired Home must not compete with shared return');
+   const sharedBack=page.locator('.screen.active > .laria-back-control:visible');
+   assert.equal(await sharedBack.count(),1,world.id+' must show exactly one shared return');
+   const returnBounds=await sharedBack.boundingBox();
+   assert.ok(returnBounds&&returnBounds.width>=44&&returnBounds.height>=44,
+     world.id+' shared return has too small a touch target');
    await page.screenshot({path:path.join(out,name+'-'+device+'-'+world.id+'.png'),animations:'disabled'});
    // The plain subject heading swaps the one left-hand rail without
    // creating a second activity menu on the right.
