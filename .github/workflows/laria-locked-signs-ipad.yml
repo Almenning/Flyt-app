@@ -37,6 +37,7 @@ jobs:
           node --test tests/laria-locked-sign-design-v1.test.cjs
       - name: Serve base and exact PR head for before/after evidence
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git worktree add --detach /tmp/laria-base origin/${{ github.base_ref }}
           python3 -m http.server 8765 --directory . >/tmp/laria-sign-http.log 2>&1 &
           python3 -m http.server 8766 --directory /tmp/laria-base >/tmp/laria-base-http.log 2>&1 &
