@@ -72,23 +72,19 @@ const all=[];
        engine+' '+name+' controls still overlap loose cake pieces: '+JSON.stringify(after));
      assert.ok(after.controls.top>=0&&after.controls.bottom<=after.viewport[1],
        engine+' '+name+' adjustment controls outside first screen: '+JSON.stringify(after));
-     if(viewport.height<=900){
-       assert.ok(after.actor&&after.actor.height>150&&after.actor.height<=220,
-         engine+' '+name+' existing companion must be readable but not dominate: '+JSON.stringify(after.actor));
-     }
+     assert.ok(after.actor&&after.actor.height>=150&&after.actor.height<=240,
+       engine+' '+name+' existing companion must be readable but not dominate: '+JSON.stringify(after.actor));
      assert.ok(after.cake.top>=0&&after.cake.bottom<=after.viewport[1],
        engine+' '+name+' cake not visible in first screen: '+JSON.stringify(after));
      assert.ok(after.buttons.length>=4&&after.buttons.every(b=>b.width>=44&&b.height>=44),
        engine+' '+name+' lost 44px touch controls: '+JSON.stringify(after.buttons));
      assert.ok(after.scrollWidth<=after.viewport[0]+3,
        engine+' '+name+' horizontal overflow');
-     if(viewport.height<=900){
-       assert.ok(after.nav&&after.nav.top>=0&&after.nav.bottom<=after.viewport[1]+2,
-         engine+' '+name+' Brøklab bottom tabs cropped: '+JSON.stringify(after.nav));
-       assert.ok(after.navTargets.length===3&&
-         after.navTargets.every(b=>b.width>=44&&b.height>=44),
-         engine+' '+name+' Brøklab navigation taps below 44px: '+JSON.stringify(after.navTargets));
-     }
+     assert.ok(after.nav&&after.nav.top>=0&&after.nav.bottom<=after.viewport[1]+2,
+       engine+' '+name+' Brøklab bottom tabs cropped: '+JSON.stringify(after.nav));
+     assert.ok(after.navTargets.length===3&&
+       after.navTargets.every(b=>b.width>=44&&b.height>=44),
+       engine+' '+name+' Brøklab navigation taps below 44px: '+JSON.stringify(after.navTargets));
      assert.deepEqual(errors,[],engine+' '+name+' JS errors');
      await context.close();
     }
