@@ -44,7 +44,7 @@ async function run(engine,label,viewport){
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,
        label+' historical progress was reset');
-     await page.locator('#eggenipa-world [data-eg="home"]').click();
+     await page.locator('#subject-screen.active > .laria-back-control:visible').click();
      await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
    }
@@ -63,7 +63,7 @@ async function run(engine,label,viewport){
      assert.ok(state.question,label+' missing math question');
      await page.locator('#close-session').click();
      await tv.waitFor({state:'visible',timeout:16000});
-     await tv.locator('[data-tv="back"]').click();
+     await page.locator('#subject-screen.active > .laria-back-control:visible').click();
      await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
    }
@@ -103,9 +103,9 @@ async function run(engine,label,viewport){
        const host=document.querySelector('#subject-screen.active #kinnaklova-world');
        return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
      },null,{timeout:20000});
-     const back=ki.locator('.ki-utility [data-ki="home"]');
-     if(await back.isVisible())await back.click();
-     else await ki.locator('.ki-painted-home').click();
+     const back=page.locator('#subject-screen.active > .laria-back-control:visible');
+     assert.equal(await back.count(),1,label+' Kinnaklova must offer one shared return');
+     await back.click();
      await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
      continue;
    }
@@ -168,7 +168,7 @@ async function run(engine,label,viewport){
    await root.locator('.locked-journey-back').click();
    if(subject==='geography'){
      await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
-     await page.locator('#laria-geography-world [data-gv="home"]').click();
+     await page.locator('#geography-screen.active > .laria-back-control:visible').click();
    }
    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
   }
