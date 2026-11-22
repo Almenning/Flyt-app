@@ -4,6 +4,8 @@ on:
     branches: [fix/laria-closed-ipad-beta-20261122]
     paths:
       - laer-litt-mer/tallvika-fjord-v2.css
+      - laer-litt-mer/laria-reference-layout-v1.css
+      - laer-litt-mer/index.html
       - laer-litt-mer/multiplication-premium-v2.css
       - laer-litt-mer/multiplication-gangemagi-v1.css
       - tests/laria-matte-premium-backdrop.playwright.js
@@ -12,6 +14,8 @@ on:
   pull_request:
     paths:
       - laer-litt-mer/tallvika-fjord-v2.css
+      - laer-litt-mer/laria-reference-layout-v1.css
+      - laer-litt-mer/index.html
       - laer-litt-mer/multiplication-premium-v2.css
       - laer-litt-mer/multiplication-gangemagi-v1.css
       - tests/laria-matte-premium-backdrop.playwright.js
