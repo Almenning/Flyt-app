@@ -235,7 +235,9 @@ async function run(engine,browserType,view,viewport){
   assert.deepEqual(after.nodes,before,label+' changed historical journey progress');
   assert.equal(after.grade,2,label+' changed profile grade');
   assert.deepEqual(errors,[],label+' runtime errors');
-  await page.locator('#eggenipa-world .eg-home').tap();
+  const sharedBack=page.locator('#subject-screen.active > .laria-back-control:visible');
+  assert.equal(await sharedBack.count(),1,label+' must expose one common return');
+  await sharedBack.tap();
   await page.locator('#home-screen.active').waitFor({timeout:12000});
   console.log('[Norsk premium]',label,'Eggenipa, Ordjakt, Finn ordene, Lesekroken and resume OK');
   await context.close();
