@@ -1112,6 +1112,17 @@
   #fraction-lab-screen .fr6-workshop .fr6-controls{
     position:relative;z-index:2;transform:none;margin-bottom:0;
   }
+  /* TrollActor injects 100% dimensions with !important, making the character
+     ~350px tall and pushing both controls below the first iPad landscape view.
+     Scale only this existing character instance, never crop or alter its art. */
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-mentor
+  > .fr2-fox.laria-premium-troll-art{
+    display:block!important;
+    width:188px!important;height:218px!important;
+    min-width:0!important;min-height:0!important;
+    max-width:188px!important;max-height:218px!important;
+    flex:0 0 218px!important;object-fit:contain!important;
+  }
 }
 
 /* Tiny iPhone TrollActor must not stretch the whole workbench.
