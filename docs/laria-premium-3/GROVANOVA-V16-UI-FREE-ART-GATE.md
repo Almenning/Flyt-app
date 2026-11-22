@@ -1,4 +1,4 @@
-# Læria Hjem v16 – kontrollert UI-fri kunstkandidat
+> **AVKLARING 22.11.2026 – FRIVILLIG KUNSTSPOR, IKKE SKILTSPERRE:** Brukerens opprinnelige låste skiltutklipp er verifisert som et faktisk utsnitt fra **Grovanova Hjem v16 liggende** (969 SIFT/RANSAC-inliers, ca. 5,54/255 snittavvik etter geometriutjevning). Hjem har dermed **allerede eksakt ønsket skiltutseende**, med fire reelle DOM-trykkflater over det eiergodkjente malte bildet. **Ikke fjern disse skiltene for skiltprosjektets skyld.** PR #272 ruller ut samme uttrykk i fagene med Hjem som uendret fasit. Denne PR #274 beskriver et mulig framtidig UI-fritt Hjem for andre behov og skal IKKE merges eller brukes til å blokkere skiltutrullingen. Det er vist at automatiske Telea/NS-retusjer av de brede UI-maskene (ca. 54 % av begge bildene) gir uakseptabel utsmøring; ingen av disse kandidatene er godkjent.\n\n# Læria Hjem v16 – kontrollert UI-fri kunstkandidat
 
 **Status 22.11.2026: Kun maskekontrakt og kvalitetssperre. Ingen ren illustrasjon godkjent. Ingen endring i aktiv app eller i låst kunst.**
 
