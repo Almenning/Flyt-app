@@ -93,6 +93,23 @@
     refresh();
   }
 
+  // `showScreen` is the app's central transition point. The observer above
+  // covers third-party scene adapters; this hook makes the common path
+  // synchronous with the transition as well, including Safari's batched
+  // attribute mutations.
+  function hookShowScreen(){
+    const prior=window.showScreen;
+    if(typeof prior!=='function'||prior.__lariaBackControlWrapped)return;
+    function wrappedShowScreen(){
+      const result=prior.apply(this,arguments);
+      const route=arguments[0];
+      requestAnimationFrame(()=>install(route));
+      return result;
+    }
+    wrappedShowScreen.__lariaBackControlWrapped=true;
+    window.showScreen=wrappedShowScreen;
+  }
+
   window.addEventListener('popstate',event=>{
     if(!event.state?.lariaBackControl)return;
     handlingPop=true;
@@ -106,6 +123,6 @@
   },true);
 
   window.LARIA_BACK_CONTROL=Object.freeze({install,request,labelFor,screenName});
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{seedHistory();observe();},{once:true});
-  else {seedHistory();observe();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{seedHistory();hookShowScreen();observe();},{once:true});
+  else {seedHistory();hookShowScreen();observe();}
 })();
