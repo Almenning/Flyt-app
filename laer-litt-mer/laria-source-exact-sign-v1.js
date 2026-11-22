@@ -80,7 +80,10 @@
     const radius=Math.hypot(x-nearX,y-nearY);
     if(radius>7.5)continue;
     const blend=clamp((7.5-radius)/2.2,0,1),i=(y*w+x)*4;
-    const brown=[65,33,17];
+    // Use the original medallion's dark wood tonal range, not a flat
+    // artificial brown patch. This interior is the ONLY icon retouch.
+    const depth=clamp((y-26)/53,0,1);
+    const brown=[Math.round(78-23*depth),Math.round(42-16*depth),Math.round(21-9*depth)];
     for(let k=0;k<3;k++)pixels.data[i+k]=Math.round((1-blend)*pixels.data[i+k]+blend*brown[k]);
     replacedIconPixels++;
    }
@@ -99,7 +102,13 @@
    let exact=0,visible=0;
    for(let i=0;i<w*h;i++){
     const off=i*4;
-    pixels.data[off+3]=mattePixels[off+3];
+    // The irregular plank tips touch BLUE fjord/sky pixels in the native
+    // photograph. Drop only obvious blue background on these edges rather
+    // than painting landscape onto a supposed transparent oak board.
+    const blue=original[off+2]>95&&
+     original[off+2]>original[off+1]+15&&
+     original[off+2]>original[off]+25;
+    pixels.data[off+3]=blue?0:mattePixels[off+3];
     if(mattePixels[off+3]>0){
      visible++;
      if(pixels.data[off]===original[off]&&pixels.data[off+1]===original[off+1]&&pixels.data[off+2]===original[off+2])exact++;
