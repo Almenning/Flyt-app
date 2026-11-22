@@ -310,8 +310,8 @@
  filter:drop-shadow(0 5px 4px #1d150b63)!important;
  /* Softly bury the feet into the existing rocky/green slope. They must
   * NOT end visibly in midair or sit on the painted church roof. */
- -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 83%,transparent 100%)!important;
- mask-image:linear-gradient(to bottom,#000 0%,#000 83%,transparent 100%)!important;
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 96%,transparent 100%)!important;
+ mask-image:linear-gradient(to bottom,#000 0%,#000 96%,transparent 100%)!important;
 }
 #kinnaklova-world[data-ki-premium-art="approved"]
  .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
