@@ -70,6 +70,7 @@ async function run(browserType,label,viewport){
     assert.equal(await page.locator('#fraction-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Brøklab lost Tallvika return');
     await page.locator('#fraction-lab-back').click();await page.locator('#tallvika-world').waitFor({state:'visible',timeout:14000});
     await page.locator('.tv-sign[data-tv="table"]').click();await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor({timeout:14000});await screenshot(page,label+'-gangetabellen');
+    assert.equal(await page.locator('#multiplication-lab-screen.active .gm-classic-return').count(),0,label+' direct Tallvika must not show a legacy Til Gangemagi button');
     assert.equal(await page.locator('.mp-times-grid button.mp-grid-cell').count(),100,label+' Gangetabellen lost its 10x10 explorer');
     assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Gangetabellen lost Tallvika return');
     await page.locator('#multiplication-lab-back').click();await page.locator('#tallvika-world').waitFor({state:'visible',timeout:14000});
