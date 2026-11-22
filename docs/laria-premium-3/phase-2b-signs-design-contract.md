@@ -18,7 +18,7 @@ Skiltene skal se ut som fysiske, tydelig lesbare objekter i samme illustrerte ev
 ## Per scene
 | Scene | Hovedproblem nå | Tiltak og krav til godkjenning |
 |---|---|---|
-| Hjem / Grovanova | Portrett kan få kunstig sidefelt med skilt utenfor landskapet | Hele skiltgruppen skal inngå i bevisst portrettkomposisjon. Behold låst fjellmotiv. |
+| Hjem / Grovanova | Eldre v15-fallback har sidefelt; den eiergodkjente v16-portrettvarianten viser allerede helskjerm og fysisk forankrede skilt | **Behold v16 urørt som fasit.** Kontroller oppførsel på alle fem iPad-formatene. Ikke bruk v15-fallback som grunnlag for å redesigne v16. |
 | Norsk / Eggenipa | Stolper foran fjernt vann/fjell mangler jordkontakt | Bruk naturlig vegetasjon/forgrunn, ikke visuell sveving. Behold Lesekroken og aktivitetsrutene. |
 | Matte / Tallvika | Fjerde `Neste eventyr` konkurrerer med tre aktiviteter | Tre skilt samlet; `Neste eventyr` mindre og sekundært, fortsatt i illustrasjonen. Stolper ved realistisk stein/terreng. |
 | Engelsk / Kinnaklova | Stolpene havner ved/på kirketak i portrett, skala problematisk | Forankre i forgrunn med tydelig bakke; kirken og låste fjell forblir synlige. |
@@ -50,3 +50,9 @@ For alle fem scenene i hvert format: før-/etter-skjermbilde på eksakt commit, 
 6. Først etter eierens visuelle sign-off: vurder merge og publisering.
 
 > Dette dokumentet låser **retning og akseptkrav**, ikke de endelige bildekoordinatene eller en utestet layout.
+
+
+## Ny visuell baseline (22.11.2026)
+Eksakt-head CI-artefakt `laria-home-v16-mac-4baef0de...`, spesielt `chromium-820x1180-v16-portrait.png` og `chromium-1024x1366-v16-portrait.png`, viser Grovanova v16 med gjennomgående illustrasjon helt ut i kantene og skiltstolper i vegetasjonen. Den eldre v15-testen var misvisende som mål for framtidig Hjem-komposisjon. **Ingen ombygging av Hjem v16 er nødvendig i 2B.**
+
+Første implementerte kandidat ligger bak `?app=laria&lariaSigns2b=1`. Den endrer bare stil og posisjonering i fagene, i første omgang Kinnaklova portrett og Tallvika sekundært `Neste eventyr`. Normal URL er uendret. Dette er ikke en godkjent sluttplassering før reelle Chromium- og WebKit-skjermbilder er vurdert.
