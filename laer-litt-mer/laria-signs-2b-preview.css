@@ -149,6 +149,18 @@
     outline-offset: 3px !important;
   }
 }
+/* Eggenipa landscape: the posts must reach the grassy left bank beside
+ * the treehouse/path, not stop against the far-shore houses. A modest
+ * viewport-relative tail keeps the two-post rail attached to the terrain
+ * without moving the locked Eggenipa painting, troll or activity buttons.
+ * Portrait is already aligned to the shoreline and remains unchanged.
+ */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:landscape) {
+  :root[data-laria-signs-2b="preview"]
+  #eggenipa-world .eg-hero.laria-reference-layout-v1 {
+    --ref-natural-post-tail: clamp(78px, 8.5vh, 94px);
+  }
+}
 /* Kinnaklova portrait art has a roof occupying the lower-left half. The
  * previous 27% rail + 64px post tail ended precisely ON that roof.
  * Start higher and terminate both posts in the vegetated left cliff.
