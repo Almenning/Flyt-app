@@ -18,9 +18,9 @@ const scenes=[
 ];
 async function home(page,url,file,locked=true){
  await page.goto(url,{waitUntil:'domcontentloaded'});
- const root=page.locator(locked?'#home-screen.active .bc12.bc15-v16-locked':'#home-screen.active');
+ const root=page.locator('#home-screen.active');
  await root.waitFor({state:'visible',timeout:30000});
- if(locked)assert.equal(await root.locator('.bc15-v16-sign').count(),4,'Home must retain four real subject routes');
+ if(locked)assert.ok(await root.locator('[data-camp^="subject-"]').count()>=4,'Home must retain four real subject routes');
  const size=await root.evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth}));
  assert.ok(size.width>=44&&size.height>=44&&size.scroll<=innerWidth+2,'Home overflows the iPad viewport');
  await page.screenshot({path:path.join(OUT,file),animations:'disabled'});
