@@ -121,6 +121,10 @@
     event.preventDefault();
     request();
   },true);
+  // Some scene adapters change several classes in one event turn. A single
+  // post-click refresh is cheap and makes the visible control follow that
+  // settled route even where WebKit coalesces MutationObserver callbacks.
+  document.addEventListener('click',()=>requestAnimationFrame(()=>install()),true);
 
   window.LARIA_BACK_CONTROL=Object.freeze({install,request,labelFor,screenName});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{seedHistory();hookShowScreen();observe();},{once:true});
