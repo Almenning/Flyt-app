@@ -88,11 +88,18 @@
    // The Words artwork is an owner-review candidate. It is limited to the
    // separate, SHA-verified Kinnaklova master and never enables the other
    // English signs or changes the default application.
-   const wordsArtVersion=new URLSearchParams(window.location.search).get('lariaWordsSignCandidate');
+   const params=new URLSearchParams(window.location.search);
+   const wordsArtVersion=params.get('lariaWordsSignCandidate');
    const wordsCandidate=subject==='english'&&
      (wordsArtVersion==='1'||wordsArtVersion==='2');
+   // Isolated English three-board review. Never alters default English,
+   // the two existing Words-only pilots, or the locked scene's artwork.
+   const englishGroupReview=subject==='english'&&
+     params.get('lariaEnglishSignGroupCandidate')==='1';
    if(scene.dataset.lariaArtworkUi==='separate'){
-     if(wordsCandidate)window.LariaWoodenSign?.mount?.(navigation,subject,
+     if(englishGroupReview)window.LariaWoodenSign?.mount?.(navigation,subject,
+       {only:['words','sentences','reading'],illustratedGroup:true});
+     else if(wordsCandidate)window.LariaWoodenSign?.mount?.(navigation,subject,
        {only:['words'],sourceDerived:true,sourceVariant:wordsArtVersion==='2'?3:2});
      else if(subject!=='english')window.LariaWoodenSign?.mount?.(navigation,subject);
    }
