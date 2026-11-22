@@ -76,9 +76,12 @@ async function run(browserType,engine,device,viewport){
    // image instead of assuming that the first CSS declaration wins.
    const asset=info.variable.match(/url\(["']?\.?\/?([^"')]+)["']?\)/)?.[1]||'';
    assert.ok(asset,'No computed background URL for '+x.subject+': '+info.variable);
+   const expected=x.subject==='math'
+     ? 'assets/tallvika/tallvika-fjord-no-buildings-'+(device==='portrait'?'portrait':'wide')+'-20261107.webp'
+     : x.expected;
    assert.ok(x.subject==='geography'
       ? /^(globe-v20-approved|globe-storyscape-v36-(tablet|landscape|mobile))\.webp$/.test(asset)
-      : asset===x.expected,'Unexpected '+x.subject+' task background: '+info.variable);
+      : asset===expected,'Unexpected '+x.subject+' task background: '+info.variable);
    assert.ok(info.actual.includes(asset),'Rendered pseudo-background wrong for '+x.subject);
    const dims=await verifyAsset(page,asset);
    const out={engine,device,subject:x.subject,configured:asset,sourceDims:dims,
