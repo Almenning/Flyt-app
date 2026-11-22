@@ -75,6 +75,8 @@ const devices=[
     assert.ok(audit.touchTargets.every(x=>x.w>=44&&x.h>=44),
       engine+' '+device+' lost 44px touch size');
     assert.ok(audit.scroll[0]<=audit.viewport[0]+3,engine+' '+device+' horizontal overflow');
+    assert.ok(audit.scroll[1]<=audit.viewport[1]+3,
+      engine+' '+device+' legacy empty space allows vertical scrolling: '+JSON.stringify(audit.scroll));
     assert.ok(audit.world&&audit.nav&&audit.actor&&audit.actor.height>30,
       engine+' '+device+' missing world/nav/companion');
     assert.ok(audit.grid.bottom<=audit.viewport[1]+3&&audit.nav.bottom<=audit.viewport[1]+3,
@@ -89,5 +91,5 @@ const devices=[
   } finally {await browser.close()}
  }
  fs.writeFileSync(path.join(dir,'report.json'),JSON.stringify({
-   head:process.env.GITHUB_SHA||null,source:'actual app; preview branch, not published',results},null,2)+'\n');
+   head:process.env.PR_HEAD_SHA||process.env.GITHUB_SHA||null,source:'actual app; preview branch, not published',results},null,2)+'\n');
 })().catch(e=>{console.error(e);process.exitCode=1});
