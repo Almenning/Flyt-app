@@ -145,6 +145,21 @@ async function englishGuard(page,file){
     'English activity labels changed during sign re-skin');
   assert.equal(await boards.locator('.laria-wooden-sign-medallion svg').count(),3,
     'English needs one real symbol per approved wooden sign');
+  const placement=await boards.evaluateAll(nodes=>nodes.map(node=>{
+    const b=node.getBoundingClientRect();
+    const m=node.querySelector('.laria-wooden-sign-medallion')?.getBoundingClientRect();
+    const t=node.querySelector('.ki-plank-name')?.getBoundingClientRect();
+    return {name:node.dataset.ki,b:[b.left,b.top,b.right,b.bottom],
+      m:m?[m.left,m.top,m.right,m.bottom]:null,
+      t:t?[t.left,t.top,t.right,t.bottom]:null};
+  }));
+  assert.ok(placement.every(x=>{
+   if(!x.m||!x.t)return false;
+   const [bl,bt,br,bb]=x.b,[ml,mt,mr,mb]=x.m,[tl,tt,tr,tb]=x.t;
+   return mr-ml>=26&&mr-ml<=46&&mb-mt>=26&&mb-mt<=46&&
+     ml>=bl+4&&mr<=br-4&&mt>=bt-7&&mb<=bb+7&&
+     tl>=mr+2&&tr<=br-6&&tt>=bt-7&&tb<=bb+7;
+  }),'English words were visually clipped or covered by oak medallions: '+JSON.stringify(placement));
  } else {
   assert.equal(mode,'painted-pending-clean','Unapproved English art guard was removed');
   assert.equal(await scene.locator('.laria-wooden-sign').count(),0,
