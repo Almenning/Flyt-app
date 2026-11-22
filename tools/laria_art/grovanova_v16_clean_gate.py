@@ -20,6 +20,10 @@ from PIL import Image, ImageChops, ImageDraw
 ROOT = Path(__file__).resolve().parents[2]
 ART = ROOT / "laer-litt-mer/assets/home-v16"
 MANIFEST = ART / "laria-grovanova-v16-approved.json"
+# The approved WebPs are 2048px-wide Lanczos EXPORTS. The SHA-locked original
+# PNGs have their own native geometry. Compare exact pixels at native size.
+NATIVE_SOURCE_SIZES = {"landscape": (1448, 1086), "portrait": (1086, 1448)}
+APP_EXPORT_SIZES = {"landscape": (2048, 1536), "portrait": (2048, 2732)}
 
 # Each rectangle is [left, top, width, height] in ORIGINAL image fractions.
 # These were traced from the approved v16 app screenshots and compared with
@@ -97,8 +101,13 @@ def source(orientation):
     if digest != expected:
         raise ValueError(f"{orientation}: immutable painted original SHA mismatch")
     with Image.open(orig) as loaded:
-        if loaded.size != (variant["width"], variant["height"]):
-            raise ValueError(f"{orientation}: original dimensions changed")
+        if (variant["width"], variant["height"]) != APP_EXPORT_SIZES[orientation]:
+            raise ValueError(f"{orientation}: approved app export geometry changed")
+        if loaded.size != NATIVE_SOURCE_SIZES[orientation]:
+            raise ValueError(
+                f"{orientation}: locked PNG geometry changed; "
+                f"expected {NATIVE_SOURCE_SIZES[orientation]}, got {loaded.size}"
+            )
         image = loaded.convert("RGB").copy()
     for i, item in enumerate(variant["ui"]["signBoards"]):
         if not is_inside(item, UI_REGIONS[orientation]["painted_four_signs_and_posts"]):
