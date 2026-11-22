@@ -52,9 +52,26 @@ async function candidateScene(page,subject,selector,file,w,h){
 async function englishGuard(page,file){
  await openHomeSubject(page,'english');
  const scene=page.locator('#kinnaklova-world .ki-stage.laria-scene-shell');await scene.waitFor({state:'visible',timeout:30000});
- assert.equal(await scene.getAttribute('data-laria-artwork-ui'),'painted-pending-clean','Kinnaklova art guard was removed');
- assert.equal(await scene.locator('.laria-wooden-sign').count(),0,'New sign may not cover painted Kinnaklova art');
- assert.equal(await scene.locator('.ki-painted-hit.laria-wayfinder').count(),3,'English lost its real action targets');
+ const art=await page.locator('#kinnaklova-world').getAttribute('data-ki-premium-art');
+ const mode=await scene.getAttribute('data-laria-artwork-ui');
+ assert.equal(await scene.locator('.ki-painted-hit.laria-wayfinder').count(),3,
+  'English lost its three original Words/Sentences/Reading action targets');
+ if(art==='approved'){
+  // The checked-in SHA-verified UI-free Kinnaklova is a separate art layer.
+  // This tests functional readiness, not product-owner visual approval.
+  assert.equal(mode,'separate','Approved clean Kinnaklova must expose separate UI');
+  const boards=scene.locator('.ki-painted-hit.laria-wayfinder.laria-wooden-sign');
+  assert.equal(await boards.count(),3,'UI-free English did not receive the new sign component');
+  const labels=await boards.locator('.ki-plank-name').allTextContents();
+  assert.deepEqual(labels.map(x=>x.trim()),['Words','Sentences','Reading'],
+    'English activity labels changed during sign re-skin');
+  assert.equal(await boards.locator('.laria-wooden-sign-medallion svg').count(),3,
+    'English needs one real symbol per approved wooden sign');
+ } else {
+  assert.equal(mode,'painted-pending-clean','Unapproved English art guard was removed');
+  assert.equal(await scene.locator('.laria-wooden-sign').count(),0,
+    'New sign may not cover painted Kinnaklova art');
+ }
  await page.screenshot({path:path.join(OUT,file),animations:'disabled'});
 }
 async function run(engine,name,device,w,h){
