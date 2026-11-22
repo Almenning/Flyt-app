@@ -34,9 +34,9 @@
     // The legacy hotspot also fixes a narrow arrow geometry with !important.
     // Keep the candidate on its source artwork's natural 1395:366 plank
     // proportion instead of stretching the hand-drawn edges into that arrow.
-    button.style.setProperty('width','clamp(268px,30vw,410px)','important');
+    button.style.setProperty('width','clamp(310px,32vw,390px)','important');
     button.style.setProperty('height','auto','important');
-    button.style.setProperty('min-height','70px','important');
+    button.style.setProperty('min-height','78px','important');
     button.style.setProperty('aspect-ratio','1395 / 366','important');
    }
    button.dataset.lariaWoodenSign='v1';button.dataset.lariaSignAction=action;
