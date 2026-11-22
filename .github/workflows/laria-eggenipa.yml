@@ -15,6 +15,7 @@ on:
       - 'laer-litt-mer/find-the-words.js'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-eggenipa*'
+      - 'tests/laria-lesekroken-design-review.playwright.js'
       - 'tests/laria-device-hardening.playwright.js'
       - 'tests/laria-journey-mission-premium.playwright.js'
   push:
@@ -31,6 +32,7 @@ on:
       - 'laer-litt-mer/find-the-words.js'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-eggenipa*'
+      - 'tests/laria-lesekroken-design-review.playwright.js'
       - 'tests/laria-device-hardening.playwright.js'
       - 'tests/laria-journey-mission-premium.playwright.js'
 
@@ -110,3 +112,30 @@ jobs:
           path: laer-litt-mer/assets/norsk/eggenipa-master-laast-20261025.png
           if-no-files-found: warn
           retention-days: 14
+
+  lesekroken-visual-review:
+    name: Lesekroken actual iPad review only
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Capture review-only A/B on actual Lesekroken in WebKit and Chromium
+        env:
+          LARIA_LESEKROKEN_PREVIEW: /tmp/laria-lesekroken-review
+        run: |
+          node --check tests/laria-lesekroken-design-review.playwright.js
+          node tests/laria-lesekroken-design-review.playwright.js
+      - name: Upload Lesekroken visual review and geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-lesekroken-design-review
+          path: /tmp/laria-lesekroken-review
+          retention-days: 14
+          if-no-files-found: warn
