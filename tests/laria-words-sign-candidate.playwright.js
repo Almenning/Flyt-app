@@ -32,7 +32,28 @@ async function run(engine,name,device,viewport){
   });
   assert.equal(facts.label,'Words');assert.ok(facts.medal&&facts.posts,'Words must retain separate medal and posts');
   assert.match(facts.background,/words-plank-source-derived-v2\.png/);
-  assert.ok(facts.width>=44&&facts.height>=44&&facts.hit&&facts.left>=0&&facts.right<=viewport.width+1&&facts.top>=0&&facts.bottom<=viewport.height+1,JSON.stringify(facts));
+  assert.ok(facts.width>=310&&facts.height>=78&&facts.hit&&facts.left>=0&&facts.right<=viewport.width+1&&facts.top>=0&&facts.bottom<=viewport.height+1,
+    'Words source plank must be a properly scaled, fully tappable board: '+JSON.stringify(facts));
+  const appearance=await words.evaluate(button=>{
+    const b=button.getBoundingClientRect();
+    const medal=button.querySelector('.laria-wooden-sign-medallion');
+    const text=button.querySelector('.ki-plank-name');
+    const m=medal?.getBoundingClientRect(),t=text?.getBoundingClientRect();
+    const s=text&&getComputedStyle(text);
+    return {boardWidth:b.width,boardHeight:b.height,medalWidth:m?.width,medalHeight:m?.height,
+      medalLeft:m?.left,medalRight:m?.right,letterLeft:t?.left,letterRight:t?.right,
+      fontPx:s?parseFloat(s.fontSize):0,font:s?.fontFamily,
+      textColor:s?.color};
+  });
+  assert.ok(appearance.fontPx>=27 && /Georgia|Times New Roman/.test(appearance.font||''),
+    'Locked serif text became too small or generic: '+JSON.stringify(appearance));
+  assert.ok(appearance.medalWidth>=appearance.boardWidth*.19 &&
+    appearance.medalWidth<=appearance.boardWidth*.24 &&
+    Math.abs(appearance.medalWidth-appearance.medalHeight)<=2,
+    'Illustrated medal has wrong proportion compared with carved plank: '+JSON.stringify(appearance));
+  assert.ok(appearance.letterLeft>=appearance.medalRight+2 &&
+    appearance.letterRight<=facts.right-6,
+    'Words lettering is covered by medal or clipped off the board: '+JSON.stringify(appearance));
   fs.mkdirSync(OUT,{recursive:true});
   await page.screenshot({path:path.join(OUT,`${name}-${device}-kinnaklova-words.png`),animations:'disabled'});
   await words.click();
