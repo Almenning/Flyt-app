@@ -274,8 +274,10 @@
 #kinnaklova-world[data-ki-premium-art="approved"]
  .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
  > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate > .laria-words-sign-posts {
- position:absolute!important;z-index:-1!important;display:block!important;left:4%!important;right:4%!important;top:58%!important;height:174%!important;
+ position:absolute!important;z-index:1!important;display:block!important;left:4%!important;right:4%!important;top:53%!important;height:190%!important;
  background:url("./assets/ui/laria-grovanova-signposts.svg") center top/100% 100% no-repeat!important;pointer-events:none!important;
+ /* Hide the caps behind the board: only two grounded shafts emerge below it. */
+ clip-path:inset(27% 0 0)!important;
  }
 #kinnaklova-world[data-ki-premium-art="approved"]
  .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
