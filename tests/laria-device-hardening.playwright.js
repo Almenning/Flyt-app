@@ -211,7 +211,7 @@ async function verifyBasecamp(page,label,width,height){
   await norwegian.waitFor({timeout:16000});
   assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian',
     label+' lost Norwegian origin after closing lesson');
-  await page.locator('#eggenipa-world [data-eg="home"]').tap();
+  await page.locator('#subject-screen.active > .laria-back-control:visible').tap();
   await page.locator('#home-screen.active').waitFor();
 
   // Edge-back must preserve the real Basecamp origin contract.
@@ -282,9 +282,9 @@ async function verifyOlderHome(page,label,width,height,grade){
   await page.locator('.bc14-subject[data-camp="subject-math"]').tap();
   await page.locator('#subject-screen.active').waitFor();
   await noOverflow(page,label+' math subject');
-  const back=page.locator('#subject-back');
-  if(await back.isVisible())await back.tap();
-  else await page.evaluate(()=>setTab('home'));
+  const back=page.locator('#subject-screen.active > .laria-back-control:visible');
+  assert.equal(await back.count(),1,label+' Tallvika must offer its real shared return');
+  await back.tap();
   await page.locator('#home-screen.active .bc12:visible').waitFor();
   // Progression and avatar remain intact across grade changes.
   if(grade===4){
