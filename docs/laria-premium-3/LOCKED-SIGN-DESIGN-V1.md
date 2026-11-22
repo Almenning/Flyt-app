@@ -7,7 +7,7 @@ Bruker har **uttrykkelig godkjent** det genererte bildet `laria-sign-master-v1.p
 **Referansefil, eksakt bytes:** `laria-sign-master-v1.png` (1122×1402, PNG).
 - SHA-256: `1b3cdb93f04b95b7b0850653827cb5e6235a69afc5c94e39ab5eba78640678db`
 - Første brukerleverte utsnitt: `laria-originalreferanse.png` (564×886, PNG), SHA-256 `8c2f57351f0a8fc9c87b3a13b4b5a49e195d3a90a1dbbfeabfa05332546072fe`.
-- **Kildebildene følger som samtalevedlegg og i en separat `laria-skiltpakke-v1.zip`; de er ikke lagt til som binærfiler i GitHub ennå.** Ved oppstart av Work: legg eksakt PNG inn i repoet under `laer-litt-mer/assets/ui/locked-reference/laria-sign-master-v1.png`, verifiser SHA-256, og oppdater dette dokumentet med Git commit og filbane. **Ikke rekonstruer eller erstatt bildet når det importeres.**
+- **Importert som uendret designreferanse:** `laer-litt-mer/assets/ui/locked-reference/laria-sign-master-v1.png`. SHA-256 ble kontrollert ved import og er `1b3cdb93f04b95b7b0850653827cb5e6235a69afc5c94e39ab5eba78640678db`. **Ikke rekonstruer eller erstatt bildet.**
 
 Det genererte bildet er et **referanseark med eksempler**, IKKE en ny bakgrunn, en prototype på hovedskjermens layout eller et ferdig sett knapper. Ikke legg alle gruppene fra arket på én skjerm. Hvert faktisk skilt er et selvstendig interaktivt DOM-element.
 
