@@ -73,8 +73,12 @@ async function captureScene(page,scene,filename,viewport,preview){
   });
   assert.equal(next.position,'absolute','Next adventure must not be a fourth primary board');
   assert.ok(next.rect.height>=44&&next.rect.width>=44,'Secondary next sign is too small');
-  assert.ok(next.rect.top>=metrics.buttons[2].bottom+7,
-   'Next sign overlaps primary boards: '+JSON.stringify({metrics,next}));
+  // Compare a measured gap, not the older border-to-border expression.
+  // The previous CI logged a ~26px positive gap but incorrectly failed
+  // the direct relational assertion. Explicit numbers make this auditable.
+  const gapToPrimary=Number(next.rect.top)-Number(metrics.buttons[2].bottom);
+  assert.ok(Number.isFinite(gapToPrimary)&&gapToPrimary>=7,
+   'Next sign overlaps primary boards (gap='+gapToPrimary+'): '+JSON.stringify({metrics,next}));
   assert.ok(metrics.postBottom<=next.rect.top+3,
    'Two shared posts still run through the secondary next sign: '+JSON.stringify({metrics,next}));
   assert.ok(next.rect.left>=0&&next.rect.right<=viewport.width+2&&next.rect.bottom<=viewport.height+2,
