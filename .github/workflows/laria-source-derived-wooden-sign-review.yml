@@ -45,6 +45,19 @@ jobs:
               assert im.getchannel('A').getextrema()==(0,255)
           print('PASS: verified 4 transparent, unapproved original-derived art candidates')
           PY
+      - name: Include the exact Grovanova source for source-pixel comparison
+        run: |
+          cp laer-litt-mer/assets/home-v16/laria-grovanova-v16-landscape-original.png /tmp/laria-source-derived-sign-review/locked-grovanova-landscape-ORIGINAL.png
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          import json, hashlib
+          img=Path('/tmp/laria-source-derived-sign-review/locked-grovanova-landscape-ORIGINAL.png')
+          with Image.open(img) as im:
+            assert im.size==(1448,1086),f'Unexpected locked Grovanova source size: {im.size}'
+          info={'source_repo_path':'laer-litt-mer/assets/home-v16/laria-grovanova-v16-landscape-original.png','sha256':hashlib.sha256(img.read_bytes()).hexdigest(),'resolution':[1448,1086],'retouched':False}
+          (img.parent/'ORIGINAL-SOURCE-MANIFEST.json').write_text(json.dumps(info,indent=2)+'\n')
+          PY
       - name: Upload PNG art for owner review only, not for deployment
         if: always()
         uses: actions/upload-artifact@v4
