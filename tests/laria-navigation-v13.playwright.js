@@ -76,7 +76,7 @@ async function run(engine,label,viewport){
      assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',label+' reading route broke');
      await page.locator('#close-session').click();
      await world.waitFor({timeout:16000});
-     await world.locator('[data-eg="home"]').click();
+     await page.locator('#subject-screen.active > .laria-back-control:visible').click();
      await page.locator('.bc12-nav [data-camp="travel"]').click();
      await checkBoard(page,'travel',label);
      continue;
@@ -85,7 +85,7 @@ async function run(engine,label,viewport){
      const tallvika=page.locator('#subject-screen.active #tallvika-world');
      await tallvika.waitFor({state:'visible',timeout:16000});
      assert.equal(await tallvika.locator('.tv-sign[data-tv]').count(),3,label+' Tallvika must have three clickable activity sign destinations');
-     const back=tallvika.locator('[data-tv="back"]');
+     const back=page.locator('#subject-screen.active > .laria-back-control:visible');
      // The world container can become visible before WebKit has finished the
      // subject-mode transition and exposed its header. Wait for the *real*
      // control before measuring it, not just for the outer scenery.
@@ -95,7 +95,7 @@ async function run(engine,label,viewport){
        const debug=await page.evaluate(()=>{
          const subject=document.getElementById('subject-screen');
          const root=document.getElementById('tallvika-world');
-         const button=root?.querySelector('[data-tv="back"]');
+         const button=subject?.querySelector(':scope > .laria-back-control');
          const inspect=el=>el?{display:getComputedStyle(el).display,visibility:getComputedStyle(el).visibility,
            rect:el.getBoundingClientRect().toJSON()}:null;
          return {screenSubject:subject?.dataset.subject,screenClasses:subject?.className,
@@ -111,13 +111,13 @@ async function run(engine,label,viewport){
      // cannot silently reintroduce that intermittent WebKit failure.
      const stable=await page.evaluate(async()=>{
        const subject=document.getElementById('subject-screen');
-       const previous=document.querySelector('#tallvika-world [data-tv="back"]');
+       const previous=document.querySelector('#subject-screen.active > .laria-back-control');
        subject.classList.add('qa-tallvika-render-stability');
        await new Promise(resolve=>setTimeout(resolve,0));
-       const afterAdd=document.querySelector('#tallvika-world [data-tv="back"]');
+       const afterAdd=document.querySelector('#subject-screen.active > .laria-back-control');
        subject.classList.remove('qa-tallvika-render-stability');
        await new Promise(resolve=>setTimeout(resolve,0));
-       return previous===afterAdd&&previous===document.querySelector('#tallvika-world [data-tv="back"]');
+       return !!previous&&previous===afterAdd&&previous===document.querySelector('#subject-screen.active > .laria-back-control');
      });
      assert.equal(stable,true,label+' Tallvika back must survive unrelated subject-screen mutations');
      // Read geometry on the live button (not a cached ElementHandle); preserve
@@ -145,9 +145,9 @@ async function run(engine,label,viewport){
      const host=document.querySelector('#subject-screen.active #kinnaklova-world');
      return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
    },null,{timeout:20000});
-   const utility=world.locator('.ki-utility [data-ki="home"]');
-   if(await utility.isVisible())await utility.click();
-   else await world.locator('.ki-painted-home').click();
+   const back=page.locator('#subject-screen.active > .laria-back-control:visible');
+   assert.equal(await back.count(),1,label+' Kinnaklova needs one shared return');
+   await back.click();
    }else if(subject==='geography'){
    // Nordlysleiren is the actual subject landing now. Follow the child's
    // illustrated wooden sign to the original journey and return in two steps.
@@ -158,7 +158,7 @@ async function run(engine,label,viewport){
    await back.waitFor({state:'visible',timeout:16000});
    await back.click();
    await landing.waitFor({timeout:16000});
-   await landing.locator('[data-gv="home"]').click();
+   await page.locator('#geography-screen.active > .laria-back-control:visible').click();
    }else{
    // The former Bokskogen legacy map remains tested separately.
    const journeyBack=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
@@ -188,7 +188,7 @@ async function run(engine,label,viewport){
      // Painted Bokskogen back returns to Norsk. Returning from Norsk then
      // restores the original Travel/Explore panel and basecamp state.
      await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:10000});
-     await page.locator('#eggenipa-world .eg-home').click();
+     await page.locator('#subject-screen.active > .laria-back-control:visible').click();
    }
    try{
      await page.locator('#home-screen.active').waitFor({timeout:10000});
