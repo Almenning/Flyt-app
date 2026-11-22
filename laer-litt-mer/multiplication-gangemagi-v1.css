@@ -476,3 +476,20 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-book-quick-count{font:900 10px/1 ui-rounded,-apple-system,sans-serif;white-space:nowrap;color:#69452e}
 .gm-math-note.gm-math-discovery{grid-column:2;text-align:right;padding:0;border:0;background:none;color:#367357;font-size:clamp(10px,1.45vw,13px);font-weight:950;line-height:1.25}
 @media(max-width:400px){.gm-book-quick{min-width:58px;padding:0 4px}.gm-book-quick-count{font-size:9px}.gm-math-note.gm-math-discovery{font-size:10px}}
+
+
+/* Premium 3.0: Free play is part of Tallvika. The mission's approved,
+   authored strawberry-market scene remains untouched. Replace only the
+   legacy matte-verden backdrop in free play for iPad and desktop review. */
+@media (min-width:701px) and (min-height:650px){
+ #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"] .gm-world{
+  background-image:linear-gradient(180deg,rgba(255,248,228,.55),rgba(255,246,218,.45) 45%,rgba(247,237,214,.71)),url('./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp')!important;
+  background-position:center center!important;
+  background-size:cover!important;
+ }
+}
+@media (min-width:701px) and (min-height:650px) and (orientation:portrait){
+ #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"] .gm-world{
+  background-image:linear-gradient(180deg,rgba(255,248,228,.55),rgba(255,246,218,.45) 45%,rgba(247,237,214,.71)),url('./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp')!important;
+ }
+}

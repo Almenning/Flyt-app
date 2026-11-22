@@ -456,3 +456,159 @@
     min-height:58px;padding:8px 9px;
   }
 }
+
+/* 2026-11-22 / iPad review pilot: direct Tallvika -> 10x10 table.
+   Reuse approved Tallvika scenery without touching art pixels or the 100 cells.
+   Keep controls >=44px and the selected original companion as a separate DOM
+   element. Other Gangemagi modes, phones and desktop remain unchanged. */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px){
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-shell:has(.mp-explore-screen){
+  min-height:100dvh;padding:8px 18px 10px;
+  background:
+    linear-gradient(180deg,rgba(255,249,232,.78),rgba(255,249,232,.84)),
+    url('./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp') center/cover no-repeat;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-shell:has(.mp-explore-screen) .mp-scenery{
+  display:none;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-shell:has(.mp-explore-screen) .mp-main{max-width:1040px;}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-shell:has(.mp-explore-screen) .mp-top{
+  min-height:45px;margin:0 0 2px;padding:2px 0;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-heading{
+  padding:5px 6px 3px;margin:0 0 2px;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-heading:before{
+  inset:-3px -8px;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-heading h1{
+  font-size:clamp(24px,3vw,32px);margin:0 0 3px;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-heading p{
+  font-size:12px;line-height:1.25;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-explore-tabs{
+  margin:2px 0 4px;padding:2px 0 5px;gap:5px;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-explore-tab{
+  min-height:55px;border-radius:15px;gap:0;padding:3px 2px;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-explore-tab span{font-size:19px;line-height:1.1}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-explore-tab strong{font-size:11px;line-height:1.2}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-explore-world.table-mode{
+  min-height:0;padding:7px 8px 8px;border-radius:22px;gap:0;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-table-instruction{
+  margin:0 0 4px;font-size:11px;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-table-viewport{
+  max-height:none;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-table-inspector{
+  margin:7px 0 0;padding:8px 10px;gap:5px;border-radius:18px;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-inspector-equation{gap:2px}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-inspector-equation b{font-size:26px;line-height:1.15}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-inspector-equation strong{font-size:19px;line-height:1.1}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-inspector-equation p{font-size:11px;line-height:1.2}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-factor-title{font-size:12px}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-pair-buttons{gap:4px}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-pair{min-height:44px;padding:4px 8px}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-mascot-small{
+  min-height:54px;max-width:none;margin:4px auto 2px;gap:7px;align-items:center;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-mascot-small>img.laria-premium-troll-art{
+  width:64px!important;height:60px!important;min-width:0!important;
+  min-height:0!important;max-width:64px!important;max-height:60px!important;
+  flex:0 0 64px!important;object-fit:contain!important;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-mascot-small .mp-bubble{
+  min-height:48px;padding:5px 11px;border-radius:19px;font-size:11px;line-height:1.2;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-nav{
+  position:relative;bottom:auto;max-width:none;margin:4px auto 0;padding:3px;border-radius:18px;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-nav-link{min-height:48px;}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-nav-link span{font-size:20px}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-nav-link small{font-size:10px}
+}
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+ /* The legacy .app bottom padding creates 140px of empty vertical scroll
+    despite the entire 10x10 table fitting on screen. Scope this to table-mode
+    only so taller exercise modes retain their normal accessible scrolling. */
+ .app:has(#multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-world.table-mode){
+  padding-bottom:0!important;min-height:100dvh;height:100dvh;
+  overflow-y:hidden!important;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"]:has(.mp-explore-world.table-mode){
+  padding:0!important;margin:0!important;min-height:100dvh;height:100dvh;
+  overflow:hidden!important;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-shell:has(.mp-explore-screen){
+  background:
+    linear-gradient(180deg,rgba(255,249,232,.78),rgba(255,249,232,.84)),
+    url('./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp') center/cover no-repeat;
+ }
+}
+@media (min-width:1000px) and (max-width:1366px) and (min-height:650px) and (orientation:landscape){
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-shell:has(.mp-explore-screen){
+  padding:7px 18px 7px;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-shell:has(.mp-explore-screen) .mp-main{max-width:1100px}
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-explore-world.table-mode{
+  display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+  grid-template-rows:auto minmax(0,1fr);column-gap:13px;align-items:start;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-table-instruction{
+  grid-column:1/-1;grid-row:1;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-table-viewport{
+  grid-column:1;grid-row:2;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-table-inspector{
+  grid-column:2;grid-row:2;margin:0;min-width:0;padding:12px 9px;
+ }
+ /* Keep the live, separate selected companion in the otherwise empty right
+    panel instead of letting a 60px mascot row push bottom navigation off
+    the short 1180x820 iPad. This never paints the troll into landscape art. */
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen{
+  position:relative;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-mascot-small{
+  position:absolute;right:20px;bottom:12px;z-index:5;
+  width:40%;max-width:440px;min-height:100px;margin:0;
+  align-items:flex-end;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-mascot-small>img.laria-premium-troll-art{
+  width:102px!important;height:116px!important;max-width:102px!important;
+  max-height:116px!important;flex:0 0 102px!important;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-screen .mp-mascot-small .mp-bubble{
+  max-width:290px;min-height:64px;padding:9px 10px;font-size:12px;
+ }
+}
+
+
+/* Premium 3.0: All iPad 10x10 practice/explore views stay within Tallvika,
+   not the pre-Tallvika matte-verden scene. Keep the original real math
+   controls, live companion and progress exactly as they are. */
+@media (min-width:701px) and (min-height:650px){
+ #multiplication-lab-screen.active .mp-scenery{
+  background-image:linear-gradient(180deg,rgba(255,249,232,.57),rgba(255,249,232,.40) 35%,rgba(255,249,232,.78) 80%,#fff7e8),url('./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp')!important;
+  background-position:center top!important;
+  background-size:cover!important;
+ }
+ #multiplication-lab-screen.active .mp-task-apples{
+  background-image:linear-gradient(180deg,rgba(255,252,226,.38),rgba(227,240,216,.38)),url('./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp')!important;
+  background-size:cover!important;
+  background-position:center center!important;
+ }
+}
+@media (min-width:701px) and (min-height:650px) and (orientation:portrait){
+ #multiplication-lab-screen.active .mp-scenery{
+  background-image:linear-gradient(180deg,rgba(255,249,232,.53),rgba(255,249,232,.37) 35%,rgba(255,249,232,.80) 80%,#fff7e8),url('./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp')!important;
+ }
+ #multiplication-lab-screen.active .mp-task-apples{
+  background-image:linear-gradient(180deg,rgba(255,252,226,.40),rgba(227,240,216,.43)),url('./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp')!important;
+ }
+}

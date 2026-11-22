@@ -89,7 +89,8 @@ async function visit(engine,name,device,viewport){
 async function poisonedArt(){
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
-  const context=await browser.newContext({viewport:{width:1194,height:834},serviceWorkers:'block'});
+  // Keep the SHA-rejection route on the iPad device class it protects.
+  const context=await browser.newContext({viewport:{width:1194,height:834},hasTouch:true,serviceWorkers:'block'});
   await context.addInitScript(v=>localStorage.setItem('laerlittmer-v2',JSON.stringify(v)),seed);
   const page=await context.newPage();
   const original=path.resolve(__dirname,'../laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp');

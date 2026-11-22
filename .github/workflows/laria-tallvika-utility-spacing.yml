@@ -1,0 +1,61 @@
+name: Læria Tallvika iPad utility spacing review
+on:
+  push:
+    branches: [fix/laria-closed-ipad-beta-20261122]
+    paths:
+      - laer-litt-mer/tallvika-fjord-v2.css
+      - laer-litt-mer/laria-reference-layout-v1.css
+      - laer-litt-mer/index.html
+      - laer-litt-mer/multiplication-premium-v2.css
+      - laer-litt-mer/multiplication-gangemagi-v1.css
+      - tests/laria-matte-premium-backdrop.playwright.js
+      - tests/laria-tallvika-ipad-utility-spacing.playwright.js
+      - .github/workflows/laria-tallvika-utility-spacing.yml
+  pull_request:
+    paths:
+      - laer-litt-mer/tallvika-fjord-v2.css
+      - laer-litt-mer/laria-reference-layout-v1.css
+      - laer-litt-mer/index.html
+      - laer-litt-mer/multiplication-premium-v2.css
+      - laer-litt-mer/multiplication-gangemagi-v1.css
+      - tests/laria-matte-premium-backdrop.playwright.js
+      - tests/laria-tallvika-ipad-utility-spacing.playwright.js
+      - .github/workflows/laria-tallvika-utility-spacing.yml
+permissions:
+  contents: read
+jobs:
+  ipad-utility-spacing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Run Læria Tallvika 2. klasse geometry in 10 real iPad cases
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_MATH_PREMIUM_QA: /tmp/laria-math-premium-utility
+        run: |
+          node --check tests/laria-tallvika-ipad-utility-spacing.playwright.js
+          python3 -m http.server 8765 --directory . >/tmp/laria-local-http.log 2>&1 &
+          node tests/laria-tallvika-ipad-utility-spacing.playwright.js
+          LARIA_MATH_BACKDROP_QA=/tmp/laria-matte-backdrops node tests/laria-matte-premium-backdrop.playwright.js
+      - name: Save exact-head screenshots and geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-matte-class-button-premium-ipad
+          path: |
+            /tmp/laria-math-premium-utility
+            /tmp/laria-matte-backdrops
+          retention-days: 14
+          if-no-files-found: warn
