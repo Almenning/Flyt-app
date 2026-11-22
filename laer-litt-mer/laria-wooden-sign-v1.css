@@ -292,7 +292,7 @@
  .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
  > nav.laria-scene-navigation.laria-english-group-rail {
  --ref-menu-width:clamp(286px,34vw,390px);
- --laria-group-tail:clamp(12px,2.2vh,26px);
+ --laria-group-tail:clamp(14px,2.2vh,26px);
  width:var(--ref-menu-width)!important;
  top:var(--laria-group-top,16%)!important;
  left:3%!important;right:auto!important;
@@ -376,4 +376,61 @@
 @media(min-width:768px) and (orientation:landscape){
  #kinnaklova-world[data-ki-premium-art="approved"]
  .ki-stage.laria-reference-layout-v1 { --laria-group-top:max(74px,9.5%); }
+}
+
+
+/* Kinnaklova terrain contact, iPad-only REVIEW. The church roof is much
+ * closer to the last board in compact landscape than in portrait. Therefore
+ * the same long post tail must NOT be reused for all five iPad viewports.
+ * Only the shared POSTS extend: the artwork and three action buttons stay
+ * byte-for-byte unchanged. The fade buries their ends into the hillside. */
+@media (min-width:768px) and (orientation:portrait) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1 > nav.laria-english-group-rail {
+  --laria-group-tail:clamp(62px,6vh,88px);
+ }
+}
+@media (min-width:768px) and (orientation:landscape) and (max-height:850px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1 > nav.laria-english-group-rail {
+  --laria-group-tail:clamp(12px,1.9vh,17px);
+ }
+}
+@media (min-width:768px) and (orientation:landscape) and (min-height:851px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1 > nav.laria-english-group-rail {
+  --laria-group-tail:clamp(40px,4.9vh,56px);
+ }
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1
+ > nav.laria-english-group-rail::before {
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 88%,#000c 92%,transparent 100%)!important;
+ mask-image:linear-gradient(to bottom,#000 0%,#000 88%,#000c 92%,transparent 100%)!important;
+}
+
+/* Legacy Geography hid every aria-hidden <span> to remove its green arrow.
+ * The new carved relief badge is aria-hidden, too, but must remain VISIBLE.
+ * Scope to LariaWoodenSign so the historical fallback is unaffected. */
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation
+ > button.gv-sign.laria-wayfinder.laria-wooden-sign
+ > span.laria-wooden-sign-medallion[aria-hidden="true"] {
+ box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;
+ visibility:visible!important;opacity:1!important;pointer-events:none!important;
+ position:absolute!important;left:16px!important;right:auto!important;
+ top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;
+ width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;
+ max-width:36px!important;max-height:36px!important;padding:0!important;margin:0!important;
+ border:2px solid #e4af63!important;border-radius:50%!important;
+ background:radial-gradient(circle at 35% 30%,#b88448 0 20%,#4a2814 25% 73%,#28150b 78%)!important;
+ box-shadow:inset 0 1px 2px #f5d38b,0 2px 2px #44210f!important;
+ color:#ffe4a3!important;text-shadow:none!important;z-index:3!important;
+}
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation
+ > button.gv-sign.laria-wayfinder.laria-wooden-sign
+ > span.laria-wooden-sign-medallion svg {
+ display:block!important;width:19px!important;height:19px!important;
 }
