@@ -1,0 +1,125 @@
+
+/* Læria Kloden v17 — stable premium recovery.
+   Built on v15 DOM/runtime. No DOM reparenting, no art-loading dependency. */
+#world-screen.active{
+  --pg-canvas-size:min(76dvh,76vw,900px)!important;
+  --pg-ring-size:min(72dvh,72vw,850px)!important;
+  --pg-panel-width:min(88vw,1240px)!important;
+  --pg-header-width:min(92vw,1320px)!important;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(255,255,255,.08) 0 22%,rgba(255,255,255,0) 50%),
+    linear-gradient(180deg,rgba(11,43,56,.02),rgba(32,48,36,.12)),
+    url('./geografi-verden.png?v=20261004-world1') center 47%/cover no-repeat!important;
+}
+#world-screen.active::before{
+  background:
+    linear-gradient(90deg,rgba(18,35,29,.13),transparent 14%,transparent 86%,rgba(18,35,29,.13))!important;
+}
+#world-screen.active .globe-wrap{
+  position:absolute!important;
+  inset:auto!important;
+  left:50%!important;
+  top:51.5%!important;
+  transform:translate(-50%,-50%)!important;
+  width:var(--pg-canvas-size)!important;
+  height:var(--pg-canvas-size)!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  overflow:visible!important;
+  background:transparent!important;
+  z-index:12!important;
+}
+#world-screen.active #globe-canvas{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:1!important;
+  border-radius:50%!important;
+  z-index:13!important;
+  filter:saturate(1.2) contrast(1.04) drop-shadow(0 24px 26px rgba(25,43,39,.23))!important;
+}
+#world-screen.active .premium-globe-ring{
+  display:block!important;
+  position:absolute!important;
+  left:50%!important;
+  top:51.5%!important;
+  transform:translate(-50%,-50%)!important;
+  width:var(--pg-ring-size)!important;
+  height:var(--pg-ring-size)!important;
+  z-index:14!important;
+}
+#world-screen.active .premium-globe-knob{display:block!important;top:51.5%!important;z-index:15!important}
+#world-screen.active .premium-globe-knob.left{
+  left:calc(50% - var(--pg-ring-size)/2 - 17px)!important;
+}
+#world-screen.active .premium-globe-knob.right{
+  right:calc(50% - var(--pg-ring-size)/2 - 17px)!important;
+}
+#world-screen.active .globe-zoom{
+  position:absolute!important;
+  right:-82px!important;
+  top:27%!important;
+  z-index:80!important;
+}
+#world-screen.active .globe-hint{
+  bottom:12px!important;
+  z-index:81!important;
+}
+#world-screen.active .premium-globe-header{
+  display:block!important;
+  top:max(10px,env(safe-area-inset-top))!important;
+  width:var(--pg-header-width)!important;
+  min-height:118px!important;
+  z-index:60!important;
+}
+#world-screen.active #world-back{z-index:82!important}
+#world-screen.active .globe-mode{
+  top:max(137px,calc(env(safe-area-inset-top) + 127px))!important;
+  z-index:70!important;
+}
+#world-screen.active .globe-status{
+  width:var(--pg-panel-width)!important;
+  bottom:calc(78px + env(safe-area-inset-bottom))!important;
+  z-index:75!important;
+}
+#world-screen.active .globe-actions{
+  width:var(--pg-panel-width)!important;
+  bottom:calc(11px + env(safe-area-inset-bottom))!important;
+  z-index:76!important;
+}
+#world-screen.active .globe-legend{z-index:74!important}
+
+@media(max-width:760px){
+  #world-screen.active{
+    --pg-canvas-size:min(63dvh,112vw)!important;
+    --pg-ring-size:min(59dvh,105vw)!important;
+    --pg-panel-width:calc(100vw - 16px)!important;
+    --pg-header-width:calc(100vw - 12px)!important;
+  }
+  #world-screen.active .globe-wrap,
+  #world-screen.active .premium-globe-ring{top:50.5%!important}
+  #world-screen.active .premium-globe-knob{display:none!important}
+  #world-screen.active .globe-zoom{right:4px!important;top:28%!important}
+  #world-screen.active .globe-status{bottom:calc(67px + env(safe-area-inset-bottom))!important}
+  #world-screen.active .globe-actions{bottom:calc(7px + env(safe-area-inset-bottom))!important}
+}
+@media(max-height:700px) and (orientation:landscape){
+  #world-screen.active{
+    --pg-canvas-size:min(68dvh,59vw,760px)!important;
+    --pg-ring-size:min(64dvh,55vw,720px)!important;
+  }
+  #world-screen.active .premium-globe-header{min-height:82px!important}
+  #world-screen.active .globe-mode{top:94px!important}
+  #world-screen.active .globe-wrap,
+  #world-screen.active .premium-globe-ring{top:50%!important}
+  #world-screen.active .globe-status{bottom:62px!important}
+  #world-screen.active .globe-actions{bottom:6px!important}
+}

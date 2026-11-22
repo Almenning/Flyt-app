@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Tilbake til Hjem">
+<defs>
+ <linearGradient id="wood" x1=".15" y1="0" x2=".8" y2="1"><stop stop-color="#ffe7ad"/><stop offset=".56" stop-color="#edb976"/><stop offset="1" stop-color="#b97b40"/></linearGradient>
+ <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#38240f" flood-opacity=".36"/></filter>
+</defs>
+<g filter="url(#shadow)">
+ <circle cx="60" cy="58" r="49" fill="url(#wood)" stroke="#75451f" stroke-width="7"/>
+ <circle cx="60" cy="58" r="40.5" fill="none" stroke="#fff0c7" stroke-width="3" opacity=".76"/>
+ <path d="M35 59 60 37 85 59" fill="none" stroke="#533119" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M42 58V82H78V58" fill="#58351e" stroke="#58351e" stroke-width="4" stroke-linejoin="round"/>
+ <path d="M54 82V67Q54 63 60 63T66 67V82" fill="#edc68b"/>
+ <path d="M40 34Q56 27 73 33" stroke="#fff0b7" stroke-width="3" fill="none" opacity=".7"/>
+</g>
+</svg>

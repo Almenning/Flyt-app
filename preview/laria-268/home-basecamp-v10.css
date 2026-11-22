@@ -1,0 +1,96 @@
+/* Læria Home v10 — illustrated basecamp, grades 1–2 */
+.grade-band-young.app:has(#home-screen.active){background:#dcefdc!important}
+.grade-band-young.app:has(#home-screen.active) #topbar,
+.grade-band-young.app:has(#home-screen.active) #bottom-nav{display:none!important}
+.grade-band-young #home-screen{max-width:none!important;margin:0!important;padding:0!important;background:transparent!important;overflow:visible!important}
+.grade-band-young #home-screen > :not(.laria-basecamp-v10){display:none!important}
+.laria-basecamp-v10{display:none}
+.grade-band-young #home-screen>.laria-basecamp-v10{display:block!important}
+
+.laria-basecamp-v10{
+  --wood:#77461f;--wood-dark:#4a2916;--cream:#fff1c9;--ink:#203451;--gold:#ffd45c;
+  position:relative;width:min(100%,1180px);min-height:clamp(735px,73vw,875px);margin:0 auto;overflow:hidden;isolation:isolate;
+  background:#82c5da url('./bokskogen-atlas32.webp') center 47%/cover no-repeat;
+  border-radius:0 0 38px 38px;box-shadow:0 28px 76px rgba(32,57,52,.18)
+}
+.laria-basecamp-v10:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(circle at 78% 10%,rgba(255,239,161,.38),transparent 22%),
+  linear-gradient(180deg,rgba(165,223,244,.10) 0%,rgba(255,244,194,.08) 40%,rgba(27,65,42,.17) 100%)}
+.laria-basecamp-v10:after{content:"";position:absolute;z-index:1;left:-8%;right:-8%;bottom:-5%;height:24%;pointer-events:none;background:
+  radial-gradient(ellipse at 8% 70%,#285e38 0 12%,transparent 13%),
+  radial-gradient(ellipse at 21% 82%,#3b7444 0 12%,transparent 13%),
+  radial-gradient(ellipse at 87% 77%,#315f39 0 13%,transparent 14%),
+  linear-gradient(180deg,transparent,rgba(21,55,36,.28));filter:blur(.4px)}
+
+.bc10-canopy{position:absolute;z-index:2;left:-4%;right:-4%;top:-7%;height:16%;pointer-events:none;background:
+  radial-gradient(ellipse at 3% 65%,#234c2b 0 8%,transparent 9%),
+  radial-gradient(ellipse at 11% 70%,#326d35 0 10%,transparent 11%),
+  radial-gradient(ellipse at 89% 68%,#326d35 0 10%,transparent 11%),
+  radial-gradient(ellipse at 97% 60%,#234c2b 0 9%,transparent 10%);opacity:.94;filter:drop-shadow(0 7px 5px rgba(26,54,34,.20))}
+.bc10-glow{position:absolute;z-index:2;right:10%;top:4%;width:24%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,239,156,.34),rgba(255,239,156,0) 70%);pointer-events:none}
+.bc10-firefly{position:absolute;z-index:7;width:7px;height:7px;border-radius:50%;background:#ffe876;box-shadow:0 0 9px #ffe876,0 0 18px #ffe876;animation:bc10Fly 3.4s ease-in-out infinite;pointer-events:none}
+.bc10-firefly.f1{left:39%;top:36%}.bc10-firefly.f2{left:71%;top:25%;animation-delay:.8s}.bc10-firefly.f3{left:84%;top:54%;animation-delay:1.7s}.bc10-firefly.f4{left:49%;top:63%;animation-delay:2.3s}
+@keyframes bc10Fly{0%,100%{transform:translate(0,0);opacity:.5}45%{transform:translate(9px,-13px);opacity:1}70%{transform:translate(-6px,-4px);opacity:.72}}
+
+.bc10-logo{position:absolute;z-index:20;left:3.4%;top:2.2%;font-weight:1000;font-size:clamp(31px,4.1vw,49px);letter-spacing:-.06em;color:#5267d9;text-shadow:0 3px 0 #fff8,0 7px 17px rgba(32,46,95,.19)}
+.bc10-logo i{font-style:normal;color:#f7bd31;font-size:.72em;margin-left:.08em}
+.bc10-title{position:absolute;z-index:16;left:3.2%;top:10.3%;width:42.5%;padding:2.0% 2.35% 1.8%;color:var(--ink);transform:rotate(-.7deg);border-radius:22px 30px 22px 27px;background:linear-gradient(145deg,rgba(255,242,195,.98),rgba(255,249,225,.96));border:3px solid rgba(119,74,30,.28);box-shadow:0 7px 0 rgba(91,58,29,.11),0 16px 28px rgba(35,52,54,.13)}
+.bc10-title:before{content:"";position:absolute;inset:-8px 13% auto 7%;height:13px;border-radius:50%;background:linear-gradient(90deg,#4f8a45,#77a94e,#4f8a45);box-shadow:18px 3px 0 -2px #76a64d,-17px 4px 0 -2px #5c9648}
+.bc10-title small{display:block;font-weight:1000;font-size:clamp(11px,1.35vw,15px);color:#7e643c;margin-bottom:5px}
+.bc10-title h1{margin:0;font-size:clamp(31px,4vw,50px);line-height:.98;letter-spacing:-.045em}
+.bc10-title p{max-width:94%;margin:9px 0 0;font-size:clamp(11px,1.35vw,15px);line-height:1.34;font-weight:850;color:#6d664d}
+.bc10-grade{display:inline-flex;margin-top:9px;padding:5px 9px;border-radius:999px;background:#fff7ca;color:#7d5d1f;font-size:9px;font-weight:1000;border:2px solid #fff;box-shadow:0 3px 8px #6f572018}
+
+.bc10-fox{position:absolute;z-index:12;left:29%;bottom:8.7%;width:29%;max-width:345px;pointer-events:none;filter:drop-shadow(0 17px 10px rgba(22,40,33,.29));animation:bc10Fox 3.4s ease-in-out infinite}
+.bc10-fox img{display:block;width:100%;height:auto}
+@keyframes bc10Fox{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-6px) rotate(.4deg)}}
+.bc10-speech{position:absolute;z-index:14;left:41%;bottom:39%;padding:8px 12px;border-radius:16px 16px 16px 5px;background:#fff9df;color:#4c493c;border:2px solid #fff;box-shadow:0 5px 12px rgba(42,48,39,.13);font-size:clamp(9px,1.15vw,12px);font-weight:950;transform:rotate(-1deg)}
+
+.bc10-journey{position:absolute;z-index:14;left:3.7%;top:39%;width:27%;min-width:220px;padding:0;border:0;background:none;text-align:left;color:#fff;cursor:pointer;filter:drop-shadow(0 8px 7px rgba(27,31,25,.28))}
+.bc10-journey .main-plank{display:block;padding:15px 17px 14px;border-radius:15px 19px 14px 17px;border:3px solid #a87739;background:linear-gradient(180deg,#915d2a,#643a1e);box-shadow:inset 0 2px 0 #fff3,0 5px 0 #482615;font-size:clamp(21px,2.6vw,31px);font-weight:1000;line-height:1;letter-spacing:-.03em}
+.bc10-journey .main-plank b{float:right;color:#ffe171;font-size:1.25em}
+.bc10-journey .next-plank{display:block;margin:8px 8px 0;padding:10px 12px;border-radius:12px;border:3px solid rgba(120,77,35,.22);background:rgba(255,242,203,.97);color:#6d4322;font-size:clamp(10px,1.25vw,13px);font-weight:850;line-height:1.22}
+.bc10-journey .next-plank strong{display:block;margin-top:2px;color:#3f3528;font-size:1.12em}
+.bc10-journey:active{transform:translateY(3px)}
+
+.bc10-route{position:absolute;z-index:5;left:25.5%;top:44%;width:44%;height:35%;pointer-events:none;overflow:visible;filter:drop-shadow(0 0 5px rgba(255,218,73,.44))}
+.bc10-route path{fill:none;stroke:#ffe45e;stroke-width:3.2;stroke-linecap:round;stroke-dasharray:2 7;animation:bc10Dash 3.8s linear infinite}
+.bc10-route circle{fill:#fff4a4;stroke:#e7b734;stroke-width:1.5;filter:drop-shadow(0 0 3px #ffe467)}
+@keyframes bc10Dash{to{stroke-dashoffset:-36}}
+
+.bc10-explore-label{position:absolute;z-index:15;right:4.5%;top:4.6%;padding:10px 17px;border-radius:14px;border:3px solid rgba(116,74,31,.26);background:linear-gradient(145deg,#ffe8ad,#fff4cf);color:#2b445c;box-shadow:0 5px 0 rgba(90,58,27,.12);font-size:clamp(15px,2vw,23px);font-weight:1000;transform:rotate(.7deg)}
+
+.bc10-place{position:absolute;z-index:9;border:0;background:none;padding:0;cursor:pointer;filter:drop-shadow(0 11px 8px rgba(26,43,39,.21));transition:transform .16s ease,filter .16s ease}
+.bc10-place:active{transform:translateY(3px) scale(.985)}
+.bc10-place .island{position:relative;width:100%;height:100%;border:3px solid rgba(255,255,255,.90);overflow:hidden;background-size:cover;background-position:center;box-shadow:inset 0 -26px 35px rgba(22,37,35,.18)}
+.bc10-place .island:after{content:"";position:absolute;inset:42% 0 0;background:linear-gradient(180deg,transparent,rgba(28,40,45,.08),rgba(29,39,43,.63))}
+.bc10-place .badge{position:absolute;z-index:3;left:9%;top:8%;display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:rgba(255,255,255,.94);font-size:21px;box-shadow:0 4px 11px rgba(23,35,46,.16)}
+.bc10-place .sign{position:absolute;z-index:4;left:8%;right:8%;bottom:7%;padding:8px 9px;border-radius:12px;border:2px solid #bd8a46;background:linear-gradient(180deg,#8d5c2c,#5f371c);color:#fff4d6;box-shadow:0 4px 0 #462614;font-size:clamp(11px,1.45vw,17px);font-weight:1000;text-align:center;text-shadow:0 1px 2px #0005}
+.bc10-place.globe{left:57%;top:11%;width:18.5%;height:19%}.bc10-place.globe .island{border-radius:48% 48% 36% 38%/38% 39% 48% 47%;background-image:url('./geografi-verden.png');background-position:21% 32%}
+.bc10-place.fraction{left:78%;top:15%;width:18%;height:18%}.bc10-place.fraction .island{border-radius:42% 50% 36% 46%/37% 40% 48% 44%;background-image:url('./matte-verden.png');background-position:70% 28%}
+.bc10-place.words{left:60%;top:34.5%;width:20%;height:20%}.bc10-place.words .island{border-radius:47% 43% 42% 39%/36% 45% 40% 50%;background-image:url('./bokskogen-atlas32.webp');background-position:53% 34%}
+.bc10-place.multiply{left:80.5%;top:38%;width:17.5%;height:19.5%}.bc10-place.multiply .island{border-radius:39% 48% 37% 49%/43% 38% 47% 42%;background-image:url('./matte-verden.png');background-position:30% 63%}
+.bc10-place:hover{filter:drop-shadow(0 14px 10px rgba(26,43,39,.24)) saturate(1.08) brightness(1.03)}
+
+.bc10-lantern{position:absolute;z-index:10;width:14px;height:23px;border:3px solid #654425;border-radius:4px;background:radial-gradient(circle,#fff3a3 0 25%,#ffc84d 45%,#8f5e25 100%);box-shadow:0 0 10px #ffd869,0 0 20px #ffc84d88;animation:bc10Lantern 2.2s ease-in-out infinite;pointer-events:none}
+.bc10-lantern:before{content:"";position:absolute;left:3px;right:3px;top:-7px;height:6px;border:2px solid #654425;border-bottom:0;border-radius:7px 7px 0 0}
+.bc10-lantern.l1{left:53%;top:49%}.bc10-lantern.l2{left:75.5%;top:33%}.bc10-lantern.l3{left:89%;top:60%;animation-delay:.7s}
+@keyframes bc10Lantern{50%{filter:brightness(1.18)}}
+
+.bc10-quest,.bc10-collection{position:absolute;z-index:14;border:3px solid rgba(119,77,35,.27);border-radius:18px;background:linear-gradient(145deg,rgba(255,239,196,.98),rgba(255,249,226,.98));box-shadow:0 7px 0 rgba(80,53,30,.11),0 14px 23px rgba(28,47,43,.16);color:#563a26;text-align:left;cursor:pointer}
+.bc10-quest{left:47%;bottom:10%;width:25%;padding:12px 13px 11px}.bc10-quest:before{content:"🦊";float:left;margin-right:9px;font-size:30px}.bc10-quest strong,.bc10-collection strong{display:block;font-size:clamp(13px,1.65vw,19px);font-weight:1000}.bc10-quest span,.bc10-collection span{display:block;margin-top:4px;color:#806348;font-size:clamp(9px,1.05vw,12px);font-weight:800}
+.bc10-collection{right:3.6%;bottom:9.7%;width:20.5%;padding:12px 13px}.bc10-collection:before{content:"🎒";float:left;margin-right:8px;font-size:28px}.bc10-quest:active,.bc10-collection:active{transform:translateY(3px)}
+
+.bc10-nav{position:absolute;z-index:20;left:15%;right:15%;bottom:1.3%;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:7px;border-radius:26px;border:3px solid #80502d;background:linear-gradient(180deg,rgba(119,73,39,.96),rgba(72,42,26,.97));box-shadow:0 7px 0 #3f2718,0 14px 25px rgba(25,38,38,.20)}
+.bc10-nav button{min-height:60px;border:0;border-radius:18px;background:transparent;color:#ffe9c8;font-size:10px;font-weight:950;cursor:pointer}.bc10-nav button span{display:block;font-size:22px;margin-bottom:3px}.bc10-nav button.active{background:linear-gradient(180deg,#fff0b8,#ffd867);color:#684213;box-shadow:inset 0 0 0 2px #fff6,0 4px 0 #b47d2b}.bc10-nav button:active{transform:translateY(2px)}
+
+.bc10-pulse .bc10-place{animation:bc10Pop .7s ease 1}@keyframes bc10Pop{50%{filter:brightness(1.12) saturate(1.18);transform:translateY(-4px) scale(1.025)}}
+
+@media(max-width:700px){
+ .laria-basecamp-v10{min-height:930px;border-radius:0;background-position:center top}
+ .bc10-logo{left:5%;top:1.6%;font-size:31px}.bc10-title{left:4%;top:7.5%;width:88%;padding:18px 16px}.bc10-title h1{font-size:31px}.bc10-title p{font-size:11px}.bc10-grade{margin-top:7px}
+ .bc10-journey{left:5%;top:27%;width:49%}.bc10-route{left:32%;top:36%;width:50%;height:24%}.bc10-fox{left:15%;bottom:31%;width:47%}.bc10-speech{left:34%;bottom:52%;font-size:9px}
+ .bc10-explore-label{right:4%;top:26.5%;font-size:13px;padding:8px 10px}.bc10-place{width:33%!important;height:13.5%!important}.bc10-place.globe{left:60%;top:34%}.bc10-place.fraction{left:62%;top:48%}.bc10-place.words{left:4%;top:59%}.bc10-place.multiply{left:63%;top:62%}.bc10-place .sign{font-size:10px}.bc10-place .badge{width:31px;height:31px;font-size:17px}
+ .bc10-lantern{display:none}.bc10-quest{left:5%;bottom:12%;width:44%}.bc10-collection{right:5%;bottom:12%;width:40%}.bc10-nav{left:3%;right:3%;bottom:2%;border-radius:22px}.bc10-nav button{min-height:58px;font-size:9px}.bc10-nav button span{font-size:20px}
+}
+@media(prefers-reduced-motion:reduce){.bc10-fox,.bc10-firefly,.bc10-route path,.bc10-lantern{animation:none!important}.bc10-place{transition:none!important}}

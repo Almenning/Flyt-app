@@ -1,0 +1,446 @@
+
+/* Læria Kloden v16 — approved visual plate + live globe overlay */
+#world-screen.active{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  overflow:hidden!important;
+  padding:0!important;
+  background:#173b42 center/cover no-repeat!important;
+  isolation:isolate!important;
+}
+#world-screen.active:before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:-28px!important;
+  z-index:0!important;
+  background:inherit!important;
+  background-size:cover!important;
+  filter:blur(22px) saturate(.92) brightness(.68)!important;
+  transform:scale(1.08)!important;
+  pointer-events:none!important;
+}
+#world-screen.active:after{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:1!important;
+  background:rgba(18,37,36,.08)!important;
+  pointer-events:none!important;
+}
+#world-screen.active .premium-globe-header,
+#world-screen.active .premium-globe-ring,
+#world-screen.active .premium-globe-knob{display:none!important}
+
+#world-screen.active .globe-v16-stage{
+  position:absolute!important;
+  z-index:4!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(100vw,calc(100dvh * 1.333333))!important;
+  height:min(100dvh,calc(100vw * .75))!important;
+  aspect-ratio:4/3!important;
+  overflow:hidden!important;
+  background:#87c9ee url('./globe-v17-reference.jpg?v=1') center/100% 100% no-repeat!important;
+  box-shadow:0 0 70px rgba(15,29,28,.32)!important;
+  container-type:size;
+}
+#world-screen.active .globe-v16-stage:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+}
+
+/* Exact interaction zones laid over the approved plate. */
+#world-screen.active #world-back{
+  position:absolute!important;
+  z-index:80!important;
+  left:7.6%!important;
+  top:5.3%!important;
+  width:7.2%!important;
+  max-width:82px!important;
+  min-width:54px!important;
+  aspect-ratio:1!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:24%!important;
+  border:0!important;
+  background:transparent!important;
+  color:transparent!important;
+  box-shadow:none!important;
+  cursor:pointer!important;
+}
+#world-screen.active #world-back:focus-visible{outline:4px solid #fff4b7!important;outline-offset:2px!important}
+
+#world-screen.active .globe-mode{
+  position:absolute!important;
+  z-index:72!important;
+  left:50%!important;
+  top:18.4%!important;
+  transform:translateX(-50%)!important;
+  width:31.5%!important;
+  min-width:300px!important;
+  max-width:470px!important;
+  padding:4px!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  border-radius:999px!important;
+  border:2px solid #d8b978!important;
+  background:linear-gradient(180deg,#fff9e9,#f5e7c9)!important;
+  box-shadow:0 4px 0 rgba(108,70,31,.13),0 10px 22px rgba(40,49,38,.16)!important;
+}
+#world-screen.active .globe-mode button{
+  min-height:48px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  color:#654a31!important;
+  font:950 clamp(12px,1.35cqw,17px)/1 system-ui,-apple-system,sans-serif!important;
+  padding:8px 16px!important;
+}
+#world-screen.active .globe-mode button.active{
+  background:linear-gradient(180deg,#638c50,#416f39)!important;
+  color:#fff9e6!important;
+  box-shadow:0 4px 0 #31582d,0 7px 14px rgba(46,70,38,.24)!important;
+}
+#world-screen.active .globe-mode .pg-mode-icon{width:20px!important;height:20px!important;margin-right:7px!important;vertical-align:-5px!important}
+
+/* Live globe. Initial plate stays visually exact until the child touches the globe. */
+#world-screen.active .globe-wrap{
+  position:absolute!important;
+  z-index:26!important;
+  left:50%!important;
+  top:49.6%!important;
+  transform:translate(-50%,-50%)!important;
+  width:50.5%!important;
+  height:auto!important;
+  aspect-ratio:1!important;
+  inset:auto!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  overflow:visible!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  touch-action:none!important;
+}
+#world-screen.active #globe-canvas{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:1!important;
+  border-radius:50%!important;
+  opacity:1!important;
+  transition:none!important;
+  filter:saturate(1.18) contrast(1.04) drop-shadow(0 12px 18px rgba(25,49,46,.18))!important;
+  cursor:grab!important;
+  touch-action:none!important;
+}
+#world-screen.active.globe-v16-live #globe-canvas,\n#world-screen.active .globe-v16-stage.globe-v16-live #globe-canvas{opacity:1!important}
+#world-screen.active #globe-canvas:active{cursor:grabbing!important}
+
+/* Real zoom buttons cover the painted controls so they remain usable. */
+#world-screen.active .globe-zoom{
+  position:absolute!important;
+  z-index:84!important;
+  right:-37.3%!important;
+  top:15.6%!important;
+  display:grid!important;
+  gap:9px!important;
+}
+#world-screen.active .globe-zoom button{
+  width:58px!important;
+  height:58px!important;
+  border-radius:18px!important;
+  border:2px solid #b77932!important;
+  background:linear-gradient(180deg,#fffbed,#f7e8c5)!important;
+  color:#71451f!important;
+  font:1000 25px/1 system-ui,-apple-system,sans-serif!important;
+  box-shadow:0 4px 0 #8a572d,0 9px 16px rgba(45,35,24,.15)!important;
+}
+
+/* Gesture hint */
+#world-screen.active .globe-hint{
+  position:absolute!important;
+  z-index:82!important;
+  left:50%!important;
+  bottom:3.3%!important;
+  transform:translateX(-50%)!important;
+  padding:7px 13px!important;
+  border-radius:999px!important;
+  border:2px solid #d2ae70!important;
+  background:rgba(255,249,233,.97)!important;
+  color:#644a2e!important;
+  box-shadow:0 4px 10px rgba(54,42,28,.11)!important;
+  font:900 clamp(8px,.85cqw,12px)/1.15 system-ui,-apple-system,sans-serif!important;
+  white-space:nowrap!important;
+}
+
+/* Country card is live and intentionally covers the painted Tsjad card. */
+#world-screen.active .globe-status{
+  position:absolute!important;
+  z-index:76!important;
+  left:5.8%!important;
+  right:5.8%!important;
+  bottom:8.7%!important;
+  width:auto!important;
+  min-height:10.2%!important;
+  padding:1.05% 1.45%!important;
+  margin:0!important;
+  transform:none!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:1.2cqw!important;
+  border-radius:1.9cqw!important;
+  border:2px solid #d5b06f!important;
+  background:linear-gradient(180deg,rgba(255,253,245,.995),rgba(255,238,201,.995))!important;
+  box-shadow:0 5px 0 rgba(113,74,35,.16),0 14px 28px rgba(43,48,33,.17)!important;
+  backdrop-filter:none!important;
+}
+#world-screen.active .globe-status .flag{
+  width:5.7cqw!important;
+  height:4.7cqw!important;
+  min-width:52px!important;
+  min-height:44px!important;
+  max-width:77px!important;
+  max-height:64px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:1.05cqw!important;
+  border:2px solid #dfc690!important;
+  background:#fffaf0!important;
+  font-size:clamp(28px,2.7cqw,40px)!important;
+}
+#world-screen.active .globe-country-copy{min-width:0!important}
+#world-screen.active .globe-country-line{display:flex!important;align-items:center!important;gap:.65cqw!important;flex-wrap:wrap!important}
+#world-screen.active .globe-status strong{
+  display:block!important;
+  color:#163a68!important;
+  font:1000 clamp(19px,2.15cqw,31px)/1 system-ui,-apple-system,sans-serif!important;
+  letter-spacing:-.035em!important;
+}
+#world-screen.active .globe-status span{
+  color:#624a31!important;
+  font:800 clamp(9px,.95cqw,14px)/1.25 system-ui,-apple-system,sans-serif!important;
+}
+#world-screen.active .globe-country-meta{display:block!important;margin-top:.38cqw!important}
+#world-screen.active .globe-status-badge{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  margin:0!important;
+  padding:5px 10px!important;
+  border-radius:999px!important;
+  background:#eee4d1!important;
+  color:#6d6251!important;
+  font-size:clamp(8px,.72cqw,11px)!important;
+  font-weight:950!important;
+  width:max-content!important;
+}
+#world-screen.active .globe-status-badge i{width:7px;height:7px;border-radius:50%;background:#aaa49a}
+#world-screen.active .globe-status-badge.mastered i{background:#d3a32b}
+#world-screen.active .globe-status-badge.known i{background:#4f9b62}
+#world-screen.active .globe-status-badge.learning i{background:#dd9d32}
+#world-screen.active .globe-status-badge.seen i{background:#8092a7}
+#world-screen.active .premium-country-learn{
+  min-width:17.4cqw!important;
+  min-height:5.5cqw!important;
+  max-height:66px!important;
+  padding:0 1.6cqw!important;
+  border-radius:1.4cqw!important;
+  border:2px solid #4e7c45!important;
+  background:linear-gradient(180deg,#b8e6a2,#84c874)!important;
+  color:#18492d!important;
+  box-shadow:0 4px 0 #4d803f,0 9px 17px rgba(44,77,42,.17)!important;
+  font:1000 clamp(12px,1.35cqw,18px)/1 system-ui,-apple-system,sans-serif!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:.7cqw!important;
+}
+#world-screen.active .premium-country-learn svg{width:1.8cqw!important;height:1.8cqw!important;min-width:20px!important;min-height:20px!important}
+
+/* Bottom action buttons */
+#world-screen.active .globe-actions{
+  position:absolute!important;
+  z-index:77!important;
+  left:5.8%!important;
+  right:5.8%!important;
+  bottom:1.45%!important;
+  width:auto!important;
+  transform:none!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:1.2%!important;
+  margin:0!important;
+}
+#world-screen.active .globe-actions .secondary{
+  min-height:6.2cqw!important;
+  max-height:68px!important;
+  border-radius:1.55cqw!important;
+  border:2px solid #cfaa6a!important;
+  background:linear-gradient(180deg,#fffaf0,#f5e4c0)!important;
+  color:#4c3822!important;
+  box-shadow:0 4px 0 rgba(102,65,29,.18),0 8px 15px rgba(41,44,31,.11)!important;
+  font:1000 clamp(11px,1.3cqw,17px)/1 system-ui,-apple-system,sans-serif!important;
+}
+#world-screen.active .globe-actions .secondary:last-child{
+  background:linear-gradient(180deg,#ffdf6f,#f3bc42)!important;
+  border-color:#bd842c!important;
+  box-shadow:0 4px 0 #a56b1e,0 9px 16px rgba(74,54,20,.14)!important;
+}
+
+/* Min verden legend floats just below the tabs. */
+#world-screen.active .globe-legend{
+  position:absolute!important;
+  z-index:70!important;
+  top:24.3%!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  max-width:62%!important;
+  padding:7px 10px!important;
+  border:2px solid #d2af73!important;
+  border-radius:16px!important;
+  background:rgba(255,248,230,.96)!important;
+  box-shadow:0 6px 15px rgba(42,46,33,.12)!important;
+}
+#world-screen.active[data-premium-globe-mode="explore"] .globe-legend{display:none!important}
+
+@media(max-width:700px){
+  #world-screen.active .globe-v16-stage{
+    width:100vw!important;
+    height:100dvh!important;
+    aspect-ratio:auto!important;
+    background-size:cover!important;
+    background-position:center!important;
+  }
+  #world-screen.active .globe-mode{top:16.2%!important;width:72%!important;min-width:0!important}
+  #world-screen.active .globe-mode button{min-height:42px!important;font-size:11px!important;padding:6px 8px!important}
+  #world-screen.active .globe-wrap{width:78%!important;top:48%!important}
+  #world-screen.active .globe-zoom{right:-11%!important;top:18%!important}
+  #world-screen.active .globe-zoom button{width:46px!important;height:46px!important;border-radius:14px!important;font-size:21px!important}
+  #world-screen.active .globe-status{left:2.2%!important;right:2.2%!important;bottom:8.8%!important;padding:9px 10px!important;border-radius:18px!important;gap:8px!important}
+  #world-screen.active .globe-status .flag{width:48px!important;height:44px!important;min-width:48px!important;min-height:44px!important;border-radius:12px!important;font-size:27px!important}
+  #world-screen.active .globe-status strong{font-size:17px!important}
+  #world-screen.active .globe-status span{font-size:9px!important}
+  #world-screen.active .premium-country-learn{min-width:92px!important;min-height:44px!important;padding:0 9px!important;border-radius:13px!important;font-size:10px!important}
+  #world-screen.active .premium-country-learn svg{width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important}
+  #world-screen.active .globe-actions{left:2.2%!important;right:2.2%!important;bottom:1.5%!important;gap:7px!important}
+  #world-screen.active .globe-actions .secondary{min-height:48px!important;border-radius:15px!important;font-size:10px!important}
+  #world-screen.active .globe-hint{font-size:8px!important;padding:5px 8px!important}
+}
+
+@media(max-height:680px) and (orientation:landscape){
+  #world-screen.active .globe-mode{top:17%!important}
+  #world-screen.active .globe-wrap{width:39%!important;top:49%!important}
+  #world-screen.active .globe-status{bottom:9%!important;min-height:9%!important;padding-top:.65%!important;padding-bottom:.65%!important}
+  #world-screen.active .globe-actions{bottom:1%!important}
+  #world-screen.active .globe-actions .secondary{min-height:48px!important}
+  #world-screen.active .globe-hint{display:none!important}
+}
+
+
+#world-screen.active .globe-v16-titlecopy{
+  position:absolute;
+  z-index:68;
+  left:16.7%;
+  top:5.3%;
+  width:43%;
+  color:#173a68;
+  pointer-events:none;
+  text-shadow:0 1px 0 rgba(255,255,255,.35);
+}
+#world-screen.active .globe-v16-kicker{
+  color:#825728;
+  font:1000 clamp(9px,1.02cqw,14px)/1 system-ui,-apple-system,sans-serif;
+  letter-spacing:.16em;
+}
+#world-screen.active .globe-v16-title{
+  margin-top:.45cqw;
+  color:#153967;
+  font:1000 clamp(34px,4.3cqw,62px)/.88 system-ui,-apple-system,sans-serif;
+  letter-spacing:-.055em;
+}
+#world-screen.active .globe-v16-subtitle{
+  margin-top:.75cqw;
+  color:#62482f;
+  font:900 clamp(10px,1.18cqw,17px)/1.2 system-ui,-apple-system,sans-serif;
+  white-space:nowrap;
+}
+@media(max-width:700px){
+  #world-screen.active .globe-v16-titlecopy{left:17%;top:4.4%;width:58%}
+  #world-screen.active .globe-v16-kicker{font-size:8px}
+  #world-screen.active .globe-v16-title{font-size:30px}
+  #world-screen.active .globe-v16-subtitle{font-size:8.5px;white-space:normal;max-width:240px}
+}
+@media(max-height:680px) and (orientation:landscape){
+  #world-screen.active .globe-v16-titlecopy{top:4.5%}
+  #world-screen.active .globe-v16-title{font-size:29px}
+  #world-screen.active .globe-v16-subtitle{font-size:9px;margin-top:4px}
+}
+
+
+/* v16c emergency visibility fix: the functional globe is always visible.
+   The approved art remains the scene/background; the live canvas owns the globe surface. */
+#world-screen.active .globe-wrap{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#world-screen.active #globe-canvas{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:30!important;
+  pointer-events:auto!important;
+}
+#world-screen.active .globe-v16-stage{
+  min-width:1px!important;
+  min-height:1px!important;
+}
+
+/* v16d: use the approved rendered scene as the actual stage background. */
+#world-screen.active .globe-v16-stage{
+  background-image:url('./globe-v17-reference.jpg?v=1')!important;
+  background-size:100% 100%!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+#world-screen.active{
+  background-image:url('./globe-v17-reference.jpg?v=1')!important;
+  background-size:cover!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+#world-screen.active .globe-v16-titlecopy{display:none!important}
+
+/* Fix positioning regression caused by inset:auto resetting left/top. */
+#world-screen.active .globe-wrap{
+  inset:auto!important;
+  left:50%!important;
+  top:49.6%!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  width:50.5%!important;
+  height:auto!important;
+  aspect-ratio:1!important;
+}
+#world-screen.active #globe-canvas{
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+}

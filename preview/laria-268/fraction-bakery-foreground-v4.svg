@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1086 430" aria-hidden="true" preserveAspectRatio="xMidYMax meet">
+<defs>
+ <linearGradient id="oak" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="#E9B67A"/><stop offset=".45" stop-color="#BC8150"/><stop offset="1" stop-color="#734427"/></linearGradient>
+ <linearGradient id="crust" x1=".2" y1="0" x2=".9" y2="1"><stop stop-color="#FFF0B4"/><stop offset=".33" stop-color="#E6B969"/><stop offset="1" stop-color="#A86432"/></linearGradient>
+ <radialGradient id="pie" cx=".3" cy=".2" r=".92"><stop stop-color="#FFD88A"/><stop offset=".53" stop-color="#F0B663"/><stop offset=".88" stop-color="#C88347"/><stop offset="1" stop-color="#92552C"/></radialGradient>
+ <radialGradient id="red" cx=".22" cy=".22" r=".85"><stop stop-color="#F89A86"/><stop offset=".4" stop-color="#DA5C4C"/><stop offset=".9" stop-color="#9F392D"/></radialGradient>
+ <linearGradient id="cream" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FFFDF2"/><stop offset="1" stop-color="#E4D1AF"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFBED" stop-opacity=".85"/><stop offset=".65" stop-color="#9DD3DB" stop-opacity=".43"/><stop offset="1" stop-color="#609FB5" stop-opacity=".78"/></linearGradient>
+ <radialGradient id="leaf" cx=".3" cy=".15" r=".8"><stop stop-color="#B5D98C"/><stop offset=".65" stop-color="#5D9A62"/><stop offset="1" stop-color="#447653"/></radialGradient>
+ <filter id="sh"><feGaussianBlur stdDeviation="7"/></filter>
+ <pattern id="checks" patternUnits="userSpaceOnUse" width="48" height="48" patternTransform="rotate(-9)"><rect width="48" height="48" fill="#FFF1DD"/><rect width="24" height="24" fill="#DB866E"/><rect x="24" y="24" width="24" height="24" fill="#DB866E"/><path d="M0 0H48M0 24H48M0 48H48M0 0V48M24 0V48M48 0V48" fill="none" stroke="#FEF5EB" stroke-width="2" opacity=".55"/></pattern>
+</defs>
+<!-- Foreground scenery only, never labels/buttons -->
+<path d="M0 235Q245 204 545 238Q800 215 1086 235V430H0Z" fill="#5A3C27" opacity=".19" filter="url(#sh)"/>
+<path d="M0 230Q285 201 551 224Q827 201 1086 231V430H0Z" fill="url(#oak)" stroke="#925D37" stroke-width="7"/>
+<path d="M0 255Q360 237 720 249Q899 252 1086 252" stroke="#F8D29B" stroke-width="11" fill="none" opacity=".51"/>
+<path d="M0 354Q297 344 536 357Q820 345 1086 362" stroke="#7D4929" stroke-width="8" fill="none" opacity=".65"/>
+<path d="M0 379Q300 384 537 370Q815 384 1086 378" stroke="#F3C38E" stroke-width="5" fill="none" opacity=".25"/>
+<!-- Checked picnic cloth behind pastry -->
+<path d="M280 289Q543 243 836 288L1027 405Q676 450 313 411Z" fill="url(#checks)" stroke="#F4E0CF" stroke-width="12"/>
+<path d="M315 314Q613 300 899 333" fill="none" stroke="#FCF0DF" stroke-width="12" opacity=".6"/>
+<!-- Golden whole berry pie with deep scalloped crust -->
+<ellipse cx="650" cy="342" rx="240" ry="40" fill="#59351E" opacity=".25" filter="url(#sh)"/>
+<path d="M419 293Q441 216 505 189Q636 148 756 195Q835 241 843 305Q851 337 796 346Q672 375 498 347Q431 345 419 293Z" fill="url(#crust)" stroke="#A56639" stroke-width="11"/>
+<path d="M439 286Q469 205 550 189Q685 151 773 213Q824 251 821 288Q799 315 699 336Q529 343 451 310Z" fill="url(#pie)" stroke="#8E582F" stroke-width="8"/>
+<path d="M462 293L646 263L789 291" fill="none" stroke="#B67B45" stroke-width="5" opacity=".8"/>
+<!-- pie cut into textured wedges -->
+<g stroke="#A1673B" stroke-width="5" stroke-linejoin="round">
+<path d="M645 264L660 187Q699 190 728 202Z" fill="#F4C575"/>
+<path d="M645 264L728 202Q776 219 802 253Z" fill="#F6CE7D"/>
+<path d="M645 264L802 253Q810 288 793 309Z" fill="#E7B364"/>
+<path d="M645 264L793 309Q740 339 669 344Z" fill="#F0BD73"/>
+<path d="M645 264L669 344Q590 347 525 331Z" fill="#F9D792"/>
+<path d="M645 264L525 331Q480 315 464 289Z" fill="#EEC16D"/>
+<path d="M645 264L464 289Q468 235 508 212Z" fill="#F7D88C"/>
+<path d="M645 264L508 212Q570 187 660 187Z" fill="#F8DB94"/>
+</g>
+<g fill="#FFF2CA" opacity=".85"><circle cx="498" cy="268" r="4"/><circle cx="551" cy="230" r="3"/><circle cx="689" cy="211" r="4"/><circle cx="753" cy="252" r="3"/><circle cx="694" cy="307" r="4"/><circle cx="587" cy="310" r="3"/><circle cx="783" cy="286" r="3"/></g>
+<path d="M439 292Q423 255 460 224M451 310Q455 344 492 349M801 307Q822 295 822 268M784 337Q819 327 824 315" stroke="#FCE0AC" stroke-width="12" fill="none" stroke-linecap="round"/>
+<!-- Sliced red fruit, fraction-like wedges -->
+<ellipse cx="188" cy="336" rx="125" ry="26" fill="#54301F" opacity=".2" filter="url(#sh)"/>
+<path d="M88 329L135 254Q173 238 209 286L204 359Q150 370 88 329Z" fill="url(#red)" stroke="#963A31" stroke-width="8"/>
+<path d="M212 362L230 274Q273 284 297 324L260 372Z" fill="#E47966" stroke="#A64A39" stroke-width="8"/>
+<path d="M145 318L204 286L204 359Z" fill="#F8D9B3" stroke="#F3E0C9" stroke-width="5"/>
+<path d="M160 299Q158 263 177 236" stroke="#765037" stroke-width="9" fill="none"/>
+<path d="M170 246Q153 211 126 215Q138 239 170 246M172 248Q193 205 231 219Q209 247 172 248" fill="url(#leaf)" stroke="#4B7D4D" stroke-width="6"/>
+<!-- Bowl with apples at right -->
+<ellipse cx="1006" cy="335" rx="75" ry="19" fill="#4C3020" opacity=".24" filter="url(#sh)"/>
+<circle cx="964" cy="290" r="41" fill="url(#red)" stroke="#9C4C32" stroke-width="6"/>
+<circle cx="1022" cy="274" r="45" fill="url(#red)" stroke="#9C4C32" stroke-width="6"/>
+<circle cx="1056" cy="310" r="35" fill="url(#red)" stroke="#9C4C32" stroke-width="6"/>
+<path d="M948 308Q1004 345 1084 309Q1066 386 1015 386Q957 384 948 308Z" fill="#B67E4A" stroke="#704325" stroke-width="8"/>
+<path d="M958 319Q1007 353 1076 323M965 350Q1010 368 1068 348" stroke="#F1C189" stroke-width="7" fill="none"/>
+<path d="M1016 241Q1023 218 1047 216" stroke="#755538" stroke-width="6" fill="none"/>
+<path d="M1020 245Q989 219 968 233Q986 246 1020 245M1021 245Q1045 211 1071 228Q1052 250 1021 245" fill="url(#leaf)" stroke="#4F7845" stroke-width="4"/>
+<!-- Open notebook with real fractions, small enough not to mimic controls -->
+<g transform="translate(323 311) rotate(-10)">
+<path d="M0 0Q46-15 92 0V87Q50 79 1 90Z" fill="url(#cream)" stroke="#BC9163" stroke-width="6"/>
+<path d="M93 0Q134-15 176 0V91Q139 77 93 87Z" fill="#FDF4D9" stroke="#BC9163" stroke-width="6"/>
+<path d="M92 0V87M12 20H78M13 74H79M102 20H162M103 75H163" stroke="#D9BC91" stroke-width="2"/>
+<path d="M34 50A24 24 0 1 0 82 50L58 50Z" fill="#D8735B" stroke="#B85B4C" stroke-width="2"/>
+<path d="M34 50A24 24 0 0 0 58 74L58 50Z" fill="#EEC77F"/>
+<text x="135" y="61" font-size="37" text-anchor="middle" font-weight="bold" fill="#815437">½</text>
+</g>
+<!-- Loose solid fraction building pieces -->
+<g transform="translate(812 357) rotate(-16)"><path d="M0 0L76-24Q104 20 92 63L7 44Z" fill="#E27C62" stroke="#AD473A" stroke-width="8" stroke-linejoin="round"/><path d="M10 17L79-4" stroke="#F6AB91" stroke-width="6"/></g>
+<g transform="translate(850 371) rotate(23)"><path d="M0 0L58-31Q102 6 90 56L17 63Z" fill="#86B46D" stroke="#4D8951" stroke-width="7" stroke-linejoin="round"/></g>
+<!-- Leafy edging, flowers and berry clusters -->
+<g fill="url(#leaf)" stroke="#487445" stroke-width="3">
+<path d="M0 285Q42 264 72 283Q35 300 0 285Z"/><path d="M12 270Q15 239 48 224Q43 262 12 270Z"/>
+<path d="M24 318Q35 285 72 293Q60 319 24 318Z"/><path d="M1090 252Q1053 254 1034 229Q1068 223 1090 252Z"/>
+<path d="M1090 285Q1054 276 1042 267Q1064 245 1090 285Z"/>
+</g>
+<g fill="#FFF9E0" stroke="#EABF72" stroke-width="3"><circle cx="52" cy="285" r="8"/><circle cx="62" cy="277" r="7"/><circle cx="62" cy="292" r="7"/><circle cx="47" cy="276" r="7"/><circle cx="45" cy="294" r="7"/></g>
+<circle cx="52" cy="285" r="7" fill="#EAB75A"/>
+</svg>

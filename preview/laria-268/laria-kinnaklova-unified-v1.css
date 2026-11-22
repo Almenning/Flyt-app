@@ -1,0 +1,232 @@
+/* Læria Kinnaklova: exact same left-hand navigation system as other subjects.
+ * Applies ONLY when a faithful edit of the locked painting has a verified
+ * SHA and separate VISUAL sign-off. Never overpaint the old baked signs.
+ */
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
+  --ref-left:3%;--ref-right:4%;--ref-menu-width:clamp(176px,21%,268px);
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  background-color:#a2c5bd!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-master{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  object-fit:cover!important;object-position:50% 50%!important;
+  z-index:0!important;
+}
+/* Image visibility is a privilege of an exact verified art digest, not the
+   existence of a renderable <img> with matching dimensions. */
+#kinnaklova-world[data-ki-premium-art="approved"][data-ki-art="ready"] .ki-stage.laria-reference-layout-v1 .ki-master{
+  visibility:visible!important;
+}
+/* The shared Grovanova-derived wordmark is freestanding on EVERY subject.
+   The rejected dark wooden logo plaque belonged to an older reference and
+   must not survive on Kinnaklova. Match Eggenipa, Tallvika, Nordlysleiren. */
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand{
+  box-sizing:border-box!important;position:absolute!important;z-index:20!important;
+  display:grid!important;place-items:center!important;gap:0!important;
+  left:50%!important;right:auto!important;top:1%!important;bottom:auto!important;
+  transform:translateX(-50%)!important;
+  width:max-content!important;max-width:45%!important;min-width:0!important;height:auto!important;
+  padding:0!important;margin:0!important;border:0!important;border-radius:0!important;
+  background:none!important;background-image:none!important;
+  box-shadow:none!important;filter:drop-shadow(0 5px 4px #17251a80)!important;
+  font-family:var(--laria-ui-font,system-ui)!important;pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand strong{
+  display:block!important;box-sizing:border-box!important;
+  width:clamp(160px,23vw,205px)!important;
+  height:clamp(60px,16vh,75px)!important;min-height:0!important;
+  overflow:hidden!important;font-size:0!important;text-indent:-9999px!important;
+  background:url("./assets/ui/laria-logo-from-grovanova.svg") center/contain no-repeat!important;
+}
+/* On narrow portrait phones the same freestanding crest must not occupy
+   more than 40% of the screen. Keep the exact Grovanova SVG unchanged;
+   this only changes its responsive box, never the iPad composition. */
+@media(max-width:700px) and (orientation:portrait){
+  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand strong{
+    width:clamp(120px,38vw,152px)!important;
+  }
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-world-brand span{display:none!important}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation{
+  box-sizing:border-box!important;position:absolute!important;z-index:26!important;
+  top:var(--ref-natural-rail-top,24%)!important;left:var(--ref-left)!important;right:auto!important;bottom:auto!important;
+  width:var(--ref-menu-width)!important;height:auto!important;
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  gap:6px!important;margin:0!important;padding:0!important;border:0!important;
+  background:none!important;box-shadow:none!important;filter:none!important;
+  isolation:isolate!important;pointer-events:auto!important;transform:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="subjects"] > nav.laria-scene-navigation,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"] > nav.laria-reference-subject-nav{
+  display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation::before,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav::before{
+  content:""!important;position:absolute!important;display:block!important;
+  z-index:-1!important;pointer-events:none!important;
+  top:-12px!important;left:0!important;width:100%!important;
+  height:calc(100% + var(--ref-natural-post-tail,48px))!important;
+  background:url("./assets/ui/laria-grovanova-signposts.svg") center/100% 100% no-repeat!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder{
+  box-sizing:border-box!important;position:relative!important;inset:auto!important;
+  width:100%!important;height:clamp(69px,8.9vh,90px)!important;
+  min-width:44px!important;min-height:54px!important;max-width:none!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:12px!important;margin:0!important;padding:7px clamp(19px,2vw,28px)!important;
+  border:0!important;border-radius:0!important;
+  background:var(--laria-sign-art) center/100% 100% no-repeat!important;
+  color:var(--laria-sign-ink)!important;text-align:left!important;
+  text-shadow:0 1px 0 #fff2d2!important;filter:var(--laria-sign-shadow)!important;
+  font:900 clamp(18px,2.1vw,29px)/1.08 var(--laria-ui-font,system-ui)!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder::before,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder::after,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit .ki-plank-name::after{
+  content:none!important;display:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit .ki-plank-name{
+  position:static!important;inset:auto!important;
+  display:block!important;visibility:visible!important;opacity:1!important;
+  color:inherit!important;font:inherit!important;text-shadow:inherit!important;pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .laria-reference-activity-icon{
+  display:grid!important;place-items:center!important;flex:0 0 30px!important;
+  width:30px!important;height:30px!important;position:relative!important;
+  background:none!important;padding:0!important;pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .laria-reference-activity-icon svg{
+  display:block!important;width:30px!important;height:30px!important;stroke:currentColor!important;fill:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-painted-home{
+  box-sizing:border-box!important;position:absolute!important;z-index:35!important;
+  top:max(9px,env(safe-area-inset-top))!important;
+  left:max(10px,env(safe-area-inset-left))!important;
+  width:62px!important;height:62px!important;min-width:44px!important;min-height:44px!important;
+  border:0!important;border-radius:50%!important;padding:0!important;
+  background:var(--laria-home-art) center/contain no-repeat!important;
+  color:transparent!important;font-size:0!important;box-shadow:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-painted-home span{display:none!important}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-stage-choose,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > .laria-reference-settings{
+  box-sizing:border-box!important;position:absolute!important;z-index:35!important;
+  top:max(12px,env(safe-area-inset-top))!important;right:auto!important;bottom:auto!important;
+  width:54px!important;height:54px!important;min-width:44px!important;min-height:44px!important;
+  border:3px solid #654020!important;border-radius:50%!important;padding:0!important;margin:0!important;
+  background:linear-gradient(160deg,#ac764c,#79502e 60%,#4c2f1c)!important;
+  color:#f9e9bd!important;box-shadow:inset 0 2px 0 #f3ce91,0 5px 0 #402918!important;
+  cursor:pointer!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-stage-choose{
+  right:calc(78px + env(safe-area-inset-right,0px))!important;font-size:0!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-stage-choose::before{
+  content:""!important;position:absolute!important;inset:7px!important;
+  background:url("./assets/ui/laria-profile-silhouette-v1.svg") center/contain no-repeat!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > .laria-reference-settings{
+  right:calc(12px + env(safe-area-inset-right,0px))!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > .laria-reference-settings svg{
+  display:block!important;width:29px!important;height:29px!important;pointer-events:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-companion-actor{
+  position:absolute!important;z-index:15!important;left:calc(var(--ref-left) + var(--ref-menu-width) + 5%)!important;
+  right:auto!important;top:auto!important;bottom:2%!important;
+  width:clamp(125px,17%,240px)!important;height:clamp(230px,49%,460px)!important;
+  pointer-events:auto!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 ~ .ki-intro,
+#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 ~ .ki-actions{display:none!important}
+/* A malformed or SHA-mismatched image may decode before its asynchronous
+ * integrity check has finished. Never let premium !important styles override
+ * the existing fail-closed rule while art is loading or rejected. */
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 .ki-master,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 .ki-companions,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 .ki-painted-hit {
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-stage.laria-reference-layout-v1 > nav,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-stage.laria-reference-layout-v1 > .laria-reference-heading{
+  visibility:hidden!important;pointer-events:none!important;
+}
+@media(max-width:767px) and (orientation:portrait){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{--ref-left:2%;--ref-menu-width:clamp(150px,43%,185px)}
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation,
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav{top:22%!important;gap:5px!important}
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder{
+  height:clamp(49px,7vh,62px)!important;min-height:49px!important;
+  gap:6px!important;padding:4px 9px!important;font-size:clamp(12px,3.4vw,16px)!important;
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-companion-actor{
+  left:52%!important;width:clamp(105px,28%,136px)!important;height:clamp(150px,34%,260px)!important;
+ }
+}
+@media(min-width:740px) and (max-height:600px) and (orientation:landscape){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{--ref-left:2.5%;--ref-menu-width:clamp(150px,22%,205px)}
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation,
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav{top:20%!important;gap:4px!important}
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder{
+  height:44px!important;min-height:44px!important;gap:6px!important;padding:3px 9px!important;font-size:clamp(12px,1.55vw,15px)!important;
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 .ki-companion-actor{
+  left:calc(var(--ref-left) + var(--ref-menu-width) + 7%)!important;
+  width:clamp(140px,22vw,207px)!important;height:clamp(205px,61vh,284px)!important;
+ }
+}
+
+/* Fail closed across EVERY Kinn scene mode, including a poisoned same-size
+   image, a disconnected reference adapter, and asynchronous CSS reflow. */
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-master,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-companions,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-painted-hit{
+  visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
+
+/* A rejected or tampered image must never strand a child on an empty stage.
+   Retain the three original English activity cards as keyboard/touch fallback;
+   the premium rail is inactive until its artwork passes integrity checks. */
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-intro{
+  display:flex!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"]) .ki-actions{
+  display:grid!important;
+}
+
+/* The premium nav selector above has stronger specificity than a generic
+   fail-closed visibility rule. Target its exact DOM structure plus the
+   integrity state so a tampered but successfully decoded 1672x941 image can
+   NEVER reveal activity hot spots before SHA-256 passes. */
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation > .ki-painted-hit.laria-wayfinder,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 > nav.laria-reference-subject-nav > button,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 > .ki-world-brand,
+#kinnaklova-world[data-ki-premium-art="approved"]:not([data-ki-art="ready"])
+ .ki-stage.laria-reference-layout-v1 > .laria-reference-heading{
+  visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
+/* Kinnaklova's left cliff is the sign support: the 3-sign rail must END
+ * above the church roof in landscape and on the grassy cliff in portrait.
+ * The approved original mountain, church and live character stay unchanged. */
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:landscape){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
+  --ref-natural-rail-top:18.5%;
+  --ref-natural-post-tail:22px;
+ }
+}
+@media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
+  --ref-natural-rail-top:27%;
+  --ref-natural-post-tail:clamp(35px,4.7vh,64px);
+ }
+}

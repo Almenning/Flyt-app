@@ -1,0 +1,166 @@
+/* Læria Plukk og tell v7: physical prop parity between overview and near view.
+   Only scenery/containers; mathematical objects, IDs and touch targets are unchanged. */
+
+/* The zoom foreground must never fall back to generic wicker outside fruit scenes. */
+.mp-pick-screen .mp-pick-zoom-vessel-front{pointer-events:none;}
+
+/* Apple orchard: thick slatted harvest crate, with grain and wooden lip. */
+.mp-pick-screen[data-pick-scene="orchard"] .mp-pick-zoom-vessel:before{
+ border:10px solid #986641;border-bottom:16px solid #71472d;
+ border-radius:19px 19px 27px 27px;
+ background:
+  linear-gradient(90deg,transparent 0 14%,#6843256e 15% 17%,transparent 18% 48%,#62402770 49% 52%,transparent 53% 83%,#67442d73 84% 87%,transparent 88%),
+  repeating-linear-gradient(0deg,#f2c993 0 21px,#a36d41 22px 25px,#d8a673 26px 37px);
+ box-shadow:inset 0 9px 13px #ffedc8a8,inset 0 -10px 11px #643e276b,0 9px 0 #63452d9a;
+}
+.mp-pick-screen[data-pick-scene="orchard"] .mp-pick-zoom-vessel-front{
+ border-radius:2px 2px 21px 21px;border-top:8px solid #f6d39e;
+ background:repeating-linear-gradient(0deg,#c38a58 0 18px,#f1c894 19px 25px,#96633d 26px 30px);
+}
+/* Bakery: a flat tray of parchment, not a basket with woven sides. */
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-zoom-vessel{
+ padding-top:34px;
+}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-zoom-vessel:before{
+ inset:34px 2px 18px;border:8px solid #9e7561;border-top:11px solid #c29a7a;
+ border-radius:18px 18px 27px 27px;
+ background:
+  radial-gradient(ellipse at 40% 24%,#fff9edc7,transparent 73%),
+  repeating-conic-gradient(#c08a7652 0 25%,#fff7e8c4 0 50%) center/23px 23px,
+  linear-gradient(#e9d2b7,#aa8168);
+ box-shadow:inset 0 6px 11px #fff8e8,inset 0 -9px 7px #73534455,0 6px 0 #6c4d40a6;
+}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-zoom-interior{
+ border-radius:12px 12px 17px 17px;
+ background:repeating-conic-gradient(#bc806748 0 25%,#fffaf0c6 0 50%) center/23px 23px;
+}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-zoom-vessel-front{
+ left:11px;right:11px;bottom:19px;height:26px;
+ border-top:6px ridge #efc8a4;border-radius:2px 2px 21px 21px;
+ background:linear-gradient(#ae826b,#7b5447);box-shadow:inset 0 4px 5px #ffe6cb7c,0 -2px 5px #4e352f42;
+}
+/* Mushroom forest: robust timber box, front vertical grain, no wicker. */
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-zoom-vessel:before{
+ border:10px solid #80694d;border-bottom:15px solid #5f4e39;
+ border-radius:10px 10px 19px 19px;
+ background:
+  repeating-linear-gradient(90deg,transparent 0 30px,#5846328e 31px 35px,transparent 36px 56px),
+  repeating-linear-gradient(0deg,#c6a980 0 19px,#7c674d 20px 25px,#a89170 26px 39px);
+ box-shadow:inset 0 7px 13px #f4dfac7d,inset 5px 0 8px #58492f69,0 8px 0 #554736bb;
+}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-zoom-interior{
+ background:linear-gradient(#e6d2a185,#9b865c3d);border-radius:8px;
+}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-zoom-vessel-front{
+ border-top:8px solid #d9c198;border-radius:3px 3px 16px 16px;
+ background:
+  repeating-linear-gradient(90deg,transparent 0 29px,#53453081 30px 35px,transparent 36px 51px),
+  repeating-linear-gradient(0deg,#b49b77 0 17px,#725c42 18px 22px,#c6ad84 23px 32px);
+ box-shadow:inset 0 5px 5px #fff0cc77,0 -3px 4px #48392b53;
+}
+/* Treasure chest: curved gold rim, walnut planks and brass bands. */
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-zoom-vessel:before{
+ border:10px ridge #d8b16d;border-bottom:18px solid #865b35;
+ border-radius:15px 15px 23px 23px;
+ background:
+  repeating-linear-gradient(0deg,transparent 0 25px,#65442e8b 26px 31px,transparent 32px 44px),
+  repeating-linear-gradient(90deg,#a87543 0 35px,#704b32 36px 42px,#b4884b 43px 66px);
+ box-shadow:inset 0 7px 12px #f9d89998,inset 7px 0 11px #55342666,0 8px 0 #513b2fa8;
+}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-zoom-interior{background:linear-gradient(#e7bb71bb,#9d754646);}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-zoom-vessel-front{
+ border:0;border-top:10px ridge #f2d187;border-radius:3px 3px 18px 18px;
+ background:
+  linear-gradient(90deg,transparent 0 17%,#f2c777 18% 22%,transparent 23% 74%,#e8c073 75% 80%,transparent 81%),
+  repeating-linear-gradient(0deg,#987044 0 19px,#69462f 20px 23px,#ad8050 24px 36px);
+ box-shadow:inset 0 6px 7px #ffe4a570,0 -4px 6px #58402b68;
+}
+/* Railway: cargo wagon with iron rim, staves and two wheels. */
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-zoom-vessel:before{
+ border:9px solid #8c5946;border-bottom:15px solid #654335;border-radius:7px 7px 14px 14px;
+ background:repeating-linear-gradient(90deg,#dbae83 0 32px,#926042 33px 39px,#c5916d 40px 56px);
+ box-shadow:inset 0 7px 11px #ffe0ad99,0 9px 0 #664431;
+}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-zoom-vessel-front{
+ border-top:8px ridge #dca777;border-radius:2px 2px 10px 10px;
+ background:repeating-linear-gradient(90deg,#ad7352 0 28px,#794c36 29px 36px,#cc9a70 37px 55px);
+}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-zoom-vessel:after{
+ display:block;top:auto;left:8%;right:8%;width:auto;height:36px;bottom:-1px;
+ border:0;border-radius:0;box-shadow:none;
+ background:
+ radial-gradient(circle at 19% 52%,#343e42 0 17px,#c5925d 18px 21px,transparent 22px),
+ radial-gradient(circle at 81% 52%,#343e42 0 17px,#c5925d 18px 21px,transparent 22px);
+}
+/* Beach: tapered sand pail with smooth painted bands and bucket lip. */
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-zoom-vessel:before{
+ border:9px solid #c89d7c;border-bottom:16px solid #987461;
+ border-radius:25px 25px 48px 48px;
+ background:repeating-linear-gradient(0deg,#f7dfb8 0 37px,#a9c6c0 38px 59px,#cfa183 60px 83px);
+ box-shadow:inset 0 10px 13px #fff8d1,inset 0 -11px 9px #765e4f54,0 8px 0 #85674f9b;
+}
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-zoom-interior{
+ background:linear-gradient(#ffedcb93,#d8ae854a);
+}
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-zoom-vessel-front{
+ left:8%;right:8%;height:34px;border-top:8px ridge #ffebce;
+ border-radius:2px 2px 44px 44px;
+ background:linear-gradient(#c5b6a7,#e1be9f 45%,#bb9477);
+}
+/* Farm: twig nest, shallow and circular, eggs remain clickable above the rim. */
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-zoom-vessel:before{
+ border:10px solid #af875d;border-bottom:23px solid #816141;
+ border-radius:47% 47% 48% 48% / 32% 32% 65% 65%;
+ background:
+  radial-gradient(ellipse at 50% 26%,#fff0c0bd,transparent 58%),
+  repeating-linear-gradient(35deg,#d0ab78 0 7px,#8e6647 8px 13px,#e7ca97 14px 26px);
+ box-shadow:inset 0 9px 14px #ffedc5a3,inset 0 -12px 15px #74513463,0 8px 15px #604b375d;
+}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-zoom-interior{
+ background:radial-gradient(ellipse at 50% 23%,#f7deb28c,#c4a07175);
+ border-radius:45% 45% 24% 24%;
+}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-zoom-vessel-front{
+ left:7%;right:7%;height:48px;
+ border:0;border-top:9px ridge #ead09e;
+ border-radius:47% 47% 45% 45% / 28% 28% 65% 65%;
+ background:
+  repeating-linear-gradient(37deg,#d2ad7c 0 7px,#785637 8px 11px,transparent 12px 25px),
+  repeating-linear-gradient(-35deg,#f0d6a5 0 6px,#a2774c 7px 11px,transparent 12px 23px),
+  linear-gradient(#b99a73,#76583c);
+}
+/* Aquarium: deep glass bowl, translucent face and reflective rim. */
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-zoom-vessel:before{
+ border:9px solid #defff4ca;border-bottom:16px solid #5395adad;
+ border-radius:36% 36% 36% 36% / 18% 18% 47% 47%;
+ background:
+  linear-gradient(91deg,#fafffdae,transparent 17%,#c9fff885 25%,transparent 54%,#ffffffa6 81%,transparent 94%),
+  linear-gradient(#b6f0ef60,#3f9bb76e);
+ box-shadow:inset 11px 9px 13px #fffff1c6,inset -9px -9px 14px #397c9c75,0 8px 14px #23577154;
+}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-zoom-interior{
+ background:linear-gradient(#e6fff357,#70c9ce4b);box-shadow:inset 0 4px 10px #e6ffff79;
+}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-zoom-vessel-front{
+ border-top:9px solid #f4fffae0;border-radius:3px 3px 41px 41px;
+ background:linear-gradient(90deg,#377d9aba,#d8fffb76 44%,#408aa1bf);
+ box-shadow:inset 0 7px 10px #fffef0a3,0 -3px 8px #2a63838a;
+}
+/* Balloon park: candy-striped carnival stand, not a woven basket. */
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-zoom-vessel:before{
+ border:9px solid #f4daad;border-bottom:15px solid #8d5e4a;
+ border-radius:21px 21px 32px 32px;
+ background:repeating-linear-gradient(90deg,#d57968 0 37px,#ffeace 38px 61px,#8ca793 62px 81px);
+ box-shadow:inset 0 8px 11px #fff7e3,inset 0 -12px 13px #76513f73,0 9px 0 #794f3d;
+}
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-zoom-interior{background:linear-gradient(#fff5d1b3,#e5cca271);}
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-zoom-vessel-front{
+ border-top:9px ridge #f9dfb7;border-radius:3px 3px 26px 26px;
+ background:repeating-linear-gradient(90deg,#d7836d 0 28px,#fff1cf 29px 47px,#8da18e 48px 65px);
+ box-shadow:inset 0 5px 5px #fff1d99b,0 -3px 7px #69473459;
+}
+@media(max-width:420px){
+ .mp-pick-screen[data-pick-scene="train"] .mp-pick-zoom-vessel:after{height:29px}
+ .mp-pick-screen[data-pick-scene="farm"] .mp-pick-zoom-vessel-front{height:35px}
+ .mp-pick-screen[data-pick-scene="bakery"] .mp-pick-zoom-vessel-front{height:22px}
+}

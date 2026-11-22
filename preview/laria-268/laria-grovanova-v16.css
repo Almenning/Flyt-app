@@ -1,0 +1,198 @@
+/* Læria Hjem v16, explicitly approved by the product owner 19 Nov 2026.
+   The exact illustrated buttons in these two locked pictures are VISUAL ONLY.
+   Semantic focusable DOM hit targets sit at the corresponding pixel positions.
+   Only activated v16 Home uses these rules. The separate desktop layout
+   fits the entire approved source; legacy Home, iPhone, and subject worlds
+   remain untouched. Do not treat painted art as a UI-free master. */
+@media(min-width:768px) and (min-height:650px){
+ .grade-band-young .bc12.bc15-v16-locked{
+  position:relative!important;overflow:hidden!important;isolation:isolate!important;
+  background:#235c7b!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked::before{
+  display:none!important;content:none!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked::after{
+  display:block!important;content:""!important;position:absolute!important;inset:0!important;
+  background-image:var(--bc15-home-art)!important;
+  background-repeat:no-repeat!important;
+  background-position:var(--bc15-art-left,0px) var(--bc15-art-top,0px)!important;
+  background-size:var(--bc15-art-width,100%) var(--bc15-art-height,100%)!important;
+  filter:none!important;transform:none!important;box-shadow:none!important;
+  -webkit-mask-image:none!important;mask-image:none!important;
+  opacity:1!important;pointer-events:none!important;z-index:-1!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked :is(
+  .bc14-subjects,.bc15-subject-signs,.bc15-approved-logo,.bc15-live-copy,
+  .bc15-ambient,.bc15-boats,.bc12-heading,.bc12-fox,.bc12-fox-call,
+  .bc12-explore-ribbon,.bc12-destinations,.bc12-journey-route,
+  .bc12-next-beacon,.bc12-you-are-here,.bc12-treasure,.bc12-quest
+ ){display:none!important;}
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-signs{
+  display:block!important;position:absolute!important;inset:0!important;
+  z-index:30!important;pointer-events:none!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-sign,
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-reisen{
+  position:absolute!important;display:block!important;box-sizing:border-box!important;
+  border:0!important;border-radius:18px!important;margin:0!important;padding:0!important;
+  background:transparent!important;color:transparent!important;
+  opacity:.005!important;box-shadow:none!important;filter:none!important;
+  pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-sign:focus-visible,
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-reisen:focus-visible{
+  outline:4px solid #fff1ae!important;outline-offset:-3px!important;
+  opacity:.32!important;background:#ffe29e!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc12-journey{
+  position:absolute!important;display:block!important;z-index:31!important;
+  border:0!important;border-radius:18px!important;background:transparent!important;
+  color:transparent!important;opacity:.005!important;filter:none!important;
+  box-shadow:none!important;transform:none!important;padding:0!important;margin:0!important;
+  pointer-events:auto!important;touch-action:manipulation!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc12-journey::before,
+ .grade-band-young .bc12.bc15-v16-locked .bc12-journey>*{display:none!important}
+ .grade-band-young .bc12.bc15-v16-locked .bc12-journey:focus-visible{
+  outline:4px solid #fff1ae!important;outline-offset:-2px!important;
+  opacity:.30!important;background:#ffe49e!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc12-nav{
+  position:absolute!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-template-rows:1fr!important;gap:0!important;z-index:31!important;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;filter:none!important;padding:0!important;margin:0!important;
+  overflow:visible!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc12-nav button{
+  display:flex!important;align-items:stretch!important;justify-content:center!important;
+  min-width:0!important;min-height:44px!important;width:100%!important;height:100%!important;
+  background:transparent!important;border:0!important;border-radius:15px!important;
+  box-shadow:none!important;filter:none!important;color:transparent!important;
+  opacity:.005!important;font-size:0!important;padding:0!important;margin:0!important;
+  pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc12-nav button[data-camp="travel"]{
+  display:none!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc12-nav button[data-camp="home"]{
+  display:flex!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc12-nav button *{display:none!important}
+ .grade-band-young .bc12.bc15-v16-locked .bc12-nav button:focus-visible{
+  outline:4px solid #fff0a5!important;outline-offset:-2px!important;
+  opacity:.29!important;background:#fff2a8!important;
+ }
+
+ /* Only the existing chosen TrollActor is drawn above the unmodified art. */
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll{
+  display:flex!important;position:absolute!important;z-index:28!important;
+  right:8.5%!important;bottom:14%!important;
+  width:clamp(90px,14vw,164px)!important;height:clamp(154px,18vh,246px)!important;
+  align-items:flex-end!important;justify-content:center!important;
+  padding:0!important;margin:0!important;border:0!important;
+  background:transparent!important;box-shadow:none!important;
+  opacity:1!important;overflow:visible!important;cursor:pointer!important;
+  pointer-events:auto!important;touch-action:manipulation!important;
+ }
+ /* v15 hides .laria-troll-host with a #home-screen ID selector.
+    New v16 requires an independent living companion to win this rule.
+    The retired .bc12-fox stays hidden; only the chosen actor is visible. */
+ .grade-band-young #home-screen.active .bc12.bc15-v16-locked .bc15-v16-troll.laria-troll-host{
+  display:flex!important;visibility:visible!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll > img.laria-premium-troll-art{
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center bottom!important;
+  opacity:1!important;visibility:visible!important;
+  filter:drop-shadow(0 6px 5px rgba(24,40,34,.32))!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked[data-bc15-v16-orientation="landscape"] .bc15-v16-troll{
+  right:5.5%!important;bottom:21%!important;
+  width:clamp(84px,10.4vw,132px)!important;height:clamp(122px,23vh,172px)!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll:focus-visible{
+  outline:3px solid #fff1ae!important;outline-offset:3px!important;border-radius:16px!important;
+ }
+ /* The portrait illustration contains a temporary name; cover only its
+    printed greeting panel with a live, personalized accessible DOM label.
+    The mountain, signs and all art outside this exact panel are unchanged. */
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-greeting{
+  position:absolute!important;display:flex!important;flex-direction:column!important;
+  align-items:flex-start!important;justify-content:center!important;gap:5px!important;
+  box-sizing:border-box!important;z-index:26!important;
+  background:linear-gradient(180deg,#fffaec 0%,#fff0ce 100%)!important;
+  color:#4e3324!important;
+  border:1.5px solid #d5b17e!important;border-radius:45px!important;
+  padding:6px clamp(12px,2.7vw,31px)!important;
+  box-shadow:0 3px 6px #2d261d24!important;transform:none!important;
+  overflow:hidden!important;pointer-events:none!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-greeting strong{
+  display:block!important;font:800 clamp(15px,2.35vw,32px)/1.08 system-ui,sans-serif!important;
+  letter-spacing:-.015em!important;color:#4c3020!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc15-v16-greeting span{
+  display:block!important;font:500 clamp(12px,1.9vw,25px)/1.17 system-ui,sans-serif!important;
+  color:#563823!important;
+ }
+ /* Adult access is preserved as an actual 1.5s hold button; it is not part
+    of the illustrated child navigation. */
+ .grade-band-young .bc12.bc15-v16-locked .bc12-adult-entry{
+  display:flex!important;position:absolute!important;z-index:35!important;
+  align-items:center!important;justify-content:center!important;
+  box-sizing:border-box!important;border-radius:50%!important;
+  padding:0!important;margin:0!important;
+  font-size:0!important;color:#563b22!important;
+  background:#fff8e0cb!important;border:1px solid #ad895f!important;
+  opacity:.88!important;box-shadow:0 2px 4px #152c2b32!important;
+  touch-action:manipulation!important;cursor:pointer!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked .bc12-adult-entry::after{
+  content:"🔒"!important;display:block!important;font-size:clamp(18px,2.1vw,26px)!important;
+ }
+}
+
+/* Mac/desktop: keep the 4:3 owner-approved landscape artwork fully visible.
+   The gradient is a neutral surrounding stage, NOT replacement painting.
+   All painted UI is inside the contain rectangle; JS maps exact pixels.
+   This block never applies to touch iPads, even with a connected trackpad. */
+@media(min-width:1024px) and (min-height:650px){
+ .grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="desktop"]{
+  width:100%!important;height:100dvh!important;max-height:none!important;
+  min-height:100svh!important;overflow:hidden!important;
+  background:radial-gradient(ellipse 85% 95% at 50% 32%,
+   #82afc3 0%,#4a7b91 43%,#305c70 75%,#193744 100%)!important;
+ }
+ .grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="desktop"] .bc15-v16-troll{
+  right:auto!important;bottom:auto!important;
+ }
+ .grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="desktop"] .bc12-adult-entry{
+  right:auto!important;bottom:auto!important;
+ }
+}
+/* The separate Reis(e)oversikt is a real, keyboard accessible route chooser.
+   It uses the existing subject entry handlers and never writes progress. */
+.bc15-v16-dialog{
+ border:3px solid #c69752;border-radius:25px;
+ background:linear-gradient(160deg,#fff8e9,#f7e7c5);color:#51341b;
+ padding:26px;max-width:min(560px,86vw);width:100%;
+ box-shadow:0 16px 42px #1c201e55;
+}
+.bc15-v16-dialog::backdrop{background:rgba(15,29,35,.56)}
+.bc15-v16-dialog h2{font:900 clamp(28px,4vw,42px)/1.15 Georgia,serif;margin:0 0 8px}
+.bc15-v16-dialog p{font-size:18px;margin:0 0 18px}
+.bc15-v16-dialog-close{
+ position:absolute;right:12px;top:10px;width:44px;height:44px;border:0;border-radius:50%;
+ background:#e6c793;font-size:30px;color:#4a3322;cursor:pointer;
+}
+.bc15-v16-journey-choices{display:grid;gap:9px}
+.bc15-v16-journey-choices button{
+ min-height:53px;border:2px solid #bb8a52;border-radius:12px;
+ background:linear-gradient(#f5d5a1,#d29a5f);font:750 18px system-ui,sans-serif;
+ color:#3f2918;text-align:left;padding:12px 18px;cursor:pointer;
+}
+.bc15-v16-journey-choices button:focus-visible,
+.bc15-v16-dialog-close:focus-visible{outline:4px solid #3b81ac;outline-offset:2px}

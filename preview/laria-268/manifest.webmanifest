@@ -1,0 +1,15 @@
+{
+  "name": "Læria",
+  "short_name": "Læria",
+  "description": "Korte læringsøkter i geografi, norsk, matte og engelsk for 1.–10. trinn.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFF7E8",
+  "theme_color": "#F6F0E7",
+  "lang": "nb",
+  "orientation": "any",
+  "icons": [
+    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

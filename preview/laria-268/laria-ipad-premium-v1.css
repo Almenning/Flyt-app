@@ -1,0 +1,78 @@
+/* Læria iPad-first premium controls, 7 November 2026.
+   No new scenery, painted trolls or duplicate activity navigation. */
+#eggenipa-world .eg-scene-choose,
+#laria-geography-world .gv-choose,
+#kinnaklova-world .ki-stage-choose{
+  position:absolute;z-index:9;top:max(12px,env(safe-area-inset-top));
+  right:max(12px,env(safe-area-inset-right));
+  appearance:none;display:flex;align-items:center;justify-content:center;
+  min-width:90px;min-height:44px;padding:6px 12px;
+  border:2px solid #e7c793;border-radius:999px;
+  background:linear-gradient(#86522f,#613518);
+  box-shadow:0 4px 0 #3c2514,0 8px 18px #23180d66;
+  color:#fff3d2;text-shadow:0 1px 2px #321b0e;
+  font:900 13px ui-rounded,"SF Pro Rounded",system-ui,sans-serif;
+  cursor:pointer;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+#eggenipa-world .eg-scene-choose:focus-visible,
+#laria-geography-world .gv-choose:focus-visible,
+#kinnaklova-world .ki-stage-choose:focus-visible,
+#kinnaklova-world .ki-utility-choose:focus-visible{
+  outline:4px solid #fff5b4;outline-offset:3px;
+}
+#eggenipa-world .eg-world-grade,
+#laria-geography-world .gv-grade,
+#kinnaklova-world .ki-stage-grade{
+  position:absolute;z-index:8;top:max(12px,env(safe-area-inset-top));
+  right:max(116px,calc(env(safe-area-inset-right) + 114px));
+  display:flex;align-items:center;justify-content:center;
+  min-height:44px;padding:6px 12px;border:2px solid #e7c793;
+  border-radius:999px;background:linear-gradient(#86522f,#613518);
+  box-shadow:0 4px 0 #3c2514,0 8px 18px #23180d66;
+  color:#fff3d2;font:900 13px ui-rounded,"SF Pro Rounded",system-ui,sans-serif;
+  text-shadow:0 1px 2px #321b0e;white-space:nowrap;pointer-events:none;
+}
+/* English's approved source already includes its logo and signs; do not
+   paint over them. The two floating chips sit above that locked art. */
+#kinnaklova-world .ki-stage-choose,
+#kinnaklova-world .ki-stage-grade{display:none}
+#kinnaklova-world[data-ki-art="ready"] .ki-stage-choose,
+#kinnaklova-world[data-ki-art="ready"] .ki-stage-grade{display:flex}
+#kinnaklova-world .ki-utility-choose{appearance:none;cursor:pointer;white-space:nowrap}
+@media(min-width:701px){
+  /* Align native signs with Tallvika's live wooden-sign palette. */
+  #eggenipa-world .eg-scene-hit span,
+  #laria-geography-world .gv-sign{
+    border-color:#654024;
+    background:linear-gradient(172deg,#bb8753,#8c582d 36%,#693b1f 87%,#56301b);
+    box-shadow:inset 0 2px 0 #f6dbad9e,inset 0 -2px 0 #3b210e73,0 5px 0 #3a210f,0 12px 20px #18261988;
+    color:#fff3cf;text-shadow:0 2px 2px #302011;
+  }
+}
+@media(max-width:700px){
+  #eggenipa-world .eg-scene-choose,
+  #laria-geography-world .gv-choose{
+    min-width:82px;padding:6px 8px;font-size:11px;
+  }
+  #eggenipa-world .eg-world-grade,
+  #laria-geography-world .gv-grade{
+    right:max(99px,calc(env(safe-area-inset-right) + 96px));
+    font-size:11px;padding:6px 8px;
+  }
+  #kinnaklova-world .ki-stage-choose,
+  #kinnaklova-world .ki-stage-grade{display:none!important}
+  #kinnaklova-world .ki-utility{gap:6px;justify-content:space-between;padding-inline:8px}
+  #kinnaklova-world .ki-utility>span:nth-child(2){display:none}
+  #kinnaklova-world .ki-utility .ki-grade{
+    margin-left:auto;white-space:nowrap;min-height:44px;
+  }
+  #kinnaklova-world .ki-utility .ki-utility-choose{
+    padding:8px 9px;font-size:11px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #eggenipa-world .eg-scene-choose,
+  #laria-geography-world .gv-choose,
+  #kinnaklova-world .ki-stage-choose{animation:none;transition:none}
+}

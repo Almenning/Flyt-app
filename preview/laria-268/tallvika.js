@@ -1,0 +1,233 @@
+/* Tallvika is deliberately a small presentation layer: navigation and learning
+   state remain owned by the existing Læria runtimes. */
+(() => {
+  'use strict';
+  const trolls = {
+    // Keep src as the locked identity reference. sceneSrc is what Tallvika
+    // actually paints, so the picker and world show the exact same approved art.
+    storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/gangemagi-troll/storesoster.webp',sceneTreatment:'locked-original'},
+    lillesoster:{name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp',sceneSrc:'./assets/gangemagi-troll/lillesoster.webp',sceneTreatment:'locked-original'},
+    lillebror:{name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp',sceneSrc:'./assets/gangemagi-troll/lillebror.webp',sceneTreatment:'locked-original'}
+  };
+  // Dialogue is independent of painted art and retains the selected character.
+  let currentSpeech = null;
+  const greetings = [
+    'Hei! Hva vil du utforske i dag?',
+    'Vil du prøve Gangemagi, Brøklab eller Gangetabellen?',
+    'Se på skiltene! Hvor skal vi leke først?'
+  ];
+  let speechIndex = 0;
+  const speak = (message, readAloud = false) => {
+    currentSpeech = message;
+    const bubble = document.querySelector('#tallvika-world .tv-actor-speech');
+    if (bubble) bubble.textContent = message;
+    // A spoken reply only follows an explicit child tap and respects sound off.
+    if (readAloud && app()?.state()?.preferences?.sound !== false &&
+        'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'nb-NO';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.08;
+        window.speechSynthesis.speak(utterance);
+      } catch (_) { /* Speech is optional; the accessible bubble still works. */ }
+    }
+  };
+  const screen = document.getElementById('subject-screen');
+  if (!screen) return;
+  const esc = value => String(value || '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const app = () => window.LARIA_TALLVIKA_BRIDGE;
+  const selection = () => trolls[app()?.state()?.profile?.tallvikaTroll] ? app().state().profile.tallvikaTroll : 'storesoster';
+  const saveTroll = id => {
+    const state = app()?.state();
+    if (!trolls[id] || !state) return;
+    state.profile = {...state.profile, tallvikaTroll:id};
+    app()?.save();
+  };
+  const progress = () => {
+    try { const grade = app()?.journeyViewGrade?.('math') || app()?.currentGrade?.() || 2; return {grade, p:app()?.journeyProgress?.('math', grade), n:app()?.journeyRecommendedNode?.('math', grade)}; }
+    catch (_) { return {grade:2,p:null,n:null}; }
+  };
+  // View-only routing: never store navigation in the learning profile.
+  const activityNames={multiply:'Gangemagi',fraction:'Brøklab',table:'Gangetabellen'};
+  let entryContext=null;
+  const activityScreen=action=>document.getElementById(action==='fraction'
+    ?'fraction-lab-screen':'multiplication-lab-screen');
+  // An activity can be exited through Home/edge navigation rather than its
+  // explicit Back button. Expire that origin when its lab actually closes;
+  // otherwise a later independent visit could be incorrectly sent to Tallvika.
+  new Set(['fraction','multiply'].map(activityScreen).filter(Boolean)).forEach(lab=>{
+    new MutationObserver(()=>{
+      if(!entryContext || activityScreen(entryContext.action)!==lab ||
+          lab.classList.contains('active'))return;
+      delete lab.dataset.tvOrigin;
+      if(entryContext.action==='table')delete lab.dataset.mpDirectTallvika;
+      entryContext=null;
+    }).observe(lab,{attributes:true,attributeFilter:['class']});
+  });
+  function returnFromActivity(action){
+    const lab=activityScreen(action);
+    if(!activityNames[action]||lab?.dataset.tvOrigin!==action||
+      entryContext?.action!==action)return false;
+    const previous=entryContext;
+    delete lab.dataset.tvOrigin;
+    if(action==='table')delete lab.dataset.mpDirectTallvika;
+    entryContext=null;
+    try{
+      if(typeof window.openSubject!=='function')throw new Error('No maths route');
+      window.openSubject('math');
+    }catch(_){
+      lab.dataset.tvOrigin=action;
+      entryContext=previous;
+      return false;
+    }
+    // App navigation scrolls to the top. Restore the child's prior place
+    // afterwards, and restore focus for keyboard / assistive navigation.
+    requestAnimationFrame(()=>{
+      const button=document.querySelector('#tallvika-world .tv-scene .tv-sign[data-tv="'+action+'"]');
+      if(button)try{button.focus({preventScroll:true})}catch(_){}
+      window.scrollTo(0,previous.scrollY||0);
+    });
+    return true;
+  }
+  function beginActivity(action,button){
+    const lab=activityScreen(action);
+    if(!activityNames[action]||!lab)return false;
+    entryContext={action,
+      scrollY:Math.max(0,window.scrollY||document.documentElement.scrollTop||0)};
+    lab.dataset.tvOrigin=action;
+    let started=false;
+    try{
+      if(action==='multiply'&&typeof window.openMultiplicationLab==='function')
+        window.openMultiplicationLab();
+      else if(action==='fraction'&&typeof window.openFractionLab==='function')
+        window.openFractionLab();
+      else if(action==='table'&&window.LARIA_MULT_PREMIUM?.openTableFromTallvika?.()!==true)
+        throw new Error('Missing 10x10 table entry');
+      started=lab.classList.contains('active');
+    }catch(_){started=false;}
+    if(started)return true;
+    delete lab.dataset.tvOrigin;
+    if(action==='table')delete lab.dataset.mpDirectTallvika;
+    entryContext=null;
+    screen.setAttribute('aria-label',activityNames[action]+' kunne ikke åpnes. Prøv igjen.');
+    return false;
+  }
+  function build() {
+    if (screen.dataset.subject !== 'math' || !screen.classList.contains('active')) return;
+    // The existing journey renderer marks Math's old journey as active before
+    // Tallvika takes over the subject screen. Its responsive CSS deliberately
+    // hides every direct child except the old journey map. Clear that stale
+    // view state rather than adding specificity wars or touching journey data.
+    if (screen.classList.contains('locked-journey-active') ||
+        screen.classList.contains('premium-journey-active')) {
+      screen.classList.remove('locked-journey-active', 'locked-journey-subject-math',
+        'premium-journey-active');
+    }
+    const selected = selection(), troll = trolls[selected], name = (app()?.state()?.profile?.name || '').trim();
+    const {p,n,grade} = progress(), ownGrade = Number(app()?.currentGrade?.() || grade);
+    let root = document.getElementById('tallvika-world');
+    if (!root) { root = document.createElement('section'); root.id='tallvika-world'; root.setAttribute('aria-label','Tallvika, matematikkverden'); screen.insertBefore(root, screen.firstChild); }
+    // The legacy journey system may re-set screen classes while opening Maths.
+    // Replacing identical innerHTML on each observer callback would detach
+    // buttons under the pointer, especially on iPhone landscape WebKit.
+    // Only re-render when the visible, persisted world state really changed.
+    const renderKey = JSON.stringify({
+      selected,grade,ownGrade,name,next:n?.id||null,nextTitle:n?.title||null,
+      done:p?.done||0,total:p?.total||0,complete:!!p?.complete
+    });
+    if (root.dataset.tvRenderKey === renderKey && screen.classList.contains('tallvika-active')) return;
+    root.dataset.tvRenderKey = renderKey;
+    root.innerHTML = `
+
+      <main class="tv-main">
+        <div class="tv-stage">
+          <div class="tv-scene laria-sign-rail-v2" data-tv-art="fjord-no-buildings-v2">
+            <button type="button" class="tv-scene-home" data-tv="back" aria-label="Tilbake til Hjem">‹ Hjem</button>
+            <button type="button" class="tv-scene-grade" data-tv="grade" aria-label="Velg klassetrinn">${grade}. klasse</button>
+            <div class="tv-world-brand" aria-hidden="true"><strong>Læria</strong><span>Tallvika</span></div>
+            <button type="button" class="tv-scene-choose" data-tv="choose" aria-label="Velg ditt skogstroll">Mine troll</button>
+            <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Følg skiltene og lek med tall.</span></div>
+            <nav class="tv-sign-nav" aria-label="Velg matematikkaktivitet">
+              <button type="button" class="tv-sign laria-wayfinder" data-tv="multiply" aria-label="Åpne Gangemagi"><span class="tv-sign-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><g fill="currentColor"><circle cx="15" cy="16" r="4.2"/><circle cx="25" cy="16" r="4.2"/><circle cx="35" cy="16" r="4.2"/><circle cx="15" cy="31" r="4.2"/><circle cx="25" cy="31" r="4.2"/><circle cx="35" cy="31" r="4.2"/></g><path d="M9 23.5h32" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/></svg></span><span class="tv-sign-label">Gangemagi</span></button>
+              <button type="button" class="tv-sign laria-wayfinder" data-tv="fraction" aria-label="Åpne Brøklab"><span class="tv-sign-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><circle cx="24" cy="24" r="15.5" fill="none" stroke="currentColor" stroke-width="3.2"/><path d="M24 8.5V24H39.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 24 13 35" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg></span><span class="tv-sign-label">Brøklab</span></button>
+              <button type="button" class="tv-sign laria-wayfinder" data-tv="table" aria-label="Åpne Gangetabellen"><span class="tv-sign-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><rect x="8.5" y="9" width="31" height="29.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="3"/><path d="M18.8 9v29.5M29.2 9v29.5M8.5 19h31M8.5 28.7h31" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="tv-sign-label">Gangetabellen</span></button>
+            </nav>
+            <div class="tv-actor" data-troll-id="${selected}">
+              <button type="button" class="tv-actor-touch laria-troll-host laria-troll-actor" data-tv="troll" data-troll="${selected}" data-laria-troll-mood="idle" aria-label="Snakk med ${esc(troll.name)}"><img class="laria-premium-troll-art" src="${esc(troll.src)}" alt="" aria-hidden="true" draggable="false"></button>
+              <div class="tv-actor-speech" role="status" aria-live="polite">${esc(currentSpeech || (name ? 'Hei, '+name+'! Hva vil du utforske i dag?' : greetings[0]))}</div>
+            </div>
+            <button type="button" class="tv-next-sign" data-tv="next" ${n||p?.complete?'':'disabled'} aria-label="Neste eventyr: ${esc(p?.complete ? 'Bonusoppdrag' : n?.title || 'Et nytt oppdrag')}">
+              <strong>Neste eventyr</strong><span class="tv-next-title">${p?.complete?'Bonusoppdrag':esc(n?.title||'Et nytt oppdrag')}</span><span class="tv-next-arrow" aria-hidden="true">➜</span>
+            </button>
+          </div>
+        </div>
+      </main>
+      <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.src}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
+      <dialog class="tv-dialog tv-grade-dialog" aria-label="Velg klassetrinn"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>UTFORSK I DITT TEMPO</p><h2>Velg klassetrinn</h2><span class="tv-grade-note">${grade===ownGrade?'Dette er ditt klassetrinn. Du kan også utforske andre trinn.':'Du utforsker '+grade+'. klasse. Ditt klassetrinn er fortsatt '+ownGrade+'. klasse.'}</span><div class="tv-grade-grid">${Array.from({length:10},(_,i)=>{const g=i+1;return '<button type="button" class="tv-grade-option'+(g===grade?' selected':'')+'" data-tv-grade="'+g+'" aria-pressed="'+(g===grade)+'" aria-label="'+g+'. klasse"><b>'+g+'.</b><small>'+(g===ownGrade?'Mitt trinn':g===grade?'Valgt':'Utforsk')+'</small></button>';}).join('')}</div></form></dialog>`;
+    window.LARIA_SCENE_UI?.enhance?.(root,'math');
+    // Never mutate an observed attribute when its value is already correct.
+    // Repeating classList.add() can itself fire another MutationObserver record
+    // even if the token was present, starving DOMContentLoaded across Læria.
+    if (!screen.classList.contains('tallvika-active')) screen.classList.add('tallvika-active');
+    root.querySelectorAll('.tv-dialog').forEach(dialog=>dialog.addEventListener('click',
+      event => { if (event.target === event.currentTarget) event.currentTarget.close(); }));
+  }
+  screen.addEventListener('click', event => {
+    const button = event.target.closest('[data-tv]');
+    if (!button || !screen.contains(button)) return;
+    const action = button.dataset.tv;
+    if (action === 'back') { if (!window.LARIA_RETURN_TO_BASECAMP?.()) app()?.setTab?.('home'); }
+    if (action === 'choose') {
+      // One chooser for all four worlds; keep the legacy local dialog only
+      // as a safe fallback if the shared TrollActor runtime is unavailable.
+      if (window.LARIA_TROLL_ACTOR?.openChooser) window.LARIA_TROLL_ACTOR.openChooser();
+      else document.querySelector('#tallvika-world .tv-dialog:not(.tv-grade-dialog)')?.showModal();
+    }
+    if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
+    if (action === 'troll') {
+      speechIndex=(speechIndex+1)%greetings.length;
+      speak(greetings[speechIndex], true);
+      const actor=screen.querySelector('#tallvika-world .tv-actor-touch');
+      window.LARIA_TROLL_ACTOR?.mood?.(actor,'wave',{say:false,duration:1250});
+    }
+    if (action === 'multiply'||action === 'fraction'||action === 'table') {
+      const title=activityNames[action];
+      speak('Da besøker vi '+title+'!');
+      window.LARIA_TROLL_ACTOR?.mood?.(screen.querySelector('#tallvika-world .tv-actor-touch'),'celebrate',{say:false,duration:1000});
+      beginActivity(action,button);
+    }
+    if (action === 'next') { const {p,n,grade}=progress(); speak('Nå starter neste eventyr!'); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
+  });
+  screen.addEventListener('click', event => {
+    const button = event.target.closest('[data-tv-troll]');
+    if (!button) return;
+    saveTroll(button.dataset.tvTroll); currentSpeech='Hei! Nå skal vi utforske Tallvika sammen.'; document.querySelector('#tallvika-world .tv-dialog')?.close(); build();
+  });
+  screen.addEventListener('click', event => {
+    const button = event.target.closest('[data-tv-grade]');
+    if (!button) return;
+    const grade = Number(button.dataset.tvGrade);
+    if (!Number.isInteger(grade) || grade<1 || grade>10) return;
+    app()?.setJourneyViewGrade?.('math',grade,false);
+    document.querySelector('#tallvika-world .tv-grade-dialog')?.close();
+    build();
+  });
+  const observer = new MutationObserver(() => {
+    const active = screen.classList.contains('active') && screen.dataset.subject === 'math';
+    if (active) build();
+    else {
+      if (screen.classList.contains('tallvika-active')) screen.classList.remove('tallvika-active');
+      // The same DOM screen hosts the other three subjects. Leaving Math must
+      // remove our world, otherwise it reappears in other journeys as residue.
+      document.getElementById('tallvika-world')?.remove();
+    }
+  });
+  observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
+  document.addEventListener('laria:troll-changed',()=>{
+    if(screen.classList.contains('active')&&screen.dataset.subject==='math')build();
+  });
+  if (screen.classList.contains('active') && screen.dataset.subject === 'math') build();
+  window.LARIA_TALLVIKA = {build,trolls,returnFromActivity};
+})();

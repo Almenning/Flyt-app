@@ -1,0 +1,127 @@
+/* Læria Plukk og tell · 2026-10-09 · storybook-premium visual pass.
+   The groups stay mathematically real DOM objects. Scenic illustration never adds countables. */
+
+/* Put a detailed panoramic stage behind the manipulable play objects. */
+.mp-explore-world.pick-mode{padding:4px;background:linear-gradient(170deg,#fff7e9,#f8e7cf);border-radius:27px}
+.mp-pick-screen{--pp-wood-dark:#70452e;--pp-wood-light:#f5d6a4;--pp-leaf:#58835e;--pp-shadow:0 10px 24px #49362233;overflow:visible}
+.mp-pick-screen .mp-pick-heading{padding:8px 10px 10px}
+.mp-pick-heading h2{font-size:clamp(30px,6vw,46px);font-weight:1000;letter-spacing:-.042em;color:#532f29;text-shadow:0 2px 0 #fff9e8}
+.mp-pick-heading p{font-size:13px;color:#76513c;line-height:1.45}
+.mp-pick-world-chooser{margin:4px 4px 15px}
+.mp-pick-world-strip{gap:9px;padding:3px 3px 10px}
+.mp-pick-world-btn{flex-basis:112px;min-height:94px;padding:5px 6px 7px;border:2px solid #fff9e7;border-radius:20px;background:linear-gradient(155deg,#fffef7,#f3e2c6);color:#6c4630!important;box-shadow:0 4px 0 #c8a57d,0 6px 11px #7a543421}
+.mp-pick-world-btn.selected{border-color:#87aa72;background:linear-gradient(#f7fae9,#e5f0d1);box-shadow:0 4px 0 #82a06c,0 8px 12px #576e4333}
+.mp-pick-world-btn>span:last-child{font-weight:900;line-height:1.19;font-size:11px}
+.mp-pick-world-emoji{height:49px}
+.mp-pick-world-emoji svg{height:47px;width:47px}
+.mp-pick-stage-v2{position:relative;isolation:isolate;min-width:0;overflow:hidden;border:4px solid #fff6dd;border-radius:30px;background:#8dad83;box-shadow:inset 0 0 0 2px #e8d2ae,0 6px 0 #ad976fba,0 15px 29px #5b443451}
+.mp-pick-stage-v2 .mp-pick-stage-landscape{position:absolute;z-index:0;inset:0;pointer-events:none;opacity:1;background:#a9c6a3}
+.mp-pick-stage-v2 .mp-pick-landscape.mp-pick-storyscape{position:absolute;inset:0;width:100%;height:100%;min-height:0;display:block;filter:none;opacity:1;transform:none;pointer-events:none}
+.mp-pick-stage-v2:before{z-index:1;pointer-events:none;background:linear-gradient(180deg,#fffce925 0%,#fff8db11 18%,#fff2d100 42%,#fff5d707 72%,#f7e5c351 100%);box-shadow:inset 0 0 0 2px #fff8e466,inset 0 12px 21px #fff9e246}
+.mp-pick-stage-v2 .mp-pick-stage-inner{position:relative;z-index:2;padding:17px 10px 18px}
+.mp-pick-stage-v2 .mp-pick-wood-sign{position:relative;max-width:570px;min-height:97px;gap:4px;margin:0 auto 38px;padding:12px 11px 14px;border:6px solid #67402d;border-radius:20px;color:#fff7e3;background:repeating-linear-gradient(177deg,#ffe4b311 0 2px,#5b361920 3px 16px),linear-gradient(170deg,#a17146 0%,#986039 40%,#815031 72%,#70432e 100%);box-shadow:inset 0 3px 0 #edbe80b8,inset 0 -5px 0 #542f2455,0 5px 0 #543827,0 12px 20px #442b2766}
+.mp-pick-stage-v2 .mp-pick-wood-sign:before,.mp-pick-stage-v2 .mp-pick-wood-sign:after{content:"";position:absolute;top:8px;bottom:8px;width:13px;pointer-events:none;background:radial-gradient(circle at 50% 13%,#f6cf8b 0 3px,#79452b 3.2px 4.2px,transparent 4.5px),radial-gradient(circle at 50% 87%,#f6cf8b 0 3px,#79452b 3.2px 4.2px,transparent 4.5px)}
+.mp-pick-stage-v2 .mp-pick-wood-sign:before{left:4px}
+.mp-pick-stage-v2 .mp-pick-wood-sign:after{right:4px}
+.mp-pick-wood-sign>span{font-weight:850;font-size:12px;letter-spacing:.01em;color:#fff0d0;text-shadow:0 1px 0 #603926}
+.mp-pick-wood-sign .mp-pick-equation{font-size:clamp(24px,5.9vw,44px);font-weight:950;color:#fffcec;text-shadow:0 3px 0 #553025,0 4px 12px #2e1d1dcc;letter-spacing:-.025em}
+.mp-pick-wood-sign>small{color:#fff3d6;font-size:11px;text-shadow:0 1px 0 #543423;line-height:1.25}
+.mp-pick-stage-v2 .mp-pick-group-grid{position:relative;z-index:2;max-width:780px;margin:0 auto 17px;gap:19px;grid-template-columns:repeat(var(--pick-n),minmax(0,1fr));align-items:start}
+.mp-pick-vessel{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;min-width:0;width:100%;min-height:0;padding:0;background:transparent}
+.mp-pick-vessel:before{display:none!important}
+.mp-pick-vessel-art{--art-top:25px;position:relative;isolation:isolate;width:100%;height:206px;min-height:0;flex:0 0 auto}
+.mp-pick-vessel-shadow{position:absolute;z-index:0;bottom:9px;left:10%;right:10%;height:23px;border-radius:50%;background:#3d392943;filter:blur(6px);pointer-events:none}
+.mp-pick-vessel-art:before{content:"";position:absolute;z-index:2;top:var(--art-top);bottom:14px;left:1px;right:1px;border:7px solid #b4804c;border-bottom:12px solid #96613e;border-radius:27px 27px 40px 40px;background:repeating-linear-gradient(42deg,#b6804861 0 2px,transparent 3px 14px),repeating-linear-gradient(-42deg,#8c5f364c 0 2px,transparent 3px 14px),linear-gradient(145deg,#f4dba9 3%,#dbad78 43%,#ad7849 100%);box-shadow:inset 0 8px 12px #fff0c0b9,inset 0 -10px 15px #74482747,0 5px 0 #76503794,0 9px 12px #392e2148}
+.mp-pick-vessel-art:after{content:"";position:absolute;z-index:5;left:4px;right:4px;top:var(--art-top);height:16px;border:4px solid #f4d59d;border-radius:50%;box-shadow:inset 0 3px 7px #76452655,0 2px 0 #81512e;background:linear-gradient(180deg,#fce7bd95,#cc9b6b43);pointer-events:none}
+.mp-pick-vessel-art .mp-pick-handle{position:absolute;z-index:1;top:0;left:9%;width:82%;height:87px;border:10px solid #ac7449;border-bottom:0;border-radius:57% 57% 0 0;box-shadow:inset 0 4px 0 #f9e1b6,0 -2px 0 #694324,0 2px 7px #3e2a236a}
+.mp-pick-vessel-art .mp-pick-linen{position:absolute;z-index:3;top:calc(var(--art-top) + 18px);bottom:33px;left:11px;right:11px;border:2px solid #f7dfb74d;border-radius:12px 12px 23px 23px;background:repeating-linear-gradient(0deg,#93683b14 0 2px,transparent 2px 9px),linear-gradient(#fff3d0b1,#dfb78933 73%,#bb915444);pointer-events:none}
+.mp-pick-vessel-art .mp-pick-objects{position:absolute;z-index:4;left:8px;right:8px;top:calc(var(--art-top) + 24px);bottom:39px;display:grid;grid-template-columns:repeat(var(--pick-cols),minmax(0,1fr));grid-auto-rows:minmax(0,1fr);place-items:center;align-content:center;gap:1px 0;width:auto;min-height:0;padding:3px 0 10px}
+.mp-pick-vessel-art .mp-pick-object{display:grid;place-items:center;min-width:0;width:100%;height:100%;min-height:0;max-width:66px;max-height:64px;aspect-ratio:1/1;border:0;background:transparent!important;padding:0;filter:drop-shadow(0 2px 1px #53371d74);touch-action:none}
+.mp-pick-vessel-art .mp-pick-object:focus-visible{border-radius:35%;outline-offset:-2px}
+.mp-pick-vessel-art .mp-pick-object svg{display:block;width:100%;height:100%;max-height:none;overflow:visible}
+.mp-pick-vessel-art .mp-pick-front{position:absolute;z-index:6;pointer-events:none;left:5px;right:5px;bottom:18px;height:39px;border-radius:3px 3px 31px 31px;border-top:7px ridge #f4d8aa;background:repeating-linear-gradient(45deg,#f4d7ac72 0 3px,#925e3975 4px 6px,transparent 7px 13px),repeating-linear-gradient(-45deg,#fff2cf60 0 3px,#89553188 4px 7px,transparent 8px 13px),linear-gradient(#ddaf7e,#ad7649);box-shadow:0 -4px 5px #593e2c52,inset 0 7px 7px #ffe7b76a,inset 0 -7px 9px #7447273d}
+.mp-pick-vessel-art .mp-pick-number{position:absolute;z-index:8;pointer-events:none;bottom:7px;left:50%;transform:translateX(-50%);min-width:42px;height:39px;border:3px solid #c28f54;border-radius:11px;display:grid;place-items:center;background:linear-gradient(#fff9e9,#efc991);color:#563526;font-size:22px;font-weight:1000;font-variant-numeric:tabular-nums;box-shadow:0 4px 0 #8a5a3994,0 6px 10px #46301d61}
+.mp-pick-leaf-decoration{position:absolute;z-index:9;top:14px;left:0;width:56px;height:27px;pointer-events:none;background:radial-gradient(ellipse 8px 4px at 12px 10px,#577b48 96%,transparent 100%),radial-gradient(ellipse 9px 5px at 29px 7px,#87ab6c 96%,transparent 100%),radial-gradient(ellipse 12px 6px at 36px 22px,#719455 96%,transparent 100%);transform:rotate(-15deg);filter:drop-shadow(0 2px 2px #493d2855)}
+.mp-pick-vessel:nth-child(even) .mp-pick-leaf-decoration{left:auto;right:0;transform:scaleX(-1) rotate(-17deg)}
+.mp-pick-vessel-actions{z-index:10;position:relative;margin-top:7px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;width:100%}
+.mp-pick-vessel-actions button{min-height:47px;max-width:none;min-width:0;border:2px solid #fff6de;border-radius:13px;background:linear-gradient(180deg,#fffef2,#f1d7af);box-shadow:0 4px 0 #ab7c54,0 6px 8px #47352321;color:#583b2b!important;font-weight:950;font-size:13px;padding:5px 1px}
+.mp-pick-vessel-actions button:only-child{grid-column:1/-1}
+.mp-pick-vessel-actions button:disabled,.mp-pick-vessel .mp-pick-empty:disabled{opacity:.54;box-shadow:0 1px 0 #9a7957}
+.mp-pick-vessel .mp-pick-empty{z-index:10;position:relative;min-height:44px;margin:9px auto 0;padding:6px 9px;border:2px solid #f7e8cf;border-radius:12px;background:linear-gradient(#fffdf2,#e9d3b1);box-shadow:0 3px 0 #b68d6b;color:#674633!important;font-size:12px!important;font-weight:880}
+/* Render different physical materials, rather than repainting the same basket. */
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-handle,
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-vessel-art .mp-pick-handle,
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-vessel-art .mp-pick-handle,
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art .mp-pick-handle,
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-vessel-art .mp-pick-handle{display:none}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-vessel-art{--art-top:36px}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-vessel-art:before{border:8px solid #ba855d;border-bottom:15px solid #9f6943;border-radius:14px 14px 25px 25px;background:repeating-conic-gradient(#f5e2cb 0 25%,#b67c6150 0 50%) 50%/30px 30px,linear-gradient(#faecc9,#d3a374);box-shadow:0 5px 0 #815735ad,0 9px 16px #56392b52,inset 0 7px 13px #fff3d8}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-linen{background:repeating-conic-gradient(#c58f7a7c 0 25%,#fff5e2be 0 50%) 50%/25px 25px;inset:auto;top:calc(var(--art-top) + 12px);bottom:37px;left:10px;right:10px;border-radius:11px}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-front{height:23px;bottom:20px;border-top:4px solid #e8c193;border-radius:0 0 19px 19px;background:linear-gradient(#e1b182,#a9784f)}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-leaf-decoration{display:none}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-vessel-art{--art-top:33px}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-vessel-art:before{border:8px solid #826949;border-bottom:12px solid #66513e;border-radius:9px 9px 23px 23px;background:repeating-linear-gradient(0deg,#6b58334d 0 2px,transparent 3px 24px),linear-gradient(135deg,#d5bd94,#988561 70%,#77654d);box-shadow:inset 0 5px 11px #f3e2bc,0 6px 0 #66533ca9,0 12px 18px #2c3d2959}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-front{border-radius:0 0 17px 17px;border-top:6px solid #baa177;background:repeating-linear-gradient(90deg,#594b3766 0 3px,transparent 3px 23px),linear-gradient(#bba07a,#7e6c50)}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-leaf-decoration{background:radial-gradient(ellipse at 25% 50%,#5a8550 0 42%,transparent 44%),radial-gradient(ellipse at 66% 39%,#84ac63 0 40%,transparent 42%),radial-gradient(ellipse at 79% 78%,#477754 0 39%,transparent 41%)}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-vessel-art{--art-top:30px}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-vessel-art:before{border:8px solid #9a6e31;border-bottom:15px solid #674527;border-radius:14px 14px 24px 24px;background:repeating-linear-gradient(0deg,#8055217c 0 3px,transparent 3px 27px),linear-gradient(120deg,#e7c077,#b27e3c 75%,#77522f);box-shadow:inset 0 7px 12px #ffe6ae8c,0 7px 0 #60452d,0 12px 17px #3427235e}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-front{height:40px;background:linear-gradient(#d8a74f,#92642e);border-top:8px ridge #f9d279}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-leaf-decoration{display:none}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art{--art-top:39px}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art:before{border:8px solid #825039;border-bottom:12px solid #593b32;border-radius:11px 11px 18px 18px;background:linear-gradient(150deg,#ce9b6a,#95674b 65%,#755339)}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-front{height:26px;border-radius:0 0 11px 11px;border-top:5px solid #f0bc7c;background:linear-gradient(#d3a470,#906447)}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art:after{top:auto;bottom:0;height:25px;left:14px;right:14px;border:0;border-radius:0;background:radial-gradient(circle at 16% 50%,#323b40 0 12px,#bd905a 13px 16px,transparent 17px),radial-gradient(circle at 84% 50%,#323b40 0 12px,#bd905a 13px 16px,transparent 17px);box-shadow:none}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-leaf-decoration{display:none}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-vessel-art{--art-top:25px}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-vessel-art:before{border:8px solid #c9f3f0c7;border-bottom:12px solid #68b1c2a8;border-radius:38px 38px 43px 43px;background:linear-gradient(90deg,#edfffc77,#8ae2ee22 19%,#d3f7e85b 72%,#fff9ea74),linear-gradient(#96d8d460,#4a9abb4f);box-shadow:inset 9px 8px 11px #fffef0a9,inset -7px -8px 13px #376f9b54,0 9px 0 #386b8c,0 13px 17px #1f486764}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-front{height:20px;background:linear-gradient(#8fc5cc7a,#3f8194b0);border-top:5px solid #ecffefc9}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-linen{background:radial-gradient(circle at 20% 33%,#ffffffb5 0 4px,transparent 6px),radial-gradient(circle at 80% 72%,#ffffffaa 0 5px,transparent 7px),linear-gradient(#d3fbf231,#4f9ec22c)}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-leaf-decoration{display:none}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-front{background:repeating-linear-gradient(48deg,#e7c77d 0 4px,#a47e445a 5px 11px,transparent 12px 15px),linear-gradient(#efcf92,#aa7749)}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-vessel-art:before{border-color:#bca073;background:radial-gradient(ellipse at 45% 20%,#f6e5b3,#ceb58c 58%,#a17c4d)}
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-vessel-art:before{border-color:#ad7e55;border-radius:20px 20px 31px 31px;background:linear-gradient(120deg,#d0b994,#ebd8b0 55%,#b89773)}
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-vessel-art:before{border-color:#b88c5a;background:linear-gradient(145deg,#fff2cd,#dfb88a 40%,#af7948)}
+.mp-pick-stage-v2 .mp-pick-collection{max-width:435px;min-height:77px;margin:13px auto 0;border:4px solid #fbe4b5;border-radius:23px;background:linear-gradient(150deg,#fff7de,#d4a96d);box-shadow:0 5px 0 #986c43b0,0 8px 14px #61432a45,inset 0 3px 5px #fff9dd96}
+.mp-pick-collected{background:linear-gradient(#fffef2,#f6ddad);border-color:#d7ac69;color:#653f2b}
+/* Keep buttons outside the containers, especially at portrait phone widths. */
+@media(max-width:699px){
+ .mp-pick-stage-v2 .mp-pick-stage-inner{padding:12px 5px 16px}
+ .mp-pick-stage-v2 .mp-pick-wood-sign{margin:0 auto 25px;min-height:104px;padding:10px 8px 11px;border-width:4px;border-radius:16px}
+ .mp-pick-wood-sign .mp-pick-equation{font-size:clamp(22px,5.9vw,33px)}
+ .mp-pick-stage-v2 .mp-pick-group-grid{gap:6px;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px}
+ .mp-pick-vessel-art{--art-top:20px;height:150px}
+ .mp-pick-vessel-art:before{left:0;right:0;bottom:10px;border-width:3px;border-bottom-width:7px;border-radius:16px 16px 23px 23px}
+ .mp-pick-vessel-art:after{left:1px;right:1px;height:10px;border-width:2px}
+ .mp-pick-vessel-art .mp-pick-handle{top:-1px;height:50px;border-width:6px}
+ .mp-pick-vessel-art .mp-pick-linen{top:calc(var(--art-top) + 11px);bottom:21px;left:4px;right:4px;border-radius:10px}
+ .mp-pick-vessel-art .mp-pick-objects{top:calc(var(--art-top) + 12px);bottom:23px;left:2px;right:2px;gap:0;padding:0 0 5px}
+ .mp-pick-vessel-art .mp-pick-object{max-width:36px;max-height:43px;min-width:0;min-height:0}
+ .mp-pick-vessel-art .mp-pick-front{left:2px;right:2px;bottom:13px;height:24px;border-width:3px;border-radius:0 0 17px 17px}
+ .mp-pick-vessel-art .mp-pick-number{bottom:5px;min-width:30px;height:29px;border-width:2px;border-radius:8px;font-size:16px}
+ .mp-pick-leaf-decoration{top:8px;width:34px;height:20px}
+ .mp-pick-vessel-actions{gap:3px;margin-top:8px}
+ .mp-pick-vessel-actions button{min-height:45px;max-width:none;border-width:1px;border-radius:10px;padding:5px 1px;font-size:12px}
+ .mp-pick-vessel .mp-pick-empty{min-height:44px;margin:7px auto 0;padding:5px 4px;font-size:11px!important}
+ .mp-pick-screen[data-pick-scene="bakery"] .mp-pick-vessel-art{--art-top:26px}
+ .mp-pick-screen[data-pick-scene="forest"] .mp-pick-vessel-art{--art-top:24px}
+ .mp-pick-screen[data-pick-scene="treasure"] .mp-pick-vessel-art{--art-top:24px}
+ .mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art{--art-top:27px}
+ .mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-vessel-art{--art-top:21px}
+ .mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art:after{bottom:1px;height:12px}
+ .mp-pick-world-btn{flex-basis:106px;min-height:89px}
+ .mp-pick-world-emoji,.mp-pick-world-emoji svg{width:43px;height:43px}
+}
+@media(max-width:370px){
+ .mp-pick-stage-v2 .mp-pick-group-grid{gap:3px}
+ .mp-pick-vessel-art{height:142px}
+ .mp-pick-vessel-art .mp-pick-number{font-size:14px;min-width:26px;height:25px}
+ .mp-pick-vessel-actions button{font-size:11px}
+}
+@media(min-width:700px){
+ .mp-pick-vessel-art{height:228px}
+ .mp-pick-stage-v2 .mp-pick-group-grid{gap:21px}
+ .mp-pick-vessel-art .mp-pick-objects{top:52px;bottom:40px}
+ .mp-pick-vessel-art .mp-pick-object{max-width:64px}
+ .mp-pick-stage-v2 .mp-pick-wood-sign{margin-bottom:43px}
+}
+@media(prefers-reduced-motion:reduce){.mp-pick-vessel-art .mp-pick-object{animation:none!important;transition:none!important}}

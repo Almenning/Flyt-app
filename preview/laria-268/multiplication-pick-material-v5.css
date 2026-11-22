@@ -1,0 +1,213 @@
+/* Læria · Plukk og tell v5: sculpted countable objects and storybook materials.
+   A visual-only layer. No changes to arithmetic, progress, or user interaction. */
+.mp-pick-screen .mp-pick-story-object{
+ display:block;width:100%;height:100%;overflow:visible;
+ filter:drop-shadow(0 2px 1px #55331d36) drop-shadow(0 5px 2px #4a2f2440);
+ transform-origin:50% 81%;
+}
+.mp-pick-easy .mp-pick-vessel-art .mp-pick-object{
+ overflow:visible;
+ filter:none;
+}
+.mp-pick-easy .mp-pick-vessel-art .mp-pick-object svg{
+ max-height:100%;
+ object-fit:contain;
+}
+.mp-pick-easy .mp-pick-vessel-art .mp-pick-object:nth-child(3n+2){transform:translateY(-2px) rotate(-2deg)}
+.mp-pick-easy .mp-pick-vessel-art .mp-pick-object:nth-child(4n+3){transform:translateY(1px) rotate(3deg)}
+.mp-pick-easy .mp-pick-vessel-art .mp-pick-object:active{transform:translateY(3px) scale(.92)}
+.mp-pick-easy .mp-pick-vessel-art .mp-pick-object:focus-visible{outline:3px solid #2b76a3;outline-offset:0;border-radius:18px}
+.mp-pick-easy .mp-pick-stage-v2{
+ background:#a5bd8e;
+ border-color:#fff9e7;
+ box-shadow:inset 0 0 0 2px #fff6d48e,0 5px 0 #b6a07b,0 14px 27px #55433142;
+}
+.mp-pick-easy .mp-pick-stage-v2:before{
+ background:linear-gradient(180deg,#fff9e535 0%,transparent 35%,#fff0d511 66%,#70482b0d 100%);
+ box-shadow:inset 0 0 0 2px #fff6d9a6,inset 0 8px 20px #fff8db50;
+}
+/* The woven inner wall has curvature, alternating fibers, and a warm central highlight.
+   All stripes belong to the basket, not the mathematical objects. */
+.mp-pick-stage-v2 .mp-pick-vessel-art:before{
+ background:
+  radial-gradient(ellipse at 30% 13%,#fff9d5bd,transparent 56%),
+  repeating-linear-gradient(37deg,transparent 0 7px,#f9dfa775 8px 11px,#82522c44 11px 12px,transparent 13px 21px),
+  repeating-linear-gradient(-39deg,#ba8b5652 0 5px,#f8daab96 5px 8px,#76512e45 9px 10px,transparent 11px 18px),
+  linear-gradient(100deg,#c08b59 0%,#eed2a0 29%,#f6e0b5 45%,#d4a06c 72%,#ab764a 100%);
+ border-color:#a57646;
+ border-top-color:#e2b582;
+ border-inline-color:#ac7948;
+ box-shadow:inset 8px 0 12px #74461e40,inset -9px 0 13px #74461e2d,inset 0 8px 15px #fff9d7b2,inset 0 -15px 13px #81572e38,0 5px 0 #775235,0 9px 13px #3d332540;
+}
+.mp-pick-stage-v2 .mp-pick-vessel-art:after{
+ background:linear-gradient(180deg,#fff0c5b7,#ba875081 70%,#86572b90);
+ border-top-color:#f9e2af;
+ border-bottom-color:#936038;
+ box-shadow:inset 0 3px 6px #fff8dd7e,0 3px 0 #784b2c,0 5px 6px #4a30253d;
+}
+.mp-pick-stage-v2 .mp-pick-vessel-art .mp-pick-linen{
+ border:2px solid #fff4d38a;
+ background:
+  repeating-linear-gradient(0deg,#ab885517 0 1px,transparent 2px 8px),
+  repeating-linear-gradient(90deg,#a9834c13 0 1px,transparent 2px 9px),
+  radial-gradient(ellipse at 47% 32%,#fffaf2bd,#dfbb8571 80%);
+ box-shadow:inset 0 8px 11px #89572d28;
+}
+.mp-pick-stage-v2 .mp-pick-vessel-art .mp-pick-handle{
+ border-color:#b8834f;
+ border-top-color:#dfb177;
+ border-right-color:#996239;
+ border-left-color:#ba8353;
+ box-shadow:inset 0 3px 0 #fff2cc,inset 4px 0 5px #77492851,0 -2px 0 #784e32,0 3px 6px #3d2b2259;
+}
+.mp-pick-stage-v2 .mp-pick-vessel-art .mp-pick-front{
+ background:
+  repeating-linear-gradient(43deg,transparent 0 5px,#ffe4b18c 6px 9px,#8b562d69 10px 11px,transparent 12px 20px),
+  repeating-linear-gradient(-43deg,#e7b98080 0 5px,#93603991 6px 10px,#fff1c84c 10px 14px,#9a643b55 15px 17px),
+  linear-gradient(180deg,#e7be87 0%,#c28b55 63%,#955d38 100%);
+ border-top:6px ridge #f7d7a3;
+ box-shadow:0 -3px 4px #553c2c57,0 4px 0 #6b442a71,inset 0 5px 7px #fff0cbba,inset 0 -8px 8px #70432358;
+}
+.mp-pick-stage-v2 .mp-pick-vessel-art .mp-pick-number{
+ color:#5a3222;
+ border-color:#af7543;
+ border-top-color:#edd1a0;
+ background:
+  radial-gradient(circle at 13% 26%,#ae7843 0 2px,transparent 2.2px),
+  radial-gradient(circle at 87% 26%,#ae7843 0 2px,transparent 2.2px),
+  linear-gradient(#fff8e6,#e8be80);
+ text-shadow:0 1px 0 #fff5d1;
+ box-shadow:inset 0 2px 2px #fffbee,0 3px 0 #704628,0 5px 8px #4e302c5a;
+}
+/* World-specific materials: preserve distinct tactile props, not recolored generic baskets. */
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-vessel-art:before{
+ background:
+  repeating-conic-gradient(#fbecda 0% 25%,#d4a891 0 50%) center / 27px 27px,
+  linear-gradient(#f6e4c7,#c58b60);
+ border-color:#a66d48;
+ box-shadow:inset 0 0 0 5px #eec99d,0 6px 10px #5a3b2c56;
+}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-linen{
+ background:repeating-conic-gradient(#bf806e45 0% 25%,#fff9e6c7 0 50%) center / 16px 16px,linear-gradient(#fff9e8,#f4e4d1);
+}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-vessel-art:before{
+ background:
+  repeating-linear-gradient(90deg,#654c3824 0 3px,transparent 3px 27px),
+  repeating-linear-gradient(3deg,#c4a67c80 0 10px,#8e78564a 11px 13px,transparent 14px 28px),
+  linear-gradient(105deg,#c0aa83,#9f855f 60%,#72684f);
+ border-color:#78644c;
+ box-shadow:inset 8px 0 10px #5549334d,inset 0 8px 8px #e9deb4,0 7px 0 #62544098,0 11px 12px #263c304a;
+}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-vessel-art .mp-pick-front{
+ background:repeating-linear-gradient(89deg,#715b425c 0 2px,transparent 2px 18px),linear-gradient(#b5a17a,#79694b);
+ border-top-color:#d3b88a;
+}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-vessel-art:before{
+ background:
+  radial-gradient(circle at 20% 24%,#fff4c36a,transparent 32%),
+  repeating-linear-gradient(0deg,transparent 0 14px,#6c4828a6 14px 17px,#efbe64a6 18px 20px,transparent 21px 30px),
+  linear-gradient(105deg,#d0a154,#ad7437,#80502b);
+ border-color:#885a2d;
+ box-shadow:inset 0 7px 12px #ffe0a883,inset 8px 0 9px #6b452853,0 6px 0 #6d4a2e,0 9px 14px #30272476;
+}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-vessel-art:before{
+ background:
+  radial-gradient(ellipse at 25% 12%,#ffffff95,transparent 30%),
+  linear-gradient(100deg,#e2ffff81,#a6e5e447 25%,#5ab4c665 48%,#ffffff63 78%,#27799b5c),
+  linear-gradient(0deg,#62aabf9b,#c5f5ee8c);
+ border-color:#cdfaf1c4;
+ box-shadow:inset 9px 7px 9px #fffefad9,inset -7px -9px 14px #32699569,0 5px 0 #4f8899,0 10px 16px #2850665b;
+}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-vessel-art .mp-pick-front{
+ background:linear-gradient(90deg,#64b4c0,#e2faff7a,#4b95b2);
+ border-top-color:#eafff6;
+}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art:before{
+ background:repeating-linear-gradient(90deg,transparent 0 13px,#71453149 14px 16px,transparent 17px 27px),linear-gradient(105deg,#dbb185,#a9774c,#80573c);
+ border-color:#875b3b;
+}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-vessel-art:before{
+ background:repeating-linear-gradient(29deg,#d5b768a5 0 2px,transparent 3px 11px),repeating-linear-gradient(-29deg,#f9e7ac 0 2px,transparent 3px 9px),linear-gradient(#e8d09e,#b18e59);
+}
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-vessel-art:before{
+ background:repeating-linear-gradient(38deg,#ac7f584a 0 3px,#f1dab67a 4px 10px,transparent 11px 17px),linear-gradient(#e0c49c,#b48860);
+}
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-vessel-art:before{
+ background:repeating-linear-gradient(38deg,#e8c79874 0 5px,#91604455 6px 10px,transparent 11px 17px),linear-gradient(#e9d3a0,#b78852);
+}
+/* Gentle environmental depth without fake countable berries or lesson answers. */
+.mp-pick-easy .mp-pick-stage-inner::before{
+ content:"";position:absolute;pointer-events:none;z-index:-1;
+ left:3%;right:3%;top:34%;bottom:13%;
+ background:radial-gradient(ellipse at 50% 87%,#2d563521,transparent 68%);
+ filter:blur(5px);
+}
+.mp-pick-stage-v2 .mp-pick-vessel-art .mp-pick-object:focus-visible{z-index:12}
+.mp-pick-screen .mp-pick-zoom-item svg{filter:drop-shadow(0 2px 1px #54392125) drop-shadow(0 5px 2px #51332131)}
+.mp-pick-screen .mp-pick-world-emoji svg{filter:drop-shadow(0 2px 1px #5a422a35)}
+@media(max-width:699px){
+ .mp-pick-stage-v2 .mp-pick-vessel-art .mp-pick-front{border-top-width:4px}
+ .mp-pick-easy .mp-pick-stage-v2 .mp-pick-vessel-art .mp-pick-objects{gap:2px 0}
+}
+@media(prefers-reduced-motion:reduce){
+ .mp-pick-easy .mp-pick-vessel-art .mp-pick-object{transition:none!important}
+}
+
+/* Bakery trays: shallow, dark-edged baking tins with linen, not upright wicker buckets.
+   Scoped to 1st/2nd grade mode so the detailed 3x10 pilot remains unchanged. */
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art{
+ --art-top:37px;height:158px;min-height:158px;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art:before{
+ top:39px;bottom:16px;left:1px;right:1px;
+ border:5px solid #8c6551;border-top:8px solid #9e7560;border-bottom:10px solid #765349;
+ border-radius:19px 19px 28px 28px;
+ background:
+  radial-gradient(ellipse at 50% 31%,#fff8e9ac,transparent 74%),
+  repeating-conic-gradient(#b8756451 0% 25%,#fff8e9c9 0% 50%) center / 23px 23px,
+  linear-gradient(#e5d3b6,#ccb294);
+ box-shadow:inset 0 4px 9px #fffef1, inset 0 -8px 7px #775b4c3b,0 4px 0 #5b484090,0 8px 14px #443a3570;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art:after{
+ top:40px;height:11px;left:3px;right:3px;border:3px solid #c39c7b;
+ background:linear-gradient(#fff2d7,#c9a188);border-radius:17px 17px 7px 7px;
+ box-shadow:0 2px 3px #694f4133,inset 0 2px 3px #fff6dfb0;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-linen{
+ top:52px;bottom:29px;left:8px;right:8px;
+ background:repeating-conic-gradient(#bb827158 0% 25%,#fffaf2a8 0% 50%) center / 18px 18px;
+ box-shadow:inset 0 2px 7px #6d4a3a2d;
+ border-radius:8px 8px 17px 17px;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-objects{
+ top:54px;bottom:29px;left:1px;right:1px;
+ padding:1px 0 3px;gap:0;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-object svg{
+ transform:scale(1.14);
+ transform-origin:50% 60%;
+ filter:drop-shadow(0 2px 2px #673d2a54);
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-front{
+ bottom:15px;height:26px;left:3px;right:3px;
+ border-top:5px ridge #edd4b0;
+ border-radius:2px 2px 25px 25px;
+ background:repeating-linear-gradient(90deg,#a77c6144 0 2px,transparent 3px 16px),linear-gradient(180deg,#b59073,#855a47 73%,#6e4e3f);
+ box-shadow:inset 0 3px 4px #fff3df75,0 -2px 5px #513d3652;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-number{
+ bottom:2px;
+}
+/* Fruit baskets need a fuller handwoven silhouette than a rectangular storage crate. */
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="garden"] .mp-pick-vessel-art:before,
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="orchard"] .mp-pick-vessel-art:before{
+ border-radius:29px 29px 51px 51px;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="garden"] .mp-pick-vessel-art .mp-pick-front,
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="orchard"] .mp-pick-vessel-art .mp-pick-front{
+ border-radius:4px 4px 39px 39px;
+}
+@media(max-width:385px){
+ .mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art{height:151px;min-height:151px}
+ .mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-object svg{transform:scale(1.1)}
+}
