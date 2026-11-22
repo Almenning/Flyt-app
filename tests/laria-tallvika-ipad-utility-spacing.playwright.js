@@ -12,7 +12,8 @@ const devices=[
   ['portrait-1024',{width:1024,height:1366},'portrait'],
   ['landscape-1180',{width:1180,height:820},'wide'],
   ['landscape-1366',{width:1366,height:1024},'wide'],
-  ['landscape-1024',{width:1024,height:768},'wide']
+  ['landscape-1024',{width:1024,height:768},'wide'],
+  ['desktop-1525',{width:1525,height:1024},'wide']
 ];
 const seed={version:7,progressSchemaVersion:3,
  profile:{grade:2,onboarded:true,name:'QA',avatar:'girl',setupVersion:2,tallvikaTroll:'storesoster'},
