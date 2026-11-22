@@ -7,7 +7,7 @@ test('locked sign master is present and unchanged',()=>{
 });
 test('one sign component owns the locked surface contract',()=>{
  const js=fs.readFileSync(root+'laer-litt-mer/laria-wooden-sign-v1.js','utf8'),css=fs.readFileSync(root+'laer-litt-mer/laria-wooden-sign-v1.css','utf8'),html=fs.readFileSync(root+'laer-litt-mer/index.html','utf8');
- assert.match(js,/LariaWoodenSign/);assert.match(css,/laria-wooden-sign-medallion/);assert.match(css,/--laria-sign-serif/);assert.match(html,/laria-wooden-sign-v1/);
+ assert.match(js,/LariaWoodenSign/);assert.match(css,/laria-wooden-sign-medallion/);assert.match(css,/--laria-wooden-sign-serif/);assert.match(css,/--laria-wooden-sign-plank/);assert.match(html,/laria-wooden-sign-v1/);
 });
 test('painted scene masters are never covered by a replacement sign',()=>{
  const scene=fs.readFileSync(root+'laer-litt-mer/laria-scene-ui-v1.js','utf8');
@@ -16,6 +16,13 @@ test('painted scene masters are never covered by a replacement sign',()=>{
  assert.match(status,/Grovanova \/ Hjem v16/);assert.match(status,/Kinnaklova \/ Engelsk/);
 });
 
+
+test('Wooden sign tokens are isolated from historical subject menu colors',()=>{
+ const css=fs.readFileSync(root+'laer-litt-mer/laria-wooden-sign-v1.css','utf8');
+ assert.doesNotMatch(css,/:root\s*\{[^}]*--laria-sign-ink:/,
+   'Sign component may not overwrite global legacy subject ink');
+ assert.match(css,/\.laria-wooden-sign-rail\s*\{[\s\S]*?--laria-wooden-sign-serif:/);
+});
 test('Active Læria HTML is complete, not a truncated tool response',()=>{
  const html=fs.readFileSync(root+'laer-litt-mer/index.html','utf8');
  for(const required of [
