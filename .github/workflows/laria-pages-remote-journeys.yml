@@ -1,0 +1,38 @@
+name: Læria deployed Premium preview real journeys
+on:
+  push:
+    branches: [test/laria-github-commit-preview-20261122]
+    paths:
+      - tests/laria-pages-remote-journeys.playwright.js
+      - .github/workflows/laria-pages-remote-journeys.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  remote-journeys:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Real Pages navigation on portrait and landscape iPad
+        env:
+          QA_URL: https://almenning.github.io/Flyt-app/preview/laria-268/?app=laria
+          LARIA_REMOTE_QA: /tmp/laria-pages-journeys
+        run: node tests/laria-pages-remote-journeys.playwright.js
+      - name: Save real activity screenshots and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-pages-268-real-journeys
+          path: /tmp/laria-pages-journeys
+          retention-days: 14
+          if-no-files-found: warn
