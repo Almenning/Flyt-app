@@ -25,6 +25,11 @@ async function home(page,url,file,locked=true){
  assert.ok(size.width>=44&&size.height>=44&&size.scroll<=innerWidth+2,'Home overflows the iPad viewport');
  await page.screenshot({path:path.join(OUT,file),animations:'disabled'});
 }
+async function baseline(page,url,file){
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ await page.waitForTimeout(1200);
+ await page.screenshot({path:path.join(OUT,file),animations:'disabled'});
+}
 async function candidateScene(page,subject,selector,file,w,h){
  await openHomeSubject(page,subject);
  const scene=page.locator(selector);await scene.waitFor({state:'visible',timeout:30000});
@@ -55,7 +60,7 @@ async function run(engine,name,device,w,h){
   const context=await browser.newContext({viewport:{width:w,height:h},deviceScaleFactor:1,hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
   await context.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
-  if(BASELINE&&(['ipad-1024x1366','ipad-1366x1024'].includes(device)))await home(page,BASELINE,name+'-'+device+'-home-before.png',false);
+  if(BASELINE&&(['ipad-1024x1366','ipad-1366x1024'].includes(device)))await baseline(page,BASELINE,name+'-'+device+'-home-before.png');
   await home(page,BASE,name+'-'+device+'-home-after.png');
   for(const [subject,selector] of scenes)await candidateScene(page,subject,selector,name+'-'+device+'-'+subject+'-after.png',w,h);
   await englishGuard(page,name+'-'+device+'-english-art-guard.png');
