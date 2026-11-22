@@ -401,8 +401,13 @@ async function testEngine(engine,name,device,viewport){
    assert.equal(await currentSubject.evaluate(el=>document.activeElement===el),true,
      world.id+' Escape did not restore focus to the current subject');
    await page.keyboard.press('Escape');
+   // Second Escape is the global return; the first was the scene-local
+   // activity-to-subject-menu step. Both must remain keyboard reachable.
+   await home.waitFor({state:'visible',timeout:15000});
+   await openHomeSubject(page,world.id);
+   await scene.waitFor({state:'visible',timeout:15000});
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects',
-     world.id+' Escape from subject menu must not toggle a second rail');
+     world.id+' keyboard return lost the subject menu state');
    await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
    await plaque.click();
