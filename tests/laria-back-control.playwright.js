@@ -16,6 +16,12 @@ const ipads={
 };
 
 async function assertControl(page,expected){
+ const runtime=await page.evaluate(()=>({
+  api:typeof window.LARIA_BACK_CONTROL,
+  route:document.querySelector('.screen.active')?.id||null,
+  controls:document.querySelectorAll('.laria-back-control').length
+ }));
+ assert.equal(runtime.api,'object','shared return-control runtime did not boot: '+JSON.stringify(runtime));
  const control=page.locator('.screen.active > .laria-back-control:visible');
  await control.waitFor({state:'visible',timeout:20000});
  assert.equal(await control.count(),1,'exactly one visible shared back control is required');
