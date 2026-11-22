@@ -38,12 +38,17 @@ async function run(engine,name,device,viewport){
     const b=button.getBoundingClientRect();
     const medal=button.querySelector('.laria-wooden-sign-medallion');
     const text=button.querySelector('.ki-plank-name');
-    const m=medal?.getBoundingClientRect(),t=text?.getBoundingClientRect();
-    const s=text&&getComputedStyle(text);
+    const m=medal?.getBoundingClientRect();
+    // Measure painted glyphs, not the old absolute label's full CSS box.
+    const range=document.createRange();
+    if(text)range.selectNodeContents(text);
+    const glyph=text?range.getBoundingClientRect():null;
+    const s=text&&getComputedStyle(text),svg=medal?.querySelector('svg');
     return {boardWidth:b.width,boardHeight:b.height,medalWidth:m?.width,medalHeight:m?.height,
-      medalLeft:m?.left,medalRight:m?.right,letterLeft:t?.left,letterRight:t?.right,
+      medalLeft:m?.left,medalRight:m?.right,letterLeft:glyph?.left,letterRight:glyph?.right,
       fontPx:s?parseFloat(s.fontSize):0,font:s?.fontFamily,
-      textColor:s?.color};
+      textColor:s?.color,medalBackground:medal?getComputedStyle(medal).backgroundImage:'',
+      oldSvgDisplay:svg?getComputedStyle(svg).display:'none'};
   });
   assert.ok(appearance.fontPx>=27 && /Georgia|Times New Roman/.test(appearance.font||''),
     'Locked serif text became too small or generic: '+JSON.stringify(appearance));
@@ -53,7 +58,11 @@ async function run(engine,name,device,viewport){
     'Illustrated medal has wrong proportion compared with carved plank: '+JSON.stringify(appearance));
   assert.ok(appearance.letterLeft>=appearance.medalRight+2 &&
     appearance.letterRight<=facts.right-6,
-    'Words lettering is covered by medal or clipped off the board: '+JSON.stringify(appearance));
+    'Words actual glyphs are covered by medal or clipped off the board: '+JSON.stringify(appearance));
+  assert.match(appearance.medalBackground,/words-medallion-v2\.png/,
+    'Candidate must display its actual source-derived ABC medal rather than a CSS circle');
+  assert.equal(appearance.oldSvgDisplay,'none',
+    'Old speech-bubble SVG must never cover the illustrated ABC medallion');
   fs.mkdirSync(OUT,{recursive:true});
   await page.screenshot({path:path.join(OUT,`${name}-${device}-kinnaklova-words.png`),animations:'disabled'});
   await words.click();
