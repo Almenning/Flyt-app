@@ -48,6 +48,32 @@
     const medal=document.createElement('span');medal.className='laria-wooden-sign-medallion';
     medal.setAttribute('aria-hidden','true');medal.innerHTML=iconFor(action||subject);surface.prepend(medal);
    }
+   if(options.sourceDerived&&action==='words'){
+    // The legacy Kinnaklova stylesheet has high-specificity !important
+    // font-size AND max-width rules. They silently shrank this illustrated
+    // medal to 36px and the real Words label to 17.92px. Apply the pilot
+    // proportions only to the existing Words DOM layers.
+    const labelNode=button.querySelector(':scope > .ki-plank-name');
+    const medalNode=button.querySelector(':scope > .laria-wooden-sign-medallion');
+    if(labelNode){
+     labelNode.style.setProperty('font-size','clamp(28px,3vw,38px)','important');
+     labelNode.style.setProperty('font-weight','900','important');
+     labelNode.style.setProperty('line-height','1','important');
+     labelNode.style.setProperty('left','42%','important');
+     labelNode.style.setProperty('right','7%','important');
+     labelNode.style.setProperty('width','auto','important');
+    }
+    if(medalNode){
+     medalNode.style.setProperty('width','21.5%','important');
+     medalNode.style.setProperty('height','auto','important');
+     medalNode.style.setProperty('min-width','0','important');
+     medalNode.style.setProperty('max-width','none','important');
+     medalNode.style.setProperty('min-height','0','important');
+     medalNode.style.setProperty('max-height','none','important');
+     medalNode.style.setProperty('aspect-ratio','1','important');
+     medalNode.style.setProperty('left','16.3%','important');
+    }
+   }
    if(options.sourceDerived&&action==='words'&&!button.querySelector('.laria-words-sign-posts')){
     const posts=document.createElement('span');posts.className='laria-words-sign-posts';
     posts.setAttribute('aria-hidden','true');button.append(posts);
