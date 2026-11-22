@@ -14,9 +14,16 @@ motivets fjell, fjord, kirke, sol, perspektiv og øvrig låst landskap.
 `laer-litt-mer/assets/home-v16/laria-grovanova-v16-approved.json`.
 
 - **Liggende låst original:** `laria-grovanova-v16-landscape-original.png`,
-  2048×1536, SHA-256 `9019d2d7be86d0f96d59770c0d141b935b1c4195fecc4e1dcfbf531ce226e028`.
+  **1448×1086 native PNG**, SHA-256 `9019d2d7be86d0f96d59770c0d141b935b1c4195fecc4e1dcfbf531ce226e028`.
 - **Stående låst original:** `laria-grovanova-v16-portrait-original.png`,
-  2048×2732, SHA-256 `ceb6331bb9ae45e3c6141dc74817262fc0f667ea0b0f82fcf85a60d99efbee55`.
+  **1086×1448 native PNG**, SHA-256 `ceb6331bb9ae45e3c6141dc74817262fc0f667ea0b0f82fcf85a60d99efbee55`.
+
+De godkjente **app-WebP-eksportene** er separat skalert til
+2048×1536 (liggende) og 2048×2732 (stående) med Lanczos. De har
+egne, urørlige SHA-kontroller i v16-manifestet. Retusjkontrollen
+sammenligner **originale PNG-piksler på native størrelse** før
+en eventuell framtidig eksport. Oppskalering legger ikke til nye
+malte detaljer, og er ikke grunn til å endre fjellformen.
 
 Disse filene og appens v16-manifest skal **aldri** overskrives.
 `status: approved` i manifestet betyr godkjent **malt** v16, ikke godkjent
@@ -28,7 +35,7 @@ UI-fri versjon.
 
 1. Leser begge eksakte original-PNG-ene, verifiserer manifestets SHA-256 og
    riktig størrelse.
-2. Bygger to binære redigeringsmasker i *original oppløsning*; tillatte
+2. Bygger to binære redigeringsmasker i *opprinnelig PNG-oppløsning*; tillatte
    områder omfatter innmalt logo, hilsen, fire fagsskilt med stolper,
    Reisen, Fortsett reisen og innmalt bunnnavigasjon.
 3. Kontrollerer at manifestets faktiske knappekoordinater ligger innenfor
