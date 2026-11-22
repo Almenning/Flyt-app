@@ -43,8 +43,10 @@ body.laria-task-scene-open #bottom-nav{
   isolation:isolate;
 }
 #session-screen.task-scene[data-task-subject="english"]{
-  --task-world:url("./engelsk-verden.png");
-  --task-sky:#83c6ef;
+  /* Same verified, UI-free Kinnaklova landscape as the English subject world.
+     Old engelsk-verden.png belongs to the retired pre-premium app. */
+  --task-world:url("./assets/kinnaklova/kinnaklova-ui-free-approved.webp");
+  --task-sky:#a2c5bd;
   --task-ink:#10355f;
   --task-ink-soft:#5b6a7c;
   --task-accent:#d69131;

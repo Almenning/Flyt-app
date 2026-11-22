@@ -1,0 +1,42 @@
+name: Læria English Kinnaklova task background review
+on:
+  pull_request:
+    paths:
+      - 'laer-litt-mer/laria-task-scene-v15.css'
+      - 'tests/laria-english-background-visual.playwright.js'
+      - '.github/workflows/laria-english-background-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  english-background:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify files and run exact-head static server
+        run: |
+          node --check tests/laria-english-background-visual.playwright.js
+          test -s laer-litt-mer/assets/kinnaklova/kinnaklova-ui-free-approved.webp
+          python3 -m http.server 8765 --directory . >/tmp/laria-english-http.log 2>&1 &
+      - name: Capture old versus Kinnaklova task worlds in real WebKit and Chromium
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          ENGLISH_BACKGROUND_SCREENSHOTS: /tmp/laria-english-task-background
+        run: node tests/laria-english-background-visual.playwright.js
+      - name: Upload screenshots and exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-english-background-review
+          path: /tmp/laria-english-task-background
+          retention-days: 14
+          if-no-files-found: warn
