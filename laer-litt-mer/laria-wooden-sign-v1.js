@@ -27,25 +27,27 @@
   rail.querySelectorAll('button.laria-wayfinder').forEach(button=>{
    const action=actionFor(button),surface=surfaceFor(button),label=labelFor(button);
    const reviewV3=!!(options.sourceDerived&&options.sourceVariant===3&&action==='words');
+   const originalSourceReview=!!(options.sourceDerived&&options.sourceVariant===4&&action==='words');
    if(options.only&& !options.only.includes(action))return;
    button.classList.add('laria-wooden-sign');surface.classList.add('laria-wooden-sign-surface');
    if(options.sourceDerived&&action==='words'){
     button.classList.add('laria-words-sign-source-candidate');
     if(reviewV3)button.classList.add('laria-words-sign-art-v3');
-    button.dataset.lariaWordsArt=reviewV3?'v3':'v2';
+    if(originalSourceReview)button.classList.add('laria-words-sign-original-source');
+    button.dataset.lariaWordsArt=originalSourceReview?'source-loading':reviewV3?'v3':'v2';
     // Kinnaklova still ships a legacy, !important arrow background rule for
     // its three original hotspots.  The review candidate is an explicit
     // component layer, so bind its approved raster directly to this one
     // button; it cannot be restyled back into that retired arrow.
     button.style.setProperty('background',
-      'url("./assets/ui/words-sign-candidate/'+(reviewV3?'words-plank-illustrated-v3-REVIEW.webp':'words-plank-source-derived-v2.png')+'") center/100% 100% no-repeat','important');
+      originalSourceReview?'none':'url("./assets/ui/words-sign-candidate/'+(reviewV3?'words-plank-illustrated-v3-REVIEW.webp':'words-plank-source-derived-v2.png')+'") center/100% 100% no-repeat','important');
     // The legacy hotspot also fixes a narrow arrow geometry with !important.
     // Keep the candidate on its source artwork's natural 1395:366 plank
     // proportion instead of stretching the hand-drawn edges into that arrow.
     button.style.setProperty('width','clamp(310px,32vw,390px)','important');
     button.style.setProperty('height','auto','important');
     button.style.setProperty('min-height','78px','important');
-    button.style.setProperty('aspect-ratio',reviewV3?'1100 / 292':'1395 / 366','important');
+    button.style.setProperty('aspect-ratio',originalSourceReview?'306 / 97':reviewV3?'1100 / 292':'1395 / 366','important');
    }
    button.dataset.lariaWoodenSign='v1';button.dataset.lariaSignAction=action;
    // Remove only the retired decorative icon, not the button or label.
@@ -150,6 +152,16 @@
    if(options.sourceDerived&&action==='words'&&!button.querySelector('.laria-words-sign-posts')){
     const posts=document.createElement('span');posts.className='laria-words-sign-posts';
     posts.setAttribute('aria-hidden','true');button.append(posts);
+   }
+   if(originalSourceReview){
+    if(!window.LariaSourceExactSignV1){
+     button.dataset.lariaSourceArt='blocked';
+     button.dataset.lariaSourceError='Source-pixel module not loaded';
+    }else{
+     // Asynchronous SHA-verified original, never an unverified artistic
+     // replacement. The preview remains opt-in, its failure stays isolated.
+     window.LariaSourceExactSignV1.apply(button).catch(()=>{});
+    }
    }
    if(label)button.setAttribute('data-laria-sign-label',label);
   });
