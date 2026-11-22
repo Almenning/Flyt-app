@@ -587,3 +587,28 @@
   max-width:290px;min-height:64px;padding:9px 10px;font-size:12px;
  }
 }
+
+
+/* Premium 3.0: All iPad 10x10 practice/explore views stay within Tallvika,
+   not the pre-Tallvika matte-verden scene. Keep the original real math
+   controls, live companion and progress exactly as they are. */
+@media (min-width:701px) and (min-height:650px){
+ #multiplication-lab-screen.active .mp-scenery{
+  background-image:linear-gradient(180deg,rgba(255,249,232,.57),rgba(255,249,232,.40) 35%,rgba(255,249,232,.78) 80%,#fff7e8),url('./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp')!important;
+  background-position:center top!important;
+  background-size:cover!important;
+ }
+ #multiplication-lab-screen.active .mp-task-apples{
+  background-image:linear-gradient(180deg,rgba(255,252,226,.38),rgba(227,240,216,.38)),url('./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp')!important;
+  background-size:cover!important;
+  background-position:center center!important;
+ }
+}
+@media (min-width:701px) and (min-height:650px) and (orientation:portrait){
+ #multiplication-lab-screen.active .mp-scenery{
+  background-image:linear-gradient(180deg,rgba(255,249,232,.53),rgba(255,249,232,.37) 35%,rgba(255,249,232,.80) 80%,#fff7e8),url('./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp')!important;
+ }
+ #multiplication-lab-screen.active .mp-task-apples{
+  background-image:linear-gradient(180deg,rgba(255,252,226,.40),rgba(227,240,216,.43)),url('./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp')!important;
+ }
+}
