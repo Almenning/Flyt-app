@@ -34,11 +34,14 @@ jobs:
           node --test tests/laria-locked-sign-design-v1.test.cjs
       - name: Serve the exact pull request commit
         run: python3 -m http.server 8765 --directory . >/tmp/laria-words-sign-http.log 2>&1 &
-      - name: Capture actual WebKit and Chromium iPad candidate
+      - name: Compare existing v2 and new illustrated v3 on real iPads
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
-          LARIA_WORDS_SIGN_SHOTS: /tmp/laria-words-sign
-        run: node tests/laria-words-sign-candidate.playwright.js
+        run: |
+          LARIA_WORDS_SIGN_VARIANT=1 LARIA_WORDS_SIGN_SHOTS=/tmp/laria-words-sign/v2 \
+            node tests/laria-words-sign-candidate.playwright.js
+          LARIA_WORDS_SIGN_VARIANT=2 LARIA_WORDS_SIGN_SHOTS=/tmp/laria-words-sign/v3 \
+            node tests/laria-words-sign-candidate.playwright.js
       - name: Upload actual app screenshots for owner review
         if: always()
         uses: actions/upload-artifact@v4
