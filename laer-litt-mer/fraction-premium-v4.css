@@ -1147,3 +1147,17 @@
     flex:0 0 61px!important;object-fit:contain!important;
   }
 }
+
+/* Integrated iPad QA 2026-11-22: the cake, controls and action buttons were
+   visible but the lower Brøklab tab navigation was cut by the viewport edge.
+   Keep all three real tabs >=44px and inside the first short landscape screen.
+   Do not change the cake layout or other Brøklab modes. */
+@media (min-width:700px) and (max-width:1400px) and (min-height:650px) and (max-height:900px) and (orientation:landscape){
+ #fraction-lab-screen .fr2-content:has(.fr6-workshop) > .fr6-nav{
+  margin-top:0;
+  padding:4px;
+ }
+ #fraction-lab-screen .fr2-content:has(.fr6-workshop) > .fr6-nav .fr2-nav-item{
+  min-height:52px;
+ }
+}

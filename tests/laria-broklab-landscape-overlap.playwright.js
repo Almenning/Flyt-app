@@ -30,7 +30,10 @@ async function details(page){
      cake:rect('.fr5-build-target .fr2-pie-builder'),
      controls:a,tray:b,stage:rect('.fr6-workshop .fr6-stage'),
      fraction:rect('.fr6-result .fr2-fraction'),
-     actor:rect('.fr5-fox-mentor .laria-premium-troll-art'),overlapArea:intersection,
+     actor:rect('.fr5-fox-mentor .laria-premium-troll-art'),
+     nav:rect('.fr2-nav.fr6-nav'),
+     navTargets:[...document.querySelectorAll('.fr2-nav.fr6-nav .fr2-nav-item')].map(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height})),
+     overlapArea:intersection,
      buttons:[...document.querySelectorAll('.fr6-workshop .fr6-controls button')].map(x=>{
        const r=x.getBoundingClientRect();return {width:r.width,height:r.height}}),
      actualTransform:getComputedStyle(document.querySelector('.fr6-workshop .fr6-controls')).transform};
@@ -79,6 +82,13 @@ const all=[];
        engine+' '+name+' lost 44px touch controls: '+JSON.stringify(after.buttons));
      assert.ok(after.scrollWidth<=after.viewport[0]+3,
        engine+' '+name+' horizontal overflow');
+     if(viewport.height<=900){
+       assert.ok(after.nav&&after.nav.top>=0&&after.nav.bottom<=after.viewport[1]+2,
+         engine+' '+name+' Brøklab bottom tabs cropped: '+JSON.stringify(after.nav));
+       assert.ok(after.navTargets.length===3&&
+         after.navTargets.every(b=>b.width>=44&&b.height>=44),
+         engine+' '+name+' Brøklab navigation taps below 44px: '+JSON.stringify(after.navTargets));
+     }
      assert.deepEqual(errors,[],engine+' '+name+' JS errors');
      await context.close();
     }
