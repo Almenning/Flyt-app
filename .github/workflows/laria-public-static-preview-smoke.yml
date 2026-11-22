@@ -52,13 +52,12 @@ jobs:
                   await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
                   await page.locator('title').waitFor({state:'attached',timeout:25000});
                   const title=await page.title();
-                  if(title!=='Læria'){
-                    const debug=await page.evaluate(()=>({location:location.href,
-                      title:document.title,body:document.body?.innerText?.slice(0,3000),
-                      links:[...document.querySelectorAll('a')].slice(0,15).map(a=>({text:a.innerText,url:a.href}))}));
-                    fs.writeFileSync('/tmp/laria-exact-preview/redirect-debug.json',JSON.stringify(debug,null,2));
-                    await page.screenshot({path:'/tmp/laria-exact-preview/unexpected-external-notice.png',fullPage:true});
-                    console.error('External preview notice details:',JSON.stringify(debug));
+                  if(title.includes('External Content Notice')){
+                    const notice=page.getByRole('button',{name:'Open the page'});
+                    await notice.waitFor({state:'visible',timeout:15000});
+                    await notice.click();
+                    await page.waitForFunction(()=>document.title==='Læria',null,{timeout:25000});
+                  }else if(title!=='Læria'){
                     throw new Error(name+' '+size+' wrong page title: '+title);
                   }
                   await page.waitForFunction(()=>Boolean(document.querySelector('#home-screen.active'))||
