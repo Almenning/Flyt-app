@@ -68,6 +68,7 @@ function intersect(a,b){
     await openHomeSubject(page,'math');
     await page.locator('#subject-screen.active #tallvika-world .tv-scene-grade').waitFor({state:'visible',timeout:25000});
     const a=await capture(page);
+    console.log('[TALLVIKA GRADE LAYOUT]',engine,label,JSON.stringify(a));
     await page.screenshot({path:path.join(out,engine+'-'+label+'.png'),animations:'disabled',fullPage:false});
     const overlaps=a.activeButtons.filter(x=>intersect(a.bounds.grade,x.b)>0.5);
     assert.ok(a.gradeVisible&&/^2\. klasse$/.test(a.label),engine+' '+label+' wrong grade button '+JSON.stringify(a));
