@@ -1,0 +1,30 @@
+/* One return-control contract. The oak/parchment palette matches approved Læria wayfinding. */
+.laria-back-control{
+  position:absolute; z-index:1000; left:max(16px,env(safe-area-inset-left)); top:max(16px,env(safe-area-inset-top));
+  min-width:44px; min-height:44px; padding:7px 14px 7px 10px; display:inline-flex; align-items:center; gap:4px;
+  border:2px solid #714d31; border-radius:15px; color:#fff7df; cursor:pointer;
+  background:linear-gradient(145deg,#b77a42 0%,#87552f 54%,#633d28 100%);
+  box-shadow:0 3px 0 #53321f,0 7px 15px rgba(43,31,21,.28),inset 0 1px 0 rgba(255,245,211,.45);
+  font:800 clamp(13px,1.55vw,16px)/1.05 ui-rounded,"Nunito",system-ui,sans-serif;
+  letter-spacing:.01em; text-shadow:0 1px 1px rgba(48,28,15,.72); touch-action:manipulation;
+}
+.laria-back-control>span:first-child{font:900 30px/.72 Georgia,serif; margin-top:-2px}
+.laria-back-control:focus-visible{outline:4px solid #fff4a9;outline-offset:3px}
+.laria-back-control:hover{filter:brightness(1.07)}
+.laria-back-control:active{transform:translateY(2px);box-shadow:0 1px 0 #53321f,0 4px 9px rgba(43,31,21,.28)}
+/* Scene facades previously mounted their own Home hit-target. Keep their proven
+   handlers in the DOM for the adapter, but present exactly one return action. */
+#subject-screen.active.tallvika-active [data-tv="back"],
+#subject-screen.active.eggenipa-active [data-eg="home"],
+#subject-screen.active.kinnaklova-active [data-ki="home"],
+#geography-screen.active.gv-visible [data-gv="home"],
+#subject-screen.active>#subject-back,
+#geography-screen.active>#geography-back,
+#world-screen.active>#world-back{display:none!important}
+@media (min-width:768px){
+  .laria-back-control{left:max(24px,env(safe-area-inset-left));top:max(22px,env(safe-area-inset-top));min-height:48px}
+}
+@media (orientation:landscape) and (max-height:600px){
+  .laria-back-control{top:max(10px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));padding:5px 11px 5px 8px;min-height:44px}
+}
+@media (prefers-reduced-motion:reduce){.laria-back-control{transition:none}}
