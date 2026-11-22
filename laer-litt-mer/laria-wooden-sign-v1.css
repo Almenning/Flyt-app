@@ -96,3 +96,45 @@
   font-family:var(--laria-wooden-sign-serif)!important;
   color:var(--laria-wooden-sign-ink)!important;
 }
+
+/* Dedicated nailed faces: the old arrow stylesheet intentionally suppressed
+ * pseudo-elements. Here they are 9px metal rivets, NOT legacy wood posts. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface::before,
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface::after,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign::before,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign::after,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign::before,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign::after {
+  content:""!important;display:block!important;position:absolute!important;
+  top:calc(50% - 4.5px)!important;width:9px!important;height:9px!important;
+  border-radius:50%!important;z-index:2!important;
+  background:radial-gradient(circle at 34% 28%,#fff0bc 0 16%,#9b6b3e 20% 52%,#452714 57% 100%)!important;
+  box-shadow:0 1px 1px #2a160aaa!important;
+  pointer-events:none!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface::before,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign::before,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign::before {
+  left:11px!important;right:auto!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface::after,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign::after,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign::after {
+  right:11px!important;left:auto!important;
+}
