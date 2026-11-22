@@ -19,8 +19,12 @@ async function assertControl(page,expected){
  const runtime=await page.evaluate(()=>({
   api:typeof window.LARIA_BACK_CONTROL,
   route:document.querySelector('.screen.active')?.id||null,
-  controls:document.querySelectorAll('.laria-back-control').length
+  controls:[...document.querySelectorAll('.laria-back-control')].map(control=>({
+   parent:control.parentElement?.id||null,display:getComputedStyle(control).display,
+   visibility:getComputedStyle(control).visibility,rect:control.getBoundingClientRect().toJSON()
+  }))
  }));
+ console.log('BACK_RUNTIME',JSON.stringify(runtime));
  assert.equal(runtime.api,'object','shared return-control runtime did not boot: '+JSON.stringify(runtime));
  const control=page.locator('.screen.active > .laria-back-control:visible');
  await control.waitFor({state:'visible',timeout:20000});
