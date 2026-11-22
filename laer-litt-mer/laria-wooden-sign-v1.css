@@ -1,7 +1,10 @@
 /* Locked Sign Design V1. The PNG master is a visual reference only;
  * labels and hit targets stay in semantic DOM buttons. */
-:root { --laria-sign-serif: Georgia, "Times New Roman", serif; --laria-sign-ink: #2e1a0c; }
-.laria-wooden-sign-rail { isolation:isolate; }
+.laria-wooden-sign-rail {
+  --laria-wooden-sign-serif: Georgia, "Times New Roman", serif;
+  --laria-wooden-sign-ink: #2e1a0c;
+  isolation:isolate;
+}
 
 /* Existing two-post art is retained until the approved master has separately
  * exported post layers. This never changes a locked background bitmap. */
@@ -16,8 +19,8 @@
   background:radial-gradient(ellipse at 22% 48%,transparent 0 14%,#6f3c1d22 15% 17%,transparent 18% 25%),radial-gradient(ellipse at 76% 50%,transparent 0 11%,#6f3c1d24 12% 14%,transparent 15% 22%),repeating-linear-gradient(4deg,#b96f31 0 2px,#dca85e 3px 7px,#96602c 8px 10px),linear-gradient(180deg,#f2c978,#b86d30 52%,#81421d);
   border:2px solid #6e3818; border-radius:15% 10% 10% 15% / 26% 22% 22% 26%;
   box-shadow:inset 0 2px 0 #ffe2a0,inset 0 -5px 0 #653117,0 5px 0 #5a2c15,0 10px 13px #28160666;
-  color:var(--laria-sign-ink); text-shadow:0 1px 0 #ffe4aa;
-  font-family:var(--laria-sign-serif); font-weight:800; letter-spacing:-.025em;
+  color:var(--laria-wooden-sign-ink); text-shadow:0 1px 0 #ffe4aa;
+  font-family:var(--laria-wooden-sign-serif); font-weight:800; letter-spacing:-.025em;
 }
 .laria-wooden-sign:not(.eg-scene-hit) { padding-left:calc(clamp(19px,2vw,28px) + 42px); }
 .eg-scene-hit.laria-wooden-sign > .laria-wooden-sign-surface { padding-left:calc(clamp(19px,2vw,28px) + 42px); }
@@ -51,9 +54,26 @@
   background:radial-gradient(ellipse at 22% 48%,transparent 0 14%,#6f3c1d22 15% 17%,transparent 18% 25%),radial-gradient(ellipse at 76% 50%,transparent 0 11%,#6f3c1d24 12% 14%,transparent 15% 22%),repeating-linear-gradient(4deg,#b96f31 0 2px,#dca85e 3px 7px,#96602c 8px 10px),linear-gradient(180deg,#f2c978,#b86d30 52%,#81421d) !important;
   border:2px solid #6e3818 !important; border-radius:15% 10% 10% 15% / 26% 22% 22% 26% !important;
   box-shadow:inset 0 2px 0 #ffe2a0,inset 0 -5px 0 #653117,0 5px 0 #5a2c15,0 10px 13px #28160666 !important;
-  color:var(--laria-sign-ink) !important; font-family:var(--laria-sign-serif) !important;
+  color:var(--laria-wooden-sign-ink) !important; font-family:var(--laria-wooden-sign-serif) !important;
 }
 .laria-reference-layout-v1 .laria-wooden-sign:not(.eg-scene-hit),
 .laria-reference-layout-v1 .eg-scene-hit.laria-wooden-sign > .laria-wooden-sign-surface {
   padding-left:calc(clamp(19px,2vw,28px) + 42px) !important;
+}
+
+/* The former light-arrow scene stylesheet declares high-specificity
+ * font shorthand !important on the *inner* label. Keep the owner-approved
+ * carved-serif text and dark wood ink on the real interactive sign face.
+ * Scope this compatibility edge to the new component so legacy subject
+ * selection and unrelated scenes retain their own visual contracts. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign
+  .tv-sign-label,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign {
+  font-family:var(--laria-wooden-sign-serif)!important;
+  color:var(--laria-wooden-sign-ink)!important;
 }
