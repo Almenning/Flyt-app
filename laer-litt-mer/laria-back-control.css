@@ -1,7 +1,7 @@
 /* One return-control contract. The oak/parchment palette matches approved Læria wayfinding. */
 .laria-back-control{
   position:absolute; z-index:1000; left:max(16px,env(safe-area-inset-left)); top:max(16px,env(safe-area-inset-top));
-  min-width:44px; min-height:44px; padding:7px 14px 7px 10px; display:inline-flex; align-items:center; gap:4px;
+  min-width:44px; min-height:44px; padding:7px 14px 7px 10px; display:inline-flex!important; align-items:center; gap:4px;
   border:2px solid #714d31; border-radius:15px; color:#fff7df; cursor:pointer;
   background:linear-gradient(145deg,#b77a42 0%,#87552f 54%,#633d28 100%);
   box-shadow:0 3px 0 #53321f,0 7px 15px rgba(43,31,21,.28),inset 0 1px 0 rgba(255,245,211,.45);
