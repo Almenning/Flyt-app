@@ -1,4 +1,4 @@
-name: Læria exact-commit external preview smoke
+name: Læria GitHub Pages isolated Premium preview QA
 on:
   push:
     branches: [test/laria-github-commit-preview-20261122]
@@ -6,9 +6,9 @@ on:
 permissions:
   contents: read
 jobs:
-  public-preview:
+  pages-preview:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 18
     container: mcr.microsoft.com/playwright:v1.62.1-noble
     defaults:
       run:
@@ -19,66 +19,81 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Install pinned Playwright client
-        run: npm ci
-      - name: Verify third-party static preview serves exact commit sources
+      - run: npm ci
+      - name: Verify exact-source GitHub Pages preview
         env:
-          PREVIEW_URL: https://rawcdn.githack.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/index.html?app=laria
+          PREVIEW_URL: https://almenning.github.io/Flyt-app/preview/laria-268/?app=laria
         run: |
           set -euo pipefail
-          mkdir -p /tmp/laria-exact-preview
-          curl --max-time 35 --retry 2 --retry-delay 2 -fLsS -D /tmp/laria-exact-preview/headers.txt "$PREVIEW_URL" -o /tmp/laria-exact-preview/index.html
-          grep -q '<title>Læria</title>' /tmp/laria-exact-preview/index.html
-          grep -qi 'text/html' /tmp/laria-exact-preview/headers.txt
-          curl --max-time 35 --retry 2 --retry-delay 2 -fLsS "https://rawcdn.githack.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/laria-task-scene-v15.css" -o /tmp/laria-exact-preview/task-scene.css
-          grep -q 'task-scene' /tmp/laria-exact-preview/task-scene.css
-          echo "PASS exact-commit HTML and CSS are served by preview proxy"
-      - name: Check interactive Læria in Chromium and WebKit
+          mkdir -p /tmp/laria-pages-preview
+          curl -fLsS --max-time 35 "https://raw.githubusercontent.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/index.html" -o /tmp/laria-pages-preview/source-index.html
+          ok=0
+          for n in $(seq 1 24); do
+            if curl -fLsS --max-time 18 "$PREVIEW_URL" -o /tmp/laria-pages-preview/index.html; then
+              if cmp -s /tmp/laria-pages-preview/source-index.html /tmp/laria-pages-preview/index.html; then
+                ok=1
+                break
+              fi
+              echo "Page HTML differs from source on attempt $n"
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+          echo "PASS: GitHub Pages serves exact HTML blob from PR #268 SHA 047d7490"
+          curl -fLsS --max-time 30 "https://almenning.github.io/Flyt-app/preview/laria-268/assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp" -o /tmp/laria-pages-preview/tallvika.webp
+          test "$(wc -c </tmp/laria-pages-preview/tallvika.webp)" -gt 20000
+          curl -fLsS --max-time 30 "https://almenning.github.io/Flyt-app/preview/laria-268/laria-task-scene-v15.css" -o /tmp/laria-pages-preview/task-scene.css
+          echo "PASS: locked Tallvika image and scene CSS are available"
+      - name: Real remote URL WebKit and Chromium iPad smoke
         env:
-          PREVIEW_URL: https://rawcdn.githack.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/index.html?app=laria
+          PREVIEW_URL: https://almenning.github.io/Flyt-app/preview/laria-268/?app=laria
         run: |
           node - <<'NODE'
+          'use strict';
           const {chromium,webkit}=require('playwright');
           const fs=require('node:fs');
-          const url=process.env.PREVIEW_URL;
+          const dir='/tmp/laria-pages-preview';
+          const devices=[['portrait',{width:820,height:1180}],['landscape',{width:1180,height:820}]];
           (async()=>{
-            for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
-              const browser=await type.launch({headless:true,args:name==='chromium'?['--no-sandbox']:[]});
+            for(const [engine,type] of [['webkit',webkit],['chromium',chromium]]){
+              const browser=await type.launch({headless:true,args:engine==='chromium'?['--no-sandbox']:[]});
               try{
-                for(const [size,viewport] of [['portrait',{width:820,height:1180}],['landscape',{width:1180,height:820}]]){
-                  const ctx=await browser.newContext({viewport,serviceWorkers:'block',hasTouch:true,reducedMotion:'reduce'});
-                  const page=await ctx.newPage();const errors=[];
-                  page.on('pageerror',x=>errors.push(x.message));
-                  await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
-                  await page.locator('title').waitFor({state:'attached',timeout:25000});
-                  const title=await page.title();
-                  if(title.includes('External Content Notice')){
-                    const notice=page.getByRole('button',{name:'Open the page'});
-                    await notice.waitFor({state:'visible',timeout:15000});
-                    await notice.click();
-                    await page.waitForFunction(()=>document.title==='Læria',null,{timeout:25000});
-                  }else if(title!=='Læria'){
-                    throw new Error(name+' '+size+' wrong page title: '+title);
-                  }
+                for(const [orientation,viewport] of devices){
+                  const ctx=await browser.newContext({viewport,hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
+                  const page=await ctx.newPage();
+                  const errors=[];
+                  page.on('pageerror',e=>errors.push(e.message));
+                  await page.goto(process.env.PREVIEW_URL,{waitUntil:'domcontentloaded',timeout:70000});
                   await page.waitForFunction(()=>Boolean(document.querySelector('#home-screen.active'))||
-                    Boolean(document.querySelector('.bc15-locked-home')),null,{timeout:25000});
-                  const broken=await page.locator('img').evaluateAll(imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.src).slice(0,10));
-                  const body=await page.locator('body').innerText();
-                  if(!body.length) throw new Error(name+' '+size+' empty app page');
-                  await page.screenshot({path:'/tmp/laria-exact-preview/'+name+'-'+size+'.png',animations:'disabled'});
-                  fs.appendFileSync('/tmp/laria-exact-preview/results.txt',JSON.stringify({name,size,title,bodyLength:body.length,broken,errors})+'\n');
-                  if(errors.length) throw new Error(name+' '+size+' script errors: '+JSON.stringify(errors));
+                    Boolean(document.querySelector('.bc15-locked-home')),null,{timeout:30000});
+                  const title=await page.title();
+                  if(title!=='Læria')throw new Error(engine+' '+orientation+' incorrect title '+title);
+                  const resources=await page.evaluate(async()=>{
+                    const paths=['./laria-task-scene-v15.css','./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp',
+                    './assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp'];
+                    return Promise.all(paths.map(async p=>{
+                      const r=await fetch(p,{cache:'no-cache'});
+                      return {path:p,status:r.status,type:r.headers.get('content-type')};
+                    }));
+                  });
+                  if(resources.some(x=>x.status!==200))throw new Error(engine+' '+orientation+' assets '+JSON.stringify(resources));
+                  if(errors.length)throw new Error(engine+' '+orientation+' runtime errors: '+JSON.stringify(errors));
+                  const imageFailures=await page.locator('img:visible').evaluateAll(imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.src));
+                  await page.screenshot({path:dir+'/'+engine+'-'+orientation+'.png',animations:'disabled'});
+                  const result={engine,orientation,viewport,title,url:page.url(),resources,imageFailures,errors};
+                  fs.appendFileSync(dir+'/results.jsonl',JSON.stringify(result)+'\n');
+                  if(imageFailures.length)throw new Error('Visible missing images: '+JSON.stringify(imageFailures));
                   await ctx.close();
                 }
               }finally{await browser.close()}
             }
           })().catch(e=>{console.error(e);process.exitCode=1});
           NODE
-      - name: Save third-party preview verification
+      - name: Upload verification
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: laria-exact-commit-web-preview
-          path: /tmp/laria-exact-preview
-          retention-days: 7
+          name: laria-pages-preview-268-verified
+          path: /tmp/laria-pages-preview
+          retention-days: 10
           if-no-files-found: warn
