@@ -1,0 +1,104 @@
+/* LÆRIA PREMIUM 3.0 / 2B - VISUAL CANDIDATE, NOT PRODUCTION ART
+ * Opt-in: ?app=laria&lariaSigns2b=1
+ * The approved Grovanova v16 scene and its baked-in sign rendering are
+ * deliberately untouched. The same Grovanova-traced oak plank and continuous
+ * two-post SVG used by Home remain the only sign materials on subject pages.
+ * Do not modify background masters, art manifests or TrollActor assets.
+ */
+:root[data-laria-signs-2b="preview"] {
+  --laria-2b-oak: url("./assets/ui/laria-light-arrow-sign.svg");
+  --laria-2b-posts: url("./assets/ui/laria-grovanova-signposts.svg");
+  --laria-2b-ink: #3d2715;
+  --laria-2b-type: Georgia, "Iowan Old Style", serif;
+  --laria-2b-focus: #fff6b4;
+}
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) {
+  /* One material and typography contract. Retain the original three LIVE
+   * activity buttons, wooden rails, touch areas and delegated click handlers.
+   * This is intentionally narrower than a wholesale CSS system rewrite.
+   */
+  :root[data-laria-signs-2b="preview"]
+  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+      #tallvika-world .tv-scene.laria-reference-layout-v1,
+      #kinnaklova-world[data-ki-premium-art="approved"][data-ki-art="ready"] .ki-stage.laria-reference-layout-v1,
+      #laria-geography-world .gv-scene.laria-reference-layout-v1) {
+    --laria-sign-art: var(--laria-2b-oak);
+    --laria-sign-ink: var(--laria-2b-ink);
+  }
+
+  :root[data-laria-signs-2b="preview"]
+  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+      #tallvika-world .tv-scene.laria-reference-layout-v1,
+      #kinnaklova-world[data-ki-premium-art="approved"][data-ki-art="ready"] .ki-stage.laria-reference-layout-v1,
+      #laria-geography-world .gv-scene.laria-reference-layout-v1)
+  > :is(nav.laria-scene-navigation, nav.laria-reference-subject-nav)
+  > :is(.laria-wayfinder, .laria-reference-subject-sign) {
+    font-family: var(--laria-2b-type) !important;
+    letter-spacing: -0.025em !important;
+  }
+  /* Eggenipa has its actual plank surface on the inner span. */
+  :root[data-laria-signs-2b="preview"]
+  #eggenipa-world .eg-hero.laria-reference-layout-v1
+  > nav.laria-scene-navigation > .eg-scene-hit.laria-wayfinder > span:not(.laria-reference-activity-icon) {
+    font-family: var(--laria-2b-type) !important;
+    letter-spacing: -0.025em !important;
+  }
+
+  /* Tallvika: the real "Neste eventyr" node keeps its action and DOM owner,
+   * but no longer stretches the shared two posts into a four-sign main menu.
+   * A subordinate wooden marker remains IN the illustration below the rail.
+   */
+  :root[data-laria-signs-2b="preview"]
+  #tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-next-sign.laria-reference-next {
+    position: absolute !important;
+    inset: auto !important;
+    left: 8% !important;
+    top: calc(100% + clamp(18px, 2.2vh, 30px)) !important;
+    bottom: auto !important;
+    right: auto !important;
+    width: 84% !important;
+    height: clamp(48px, 5.2vh, 59px) !important;
+    min-height: 48px !important;
+    max-height: 59px !important;
+    padding: 4px 8px !important;
+    font-family: var(--laria-2b-type) !important;
+    filter: drop-shadow(0 4px 3px #26180b77) !important;
+    z-index: 2 !important;
+  }
+  :root[data-laria-signs-2b="preview"]
+  #tallvika-world .tv-scene.laria-reference-layout-v1
+  > nav.laria-scene-navigation > .tv-next-sign.laria-reference-next :is(strong, .tv-next-title) {
+    font-family: var(--laria-2b-type) !important;
+  }
+  :root[data-laria-signs-2b="preview"]
+  #tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-next-sign.laria-reference-next:focus-visible {
+    outline: 4px solid var(--laria-2b-focus) !important;
+    outline-offset: 3px !important;
+  }
+}
+/* Kinnaklova portrait art has a roof occupying the lower-left half. The
+ * previous 27% rail + 64px post tail ended precisely ON that roof.
+ * Start higher and terminate both posts in the vegetated left cliff.
+ * Keep Kinnaklova's landscape composition unchanged until visual review.
+ */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait) {
+  :root[data-laria-signs-2b="preview"]
+  #kinnaklova-world[data-ki-premium-art="approved"][data-ki-art="ready"]
+  .ki-stage.laria-reference-layout-v1 {
+    --ref-natural-rail-top: 20.5%;
+    --ref-natural-post-tail: clamp(4px, 1.2vh, 16px);
+  }
+  /* Tallvika's first three boards remain compact and left-aligned; the
+   * shortened shared posts finish in the wooded slope above the waterfall.
+   */
+  :root[data-laria-signs-2b="preview"]
+  #tallvika-world .tv-scene.laria-reference-layout-v1 {
+    --ref-natural-rail-top: 26.5%;
+    --ref-natural-post-tail: clamp(15px, 2.3vh, 31px);
+  }
+}
+/* Do not alter phone, desktop, unsupported fallbacks or Kinnaklova art prior
+ * to its exact-SHA "ready" state. Preview must remain easy to disable.
+ */
