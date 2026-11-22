@@ -26,7 +26,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/laria-pages-preview
-          curl -fLsS --max-time 35 "https://raw.githubusercontent.com/Almenning/Flyt-app/047d7490cf306a61c635cd73c9c629ce010a9214/laer-litt-mer/index.html" -o /tmp/laria-pages-preview/source-index.html
+          curl -fLsS --max-time 35 "https://raw.githubusercontent.com/Almenning/Flyt-app/b5bad89e523d49d209b03b379ff97215234a00ff/laer-litt-mer/index.html" -o /tmp/laria-pages-preview/source-index.html
           ok=0
           for n in $(seq 1 24); do
             if curl -fLsS --max-time 18 "$PREVIEW_URL" -o /tmp/laria-pages-preview/index.html; then
@@ -39,7 +39,7 @@ jobs:
             sleep 5
           done
           test "$ok" = 1
-          echo "PASS: GitHub Pages serves exact HTML blob from PR #268 SHA 047d7490"
+          echo "PASS: GitHub Pages serves exact HTML blob from PR #268 SHA b5bad89"
           curl -fLsS --max-time 30 "https://almenning.github.io/Flyt-app/preview/laria-268/assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp" -o /tmp/laria-pages-preview/tallvika.webp
           test "$(wc -c </tmp/laria-pages-preview/tallvika.webp)" -gt 20000
           curl -fLsS --max-time 30 "https://almenning.github.io/Flyt-app/preview/laria-268/laria-task-scene-v15.css" -o /tmp/laria-pages-preview/task-scene.css
@@ -89,6 +89,16 @@ jobs:
             }
           })().catch(e=>{console.error(e);process.exitCode=1});
           NODE
+      - name: Verify live Tallvika class-button and Matte activities on remote Pages
+        env:
+          QA_URL: https://almenning.github.io/Flyt-app/preview/laria-268/?app=laria
+          LARIA_MATH_PREMIUM_QA: /tmp/laria-pages-preview/grade
+          LARIA_MATH_BACKDROP_QA: /tmp/laria-pages-preview/backdrops
+        run: |
+          node --check tests/laria-tallvika-ipad-utility-spacing.playwright.js
+          node --check tests/laria-matte-premium-backdrop.playwright.js
+          node tests/laria-tallvika-ipad-utility-spacing.playwright.js
+          node tests/laria-matte-premium-backdrop.playwright.js
       - name: Upload verification
         if: always()
         uses: actions/upload-artifact@v4
