@@ -22,3 +22,18 @@ ikke en godkjenning for bred utrulling.
 
 Den faktiske knappen beholdes. Ingen progresjons- eller rutehandling er
 kopiert; `data-ki="words"` er fortsatt samme navigasjonsinngang.
+
+### Kandidatcommit `bd47d78a27ceeb16dde02d4fe95ac8c022cc4bfb`
+
+- `words-plank-source-derived-v2.png` SHA-256:
+  `2f7935431342a4dde91738d79656070d15c1155a01cbef9de373293d364a96db`
+- `words-medallion-v2.png` SHA-256:
+  `fbb79de6dbb792bd3447be6cded48b947ec55309db2c6e5b343350348507ea12`
+- Faktisk Læria-flyt er kontrollert i WebKit og Chromium på 1024 × 1366
+  og 1366 × 1024: Hjem → Engelsk → Words → første oppgave.
+- Kontrollbildene er produsert av GitHub Actions-artifakten
+  `laria-words-sign-candidate-bd47d78a27ceeb16dde02d4fe95ac8c022cc4bfb`.
+
+Dette er fortsatt en visuell eierport. Den er ikke en endring i normal
+appmodus, en godkjenning av skiltets kunst, eller mandat til å rulle ut
+samme komponent til de øvrige skiltene.
