@@ -1,0 +1,40 @@
+name: Læria Brøklab landscape overlap review
+on:
+  pull_request:
+    paths:
+      - 'laer-litt-mer/fraction-premium-v4.css'
+      - 'tests/laria-broklab-landscape-overlap.playwright.js'
+      - '.github/workflows/laria-broklab-landscape-overlap.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  overlap-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node --check tests/laria-broklab-landscape-overlap.playwright.js
+      - name: Run real Brøklab screen before and after
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_FRACTION_OVERLAP_QA: /tmp/laria-fraction-overlap
+        run: |
+          python3 -m http.server 8765 --directory . >/tmp/laria-broklab-http.log 2>&1 &
+          node tests/laria-broklab-landscape-overlap.playwright.js
+      - name: Upload before after iPad screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-broklab-landscape-overlap
+          path: /tmp/laria-fraction-overlap
+          retention-days: 14
+          if-no-files-found: warn

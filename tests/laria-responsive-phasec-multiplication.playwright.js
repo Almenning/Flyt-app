@@ -7,6 +7,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
 const {webkit,chromium}=require('playwright');
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 
 const root=path.resolve(__dirname,'..');
 const out=process.env.LARIA_RESPONSIVE_PHASEC_IMAGES||'/tmp/laria-responsive-phasec';
@@ -51,10 +52,10 @@ async function openLab(page,url){
  await page.route('https://api.worldbank.org/**',route=>route.abort());
  await page.goto(url,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.LARIA_MULT_PREMIUM?.version==='illustrated-v2',null,{timeout:16000});
- // Enter through the real child-facing Basecamp/Utforsk route, so the back
- // path is the same one a child gets rather than the API's Maths fallback.
- await page.locator('.bc14-free:visible').click();
- await page.locator('.bc13-card[data-bc13-action="multiply"]:visible').click();
+ // Open via the actual child-facing wooden sign route. The old bc14-free
+ // and bc13-card controls are now correctly hidden in Premium Home.
+ await openHomeSubject(page,'math');
+ await page.locator('#tallvika-world .tv-sign[data-tv="multiply"]').click();
  await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:12000});
  // Retain independent coverage of the complete classic suite via its explicit entry.
  await page.evaluate(()=>window.LARIA_MULT_CLASSIC_OPEN());
@@ -166,12 +167,13 @@ async function run(engine,label,view,url){
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+3),
    label+' factor controls introduced overflow');
   await photo(page,label+'-03-explore');
-  // The header back button first returns from free exploration to the
-  // Gangetabellen hub, then from that hub to Læria Basecamp.
+  // Back leaves free exploration for the classic hub and then returns
+  // to the current child's parent screen (Tallvika or Basecamp).
   await page.locator('.mp-back').click();
   await page.locator('.mp-home-screen').waitFor({timeout:10000});
   await page.locator('#multiplication-lab-back').click();
-  await page.locator('#home-screen.active').waitFor({timeout:10000});
+  await page.waitForFunction(()=>document.querySelector('#home-screen.active')||
+    document.querySelector('#subject-screen.active #tallvika-world'),null,{timeout:12000});
   assert.deepEqual(errors,[],label+' runtime errors');
   console.log('PASS '+label+' width '+view.width+' fullscreen landscape='+large+
    ': atmosphere, maths, fox, touches, 10x10, return, overflow');

@@ -1105,9 +1105,30 @@
     position:relative;z-index:2;transform:translateY(-20px);margin-bottom:-20px;
   }
 }
-@media (min-width:700px) and (max-width:1400px) and (max-height:900px) and (orientation:landscape){
+/* Keep the real teller/nevner controls in normal flow on landscape iPad.
+   Pulling the entire control row 48px over the stage obscured the child's
+   loose cake pieces. Compact layout above remains responsible for fit. */
+/* Preserve the already-tested compact iPhone landscape (e.g. 844×390).
+   Only iPad-size heights get the revised stage geometry. */
+@media (min-width:700px) and (max-width:1400px) and (max-height:500px) and (orientation:landscape){
   #fraction-lab-screen .fr6-workshop .fr6-controls{
     position:relative;z-index:2;transform:translateY(-48px);margin-bottom:-48px;
+  }
+}
+@media (min-width:700px) and (max-width:1400px) and (min-height:650px) and (max-height:900px) and (orientation:landscape){
+  #fraction-lab-screen .fr6-workshop .fr6-controls{
+    position:relative;z-index:2;transform:none;margin-bottom:0;
+  }
+  /* TrollActor injects 100% dimensions with !important, making the character
+     ~350px tall and pushing both controls below the first iPad landscape view.
+     Scale only this existing character instance, never crop or alter its art. */
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-mentor
+  > .fr2-fox.laria-premium-troll-art{
+    display:block!important;
+    width:188px!important;height:218px!important;
+    min-width:0!important;min-height:0!important;
+    max-width:188px!important;max-height:218px!important;
+    flex:0 0 218px!important;object-fit:contain!important;
   }
 }
 
