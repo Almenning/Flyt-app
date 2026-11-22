@@ -1,0 +1,49 @@
+name: Læria – Words-skilt kandidat på iPad
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/laria-wooden-sign-v1.*'
+      - 'laer-litt-mer/laria-scene-ui-v1.js'
+      - 'laer-litt-mer/assets/ui/words-sign-candidate/**'
+      - 'tools/laria_art/build_locked_sign_plank_candidate.py'
+      - 'tests/laria-words-sign-candidate.playwright.js'
+      - '.github/workflows/laria-words-sign-candidate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  words-sign-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Verify candidate contract and source
+        run: >-
+          node --check laer-litt-mer/laria-wooden-sign-v1.js &&
+          node --check laer-litt-mer/laria-scene-ui-v1.js &&
+          node --check tests/laria-words-sign-candidate.playwright.js &&
+          node --test tests/laria-locked-sign-design-v1.test.cjs
+      - name: Serve the exact pull request commit
+        run: python3 -m http.server 8765 --directory . >/tmp/laria-words-sign-http.log 2>&1 &
+      - name: Capture actual WebKit and Chromium iPad candidate
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_WORDS_SIGN_SHOTS: /tmp/laria-words-sign
+        run: node tests/laria-words-sign-candidate.playwright.js
+      - name: Upload actual app screenshots for owner review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-words-sign-candidate-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-words-sign
+          retention-days: 21
+          if-no-files-found: warn

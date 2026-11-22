@@ -232,3 +232,51 @@
  left:16px!important;top:50%!important;width:36px!important;height:36px!important;
  transform:translateY(-50%)!important;position:absolute!important;z-index:3!important;
 }
+
+/* Words: owner-review artwork pilot. The plank and ABC medal are transparent
+ * raster layers reconstructed from the locked sign plate — never gradients,
+ * CSS wood texture or a static menu image. Text stays DOM for accessibility.
+ * It is enabled only by ?lariaWordsSignCandidate=1. */
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate {
+ position:relative!important;isolation:isolate!important;overflow:visible!important;
+ width:clamp(268px,30vw,410px)!important;height:auto!important;min-height:70px!important;
+ aspect-ratio:1395/366!important;padding:0!important;border:0!important;border-radius:0!important;
+ background:url("./assets/ui/words-sign-candidate/words-plank-source-derived-v2.png") center/100% 100% no-repeat!important;
+ box-shadow:0 8px 11px #1d120a75!important;filter:none!important;
+ }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate::before,
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate::after { content:none!important;display:none!important; }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate > .ki-plank-name {
+ display:block!important;position:absolute!important;z-index:3!important;left:43%!important;right:9%!important;top:50%!important;
+ width:auto!important;min-width:0!important;margin:0!important;padding:0!important;transform:translateY(-54%)!important;
+ color:#2d180d!important;font:800 clamp(21px,2.35vw,34px)/1 Georgia,"Times New Roman",serif!important;
+ letter-spacing:-.035em!important;text-align:center!important;text-shadow:0 1px 0 #ffd896!important;white-space:nowrap!important;
+ }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate > .laria-wooden-sign-medallion {
+ position:absolute!important;z-index:4!important;left:14.7%!important;top:50%!important;transform:translateY(-50%)!important;
+ width:25.8%!important;height:auto!important;aspect-ratio:1!important;padding:0!important;border:0!important;border-radius:0!important;
+ background:url("./assets/ui/words-sign-candidate/words-medallion-v2.png") center/contain no-repeat!important;
+ box-shadow:none!important;color:transparent!important;
+ }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate > .laria-wooden-sign-medallion svg { display:none!important; }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate > .laria-words-sign-posts {
+ position:absolute!important;z-index:-1!important;display:block!important;left:4%!important;right:4%!important;top:58%!important;height:174%!important;
+ background:url("./assets/ui/laria-grovanova-signposts.svg") center top/100% 100% no-repeat!important;pointer-events:none!important;
+ }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate:focus-visible { outline:4px solid #fff3b9!important;outline-offset:5px!important; }

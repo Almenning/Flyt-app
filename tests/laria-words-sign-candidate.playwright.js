@@ -1,0 +1,46 @@
+'use strict';
+/* Owner-review evidence. This runs the actual English route and original
+ * Words action; it does not fixture, mock or replace application handlers. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {chromium,webkit}=require('playwright');
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
+const BASE=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&lariaWordsSignCandidate=1';
+const OUT=process.env.LARIA_WORDS_SIGN_SHOTS||'/tmp/laria-words-sign';
+const SEED={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Words QA',avatar:'girl',setupVersion:2,tallvikaTroll:'storesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+const devices=[['ipad-portrait',{width:1024,height:1366}],['ipad-landscape',{width:1366,height:1024}]];
+async function run(engine,name,device,viewport){
+ const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+ try{
+  const context=await browser.newContext({viewport,hasTouch:true,deviceScaleFactor:1,reducedMotion:'reduce',serviceWorkers:'block'});
+  await context.addInitScript(seed=>localStorage.setItem('laerlittmer-v2',JSON.stringify(seed)),SEED);
+  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(BASE,{waitUntil:'domcontentloaded',timeout:90000});
+  await openHomeSubject(page,'english');
+  const world=page.locator('#subject-screen.active #kinnaklova-world');await world.waitFor({state:'visible',timeout:30000});
+  await page.waitForFunction(()=>document.querySelector('#kinnaklova-world')?.dataset.kiArt==='ready',null,{timeout:30000});
+  const words=world.locator('button[data-ki="words"].laria-words-sign-source-candidate');
+  await words.waitFor({state:'visible',timeout:20000});
+  const facts=await words.evaluate(button=>{
+   const r=button.getBoundingClientRect(),style=getComputedStyle(button),label=button.querySelector('.ki-plank-name');
+   const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+   return {width:r.width,height:r.height,left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+    hit:hit===button||button.contains(hit),background:style.backgroundImage,label:label?.textContent,
+    medal:!!button.querySelector('.laria-wooden-sign-medallion'),posts:!!button.querySelector('.laria-words-sign-posts')};
+  });
+  assert.equal(facts.label,'Words');assert.ok(facts.medal&&facts.posts,'Words must retain separate medal and posts');
+  assert.match(facts.background,/words-plank-source-derived-v2\.png/);
+  assert.ok(facts.width>=44&&facts.height>=44&&facts.hit&&facts.left>=0&&facts.right<=viewport.width+1&&facts.top>=0&&facts.bottom<=viewport.height+1,JSON.stringify(facts));
+  fs.mkdirSync(OUT,{recursive:true});
+  await page.screenshot({path:path.join(OUT,`${name}-${device}-kinnaklova-words.png`),animations:'disabled'});
+  await words.click();
+  await page.locator('#session-screen.active').waitFor({state:'visible',timeout:30000});
+  assert.equal(await page.evaluate(()=>sessionScope?.module),'words','Words did not retain its original action');
+  await page.screenshot({path:path.join(OUT,`${name}-${device}-words-opened.png`),animations:'disabled'});
+  assert.deepEqual(errors,[],name+' '+device+' runtime errors');
+  await context.close();
+  return facts;
+ }finally{await browser.close();}
+}
+(async()=>{const output=[];for(const [device,viewport] of devices)for(const [name,engine] of [['webkit',webkit],['chromium',chromium]])output.push({name,device,facts:await run(engine,name,device,viewport)});fs.mkdirSync(OUT,{recursive:true});fs.writeFileSync(path.join(OUT,'words-sign-report.json'),JSON.stringify(output,null,2)+'\n');})().catch(error=>{console.error(error);process.exitCode=1;});

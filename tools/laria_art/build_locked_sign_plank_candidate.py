@@ -135,6 +135,26 @@ def sign(plank, name, kind):
     pen.text((x,y),name,font=font,fill=(42,21,12),stroke_width=1,stroke_fill=(28,13,8))
     return Image.alpha_composite(picture,over)
 
+def words_medallion_layer():
+    """One transparent, illustrated Words medal for the live DOM component.
+
+    It is deliberately exported apart from the plank: words stay DOM text and
+    the button remains interactive. This is review-only source-derived art.
+    """
+    picture=Image.new("RGBA",(224,224),(0,0,0,0))
+    pen=ImageDraw.Draw(picture)
+    cx,cy=112,112
+    pen.ellipse((cx-109,cy-105,cx+111,cy+115),fill=(33,18,9,110))
+    pen.ellipse((cx-106,cy-111,cx+106,cy+105),fill=(82,41,19),outline=(41,21,7),width=6)
+    pen.ellipse((cx-99,cy-108,cx+101,cy+95),outline=(232,168,69),width=10)
+    pen.ellipse((cx-86,cy-95,cx+87,cy+85),fill=(66,34,17),outline=(29,15,7),width=9)
+    pen.arc((cx-97,cy-105,cx+98,cy+101),185,325,fill=(255,219,131),width=7)
+    icon=text_font(58)
+    bbox=pen.textbbox((0,0),"ABC",font=icon)
+    pen.text((cx-(bbox[2]-bbox[0])/2,cy-(bbox[3]-bbox[1])/2-10),"ABC",font=icon,
+             fill=(252,219,148),stroke_width=2,stroke_fill=(30,12,7))
+    return picture
+
 def main():
     a=argparse.ArgumentParser()
     a.add_argument("--output-dir",required=True,type=Path)
@@ -143,6 +163,10 @@ def main():
     master=locked_master()
     blank=blank_board(master)
     blank.save(args.output_dir/"blank-wooden-plank-CANDIDATE.png")
+    # These two files are the only layers an app review candidate consumes.
+    # They contain no baked label or action target.
+    blank.save(args.output_dir/"words-plank-source-derived-CANDIDATE-v2.png")
+    words_medallion_layer().save(args.output_dir/"words-medallion-CANDIDATE-v2.png")
     paths={}
     for name,icon in (("Words","ABC"),("Sentences","bubble"),("Reading","book")):
         dest=args.output_dir/(name.lower()+"-CANDIDATE.png")

@@ -85,12 +85,16 @@
    // User's iPad reference is an opt-in, art-safe presentation adapter.
    // Original scenes, existing actions and stored learning are untouched.
    window.LARIA_REFERENCE_LAYOUT?.mount?.(scene,subject);
-   // Kinnaklova is still a sign-painted master. Rendering the new surface on
-   // top would create a false premium result with double artwork, so it stays
-   // on its original accessible hit regions until an approved clean master is
-   // available. Other scene rails reuse their live button nodes directly.
-   if(scene.dataset.lariaArtworkUi==='separate')
-     window.LariaWoodenSign?.mount?.(navigation,subject);
+   // The Words artwork is an owner-review candidate. It is limited to the
+   // separate, SHA-verified Kinnaklova master and never enables the other
+   // English signs or changes the default application.
+   const wordsCandidate=subject==='english'&&
+     new URLSearchParams(window.location.search).get('lariaWordsSignCandidate')==='1';
+   if(scene.dataset.lariaArtworkUi==='separate'){
+     if(wordsCandidate)window.LariaWoodenSign?.mount?.(navigation,subject,
+       {only:['words'],sourceDerived:true});
+     else if(subject!=='english')window.LariaWoodenSign?.mount?.(navigation,subject);
+   }
    // Preserve all activity action attributes, data-troll, individual landscape
    // classes and the original source image. This does not create a new logo.
    return true;

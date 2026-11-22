@@ -15,13 +15,15 @@
  const surfaceFor=button=>button.matches('.eg-scene-hit')?button.querySelector(':scope > span:not(.laria-wooden-sign-medallion)')||button:button;
  const labelFor=button=>button.querySelector('.tv-sign-label,.ki-plank-name')?.textContent?.trim()||button.textContent.trim();
  const iconFor=key=>'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(paths[key]||paths.globe)+'</svg>';
- function mount(rail,subject){
+ function mount(rail,subject,options={}){
   if(!rail||rail.dataset.lariaWoodenSign==='v1')return;
   rail.dataset.lariaWoodenSign='v1';rail.classList.add('laria-wooden-sign-rail');
   // The three activities share one rail. Tallvika's Next adventure is secondary.
   rail.querySelectorAll('button.laria-wayfinder').forEach(button=>{
    const action=actionFor(button),surface=surfaceFor(button),label=labelFor(button);
+   if(options.only&& !options.only.includes(action))return;
    button.classList.add('laria-wooden-sign');surface.classList.add('laria-wooden-sign-surface');
+   if(options.sourceDerived&&action==='words')button.classList.add('laria-words-sign-source-candidate');
    button.dataset.lariaWoodenSign='v1';button.dataset.lariaSignAction=action;
    // Remove only the retired decorative icon, not the button or label.
    // Otherwise two icons overlap and clip the first letters of Tallvika.
@@ -30,6 +32,10 @@
    if(!surface.querySelector('.laria-wooden-sign-medallion')){
     const medal=document.createElement('span');medal.className='laria-wooden-sign-medallion';
     medal.setAttribute('aria-hidden','true');medal.innerHTML=iconFor(action||subject);surface.prepend(medal);
+   }
+   if(options.sourceDerived&&action==='words'&&!button.querySelector('.laria-words-sign-posts')){
+    const posts=document.createElement('span');posts.className='laria-words-sign-posts';
+    posts.setAttribute('aria-hidden','true');button.append(posts);
    }
    if(label)button.setAttribute('data-laria-sign-label',label);
   });

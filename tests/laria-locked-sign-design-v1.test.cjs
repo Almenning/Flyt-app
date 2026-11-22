@@ -54,3 +54,21 @@ test('Home v16 is the exact user-provided sign source; do not double-render boar
  assert.match(status,/FERDIG VISUELL REFERANSE/);
  assert.match(status,/ikke en sperre for/);
 });
+
+test('Words candidate is raster artwork with DOM text and an explicit review gate',()=>{
+ const js=fs.readFileSync(root+'laer-litt-mer/laria-wooden-sign-v1.js','utf8');
+ const scene=fs.readFileSync(root+'laer-litt-mer/laria-scene-ui-v1.js','utf8');
+ const css=fs.readFileSync(root+'laer-litt-mer/laria-wooden-sign-v1.css','utf8');
+ const doc=fs.readFileSync(root+'docs/laria-premium-3/WORDS-SIGN-CANDIDATE-20261122.md','utf8');
+ for(const file of ['words-plank-source-derived-v2.png','words-medallion-v2.png']){
+  const image=fs.readFileSync(root+'laer-litt-mer/assets/ui/words-sign-candidate/'+file);
+  assert.equal(image.subarray(1,4).toString('ascii'),'PNG',file+' must be a PNG with alpha-capable raster source');
+ }
+ assert.match(scene,/lariaWordsSignCandidate/);
+ assert.match(scene,/only:\['words'\]/);
+ assert.match(js,/sourceDerived&&action==='words'/);
+ assert.match(css,/words-plank-source-derived-v2\.png/);
+ assert.match(css,/words-medallion-v2\.png/);
+ assert.match(css,/\.ki-plank-name/);
+ assert.match(doc,/data-ki="words"/);
+});
