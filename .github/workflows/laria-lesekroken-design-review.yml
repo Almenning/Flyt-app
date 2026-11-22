@@ -1,0 +1,35 @@
+name: "Læria Lesekroken – iPad visual design review"
+on:
+  pull_request:
+    paths:
+      - 'tests/laria-lesekroken-design-review.playwright.js'
+      - '.github/workflows/laria-lesekroken-design-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lesekroken-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Validate review test syntax
+        run: node --check tests/laria-lesekroken-design-review.playwright.js
+      - name: Capture actual Lesekroken with two alternate temporary layouts
+        env:
+          LARIA_LESEKROKEN_PREVIEW: /tmp/laria-lesekroken-review
+        run: node tests/laria-lesekroken-design-review.playwright.js
+      - name: Upload screenshots and geometry evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-lesekroken-design-review
+          path: /tmp/laria-lesekroken-review
+          retention-days: 14
+          if-no-files-found: warn
