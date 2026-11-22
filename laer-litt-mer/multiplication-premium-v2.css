@@ -537,7 +537,12 @@
     despite the entire 10x10 table fitting on screen. Scope this to table-mode
     only so taller exercise modes retain their normal accessible scrolling. */
  .app:has(#multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-world.table-mode){
-  padding-bottom:0!important;
+  padding-bottom:0!important;min-height:100dvh;height:100dvh;
+  overflow-y:hidden!important;
+ }
+ #multiplication-lab-screen.active[data-mp-direct-tallvika="true"]:has(.mp-explore-world.table-mode){
+  padding:0!important;margin:0!important;min-height:100dvh;height:100dvh;
+  overflow:hidden!important;
  }
  #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-shell:has(.mp-explore-screen){
   background:
