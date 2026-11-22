@@ -30,6 +30,7 @@ jobs:
           test -s laer-litt-mer/assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp
       - name: Real app screenshots and first-fold checks
         env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_GANGETABELLEN_IPAD: /tmp/laria-gangetabellen-ipad
         run: |
