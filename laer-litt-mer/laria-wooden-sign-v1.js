@@ -23,7 +23,15 @@
    const action=actionFor(button),surface=surfaceFor(button),label=labelFor(button);
    if(options.only&& !options.only.includes(action))return;
    button.classList.add('laria-wooden-sign');surface.classList.add('laria-wooden-sign-surface');
-   if(options.sourceDerived&&action==='words')button.classList.add('laria-words-sign-source-candidate');
+   if(options.sourceDerived&&action==='words'){
+    button.classList.add('laria-words-sign-source-candidate');
+    // Kinnaklova still ships a legacy, !important arrow background rule for
+    // its three original hotspots.  The review candidate is an explicit
+    // component layer, so bind its approved raster directly to this one
+    // button; it cannot be restyled back into that retired arrow.
+    button.style.setProperty('background',
+      'url("./assets/ui/words-sign-candidate/words-plank-source-derived-v2.png") center/100% 100% no-repeat','important');
+   }
    button.dataset.lariaWoodenSign='v1';button.dataset.lariaSignAction=action;
    // Remove only the retired decorative icon, not the button or label.
    // Otherwise two icons overlap and clip the first letters of Tallvika.
