@@ -16,11 +16,11 @@ const scenes=[
  ['math','#tallvika-world .tv-scene.laria-scene-shell'],
  ['geography','#laria-geography-world .gv-scene.laria-scene-shell']
 ];
-async function home(page,url,file){
+async function home(page,url,file,locked=true){
  await page.goto(url,{waitUntil:'domcontentloaded'});
- const root=page.locator('#home-screen.active .bc12.bc15-v16-locked');
+ const root=page.locator(locked?'#home-screen.active .bc12.bc15-v16-locked':'#home-screen.active');
  await root.waitFor({state:'visible',timeout:30000});
- assert.equal(await root.locator('.bc15-v16-sign').count(),4,'Home must retain four real subject routes');
+ if(locked)assert.equal(await root.locator('.bc15-v16-sign').count(),4,'Home must retain four real subject routes');
  const size=await root.evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth}));
  assert.ok(size.width>=44&&size.height>=44&&size.scroll<=innerWidth+2,'Home overflows the iPad viewport');
  await page.screenshot({path:path.join(OUT,file),animations:'disabled'});
@@ -55,7 +55,7 @@ async function run(engine,name,device,w,h){
   const context=await browser.newContext({viewport:{width:w,height:h},deviceScaleFactor:1,hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
   await context.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
-  if(BASELINE&&(['ipad-1024x1366','ipad-1366x1024'].includes(device)))await home(page,BASELINE,name+'-'+device+'-home-before.png');
+  if(BASELINE&&(['ipad-1024x1366','ipad-1366x1024'].includes(device)))await home(page,BASELINE,name+'-'+device+'-home-before.png',false);
   await home(page,BASE,name+'-'+device+'-home-after.png');
   for(const [subject,selector] of scenes)await candidateScene(page,subject,selector,name+'-'+device+'-'+subject+'-after.png',w,h);
   await englishGuard(page,name+'-'+device+'-english-art-guard.png');
