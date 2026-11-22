@@ -1,4 +1,4 @@
-# Læria Premium 3.0 | Fase 2B: Felles skiltstandard
+> **NY OVERORDNET VISUELL FASIT 22.11.2026:** Brukeren har låst skiltarket `laria-sign-master-v1.png`. Eksakt SHA-256 og gjennomføringsporter ligger i [LOCKED-SIGN-DESIGN-V1.md](./LOCKED-SIGN-DESIGN-V1.md). Der dette eldre dokumentet sier at Hjem/Grovanova skal styre skiltets *form*, er det nå **den nye genererte skiltmasteren** som er fasit for form/materiale/medaljong/tekst. Hjem v16 er fortsatt fasit for **landskap og komposisjon**. Eksisterende pilformede 2B-prøver er ikke visuelt sluttgodkjent.\n\n# Læria Premium 3.0 | Fase 2B: Felles skiltstandard
 
 **Status:** Designkontrakt godkjent som arbeidsretning 22.11.2026. **Ikke produksjonsklar, ikke visuell sluttgodkjenning.**
 **Sak:** https://github.com/Almenning/Flyt-app/issues/271
