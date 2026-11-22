@@ -260,7 +260,11 @@ async function run(browserType,name,viewport){
 async function rejectPoisonedSameSizeArt(){
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
-  const context=await browser.newContext({viewport:{width:1194,height:834},serviceWorkers:'block'});
+  // This is an iPad landscape contract: keep the poisoned-art check on the
+  // same touch-capable device class as the real Home → English journey.
+  // Without a touch digitizer, Home v16 intentionally selects the desktop
+  // composition while the shared navigation helper correctly expects iPad.
+  const context=await browser.newContext({viewport:{width:1194,height:834},hasTouch:true,serviceWorkers:'block'});
   await context.addInitScript(initial=>{
    localStorage.setItem('laerlittmer-v2',JSON.stringify(initial));
   },seed);
