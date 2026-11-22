@@ -72,10 +72,16 @@ async function run(browserType,engine,device,viewport){
      card:{x:card.x,y:card.y,w:card.width,h:card.height}};
    });
    assert.ok(info.question&&info.answers.length>=2,'Actual '+x.subject+' task did not render');
-   assert.ok(info.variable.includes(x.expected),'Unexpected '+x.subject+' task background: '+info.variable);
-   assert.ok(info.actual.includes(x.expected),'Rendered pseudo-background wrong for '+x.subject);
-   const dims=await verifyAsset(page,x.expected);
-   const out={engine,device,subject:x.subject,configured:x.expected,sourceDims:dims,
+   // Geography has a later globe runtime override. Keep the ACTUAL computed
+   // image instead of assuming that the first CSS declaration wins.
+   const asset=info.variable.match(/url\(["']?\.?\/?([^"')]+)["']?\)/)?.[1]||'';
+   assert.ok(asset,'No computed background URL for '+x.subject+': '+info.variable);
+   assert.ok(x.subject==='geography'
+      ? /^(globe-v20-approved|globe-storyscape-v36-(tablet|landscape|mobile))\.webp$/.test(asset)
+      : asset===x.expected,'Unexpected '+x.subject+' task background: '+info.variable);
+   assert.ok(info.actual.includes(asset),'Rendered pseudo-background wrong for '+x.subject);
+   const dims=await verifyAsset(page,asset);
+   const out={engine,device,subject:x.subject,configured:asset,sourceDims:dims,
      question:info.question,answers:info.answers.length,preview:null};
    await page.screenshot({path:path.join(output,engine+'-'+device+'-'+x.subject+'-current.png'),
      fullPage:false,animations:'disabled'});
@@ -90,7 +96,7 @@ async function run(browserType,engine,device,viewport){
     await style.evaluate(el=>el.remove());
    }
    results.push(out);
-   console.log('[Background audit] '+engine+' '+device+' '+x.subject+' = '+x.expected+
+   console.log('[Background audit] '+engine+' '+device+' '+x.subject+' = '+out.configured+
      (out.preview?' -> PREVIEW '+out.preview:''));
   }
   assert.deepEqual(errors,[],'App had JS errors during task background audit');
