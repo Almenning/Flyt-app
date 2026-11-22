@@ -49,8 +49,12 @@ async function visit(engine,name,device,viewport){
   });
   assert.equal(controls.headingAboveLogo,false,'English heading must never overlap Læria logo');
   assert.equal(controls.chooserOverLogo,false,'Troll chooser must not cover Læria logo');
-  assert.equal(controls.homeVisible,true,'Compact devices must not hide Home');
-  assert.ok(controls.homeWidth>=44,'Home needs a 44px touch target');
+  assert.equal(controls.homeVisible,false,'Retired Kinnaklova Home must not overlap shared return');
+  const sharedBack=page.locator('#subject-screen.active > .laria-back-control:visible');
+  assert.equal(await sharedBack.count(),1,'Kinnaklova needs exactly one shared return');
+  const backBounds=await sharedBack.boundingBox();
+  assert.ok(backBounds&&backBounds.width>=44&&backBounds.height>=44,
+   'Shared return needs a 44px touch target');
   const art=stage.locator('img.ki-master');
   assert.match(await art.getAttribute('src'),/kinnaklova-ui-free-approved\.webp/);
   const dimensions=await art.evaluate(img=>[img.naturalWidth,img.naturalHeight]);
