@@ -522,6 +522,13 @@
  // The classic exercise can still be used. Keep a visible return route when
  // its DOM is rebuilt after changing modes/questions.
  const observer=new MutationObserver(()=>{
+   // Direct Tallvika -> 10x10 has its own real return route. The legacy
+   // 'Til Gangemagi' chip would be misleading and duplicate navigation.
+   const screen=document.getElementById('multiplication-lab-screen');
+   if(screen?.dataset.mpDirectTallvika==='true'){
+     root.querySelector('.gm-classic-return')?.remove();
+     return;
+   }
    if(!root.querySelector('.mp-shell')||root.querySelector('.gm-classic-return'))return;
    const link=document.createElement('button');
    link.className='gm-classic-return';

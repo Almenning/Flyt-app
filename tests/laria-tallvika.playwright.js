@@ -63,13 +63,14 @@ async function run(browserType,label,viewport){
     assert.equal(await page.locator('#tallvika-world .tv-actor').getAttribute('data-troll-id'),'lillebror',label+' scene failed to display selected troll');
     assert.equal(await page.locator('#tallvika-world .tv-actor img').getAttribute('src'),'./assets/gangemagi-troll/lillebror.webp',label+' scene changed original character identity');
     // Each painted destination opens its existing activity and returns in one tap.
-    await page.locator('.tv-sign[data-tv="multiply"]').click();await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});
+    await page.locator('.tv-sign[data-tv="multiply"]').click();await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});await screenshot(page,label+'-gangemagi');
     assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Gangemagi lost Tallvika return');
     await page.locator('#multiplication-lab-back').click();await page.locator('#tallvika-world').waitFor({state:'visible',timeout:14000});
-    await page.locator('.tv-sign[data-tv="fraction"]').click();await page.locator('#fraction-lab-screen.active .fr6-workshop').waitFor({timeout:14000});
+    await page.locator('.tv-sign[data-tv="fraction"]').click();await page.locator('#fraction-lab-screen.active .fr6-workshop').waitFor({timeout:14000});await screenshot(page,label+'-broklab');
     assert.equal(await page.locator('#fraction-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Brøklab lost Tallvika return');
     await page.locator('#fraction-lab-back').click();await page.locator('#tallvika-world').waitFor({state:'visible',timeout:14000});
-    await page.locator('.tv-sign[data-tv="table"]').click();await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor({timeout:14000});
+    await page.locator('.tv-sign[data-tv="table"]').click();await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor({timeout:14000});await screenshot(page,label+'-gangetabellen');
+    assert.equal(await page.locator('#multiplication-lab-screen.active .gm-classic-return').count(),0,label+' direct Tallvika must not show a legacy Til Gangemagi button');
     assert.equal(await page.locator('.mp-times-grid button.mp-grid-cell').count(),100,label+' Gangetabellen lost its 10x10 explorer');
     assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Gangetabellen lost Tallvika return');
     await page.locator('#multiplication-lab-back').click();await page.locator('#tallvika-world').waitFor({state:'visible',timeout:14000});

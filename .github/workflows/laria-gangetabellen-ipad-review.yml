@@ -1,0 +1,46 @@
+name: Læria Gangetabellen iPad one-screen review
+on:
+  pull_request:
+    paths:
+      - 'laer-litt-mer/multiplication-premium-v2.css'
+      - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'tests/laria-gangetabellen-ipad-layout.playwright.js'
+      - '.github/workflows/laria-gangetabellen-ipad-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ipad-table:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check exact source and script
+        run: |
+          node --check tests/laria-gangetabellen-ipad-layout.playwright.js
+          test -s laer-litt-mer/assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp
+          test -s laer-litt-mer/assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp
+      - name: Real app screenshots and first-fold checks
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_GANGETABELLEN_IPAD: /tmp/laria-gangetabellen-ipad
+        run: |
+          python3 -m http.server 8765 --directory . >/tmp/laria-gangetabellen-http.log 2>&1 &
+          node tests/laria-gangetabellen-ipad-layout.playwright.js
+      - name: Save exact-head iPad screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-gangetabellen-ipad-review
+          path: /tmp/laria-gangetabellen-ipad
+          retention-days: 14
+          if-no-files-found: warn
