@@ -201,3 +201,34 @@
  left:16px!important;top:50%!important;width:36px!important;height:36px!important;
  transform:translateY(-50%)!important;
 }
+
+/* ENGLISH LOCKED SIGN INNER LABEL CLEARANCE:
+ * The Kinnaklova legacy .ki-plank-name inherited compact padding intended
+ * for a transparent painted-art hotspot. It placed the first letters of
+ * Words / Sentences / Reading BELOW the new oak medal. One stable layout,
+ * scoped to the carved activity surfaces only. */
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign {
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ box-sizing:border-box!important;gap:0!important;
+ padding:5px 12px 5px 61px!important;text-align:left!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign
+ > .ki-plank-name {
+ display:block!important;position:relative!important;inset:auto!important;
+ flex:1 1 auto!important;min-width:0!important;width:auto!important;
+ padding:0!important;margin:0!important;transform:none!important;
+ font:800 clamp(15px,1.75vw,20px)/1.09 var(--laria-wooden-sign-serif)!important;
+ color:var(--laria-wooden-sign-ink)!important;white-space:nowrap!important;
+ overflow:visible!important;text-align:left!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign
+ > .laria-wooden-sign-medallion {
+ left:16px!important;top:50%!important;width:36px!important;height:36px!important;
+ transform:translateY(-50%)!important;position:absolute!important;z-index:3!important;
+}
