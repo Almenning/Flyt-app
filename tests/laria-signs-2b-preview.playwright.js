@@ -22,10 +22,14 @@ const DEVICES=[
  ['ipad-1366x1024',1366,1024]
 ];
 const SCENES=[
- {subject:'english',root:'#kinnaklova-world[data-ki-art="ready"] .ki-stage.laria-reference-layout-v1',
-  back:'#kinnaklova-world .ki-painted-home:visible'},
+ {subject:'norwegian',root:'#eggenipa-world .eg-hero.laria-reference-layout-v1',
+  back:'#eggenipa-world .eg-home:visible',label:'.eg-scene-hit.laria-wayfinder > span'},
  {subject:'math',root:'#tallvika-world .tv-scene.laria-reference-layout-v1',
-  back:'#tallvika-world [data-tv="back"]:visible'}
+  back:'#tallvika-world [data-tv="back"]:visible',label:'.tv-sign.laria-wayfinder .tv-sign-label'},
+ {subject:'english',root:'#kinnaklova-world[data-ki-art="ready"] .ki-stage.laria-reference-layout-v1',
+  back:'#kinnaklova-world .ki-painted-home:visible',label:'.ki-painted-hit.laria-wayfinder .ki-plank-name'},
+ {subject:'geography',root:'#laria-geography-world .gv-scene.laria-reference-layout-v1',
+  back:'#laria-geography-world .gv-home:visible',label:'.gv-sign.laria-wayfinder'}
 ];
 async function captureScene(page,scene,filename,viewport,preview){
  await openHomeSubject(page,scene.subject);
@@ -58,6 +62,17 @@ async function captureScene(page,scene,filename,viewport,preview){
    scene.subject+' clipped/unreachable boards '+JSON.stringify(metrics));
  assert.ok(metrics.postBottom>metrics.buttons[2].bottom-30,
    scene.subject+' posts stop too far above last board');
+ if(preview){
+  const icons=await rail.locator('.laria-wayfinder .laria-reference-activity-icon:visible')
+   .evaluateAll(nodes=>nodes.map(el=>({border:getComputedStyle(el).borderTopWidth,
+    background:getComputedStyle(el).backgroundImage})));
+  assert.equal(icons.length,3,scene.subject+' missing three shared Home-style icons');
+  assert.ok(icons.every(el=>el.border==='2px'&&/linear-gradient/.test(el.background)),
+   scene.subject+' icons still use mismatched legacy styles: '+JSON.stringify(icons));
+  const label=await rail.locator(scene.label+':visible').first().evaluate(node=>
+   getComputedStyle(node).fontFamily);
+  assert.match(label,/Georgia/,scene.subject+' painted label font mismatches the carved Home family');
+ }
  if(preview&&scene.subject==='english'&&viewport.height>viewport.width){
   assert.ok(metrics.postBottom<viewport.height*.58,
    'Kinnaklova posts still end in the church roof zone: '+JSON.stringify(metrics));
