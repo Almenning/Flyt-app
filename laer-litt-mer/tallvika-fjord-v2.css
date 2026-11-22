@@ -207,9 +207,9 @@
     right:max(180px,calc(env(safe-area-inset-right,0px) + 174px))!important;
     top:max(14px,env(safe-area-inset-top,0px))!important;
     width:auto!important;
-    min-width:94px!important;
-    max-width:110px!important;
-    min-height:48px!important;
+    min-width:108px!important;
+    max-width:126px!important;
+    min-height:56px!important;
     padding:7px 12px!important;
     white-space:nowrap!important;
     background:linear-gradient(180deg,#fff6dc,#e8c28a)!important;
