@@ -60,6 +60,11 @@ async function captureScene(page,scene,filename,viewport,preview){
  assert.ok(metrics.buttons.every(b=>b.width>=44&&b.height>=44&&b.canTap&&
      b.x>=-2&&b.right<=viewport.width+2&&b.y>=0&&b.bottom<=viewport.height+2),
    scene.subject+' clipped/unreachable boards '+JSON.stringify(metrics));
+ if(preview){
+  const minWidth=Math.min(300,Math.max(200,viewport.width*.25));
+  assert.ok(metrics.nav.width>=minWidth,
+   scene.subject+' shared sign rail is undersized ('+metrics.nav.width+'px < '+minWidth+'px)');
+ }
  assert.ok(metrics.postBottom>metrics.buttons[2].bottom-30,
    scene.subject+' posts stop too far above last board');
  if(preview){
