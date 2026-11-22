@@ -72,7 +72,7 @@ async function run(engine,name,device,viewport){
   const pixels=await words.evaluate(async button=>{
     const medal=button.querySelector('.laria-wooden-sign-medallion');
     const urls=[getComputedStyle(button).backgroundImage,getComputedStyle(medal).backgroundImage]
-      .map(css=>css.match(/url\\(["']?(.*?)["']?\\)/)?.[1]).filter(Boolean);
+      .map(css=>css.startsWith('url("')?css.slice(5,-2):css.startsWith('url(')?css.slice(4,-1):'').filter(Boolean);
     const dimensions=[];
     for(const url of urls){
       const dimensionsOf=await new Promise((resolve,reject)=>{
