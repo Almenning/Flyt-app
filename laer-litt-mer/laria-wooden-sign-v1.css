@@ -382,31 +382,33 @@
 /* Kinnaklova terrain contact, iPad-only REVIEW. The church roof is much
  * closer to the last board in compact landscape than in portrait. Therefore
  * the same long post tail must NOT be reused for all five iPad viewports.
+ * Match the exact legacy nav selector specificity; otherwise the old
+ * --laria-group-tail silently wins and before/after PNGs stay identical.
  * Only the shared POSTS extend: the artwork and three action buttons stay
  * byte-for-byte unchanged. The fade buries their ends into the hillside. */
 @media (min-width:768px) and (orientation:portrait) {
  #kinnaklova-world[data-ki-premium-art="approved"]
- .ki-stage.laria-reference-layout-v1 > nav.laria-english-group-rail {
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"] > nav.laria-scene-navigation.laria-english-group-rail {
   --laria-group-tail:clamp(62px,6vh,88px);
  }
 }
 @media (min-width:768px) and (orientation:landscape) and (max-height:850px) {
  #kinnaklova-world[data-ki-premium-art="approved"]
- .ki-stage.laria-reference-layout-v1 > nav.laria-english-group-rail {
-  --laria-group-tail:clamp(12px,1.9vh,17px);
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"] > nav.laria-scene-navigation.laria-english-group-rail {
+  --laria-group-tail:clamp(9px,1.35vh,12px);
  }
 }
 @media (min-width:768px) and (orientation:landscape) and (min-height:851px) {
  #kinnaklova-world[data-ki-premium-art="approved"]
- .ki-stage.laria-reference-layout-v1 > nav.laria-english-group-rail {
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"] > nav.laria-scene-navigation.laria-english-group-rail {
   --laria-group-tail:clamp(40px,4.9vh,56px);
  }
 }
 #kinnaklova-world[data-ki-premium-art="approved"]
- .ki-stage.laria-reference-layout-v1
- > nav.laria-english-group-rail::before {
- -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 88%,#000c 92%,transparent 100%)!important;
- mask-image:linear-gradient(to bottom,#000 0%,#000 88%,#000c 92%,transparent 100%)!important;
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail::before {
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 94%,transparent 100%)!important;
+ mask-image:linear-gradient(to bottom,#000 0%,#000 94%,transparent 100%)!important;
 }
 
 /* Legacy Geography hid every aria-hidden <span> to remove its green arrow.
