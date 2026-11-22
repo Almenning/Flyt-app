@@ -29,6 +29,18 @@ Det genererte bildet er et **referanseark med eksempler**, IKKE en ny bakgrunn, 
 | Matte / Tallvika | **Gangemagi** (magisk hatt), **Brøklab** (brøk), **Gangetabellen** (tavle) |
 | Andre funksjoner | **Lesekroken** (bokstabel), **Ordjakt** (lupe/bokstav), **Kloden** (globus) |
 
+## Obligatorisk: Engelsk / Kinnaklova er med i piloten
+**Engelsk er uttrykkelig omfattet av den låste skiltstandarden, ikke en senere valgfri tilleggsfase.** Dagens reelle Kinnaklova-meny i `laer-litt-mer/kinnaklova.js` har nøyaktig tre aktiviteter:
+- `words` → **Words**: illustrert ABC-/ord-symbol i den samme brune medaljongen.
+- `sentences` → **Sentences**: illustrert snakkeboble / setningssymbol.
+- `reading` → **Reading**: åpen bok / lesesymbol.
+
+Skriv *Words*, *Sentences* og *Reading* som faktiske DOM-tekster på tre separate, funksjonelle skilt. Behold de eksisterende handlings-ID-ene, oppgavene, progresjonen og eventuelle undertitler. Ikke oversett eller omdøp disse uten separat UX-beslutning.
+
+Alle tre skilt skal være på **én felles venstrejustert to-stolpe-gruppe**, i **eksakt** den låste gyldne tre-, medaljong-, nagle- og serifstilen, uten gammel pilform og uten nye generiske UI-kort. Kinnaklovas låste fjell-/kirkeillustrasjon skal beholdes; stolper må stå i naturlig forgrunnsterreng og **aldri på kirketaket**. TrollActor skal være en separat levende figur uten skilt-/trollgrafikk malt inn i bakgrunnen.
+
+Piloten omfatter dermed **Hjem + Tallvika + Kinnaklova/Engelsk**. Work må vise konkrete før-/etterbilder av disse tre i iPad stående og liggende og innhente visuell eiergodkjenning av *alle tre* før bred utrulling. Dersom andre engelske aktiviteter også bruker skilt, skal de ved senere full utrulling bruke samme komponent med sine faktiske etiketter.
+
 Dette er **eksempler** på skiltutforming og navn. Alle eksisterende funksjoner i appen som navigeres via skilt skal få samme designfamilie, med korrekt faktisk tekst/ikon og eksisterende rute. Ikke fabrikkér nye funksjoner for å få arket til å stemme. Annen funksjonalitet (klassevelger, tilbakeknapp, premium, dialog) skal kun endres dersom den faktisk bruker skilt.
 
 ## Ufravikelige tekniske rammer
@@ -45,7 +57,7 @@ Dette er **eksempler** på skiltutforming og navn. Alle eksisterende funksjoner 
 
 **Port 1 – Bygg én skiltmaster:** Teknisk gjenbrukbar komponent og stilpakke fra referansearkets faktiske plankebredde, relieff, nagler, medaljong, font og to stolper. Lag variasjoner av ikon og tekst via data, ikke separate hardkodede skiltbilder. Lever reell forhåndsvisning med planke, tre ikoner og fire skilt. Krev visuell godkjenning før bred utrulling.
 
-**Port 2 – Pilot på Hjem + én fagforside:** Behold låst v16-lokalitet og fagillustrasjon. Sammenlign på reell iPad stående/liggende. Test tall/engelsk lange etiketter og at skilt ikke dekker trollet eller fjellene. Ikke skriv over dagens scener før eksplisitt godkjenning.
+**Port 2 – Pilot på Hjem + Tallvika + Kinnaklova/Engelsk:** Behold låst v16-lokalitet og fagillustrasjon. Sammenlign på reell iPad stående/liggende. Test alle tre engelske skiltene (Words, Sentences, Reading) med medaljongikoner, og lange etiketter i matte/engelsk, slik at skilt ikke dekker kirken, trollet eller fjellene. Engelsk er obligatorisk i piloten. Ikke skriv over dagens scener før eksplisitt godkjenning.
 
 **Port 3 – Utrulling til samtlige skiltflommer:** Hjem, Reisen/Utforsk/Oppdrag, norsk, matte, engelsk, geografi, underfunksjoner og eksisterende skiltbasert retur/fortsett-flyt. Ett sentralt skilt-komponent-API og sceneankre. Ikke flere motstridende stilarter.
 
