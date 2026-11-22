@@ -3,6 +3,7 @@
 .laria-wooden-sign-rail {
   --laria-wooden-sign-serif: Georgia, "Times New Roman", serif;
   --laria-wooden-sign-ink: #2e1a0c;
+  --laria-wooden-sign-plank:radial-gradient(ellipse at 22% 48%,transparent 0 14%,#6f3c1d22 15% 17%,transparent 18% 25%),radial-gradient(ellipse at 76% 50%,transparent 0 11%,#6f3c1d24 12% 14%,transparent 15% 22%),repeating-linear-gradient(4deg,#b96f31 0 2px,#dca85e 3px 7px,#96602c 8px 10px),linear-gradient(180deg,#f2c978,#b86d30 52%,#81421d);
   isolation:isolate;
 }
 
@@ -16,7 +17,7 @@
 .laria-wooden-sign-surface,
 .laria-wooden-sign:not(.eg-scene-hit) {
   position:relative; isolation:isolate; overflow:visible;
-  background:radial-gradient(ellipse at 22% 48%,transparent 0 14%,#6f3c1d22 15% 17%,transparent 18% 25%),radial-gradient(ellipse at 76% 50%,transparent 0 11%,#6f3c1d24 12% 14%,transparent 15% 22%),repeating-linear-gradient(4deg,#b96f31 0 2px,#dca85e 3px 7px,#96602c 8px 10px),linear-gradient(180deg,#f2c978,#b86d30 52%,#81421d);
+  background:var(--laria-wooden-sign-plank);
   border:2px solid #6e3818; border-radius:15% 10% 10% 15% / 26% 22% 22% 26%;
   box-shadow:inset 0 2px 0 #ffe2a0,inset 0 -5px 0 #653117,0 5px 0 #5a2c15,0 10px 13px #28160666;
   color:var(--laria-wooden-sign-ink); text-shadow:0 1px 0 #ffe4aa;
@@ -51,7 +52,7 @@
  * adapter rather than adding per-scene overrides. */
 .laria-reference-layout-v1 .laria-wooden-sign-surface,
 .laria-reference-layout-v1 .laria-wooden-sign:not(.eg-scene-hit) {
-  background:radial-gradient(ellipse at 22% 48%,transparent 0 14%,#6f3c1d22 15% 17%,transparent 18% 25%),radial-gradient(ellipse at 76% 50%,transparent 0 11%,#6f3c1d24 12% 14%,transparent 15% 22%),repeating-linear-gradient(4deg,#b96f31 0 2px,#dca85e 3px 7px,#96602c 8px 10px),linear-gradient(180deg,#f2c978,#b86d30 52%,#81421d) !important;
+  background:var(--laria-wooden-sign-plank) !important;
   border:2px solid #6e3818 !important; border-radius:15% 10% 10% 15% / 26% 22% 22% 26% !important;
   box-shadow:inset 0 2px 0 #ffe2a0,inset 0 -5px 0 #653117,0 5px 0 #5a2c15,0 10px 13px #28160666 !important;
   color:var(--laria-wooden-sign-ink) !important; font-family:var(--laria-wooden-sign-serif) !important;
@@ -59,6 +60,24 @@
 .laria-reference-layout-v1 .laria-wooden-sign:not(.eg-scene-hit),
 .laria-reference-layout-v1 .eg-scene-hit.laria-wooden-sign > .laria-wooden-sign-surface {
   padding-left:calc(clamp(19px,2vw,28px) + 42px) !important;
+}
+
+/* All three real painted activity buttons have powerful legacy
+ * background + font shorthand rules. Override only when the approved wooden
+ * sign component is mounted; never override the historical subject menu. */
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign,
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface {
+  background:var(--laria-wooden-sign-plank)!important;
+  border:2px solid #6e3818!important;
+  border-radius:15% 10% 10% 15% / 26% 22% 22% 26%!important;
+  box-shadow:inset 0 2px 0 #ffe2a0,inset 0 -5px 0 #653117,0 5px 0 #5a2c15,0 10px 13px #28160666!important;
+  font-family:var(--laria-wooden-sign-serif)!important;
+  color:var(--laria-wooden-sign-ink)!important;
 }
 
 /* The former light-arrow scene stylesheet declares high-specificity
