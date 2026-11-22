@@ -99,7 +99,9 @@ async function poisonedArt(){
   const original=path.resolve(__dirname,'../laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp');
   await page.route('**/assets/kinnaklova/kinnaklova-ui-free-approved.webp',route=>
    route.fulfill({path:original,contentType:'image/webp'}));
-  await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+  // Keep the poisoned image test isolated from Home v16's independently
+  // gated master, without weakening Kinnaklova's SHA fail-closed check.
+  await page.goto(url+'&lariaV16=0',{waitUntil:'domcontentloaded',timeout:90000});
   await openHomeSubject(page,'english');
   const world=page.locator('#kinnaklova-world[data-ki-art="unapproved"]');
   await world.waitFor({timeout:22000});
