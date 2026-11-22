@@ -24,12 +24,29 @@
     return 'Hjem';
   };
   const visibleDialog=()=>[...document.querySelectorAll('dialog[open]')].find(dialog=>dialog.offsetParent!==null);
+  // Existing activities already own reliable, clickable back buttons. Styling
+  // their real controls is safer than inserting an overlapping second button.
+  // Only the illustrated subject/geography facades need a separate DOM control.
+  const usesNativeBack=route=>{
+    const screen=document.querySelector('.screen.active');
+    if(route==='subject')return !screen?.matches('.eggenipa-active,.tallvika-active,.kinnaklova-active');
+    if(route==='geography')return !screen?.classList.contains('gv-visible');
+    return ['world','continent','fraction-lab','multiplication-lab','session',
+      'complete','detail','adult','parent-info','feedback'].includes(route);
+  };
 
   function currentControl(){return document.querySelector('.screen.active > .laria-back-control');}
   function install(route=screenName()){
     const active=document.querySelector('.screen.active');
     const existing=currentControl();
     if(!ROUTES.has(route)||!active){existing?.remove();return;}
+    if(usesNativeBack(route)){
+      // Do not cover the session's X, Brøklab, Gangemagi, the globe, or
+      // existing accessibility targets. Their native buttons share the
+      // visual contract through laria-back-control.css.
+      existing?.remove();
+      return;
+    }
     let control=existing;
     if(!control){
       control=document.createElement('button');
@@ -117,7 +134,7 @@
   });
   document.addEventListener('keydown',event=>{
     if(event.key!=='Escape'||event.defaultPrevented||event.repeat)return;
-    if(!currentControl())return;
+    if(!currentControl()&&!usesNativeBack(screenName()))return;
     event.preventDefault();
     request();
   },true);
