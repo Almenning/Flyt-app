@@ -68,8 +68,10 @@ async function captureScene(page,scene,filename,viewport,preview){
   const next=await root.locator('button.tv-next-sign.laria-reference-next').evaluate(node=>{
    const rectToJson=r=>({x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom});
    const r=node.getBoundingClientRect(),s=getComputedStyle(node);
+   const post=getComputedStyle(node,'::after');
    return {rect:rectToJson(r),position:s.position,
-    visibility:s.visibility,display:s.display};
+    visibility:s.visibility,display:s.display,stakeWidth:parseFloat(post.width),
+    stakeImage:post.backgroundImage};
   });
   assert.equal(next.position,'absolute','Next adventure must not be a fourth primary board');
   assert.ok(next.rect.height>=44&&next.rect.width>=44,'Secondary next sign is too small');
@@ -77,8 +79,11 @@ async function captureScene(page,scene,filename,viewport,preview){
   // The previous CI logged a ~26px positive gap but incorrectly failed
   // the direct relational assertion. Explicit numbers make this auditable.
   const gapToPrimary=Number(next.rect.y)-Number(metrics.buttons[2].bottom);
-  assert.ok(Number.isFinite(gapToPrimary)&&gapToPrimary>=7,
-   'Next sign overlaps primary boards (gap='+gapToPrimary+'): '+JSON.stringify({metrics,next}));
+  assert.ok(Number.isFinite(gapToPrimary)&&gapToPrimary>=45,
+   'Next sign is still too close to the three primary boards (gap='+gapToPrimary+'): '+JSON.stringify({metrics,next}));
+  assert.ok(Number.isFinite(next.stakeWidth)&&next.stakeWidth<=16&&
+    /linear-gradient/.test(next.stakeImage),
+   'Secondary Next eventyr must use ONE small stake, not a duplicated two-post system: '+JSON.stringify(next));
   assert.ok(metrics.postBottom<=next.rect.y+3,
    'Two shared posts still run through the secondary next sign: '+JSON.stringify({metrics,next}));
   assert.ok(next.rect.x>=0&&next.rect.right<=viewport.width+2&&next.rect.bottom<=viewport.height+2,
