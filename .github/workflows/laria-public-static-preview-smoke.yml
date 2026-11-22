@@ -52,7 +52,15 @@ jobs:
                   await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
                   await page.locator('title').waitFor({state:'attached',timeout:25000});
                   const title=await page.title();
-                  if(title!=='Læria') throw new Error(name+' '+size+' wrong page title: '+title);
+                  if(title!=='Læria'){
+                    const debug=await page.evaluate(()=>({location:location.href,
+                      title:document.title,body:document.body?.innerText?.slice(0,3000),
+                      links:[...document.querySelectorAll('a')].slice(0,15).map(a=>({text:a.innerText,url:a.href}))}));
+                    fs.writeFileSync('/tmp/laria-exact-preview/redirect-debug.json',JSON.stringify(debug,null,2));
+                    await page.screenshot({path:'/tmp/laria-exact-preview/unexpected-external-notice.png',fullPage:true});
+                    console.error('External preview notice details:',JSON.stringify(debug));
+                    throw new Error(name+' '+size+' wrong page title: '+title);
+                  }
                   await page.waitForFunction(()=>Boolean(document.querySelector('#home-screen.active'))||
                     Boolean(document.querySelector('.bc15-locked-home')),null,{timeout:25000});
                   const broken=await page.locator('img').evaluateAll(imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.src).slice(0,10));
