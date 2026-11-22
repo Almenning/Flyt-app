@@ -18,7 +18,8 @@
  function mount(rail,subject){
   if(!rail||rail.dataset.lariaWoodenSign==='v1')return;
   rail.dataset.lariaWoodenSign='v1';rail.classList.add('laria-wooden-sign-rail');
-  rail.querySelectorAll('button').forEach(button=>{
+  // The three activities share one rail. Tallvika's Next adventure is secondary.
+  rail.querySelectorAll('button.laria-wayfinder').forEach(button=>{
    const action=actionFor(button),surface=surfaceFor(button),label=labelFor(button);
    button.classList.add('laria-wooden-sign');surface.classList.add('laria-wooden-sign-surface');
    button.dataset.lariaWoodenSign='v1';button.dataset.lariaSignAction=action;
