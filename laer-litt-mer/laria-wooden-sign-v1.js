@@ -23,7 +23,10 @@
    const action=actionFor(button),surface=surfaceFor(button),label=labelFor(button);
    button.classList.add('laria-wooden-sign');surface.classList.add('laria-wooden-sign-surface');
    button.dataset.lariaWoodenSign='v1';button.dataset.lariaSignAction=action;
+   // Remove only the retired decorative icon, not the button or label.
+   // Otherwise two icons overlap and clip the first letters of Tallvika.
    surface.querySelector('.laria-reference-activity-icon')?.remove();
+   surface.querySelector('.tv-sign-icon')?.remove();
    if(!surface.querySelector('.laria-wooden-sign-medallion')){
     const medal=document.createElement('span');medal.className='laria-wooden-sign-medallion';
     medal.setAttribute('aria-hidden','true');medal.innerHTML=iconFor(action||subject);surface.prepend(medal);
