@@ -1108,7 +1108,14 @@
 /* Keep the real teller/nevner controls in normal flow on landscape iPad.
    Pulling the entire control row 48px over the stage obscured the child's
    loose cake pieces. Compact layout above remains responsible for fit. */
-@media (min-width:700px) and (max-width:1400px) and (max-height:900px) and (orientation:landscape){
+/* Preserve the already-tested compact iPhone landscape (e.g. 844×390).
+   Only iPad-size heights get the revised stage geometry. */
+@media (min-width:700px) and (max-width:1400px) and (max-height:500px) and (orientation:landscape){
+  #fraction-lab-screen .fr6-workshop .fr6-controls{
+    position:relative;z-index:2;transform:translateY(-48px);margin-bottom:-48px;
+  }
+}
+@media (min-width:700px) and (max-width:1400px) and (min-height:650px) and (max-height:900px) and (orientation:landscape){
   #fraction-lab-screen .fr6-workshop .fr6-controls{
     position:relative;z-index:2;transform:none;margin-bottom:0;
   }
