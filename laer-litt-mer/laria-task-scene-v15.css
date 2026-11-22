@@ -1704,3 +1704,23 @@ body.laria-task-scene-open .app:after{
   margin-top:6px;min-height:44px;
  }
 }
+
+/* iPad-only Tallvika visual pilot, 2026-11-22.
+   Reuse the existing locked, building-free portrait/landscape artwork.
+   Keep ordinary math questions, panels, navigation and learning state intact.
+   Phone and desktop continue using the existing task scene pending review. */
+/* WebKit keeps its reported orientation during a viewport-only rotation in
+   automated iPad contexts. Aspect ratio tracks the rendered canvas itself,
+   so the correct locked Tallvika crop is used in Safari as well as Chromium. */
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (max-aspect-ratio:1/1){
+  #session-screen.task-scene[data-task-subject="math"]{
+    --task-world:url("./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp");
+    --task-sky:#9dbeb8;
+  }
+}
+@media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (min-aspect-ratio:1/1){
+  #session-screen.task-scene[data-task-subject="math"]{
+    --task-world:url("./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp");
+    --task-sky:#9dbeb8;
+  }
+}
