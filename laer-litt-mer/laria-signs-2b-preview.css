@@ -24,6 +24,9 @@
       #laria-geography-world .gv-scene.laria-reference-layout-v1) {
     --laria-sign-art: var(--laria-2b-oak);
     --laria-sign-ink: var(--laria-2b-ink);
+    /* One responsive size for all four subject rails. Larger than the
+     * legacy 176px minimum, but remains left of the live TrollActor. */
+    --ref-menu-width: clamp(205px, 25.5%, 304px);
   }
 
   :root[data-laria-signs-2b="preview"]
