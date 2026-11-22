@@ -21,23 +21,26 @@
   // The three activities share one rail. Tallvika's Next adventure is secondary.
   rail.querySelectorAll('button.laria-wayfinder').forEach(button=>{
    const action=actionFor(button),surface=surfaceFor(button),label=labelFor(button);
+   const reviewV3=!!(options.sourceDerived&&options.sourceVariant===3&&action==='words');
    if(options.only&& !options.only.includes(action))return;
    button.classList.add('laria-wooden-sign');surface.classList.add('laria-wooden-sign-surface');
    if(options.sourceDerived&&action==='words'){
     button.classList.add('laria-words-sign-source-candidate');
+    if(reviewV3)button.classList.add('laria-words-sign-art-v3');
+    button.dataset.lariaWordsArt=reviewV3?'v3':'v2';
     // Kinnaklova still ships a legacy, !important arrow background rule for
     // its three original hotspots.  The review candidate is an explicit
     // component layer, so bind its approved raster directly to this one
     // button; it cannot be restyled back into that retired arrow.
     button.style.setProperty('background',
-      'url("./assets/ui/words-sign-candidate/words-plank-source-derived-v2.png") center/100% 100% no-repeat','important');
+      'url("./assets/ui/words-sign-candidate/'+(reviewV3?'words-plank-illustrated-v3-REVIEW.webp':'words-plank-source-derived-v2.png')+'") center/100% 100% no-repeat','important');
     // The legacy hotspot also fixes a narrow arrow geometry with !important.
     // Keep the candidate on its source artwork's natural 1395:366 plank
     // proportion instead of stretching the hand-drawn edges into that arrow.
     button.style.setProperty('width','clamp(310px,32vw,390px)','important');
     button.style.setProperty('height','auto','important');
     button.style.setProperty('min-height','78px','important');
-    button.style.setProperty('aspect-ratio','1395 / 366','important');
+    button.style.setProperty('aspect-ratio',reviewV3?'1100 / 292':'1395 / 366','important');
    }
    button.dataset.lariaWoodenSign='v1';button.dataset.lariaSignAction=action;
    // Remove only the retired decorative icon, not the button or label.
@@ -76,7 +79,7 @@
      // a white speech bubble over the locked source's illustrated ABC medal.
      const oldSvg=medalNode.querySelector('svg');
      if(oldSvg)oldSvg.style.setProperty('display','none','important');
-     medalNode.style.setProperty('background','url("./assets/ui/words-sign-candidate/words-medallion-v2.png") center/contain no-repeat','important');
+     medalNode.style.setProperty('background','url("./assets/ui/words-sign-candidate/'+(reviewV3?'words-abc-medallion-v3-REVIEW.png':'words-medallion-v2.png')+'") center/contain no-repeat','important');
      medalNode.style.setProperty('border','0','important');
      medalNode.style.setProperty('box-shadow','none','important');
     }
