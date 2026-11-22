@@ -71,7 +71,7 @@ async function captureScene(page,scene,filename,viewport,preview){
    scene.subject+' icons still use mismatched legacy styles: '+JSON.stringify(icons));
   const label=await rail.locator(scene.label+':visible').first().evaluate(node=>
    getComputedStyle(node).fontFamily);
-  assert.match(label,/Georgia/,scene.subject+' painted label font mismatches the carved Home family');
+  assert.match(label,/DejaVu Serif/,scene.subject+' painted label font mismatches the shared carved-wood family');
  }
  if(preview&&scene.subject==='english'&&viewport.height>viewport.width){
   assert.ok(metrics.postBottom<viewport.height*.58,
