@@ -36,8 +36,21 @@ async function candidateScene(page,subject,selector,file,w,h){
  const scene=page.locator(selector);await scene.waitFor({state:'visible',timeout:30000});
  const rail=scene.locator('nav.laria-scene-navigation:visible');await rail.waitFor({state:'visible',timeout:15000});
  // The new visual treatment applies only where art is a separate UI layer.
+ // Preserve visual evidence even when a subsequent assertion fails.
+ await page.screenshot({path:path.join(OUT,file),animations:'disabled'});
  const signs=rail.locator('button.laria-wooden-sign:visible');
  assert.equal(await signs.count(),3,subject+' must retain its three real activity routes');
+ if(subject==='math'){
+  const secondary=rail.locator('button.tv-next-sign.laria-reference-next');
+  assert.equal(await secondary.count(),1,'Tallvika lost its Next adventure route');
+  assert.equal(await secondary.locator('.laria-wooden-sign-medallion').count(),0,
+   'Next adventure was incorrectly promoted to a fourth primary sign');
+  assert.equal(await rail.locator('button.tv-next-sign.laria-wooden-sign').count(),0,
+   'Next adventure must remain a distinct secondary sign');
+  const rect=await secondary.boundingBox();
+  assert.ok(rect&&rect.width>=44&&rect.height>=44,
+   'Secondary Next adventure needs a real 44px touch target');
+ }
  const measured=await signs.evaluateAll(nodes=>nodes.map(node=>{
   const r=node.getBoundingClientRect();
   const surface=node.querySelector(':scope > .laria-wooden-sign-surface')||node;
@@ -47,7 +60,6 @@ async function candidateScene(page,subject,selector,file,w,h){
  }));
  assert.ok(measured.every(item=>item.width>=44&&item.height>=44&&item.canTap&&item.x>=-1&&item.right<=w+1&&item.y>=0&&item.bottom<=h+1),subject+' has clipped or unreachable sign: '+JSON.stringify(measured));
  assert.ok(measured.every(item=>/Georgia|Times New Roman/.test(item.font)),subject+' did not use the locked sign type family: '+JSON.stringify(measured));
- await page.screenshot({path:path.join(OUT,file),animations:'disabled'});
  // Exercise the REAL subject Back button before opening the next subject.
  // Reusing openHomeSubject without a return left the previous scene active,
  // which falsely looked like a broken Home renderer on the second subject.
