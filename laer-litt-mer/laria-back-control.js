@@ -134,6 +134,13 @@
   });
   document.addEventListener('keydown',event=>{
     if(event.key!=='Escape'||event.defaultPrevented||event.repeat)return;
+    // The approved reference layout owns its first keyboard return from the
+    // activity rail to its subject selector. Let that focused, scene-local
+    // handler run before the global return handles a second Escape to Home.
+    const localScene=event.target.closest?.('.laria-reference-layout-v1');
+    if(localScene?.closest('.screen.active')&&
+       localScene.dataset.lariaReferenceMode==='activities'&&
+       event.target.closest?.('nav.laria-scene-navigation,button.laria-reference-heading'))return;
     if(!currentControl()&&!usesNativeBack(screenName()))return;
     event.preventDefault();
     request();
