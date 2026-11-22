@@ -158,14 +158,22 @@ async function run(engine,name,layout,viewport){
    assert.equal(await sharedNav.getAttribute('aria-label'),
      (adapted?'Velg eventyr i ':'Velg aktivitet i ')+title,
      spec.id+' activity landmark does not match its active presentation');
-   const back=world.locator(spec.home+':visible');
-   const button=await back.evaluate(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return{
-     width:r.width,height:r.height,image:s.backgroundImage,top:r.top,left:r.left,role:el.getAttribute('aria-label')
-   }});
-   assert.ok(button.width>=44&&button.height>=44&&button.left>=0&&button.top>=0,
-     name+' '+layout+' '+spec.id+' Home control is not tappable: '+JSON.stringify(button));
-   assert.match(button.image,/laria-home-round\.svg/,spec.id+' has a different Home control');
-   assert.match(button.role,/Hjem/,spec.id+' Home accessibility text missing');
+   assert.equal(await world.locator(spec.home+':visible').count(),0,
+     spec.id+' retired painted Home must stay hidden');
+   const back=page.locator('.screen.active > .laria-back-control:visible');
+   assert.equal(await back.count(),1,spec.id+' needs exactly one common return');
+   const button=await back.evaluate(el=>{
+     const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+     const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+     return {width:r.width,height:r.height,image:s.backgroundImage,top:r.top,left:r.left,
+       right:r.right,bottom:r.bottom,viewport:[innerWidth,innerHeight],
+       hit:hit===el||el.contains(hit),role:el.getAttribute('aria-label')};
+   });
+   assert.ok(button.width>=44&&button.height>=44&&button.left>=0&&button.top>=0&&
+     button.right<=button.viewport[0]+2&&button.bottom<=button.viewport[1]+2&&button.hit,
+     name+' '+layout+' '+spec.id+' shared return is not tappable: '+JSON.stringify(button));
+   assert.match(button.image,/linear-gradient/,spec.id+' common return lost its oak styling');
+   assert.match(button.role,/^Tilbake til (Hjem|Reisen|Utforsk)$/,spec.id+' return destination missing');
    const signs=world.locator(spec.sign+':visible');
    assert.equal(await signs.count(),3,spec.id+' should have exactly three navigable scene signs');
    if(spec.id!=='english'){
