@@ -60,6 +60,33 @@ async function candidateScene(page,subject,selector,file,w,h){
  }));
  assert.ok(measured.every(item=>item.width>=44&&item.height>=44&&item.canTap&&item.x>=-1&&item.right<=w+1&&item.y>=0&&item.bottom<=h+1),subject+' has clipped or unreachable sign: '+JSON.stringify(measured));
  assert.ok(measured.every(item=>/Georgia|Times New Roman/.test(item.font)),subject+' did not use the locked sign type family: '+JSON.stringify(measured));
+ // These direct pixel-geometry assertions catch the severe issues that
+ // previously slipped through green CI: giant Norwegian medallions outside
+ // the plank, and Tallvika labels hidden under icons / clipped at the left.
+ if(subject==='norwegian'||subject==='math'){
+  const artwork=await signs.evaluateAll(nodes=>nodes.map(node=>{
+   const surface=node.matches('.eg-scene-hit')?
+     node.querySelector(':scope > .laria-wooden-sign-surface'):node;
+   const medal=surface.querySelector('.laria-wooden-sign-medallion');
+   const b=surface.getBoundingClientRect(),m=medal?.getBoundingClientRect();
+   let label=surface.querySelector('.tv-sign-label');
+   let t=label?.getBoundingClientRect();
+   if(!t){
+    const textNode=[...surface.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());
+    if(textNode){const range=document.createRange();range.selectNodeContents(textNode);t=range.getBoundingClientRect();}
+   }
+   return {text:surface.textContent.trim(),board:[b.left,b.top,b.right,b.bottom],
+     medal:m?[m.left,m.top,m.right,m.bottom]:null,
+     textRect:t?[t.left,t.top,t.right,t.bottom]:null};
+  }));
+  assert.ok(artwork.every(a=>{
+    if(!a.medal||!a.textRect)return false;
+    const [l,t,r,b]=a.board,[ml,mt,mr,mb]=a.medal,[tl,tt,tr,tb]=a.textRect;
+    return mr-ml>=26&&mr-ml<=46&&mb-mt>=26&&mb-mt<=46&&
+      ml>=l+3&&mr<=r-3&&mt>=t-6&&mb<=b+6&&
+      tl>=mr+2&&tr<=r-7&&tt>=t-7&&tb<=b+7;
+  }),subject+' rendered a giant icon or clipped text against the carved plank: '+JSON.stringify(artwork));
+ }
  // Exercise the REAL subject Back button before opening the next subject.
  // Reusing openHomeSubject without a return left the previous scene active,
  // which falsely looked like a broken Home renderer on the second subject.
