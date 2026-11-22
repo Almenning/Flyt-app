@@ -24,7 +24,7 @@ async function run(engine,name,device,viewport){
   const words=world.locator('button[data-ki="words"].laria-words-sign-source-candidate');
   await words.waitFor({state:'visible',timeout:20000});
   const facts=await words.evaluate(button=>{
-   const r=button.getBoundClientRect(),style=getComputedStyle(button),label=button.querySelector('.ki-plank-name');
+   const r=button.getBoundingClientRect(),style=getComputedStyle(button),label=button.querySelector('.ki-plank-name');
    const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
    return {width:r.width,height:r.height,left:r.left,right:r.right,top:r.top,bottom:r.bottom,
     hit:hit===button||button.contains(hit),background:style.backgroundImage,label:label?.textContent,
@@ -32,14 +32,14 @@ async function run(engine,name,device,viewport){
   });
   assert.equal(facts.label,'Words');assert.ok(facts.medal&&facts.posts,'Words must retain separate medal and posts');
   assert.match(facts.background,/words-plank-source-derived-v2\.png/);
-  assert.ok(facts.width>=44&&facts.height>=44&&facts.hit&&facts.left>=0&&facts.right<=viewport.width+1&&facts.top>=0&&bottom<=viewport.height+1,JSON.stringify(facts));
+  assert.ok(facts.width>=44&&facts.height>=44&&facts.hit&&facts.left>=0&&facts.right<=viewport.width+1&&facts.top>=0&&facts.bottom<=viewport.height+1,JSON.stringify(facts));
   fs.mkdirSync(OUT,{recursive:true});
   await page.screenshot({path:path.join(OUT,`${name}-${device}-kinnaklova-words.png`),animations:'disabled'});
   await words.click();
   await page.locator('#session-screen.active').waitFor({state:'visible',timeout:30000});
   // This is deliberately a visible-app assertion rather than a read of the
   // host page's lexical `sessionScope`.  The latter is not part of the app
-  // contract and is unavailable in some WebKit execution world3.
+  // contract and is unavailable in some WebKit execution worlds.
   await page.locator('#session-screen.task-scene[data-task-subject="english"]').waitFor({state:'visible',timeout:10000});
   assert.equal((await page.locator('#session-screen.active .task-world-chip').textContent())?.trim(),'Kinnaklova',
     'Words did not open the original Kinnaklova learning scene');
