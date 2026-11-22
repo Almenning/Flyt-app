@@ -234,7 +234,17 @@ async function run(engine,name,layout,viewport){
          font:s.fontFamily,ink:s.color};
      },spec.post);
      assert.ok(plate.width>=44&&plate.height>=44,spec.id+' sign too small');
-     assert.match(plate.background,/laria-light-arrow-sign\.svg/,spec.id+' has a nonstandard plank graphic');
+     const wooden=(await world.locator(spec.sign+'.laria-wooden-sign:visible').count())===3;
+     if(wooden){
+       assert.match(plate.background,/gradient/,spec.id+' missing carved oak background');
+       assert.match(plate.font,/Georgia|Times New Roman/,spec.id+' missing approved serif lettering');
+       assert.equal(plate.ink,'rgb(46, 26, 12)',spec.id+' wrong wooden-sign ink');
+       assert.equal(await world.locator(spec.sign+'.laria-wooden-sign .laria-wooden-sign-medallion svg').count(),3,
+         spec.id+' missing three real medallion symbols');
+     } else {
+       assert.match(plate.background,/laria-light-arrow-sign\\.svg/,
+         spec.id+' legacy fallback has a nonstandard plank graphic');
+     }
      if(adapted){
        // Premium has ONE continuous pair of posts behind the whole menu.
        const posts=await sharedNav.evaluate(el=>{
