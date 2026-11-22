@@ -86,6 +86,30 @@ function cssFor(variant){
   r('.feedback','grid-column:2!important;grid-row:5!important;width:100%!important;margin:8px 0 0!important;'),
   r('.next','grid-column:2!important;grid-row:6!important;width:100%!important;margin:7px 0 0!important;')
  ].join('');
+ const portrait = [
+  r('#question-wrap','width:min(calc(100vw - 92px),862px)!important;'+
+    'transform:translateY(clamp(98px,12.2vh,176px))!important;'),
+  r('.task-norsk-storybook','padding:34px 39px 38px!important;border-radius:30px!important;'),
+  r('.task-card-head','min-height:46px!important;'),
+  r('.question','font-size:clamp(36px,4.35vw,47px)!important;'+
+    'margin:25px auto 13px!important;line-height:1.12!important;'),
+  r('.task-visual-companion-stage','width:min(100%,660px)!important;'),
+  r('.task-visual-row','min-height:232px!important;'),
+  r('.premium-visual .task-object-stage','width:min(100%,530px)!important;min-height:220px!important;'),
+  r('.task-illustration','max-height:213px!important;width:min(100%,344px)!important;'),
+  r('.task-norsk-helper','left:20px!important;top:57%!important;'),
+  r('.task-interaction','margin:20px auto 0!important;'),
+  r('.answer','min-height:70px!important;font-size:clamp(18px,2.05vw,23px)!important;')
+ ].join('');
+ if(variant==='c'||variant==='d'){
+  const offset = variant==='d'
+    ?r('#question-wrap','transform:translateY(clamp(144px,17.1vh,228px))!important;')
+    :'';
+  // Do not change the already reviewed two-page landscape B.
+  return common+'@media (orientation:portrait) and (min-width:768px) and (min-height:1000px){\n'+
+    portrait+offset+'}\n'+
+    '@media (orientation:landscape) and (min-width:1000px) and (min-height:650px){\n'+landscape+'}\n';
+ }
  return common+'@media (orientation:landscape) and (min-width:1000px) and (min-height:650px){\n'+landscape+'}\n';
 }
 function serve(){
@@ -139,7 +163,7 @@ async function run(browserType,engine,base,orientation,viewport){
    return true;
   });
   assert.equal(style,true);
-  for(const variant of ['original','a','b']){
+  for(const variant of orientation.startsWith('portrait')?['original','b','c','d']:['original','a','b']){
    await page.evaluate(css=>{document.getElementById('laria-lesekroken-review-only').textContent=css;},
      cssFor(variant));
    await page.waitForTimeout(160);
@@ -168,6 +192,12 @@ async function run(browserType,engine,base,orientation,viewport){
      'answer choices cannot fall outside horizontal iPad viewport');
    if(variant!=='original')assert.ok(info.answers.every(b=>b.y>=0&&b.bottom<=viewport.height+1),
      'visible iPad task answers must fit the initial viewport: '+JSON.stringify(info));
+   if((variant==='c'||variant==='d')&&orientation.startsWith('portrait')){
+    assert.ok(info.card.y>=230&&info.card.bottom<=viewport.height-65,
+      'new portrait book must sit inside scenic field with bottom air: '+JSON.stringify(info.card));
+    assert.ok(info.answers.every(b=>b.y>info.question.bottom+65),
+      'answer row must be distinct from question and illustration');
+   }
    assert.ok(info.hint.w>=44&&info.hint.h>=44,'hint remains tappable');
    assert.ok(info.read&&info.read.w>=44&&info.read.h>=44,'read aloud remains tappable');
    const filename=engine+'-'+orientation+'-'+variant+'.png';
@@ -175,7 +205,7 @@ async function run(browserType,engine,base,orientation,viewport){
    report.results.push({engine,orientation,variant,viewport,question:content,info,filename});
    console.log('[Lesekroken review] '+engine+' '+orientation+' '+variant+' '+JSON.stringify({
     card:info.card,answers:info.answers.length,hint:info.hint,read:info.read}));
-   if(variant==='b'){
+   if(variant==='b'||variant==='c'||variant==='d'){
     const guide=page.locator('#session-screen.active .task-norsk-guide');
     await guide.click();
     assert.equal(await guide.getAttribute('aria-expanded'),'true','hint must open');
@@ -198,7 +228,8 @@ async function run(browserType,engine,base,orientation,viewport){
   for(const [engine,browser] of [['webkit',webkit],['chromium',chromium]]){
    for(const [name,viewport] of [
     ['landscape',{width:1366,height:1024}],
-    ['portrait',{width:1024,height:1366}]
+    ['portrait',{width:1024,height:1366}],
+    ['portrait-compact',{width:820,height:1180}]
    ])await run(browser,engine,url,name,viewport);
   }
  }finally{await new Promise(resolve=>server.close(resolve));}
