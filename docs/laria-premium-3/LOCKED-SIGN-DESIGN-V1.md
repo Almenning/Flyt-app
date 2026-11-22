@@ -1,6 +1,25 @@
 # LÆRIA | LÅST SKILTDESIGN V1
 **Dato godkjent: 22. november 2026. Status: VISUELL REFERANSE LÅST, IKKE IMPLEMENTERT ELLER PUBLISERT.**
 
+## Presisering etter visuell avvisning: direkte kildegjenbruk (22.11.2026)
+
+**Eier har på nytt påpekt at Engelsk-pilotens skilt ikke er like originalen.** Grønn test for 3 skilt og forbedret stolpeforankring betyr ikke visuell godkjenning. Dette er en eksplisitt **STOPP for V3 som fremtidig skiltmaster**, og overstyrer alle formuleringer om at V3 kan rulles ut etter bare geometriske rettelser.
+
+Den sist viste referansen er et nærbilde av Grovanova v16 med fire skilt: Norsk, Matte, Engelsk og Geografi. Sammenligningen med reelle Kinnaklova-skjermbilder viser:
+- Originalen: bred, varm, lys honningfarget og forholdsvis rolig treplanke, med svakt avrundede/spisse ender. V3: mørkere, smalere, markert pilspiss og kraftig kornet/kontrastfull overflate.
+- Originalen: store mørke ikoner og bred, tykk nesten svart serifskrift. V3: mindre tekst relativt til skiltflaten, andre medaljongproporsjoner og utseende.
+- Originalen: to kraftige, naturlig forankrede stolper med solid tverrsnitt. V3: smalere, kortere stolper og svakere kontakt med terreng.
+
+### Ny obligatorisk produksjonsmetode
+
+1. **Ingen mer fri AI-generering, ny plankeillustrasjon eller CSS-gradientimitasjon** som grunnlag for endelig standard. Start fra **eksakte illustrasjonsbytes** i låst Grovanova v16 og/eller det godkjente skiltarket, bevar kilde og SHA.
+2. Produser transparent, gjenbrukbar plankeresurs ved **kildetro utsnitt/segmentering** av originalgrafikken og to originale stolpelag. Registrer kilderektangel, skala, eksakt maske og versjon. Ingen tilfeldig omtegning av ender, nagler, tykkelse, medaljongrammer eller trestruktur.
+3. **Begrensning:** Referansen er et flatt bilde hvor eksisterende bokstaver og ikoner allerede er innmalt. Pikselidentisk gjenbruk er mulig for originale, uendrede partier; nye etiketter (*Words/Sentences/Reading*) kan ikke samtidig være pikselidentiske med *Norsk/Matte/Engelsk/Geografi*. Bruk en egen, godkjent **tekstfri originalplanke / kildetro rekonstruert tekstsone** før nytt DOM-navn legges inn. Rapporter all rekonstruksjon åpent. Dersom slik tekstfri original ikke kan skaffes, kan hele nye skiltet ikke hevdes å være «100 % kopiert».
+4. Først **ett komplett Words-skilt** i faktisk Kinnaklova stående/liggende. Sammenlign kildeform, lys/gullfarge, nagler, ikonskala, serif og stolpetverrsnitt ved lik vist størrelse, med side-ved-side og transparente overlapp av planken, ikke bare screenshot av hele landskapet.
+5. Hold alle eksisterende handlerne og reelle DOM-knappene, trykkflater, Kinnaklova-scenen, trollkunst og Hjem-kunst uendret. Isolert opt-in; ikke merge, publiser eller utvid til andre fag før *faktisk visuell sign-off* av ett kildetro skilt.
+
+**Akseptport:** Visuell avvisning av V3 er gjeldende. Ingen grønn CI eller likhet i generelle stikkord («eik», «medaljong») kan erstatte dokumentert likhet med de originale pikslene i gjenbrukbare deler. Bruker må få konkret før/etter-bilde og eksplisitt godkjenne.
+
 ## Autoritativ fasit
 Bruker har **uttrykkelig godkjent** det genererte bildet `laria-sign-master-v1.png` ("Perfekt! Lås disse"). Dette er den overordnede og **nyeste** skiltfasiten i hele Læria, foran eldre skiltillustrasjoner, PR #272 sine foreløpige «light arrow»-varianter og tidligere råd om å bruke Grovanova-skilt som formfasit.
 
