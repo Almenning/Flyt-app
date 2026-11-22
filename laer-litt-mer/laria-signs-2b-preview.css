@@ -44,6 +44,11 @@
     letter-spacing: -0.025em !important;
   }
 
+  :root[data-laria-signs-2b="preview"]
+  #tallvika-world .tv-scene.laria-reference-layout-v1 {
+    --ref-natural-post-tail: clamp(2px, 0.7vh, 8px);
+  }
+
   /* Tallvika: the real "Neste eventyr" node keeps its action and DOM owner,
    * but no longer stretches the shared two posts into a four-sign main menu.
    * A subordinate wooden marker remains IN the illustration below the rail.
@@ -96,7 +101,7 @@
   :root[data-laria-signs-2b="preview"]
   #tallvika-world .tv-scene.laria-reference-layout-v1 {
     --ref-natural-rail-top: 26.5%;
-    --ref-natural-post-tail: clamp(15px, 2.3vh, 31px);
+    --ref-natural-post-tail: clamp(2px, 0.7vh, 8px);
   }
 }
 /* Do not alter phone, desktop, unsupported fallbacks or Kinnaklova art prior
