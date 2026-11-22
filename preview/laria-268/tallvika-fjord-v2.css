@@ -194,3 +194,38 @@
     right:max(2%,calc(env(safe-area-inset-right,0px) + 6px))!important;
   }
 }
+
+
+/* Premium 3.0 iPad utility row. The grade button previously sat under the
+   separate companion/settings controls in some viewport widths because it
+   reserved space for only ONE right-hand button. Reserve room for both.
+   The painting, sign art, TrollActor and learning state remain unchanged. */
+@media (min-width:701px) and (min-height:650px){
+  #tallvika-world .tv-scene-grade{
+    box-sizing:border-box!important;
+    position:absolute!important;
+    right:max(180px,calc(env(safe-area-inset-right,0px) + 174px))!important;
+    top:max(14px,env(safe-area-inset-top,0px))!important;
+    width:auto!important;
+    min-width:108px!important;
+    max-width:126px!important;
+    min-height:56px!important;
+    padding:7px 12px!important;
+    white-space:nowrap!important;
+    background:linear-gradient(180deg,#fff6dc,#e8c28a)!important;
+    color:#54351f!important;
+    border:2px solid #986136!important;
+    border-radius:16px!important;
+    font:900 13px/1.15 ui-rounded,"SF Pro Rounded",system-ui,sans-serif!important;
+    text-shadow:none!important;
+    box-shadow:0 4px 0 #7b4a2a,0 8px 16px #2c231b36!important;
+    z-index:15!important;
+    pointer-events:auto!important;
+    touch-action:manipulation!important;
+  }
+  #tallvika-world .tv-scene-grade:focus-visible{
+    outline:4px solid #fff4b4!important;
+    outline-offset:3px!important;
+  }
+  #tallvika-world .tv-scene-choose{z-index:14!important}
+}
