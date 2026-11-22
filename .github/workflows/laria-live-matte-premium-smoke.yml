@@ -1,0 +1,63 @@
+name: Læria live web Premium Matte smoke (isolated)
+on:
+  push:
+    branches: [test/laria-github-commit-preview-20261122]
+    paths:
+      - .github/workflows/laria-live-matte-premium-smoke.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  remote-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify GitHub Pages has deployed exact live Matte styles
+        env:
+          LIVE_URL: https://almenning.github.io/Flyt-app/laer-litt-mer/?app=laria
+        run: |
+          node <<'NODE'
+          const url=process.env.LIVE_URL;
+          (async()=>{
+            const expected=['20261122-ipad-cake-clearance1','20261122-matte-grade-clearance4','20261122-matte-english-backdrops1','20261122-tallvika-direct-back1'];
+            for(let tries=0;tries<50;tries++){
+              const response=await fetch(url+'&release_check='+Date.now(),{headers:{'Cache-Control':'no-cache'}});
+              const html=response.ok?await response.text():'';
+              if(response.ok&&expected.every(v=>html.includes(v))){
+                console.log('Verified deployed live index cache versions and status',response.status);
+                return;
+              }
+              console.log('Awaiting GitHub Pages deployment:',tries+1,'response',response.status);
+              await new Promise(resolve=>setTimeout(resolve,5000));
+            }
+            throw new Error('Live Læria index did not deploy exact reviewed styles');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Verify remote iPad geometry, 2. klasse, art decoding and mathematics routes
+        env:
+          QA_URL: https://almenning.github.io/Flyt-app/laer-litt-mer/?app=laria
+          LARIA_MATH_PREMIUM_QA: /tmp/laria-live-premium/grade
+          LARIA_MATH_BACKDROP_QA: /tmp/laria-live-premium/backdrops
+        run: |
+          node --check tests/laria-tallvika-ipad-utility-spacing.playwright.js
+          node --check tests/laria-matte-premium-backdrop.playwright.js
+          node tests/laria-tallvika-ipad-utility-spacing.playwright.js
+          node tests/laria-matte-premium-backdrop.playwright.js
+      - name: Preserve live deployment screenshots and result JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-live-matte-premium-20261122
+          path: /tmp/laria-live-premium
+          retention-days: 14
+          if-no-files-found: warn
