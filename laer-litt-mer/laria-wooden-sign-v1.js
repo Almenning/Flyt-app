@@ -27,8 +27,9 @@
   rail.querySelectorAll('button.laria-wayfinder').forEach(button=>{
    const action=actionFor(button),surface=surfaceFor(button),label=labelFor(button);
    const reviewV3=!!(options.sourceDerived&&options.sourceVariant===3&&action==='words');
-   const originalSourceReview=!!(options.sourceDerived&&(options.sourceVariant===4||options.sourceVariant===5)&&action==='words');
+   const originalSourceReview=!!(options.sourceDerived&&(options.sourceVariant===4||options.sourceVariant===5||options.sourceVariant===6)&&action==='words');
    const roundSourceReview=originalSourceReview&&options.sourceVariant===5;
+   const preservedFlagReview=originalSourceReview&&options.sourceVariant===6;
    if(options.only&& !options.only.includes(action))return;
    button.classList.add('laria-wooden-sign');surface.classList.add('laria-wooden-sign-surface');
    if(options.sourceDerived&&action==='words'){
@@ -36,6 +37,7 @@
     if(reviewV3)button.classList.add('laria-words-sign-art-v3');
     if(originalSourceReview)button.classList.add('laria-words-sign-original-source');
     if(roundSourceReview)button.classList.add('laria-words-sign-original-english-round');
+    if(preservedFlagReview)button.classList.add('laria-words-sign-original-flag');
     button.dataset.lariaWordsArt=originalSourceReview?'source-loading':reviewV3?'v3':'v2';
     // Kinnaklova still ships a legacy, !important arrow background rule for
     // its three original hotspots.  The review candidate is an explicit
@@ -156,7 +158,7 @@
     posts.setAttribute('aria-hidden','true');button.append(posts);
    }
    if(originalSourceReview){
-    const sourceArt=roundSourceReview?window.LariaSourceExactSignV2:window.LariaSourceExactSignV1;
+    const sourceArt=preservedFlagReview?window.LariaSourceExactSignV3:roundSourceReview?window.LariaSourceExactSignV2:window.LariaSourceExactSignV1;
     if(!sourceArt){
      button.dataset.lariaSourceArt='blocked';
      button.dataset.lariaSourceError='Source-pixel module not loaded';
