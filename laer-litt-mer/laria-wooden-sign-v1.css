@@ -460,3 +460,17 @@
  .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
  > nav.laria-scene-navigation.laria-english-source-group
  > button.laria-english-group-board { z-index:1!important; }
+
+
+/* Compact landscape iPad: native aspect-ratio planks previously consumed
+ * all space above the painted church roof, leaving no visibly grounded
+ * posts. Reduce THIS opt-in source group, never default English or Home.
+ * The longer exposed supports now end before the roof. */
+@media (min-width:768px) and (orientation:landscape) and (max-height:850px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail.laria-english-source-group {
+  --ref-menu-width:clamp(280px,29vw,312px)!important;
+  --laria-group-tail:clamp(36px,4.65vh,43px)!important;
+ }
+}
