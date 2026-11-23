@@ -121,6 +121,12 @@ async function verify(page,nav,viewport){
   '1024x768':385,'1366x1024':506 }[viewport.width+'x'+viewport.height];
  assert.ok(Number.isFinite(roof)&&foot<=roof,
   'Source post art intrudes into church roof rather than the landscape: '+JSON.stringify({foot,roof}));
+ if(viewport.width>viewport.height&&viewport.height<=850){
+  const bottomBoard=data.items[2].rect[3];
+  assert.ok(data.items[0].width<=320&&foot-bottomBoard>=32,
+   'Compact iPad has oversized planks or floating post feet: '+
+   JSON.stringify({viewport,boardWidth:data.items[0].width,foot,bottomBoard}));
+ }
  return data;
 }
 async function run(engine,engineName,device,viewport){
