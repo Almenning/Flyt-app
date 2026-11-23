@@ -33,7 +33,8 @@
     const medal=board.querySelector(':scope > .laria-wooden-sign-medallion');
     if(!label||!medal)throw Error('Source group lacks a semantic label or icon');
     board.dataset.lariaEnglishSourceBoard=id;
-    set(board,'background','url("'+art.png+'") center/100% 100% no-repeat');
+    set(board,'background','url("'+(id==='words'?art.png:art.taskPng)+'") center/100% 100% no-repeat');
+    board.dataset.lariaMedalSource=id==='words'?'original-flag':'source-reconstructed-engraving';
     set(board,'aspect-ratio','307 / 82');
     set(board,'min-height','76px');
     set(board,'width','100%');
@@ -52,11 +53,10 @@
     set(label,'color','#2b180b');
     set(label,'text-align','center');
     set(label,'text-shadow','0 1px 0 #ffe2a4');
-    // The original Union Jack is unmodified on Words. Sentences/Reading
-    // need new symbols, so ONLY their flag interior is covered; the original
-    // round wood rim remains intact. The inset disc is now large enough to
-    // cover the Union Jack instead of leaving red/white flags around it.
-    // This is NOT a claim of 100% icon pixel identity.
+    // Words retains the real illustrated UK flag and original carved rim.
+    // Sentences/Reading share a NEW INNER disc reconstructed in the bitmap
+    // from its SHA-locked wood texture. The surrounding round frame is still
+    // ORIGINAL pixels. Only task glyphs are rendered separately over the disc.
     if(id==='words'){
      medal.textContent='';
      set(medal,'display','none');
@@ -66,21 +66,21 @@
      set(medal,'display','grid');
      set(medal,'place-items','center');
      set(medal,'visibility','visible');
-     set(medal,'left','18%');
+     set(medal,'left','19.1%');
      set(medal,'top','57.3%');
      set(medal,'transform','translateY(-50%)');
-     set(medal,'width','21.4%');
+     set(medal,'width','19%');
      set(medal,'height','auto');
      set(medal,'aspect-ratio','1');
      set(medal,'border-radius','50%');
      set(medal,'border','0');
-     set(medal,'background','radial-gradient(circle at 32% 24%,#764626 0%,#4c2915 56%,#29180d 100%)');
-     set(medal,'box-shadow','inset 0 2px 3px #1c0c06a6');
+     set(medal,'background','none');
+     set(medal,'box-shadow','none');
      set(medal,'color','#ffe5a0');
      const icon=medal.querySelector('svg');
      if(icon){
       set(icon,'display','block');
-      set(icon,'width','64%');set(icon,'height','64%');
+      set(icon,'width','69%');set(icon,'height','69%');
       set(icon,'fill','none');
       set(icon,'stroke','#ffe5a0');
       set(icon,'stroke-width','2.4');
