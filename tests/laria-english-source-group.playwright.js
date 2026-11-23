@@ -8,8 +8,9 @@ const path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const SHA='9019d2d7be86d0f96d59770c0d141b935b1c4195fecc4e1dcfbf531ce226e028';
+const POST_VARIANT=process.env.LARIA_ENGLISH_POST_VARIANT==='2'?'2':'1';
 const BASE=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+
- '&lariaEnglishSignGroupCandidate=2';
+ '&lariaEnglishSignGroupCandidate='+(POST_VARIANT==='2'?'3':'2');
 const OUT=process.env.LARIA_ENGLISH_SOURCE_GROUP_SHOTS||'/tmp/laria-english-source-group';
 const DEVICES=[
  ['820x1180',{width:820,height:1180}],
@@ -87,7 +88,32 @@ async function verify(page,nav,viewport){
   const centerIndex=(47*307+88)*4;
   const innerWood=[...engraved.slice(centerIndex,centerIndex+3)];
   const supports=await load(posts?getComputedStyle(posts).backgroundImage:'');
-  return {sha:el.dataset.lariaEnglishSourceSha,source:el.dataset.lariaEnglishSourceGroup,
+  const sourceArt=await window.LariaSourceExactSignV3.getArt();
+  const sampleWood=async url=>{
+   const img=new Image();img.src=url;await img.decode();
+   const temp=document.createElement('canvas');temp.width=307;temp.height=390;
+   const c=temp.getContext('2d',{willReadFrequently:true});
+   c.drawImage(img,0,0);
+   return c.getImageData(0,0,307,390).data;
+  };
+  const activePixels=await sampleWood(url(posts?getComputedStyle(posts).backgroundImage:''));
+  const oldPixels=await sampleWood(sourceArt.postPng);
+  let postDifference=0;
+  for(let y=75;y<325;y+=3)for(const [start,end] of [[65,95],[219,248]])
+   for(let x=start;x<end;x+=3){
+    const at=(y*307+x)*4;
+    const distance=Math.abs(activePixels[at]-oldPixels[at])+
+     Math.abs(activePixels[at+1]-oldPixels[at+1])+
+     Math.abs(activePixels[at+2]-oldPixels[at+2]);
+    if(distance>15)postDifference++;
+   }
+  const footOpacity=[(385*307+82)*4+3,(385*307+235)*4+3]
+   .map(index=>activePixels[index]);
+  const postCapOpacity=[(22*307+84)*4+3,(35*307+236)*4+3]
+   .map(index=>activePixels[index]);
+  return {postDifference,footOpacity,postCapOpacity,
+   sha:el.dataset.lariaEnglishSourceSha,source:el.dataset.lariaEnglishSourceGroup,
+   postVariant:el.dataset.lariaEnglishPostsVariant,
    rail:[rail.left,rail.top,rail.right,rail.bottom],
    posts:p?[p.left,p.top,p.right,p.bottom]:null,
    sourcePostsCount:el.querySelectorAll(':scope > .laria-english-source-posts').length,
@@ -95,6 +121,14 @@ async function verify(page,nav,viewport){
    plank,taskPlank,protectedFrame,innerWood,supports,items};
  });
  assert.equal(data.source,'ready');
+ assert.equal(data.postVariant,POST_VARIANT,'A/B source post variant was not selected correctly');
+ if(POST_VARIANT==='2'){
+  assert.ok(data.postDifference>300,'The source-wood V2 supports did not materially replace the blurred V1 sample');
+  assert.ok(data.postCapOpacity.every(a=>a>100),'Original wooden caps are missing');
+  assert.ok(data.footOpacity.every(a=>a<150),'Wooden feet terminate abruptly rather than in vegetation');
+ }else{
+  assert.equal(data.postDifference,0,'Legacy source V1 sprite changed when only V2 is under review');
+ }
  assert.equal(data.sha,SHA,'Original Grovanova source SHA mismatch');
  assert.deepEqual(data.plank,{width:307,height:82});
  assert.deepEqual(data.taskPlank,{width:307,height:82});
