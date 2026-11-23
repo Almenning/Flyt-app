@@ -79,13 +79,23 @@
   if(!nav||nav.dataset.lariaBotanicalForeground)return false;
   nav.dataset.lariaBotanicalForeground='loading';
   try{
-   const posts=nav.querySelector(':scope > .laria-english-source-posts');
-   const last=nav.querySelector(':scope > button[data-ki="reading"]');
+   // The parent Kinnaklova world is already checked by the scene's
+   // source-sign mounting contract. The old art-ready check could race
+   // the asynchronous foreground mount and erroneously block it.
+   // Guard the actual mounted three-board group, not an unrelated flag.
+   const posts=nav.querySelector('.laria-english-source-posts');
+   const last=nav.querySelector('button[data-ki="reading"]');
    const world=nav.closest('#kinnaklova-world');
-   if(!posts||!last||!world||world.dataset.kiArt!=='ready'||
-      nav.dataset.lariaEnglishPostsVariant!=='2'||
-      nav.dataset.lariaEnglishSourceGroup!=='ready')
-    throw Error('Verified premium English 3-board source group required');
+   const ready=Boolean(posts&&last&&world&&
+      nav.dataset.lariaEnglishPostsVariant==='2'&&
+      nav.dataset.lariaEnglishSourceGroup==='ready');
+   if(!ready)
+    throw Error('Verified source group missing: '+JSON.stringify({
+     posts:!!posts,reading:!!last,world:!!world,
+     worldArt:world?.dataset.kiArt,
+     variant:nav.dataset.lariaEnglishPostsVariant,
+     group:nav.dataset.lariaEnglishSourceGroup
+    }));
    const art=await window.LariaSourceExactSignV3?.getArt?.();
    if(!art||art.sourceSha!==SHA||nav.dataset.lariaEnglishSourceSha!==SHA)
     throw Error('Signs and flowers do not share the locked Grovanova source SHA');
