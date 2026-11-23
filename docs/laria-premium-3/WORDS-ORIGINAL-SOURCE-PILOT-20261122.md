@@ -24,6 +24,21 @@ V2/V3 forsøkte å imitere en eksisterende treplanke med CSS- og generert kunst.
 - Andre skilt (**Sentences**, **Reading**) endres ikke i denne piloten. V2/V3-testene og vanlig appvisning er bevart.
 - Stolpe-/terrengtilpasning i denne piloten er **ikke** endelig; originalens kraftigere, kildebaserte stolper må fortsatt bygges og godkjennes separat.
 
+## 23. november 2026: original Engelsk-planke med ekte rund medaljong (ny kandidat V5)
+
+**Faktisk visuell QA av forrige kildevarianten `lariaWordsSignCandidate=3`:** tekniske tester var grønne, men reelle Chromium/WebKit-skjermer viser et firkantet «ABC»-merke som ikke følger den låste Engelsk-illustrasjonen, og de to øvrige engelske skiltene er fortsatt gamle. Derfor ble dette **ikke** eiergodkjent.
+
+En **separat, fortsatt ikke-godkjent** kandidat er nå implementert som `lariaWordsSignCandidate=4`:
+
+- Ny runtime: `laer-litt-mer/laria-source-exact-sign-v2.js`, kun ved eksplisitt parameter. Den **kildeklipper det originale Engelsk-skiltet**, ikke Norsk-planken eller den forkastede V3-kunsten.
+- Kilderektangel: `x=43,y=531,bredde=307,høyde=82` fra nøyaktig samme SHA-låste Grovanova-original. Kildens plankeform, nagler, varmt tre, konturer og **mørke runde relieffring** blir med.
+- Kun innmalt «Engelsk»-tekst i det avgrensede midtfeltet og innmalt Union Jack **innenfor den runde ringen** rekonstrueres. Det kan ikke påstås at disse endrede pikslene er originale. Ny «Words»/«ABC»-tekst er ekte DOM-lag.
+- Ingen betalt leverandør, ingen ny AI-kunst, ingen endring i originale Home/Kinnaklova-mestere eller eksisterende læringsfunksjoner.
+- V2/V3 og tidligere kildevarianten (`=3`) beholdes for etterprøving. Nye Playwright-kontroller i `tests/laria-words-source-round.playwright.js` krever tre pikselidentiske kontrollpunkter utenfor endret tekst/ikon, kildeoppløsning 307×82, SHA, fungerende Words-rute og reelle Chromium/WebKit-bilder for iPad stående/liggende.
+- **Stolper og resten av engelskgruppen gjenstår fortsatt.** For å unngå et nytt falskt «100 % likt»-løfte skal det ikke sies at den samlede skiltgruppen er ferdig når bare denne ene planken er endret.
+
+**Godkjenningsport:** Egen visuell vurdering av bildene fra V5 mot låst Hjem-Engelsk ved sammenlignbar skala. Hvis gammel tekst skinner gjennom, flaggrester syns i kanten, eller relieffet er feil, behold status *ikke godkjent*. CI er bare teknisk kontroll.
+
 ## Eksakt-head kvalitetssikring
 
 `tests/laria-words-source-original.playwright.js` og workflow `laria-words-sign-candidate.yml` kontrollerer:
