@@ -130,7 +130,7 @@ async function verify(page,nav,viewport){
   assert.ok(b.aria?.includes(LABELS[i]),'Accessible label missing: '+b.action);
   assert.ok(b.glyph&&b.glyph[0]>=left+b.width*.35&&b.glyph[2]<=right-5,
    'Board lettering is clipped or collides with original round medallion: '+b.action);
-  assert.ok(b.fontSize>=23,'Source label is too small');
+  assert.ok(b.fontSize>=26,'Source label is too small compared with locked Grovanova serif');
   if(i)assert.ok(top>=data.items[i-1].rect[3]+2,'Planks overlap');
   if(i===0)assert.equal(b.medalDisplay,'none','Words must retain the original British flag');
   else{
