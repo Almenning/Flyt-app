@@ -73,8 +73,8 @@
    const cx=88,cy=47;
    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
     const radius=Math.hypot(x-cx,y-cy);
-    if(radius>29)continue;
-    const blend=clamp((29-radius)/1.8,0,1);
+    if(radius>30.5)continue;
+    const blend=clamp((30.5-radius)/1.4,0,1);
     const dst=(y*w+x)*4;
     const grain=1+.045*Math.sin(x*.23+y*.14);
     const rim=radius>23?.95:1;
