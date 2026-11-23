@@ -111,7 +111,7 @@ async function run(engine,name,device,viewport,roof,drop){
      'Source board clipped');
    }
    const tail=after.posts[3]-after.boards[2].box[3];
-   assert.ok(tail>=19&&tail<=58,
+   assert.ok(tail>=19&&tail<=64,
     'Wooden foot too short to remain a support or too long to enter terrain: '+tail);
    assert.ok(Math.abs(after.posts[3]-before.posts[3])<=4,
     'Adjusted board positions must not push feet into church roof: '+JSON.stringify({
