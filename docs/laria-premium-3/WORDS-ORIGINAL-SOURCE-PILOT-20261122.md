@@ -39,6 +39,21 @@ En **separat, fortsatt ikke-godkjent** kandidat er nå implementert som `lariaWo
 
 **Godkjenningsport:** Egen visuell vurdering av bildene fra V5 mot låst Hjem-Engelsk ved sammenlignbar skala. Hvis gammel tekst skinner gjennom, flaggrester syns i kanten, eller relieffet er feil, behold status *ikke godkjent*. CI er bare teknisk kontroll.
 
+## 23. november: Én kildebasert skiltgruppe (opt-in review v2)
+
+**Ny kandidat `?app=laria&lariaEnglishSignGroupCandidate=2`. IKKE EIERGODKJENT / IKKE MERGET / IKKE PUBLISERT.**
+
+Bildene fra den tidligere `Words`-kandidaten ble funksjonelt godkjent i Chromium/WebKit, men viste én stor originalplanke og to små, gamle pilskilt med separate støttebein. Den visuelle helheten var derfor fortsatt ikke oppnådd.
+
+Dette oppsettet er den første **samlede** English/Kinnaklova-kandidaten med originalkilde:
+- Bruker samme eksakte Grovanova/Engelsk-plankekilde (original 1448×1086, SHA-256 `9019d2d7...`, utsnitt 307×82) på alle tre reelle `data-ki`-knappene, med endret DOM-etikett Words / Sentences / Reading. Ingen ny CSS-treplankegenerering.
+- Én felles kildebasert **to-stolpe-ressurs**, generert i minnet fra faktisk originale Grovanova-piksler (trekapper og synlig aksel) ved kildeverifisering. Manglende/overmalte partier av stolpene i den flate originalen **må vertikalt forlenges/rekonstrueres**; dette er ikke piksel-for-piksel identisk med et usett originalmotiv. Den gamle CSS-/SVG-stolperailen skjules kun for denne kandidaten.
+- Words bruker **det uendrede britiske flagget** i originalens runde medaljong. Sentences/Reading har oppgaveegne SVG-ikoner på **mørk, tilpasset innerflate** mens den kildeoriginale ytterrammen består. Disse innersymbolene er nye og er **ikke** 100 % originale bildepiksler.
+- Original Kinnaklova fjell, kirke, trollet, Hjem, oppgaver, handlere og fremdriftslagring er urørte. Andre kandidater `?lariaEnglishSignGroupCandidate=1` og `?lariaWordsSignCandidate=1..5` beholdes separat.
+- Ny Playwright-test `tests/laria-english-source-group.playwright.js` gir reelle skjermbilder på **alle fem iPad-størrelser i Chromium og WebKit**, undersøker alle tre ekte knappene, nøyaktig én stolpegruppe, kilde-SHA og korrekt bildekilde og at stolpeføtter ikke treffer kirketaket. Den åpner de originale Words/Sentences/Reading-rutene.
+
+**Visuell sperre:** Før denne kan bli ny master, må de reelle iPad-bildene kontrolleres for kildeform, tekstfjerning, nok terrengkontakt, at medaljong-ikonene ikke ser kunstige ut, og om alle tre plankene faktisk har samme størrelse og skiltstil. Grønne Playwright-tester betyr bare teknisk kontroll. Ingen utrulling i normal visning uten eksplisitt eiergodkjenning.
+
 ## Eksakt-head kvalitetssikring
 
 `tests/laria-words-source-original.playwright.js` og workflow `laria-words-sign-candidate.yml` kontrollerer:
