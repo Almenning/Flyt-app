@@ -139,6 +139,7 @@
     // Keep the PHOTO-GRAPHIC flag, not an artificial new medal layer.
     medal.textContent='';
     medal.setAttribute('aria-hidden','true');
+    medal.style.setProperty('background','none','important');
     medal.style.setProperty('display','none','important');
     medal.style.setProperty('visibility','hidden','important');
    }
