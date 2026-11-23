@@ -8,9 +8,10 @@ const path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const SHA='9019d2d7be86d0f96d59770c0d141b935b1c4195fecc4e1dcfbf531ce226e028';
-const POST_VARIANT=process.env.LARIA_ENGLISH_POST_VARIANT==='2'?'2':'1';
+const VEGETATION_REVIEW=process.env.LARIA_ENGLISH_VEGETATION_REVIEW==='1';
+const POST_VARIANT=VEGETATION_REVIEW?'2':process.env.LARIA_ENGLISH_POST_VARIANT==='2'?'2':'1';
 const BASE=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+
- '&lariaEnglishSignGroupCandidate='+(POST_VARIANT==='2'?'3':'2');
+ '&lariaEnglishSignGroupCandidate='+(VEGETATION_REVIEW?'4':POST_VARIANT==='2'?'3':'2');
 const OUT=process.env.LARIA_ENGLISH_SOURCE_GROUP_SHOTS||'/tmp/laria-english-source-group';
 const DEVICES=[
  ['820x1180',{width:820,height:1180}],
@@ -38,6 +39,9 @@ async function scene(page){
   '[data-laria-reference-mode="activities"] > nav.laria-english-source-group'+
   '[data-laria-english-source-group="ready"]');
  await nav.waitFor({state:'visible',timeout:45000});
+ if(VEGETATION_REVIEW)
+  await page.waitForFunction(()=>document.querySelector('#kinnaklova-world nav.laria-english-source-group')
+   ?.dataset.lariaVegetationOcclusion==='ready',null,{timeout:35000});
  return nav;
 }
 async function verify(page,nav,viewport){
@@ -88,6 +92,26 @@ async function verify(page,nav,viewport){
   const centerIndex=(47*307+88)*4;
   const innerWood=[...engraved.slice(centerIndex,centerIndex+3)];
   const supports=await load(posts?getComputedStyle(posts).backgroundImage:'');
+  const canvas=posts?.querySelector(':scope > canvas.laria-english-vegetation-occlusion');
+  let vegetation=null;
+  if(canvas){
+   const image=canvas.getContext('2d',{willReadFrequently:true})
+    .getImageData(0,0,canvas.width,canvas.height);
+   const yStart=Number(canvas.dataset.rootY);
+   let opaque=0,upper=0,root=0,positive=0;
+   for(let y=0;y<canvas.height;y+=2)for(let x=0;x<canvas.width;x+=2){
+    const alpha=image.data[(y*canvas.width+x)*4+3];
+    if(alpha>20){opaque++;if(y<yStart-8)upper++;else root++;}
+    if(alpha>0)positive++;
+   }
+   vegetation={source:canvas.dataset.source,
+    rootY:yStart,covered:Number(canvas.dataset.occludedPixels),
+    footPixels:Number(canvas.dataset.footPixels),
+    nativeWidth:Number(canvas.dataset.masterWidth),
+    nativeHeight:Number(canvas.dataset.masterHeight),
+    canvas:[canvas.width,canvas.height],
+    opaque,upper,root,positive,pointerEvents:getComputedStyle(canvas).pointerEvents};
+  }
   const sourceArt=await window.LariaSourceExactSignV3.getArt();
   const sampleWood=async url=>{
    const img=new Image();img.src=url;await img.decode();
@@ -118,9 +142,21 @@ async function verify(page,nav,viewport){
    posts:p?[p.left,p.top,p.right,p.bottom]:null,
    sourcePostsCount:el.querySelectorAll(':scope > .laria-english-source-posts').length,
    legacyPosts:getComputedStyle(el,'::before').display,
-   plank,taskPlank,protectedFrame,innerWood,supports,items};
+   plank,taskPlank,protectedFrame,innerWood,supports,vegetation,items};
  });
  assert.equal(data.source,'ready');
+ if(VEGETATION_REVIEW){
+  assert.ok(data.vegetation,'Vegetation review did not mount the source-pixel foreground');
+  assert.equal(data.vegetation.source,'kinnaklova-approved-master-pixels');
+  assert.deepEqual([data.vegetation.nativeWidth,data.vegetation.nativeHeight],[1672,941]);
+  assert.equal(data.vegetation.pointerEvents,'none','Foreground must not intercept child taps');
+  assert.ok(data.vegetation.covered>35&&data.vegetation.footPixels>180&&
+   data.vegetation.root>15&&data.vegetation.upper===0,
+   'Approved scene foreground did not selectively mask ONLY the post roots: '+
+   JSON.stringify(data.vegetation));
+ }else{
+  assert.equal(data.vegetation,null,'Existing A/B controls must remain visually unchanged');
+ }
  assert.equal(data.postVariant,POST_VARIANT,'A/B source post variant was not selected correctly');
  if(POST_VARIANT==='2'){
   assert.ok(data.postDifference>300,'The source-wood V2 supports did not materially replace the blurred V1 sample');
@@ -204,7 +240,8 @@ async function run(engine,engineName,device,viewport){
   try{
    let nav=await scene(page);
    const facts=await verify(page,nav,viewport);
-   await page.screenshot({path:path.join(OUT,engineName+'-'+device+'-original-source-group.png'),
+   await page.screenshot({path:path.join(OUT,engineName+'-'+device+
+    (VEGETATION_REVIEW?'-source-vegetation':'-original-source-group')+'.png'),
     animations:'disabled'});
    const deep=device==='1024x1366'||device==='1366x1024';
    for(const action of (deep?ACTIONS:['words'])){
