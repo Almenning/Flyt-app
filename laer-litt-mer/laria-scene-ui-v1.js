@@ -91,7 +91,7 @@
    const params=new URLSearchParams(window.location.search);
    const wordsArtVersion=params.get('lariaWordsSignCandidate');
    const wordsCandidate=subject==='english'&&
-     (wordsArtVersion==='1'||wordsArtVersion==='2'||wordsArtVersion==='3');
+     (wordsArtVersion==='1'||wordsArtVersion==='2'||wordsArtVersion==='3'||wordsArtVersion==='4');
    // Isolated English three-board review. Never alters default English,
    // the two existing Words-only pilots, or the locked scene's artwork.
    const englishGroupReview=subject==='english'&&
@@ -100,7 +100,7 @@
      if(englishGroupReview)window.LariaWoodenSign?.mount?.(navigation,subject,
        {only:['words','sentences','reading'],illustratedGroup:true});
      else if(wordsCandidate)window.LariaWoodenSign?.mount?.(navigation,subject,
-       {only:['words'],sourceDerived:true,sourceVariant:wordsArtVersion==='3'?4:wordsArtVersion==='2'?3:2});
+       {only:['words'],sourceDerived:true,sourceVariant:wordsArtVersion==='4'?5:wordsArtVersion==='3'?4:wordsArtVersion==='2'?3:2});
      else if(subject!=='english')window.LariaWoodenSign?.mount?.(navigation,subject);
    }
    // Preserve all activity action attributes, data-troll, individual landscape
