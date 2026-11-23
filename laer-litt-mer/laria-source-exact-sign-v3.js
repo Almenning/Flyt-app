@@ -80,8 +80,10 @@
    const r=art.data[off],g=art.data[off+1],b=art.data[off+2];
    if(g>r*1.03||b>g*1.07)art.data[off+3]=0;
   }
-  for(let y=366;y<390;y++){
-   const opacity=(390-y)/24;
+  // Soften just the last 14% of the two lower posts. The previous
+  // 24-pixel fade left an obvious cutoff floating above the hillside.
+  for(let y=336;y<390;y++){
+   const opacity=(390-y)/54;
    for(let x=0;x<307;x++)art.data[(y*307+x)*4+3]*=opacity;
   }
   ctx.putImageData(art,0,0);
