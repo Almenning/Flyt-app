@@ -54,6 +54,7 @@ async function verify(page,nav,viewport){
    return {action:button.dataset.ki,label:name?.textContent?.trim(),
     badgeWidth:badgeRect?.width,badgeLeft:badgeRect?.left,
     bg:getComputedStyle(button).backgroundImage,
+    medalSource:button.dataset.lariaMedalSource,
     medalDisplay:medal?getComputedStyle(medal).display:null,
     iconDisplay:ic?getComputedStyle(ic).display:null,
     medalBg:medal?getComputedStyle(medal).backgroundImage:null,
@@ -68,17 +69,41 @@ async function verify(page,nav,viewport){
    return {width:image.naturalWidth,height:image.naturalHeight};
   };
   const plank=await load(items[0].bg);
+  const taskPlank=await load(items[1].bg);
+  const renderImage=async css=>{
+   const im=new Image();im.src=url(css);await im.decode();
+   const canvas=document.createElement('canvas');canvas.width=307;canvas.height=82;
+   const context=canvas.getContext('2d',{willReadFrequently:true});
+   context.drawImage(im,0,0);
+   return context.getImageData(0,0,307,82).data;
+  };
+  const original=await renderImage(items[0].bg);
+  const engraved=await renderImage(items[1].bg);
+  const sameAt=([x,y])=>{
+   const k=(y*307+x)*4;
+   return [0,1,2,3].every(j=>original[k+j]===engraved[k+j]);
+  };
+  const protectedFrame=[[120,47],[88,14],[45,65],[280,43]].map(sameAt);
+  const centerIndex=(47*307+88)*4;
+  const innerWood=[...engraved.slice(centerIndex,centerIndex+3)];
   const supports=await load(posts?getComputedStyle(posts).backgroundImage:'');
   return {sha:el.dataset.lariaEnglishSourceSha,source:el.dataset.lariaEnglishSourceGroup,
    rail:[rail.left,rail.top,rail.right,rail.bottom],
    posts:p?[p.left,p.top,p.right,p.bottom]:null,
    sourcePostsCount:el.querySelectorAll(':scope > .laria-english-source-posts').length,
    legacyPosts:getComputedStyle(el,'::before').display,
-   plank,supports,items};
+   plank,taskPlank,protectedFrame,innerWood,supports,items};
  });
  assert.equal(data.source,'ready');
  assert.equal(data.sha,SHA,'Original Grovanova source SHA mismatch');
  assert.deepEqual(data.plank,{width:307,height:82});
+ assert.deepEqual(data.taskPlank,{width:307,height:82});
+ assert.deepEqual(data.protectedFrame,[true,true,true,true],
+  'Carved medal rim, nails or original oak pixels changed outside the icon centre');
+ const [red,green,blue]=data.innerWood;
+ assert.ok(red>=42&&red<=115&&green>=20&&green<=70&&blue<50&&red>green*1.35,
+  'Task medal has not replaced the original British flag with dark wooden relief: '+
+  JSON.stringify(data.innerWood));
  assert.deepEqual(data.supports,{width:307,height:390});
  assert.equal(data.sourcePostsCount,1,'Exactly one original-source two-post support required');
  assert.equal(data.legacyPosts,'none','Old vector supports still render under authentic posts');
@@ -90,8 +115,15 @@ async function verify(page,nav,viewport){
  const firstBg=data.items[0].bg;
  for(const [i,b] of data.items.entries()){
   const [left,top,right,bottom]=b.rect;
-  assert.ok(b.bg===firstBg&&firstBg.includes('data:image/png;base64'),
-   'A board is not using the same authentic pixel source: '+b.action);
+  assert.ok(firstBg.includes('data:image/png;base64')&&
+   b.bg.includes('data:image/png;base64'),
+   'Missing real original-source painted plank: '+b.action);
+  assert.equal(b.medalSource,i===0?'original-flag':'source-reconstructed-engraving',
+   'Source-labelled medal variant does not match intended activity');
+  assert.equal(b.bg===firstBg,i===0,
+   'Words should retain untouched UK flag; the other two share only the textured task variant');
+  if(i===2)assert.equal(b.bg,data.items[1].bg,
+   'Sentences and Reading must use identical engraved original-source relief artwork');
   assert.ok(b.canTap&&b.width>=265&&b.height>=75&&
    left>=-1&&right<=viewport.width+1&&top>=0&&bottom<=viewport.height+1,
    'Source group board is clipped or not clickable: '+JSON.stringify(b));
@@ -104,14 +136,12 @@ async function verify(page,nav,viewport){
   else{
    assert.notEqual(b.medalDisplay,'none','Task icon is missing');
    assert.notEqual(b.iconDisplay,'none','Task icon SVG is not visible');
-   assert.match(b.medalBg,/gradient/,'Task icon must remain inside original wooden frame');
-   // The previous small inset left visible red and white Union Jack fragments
-   // at its right edge. The new inset must cover the original 307px source
-   // flag interior while remaining inside its original carved rim.
-   assert.ok(b.badgeWidth>=b.width*.208&&b.badgeWidth<=b.width*.225,
-    'Source flag is not completely covered by the rounded badge: '+JSON.stringify(b));
-   assert.ok(b.badgeLeft>=left+b.width*.175&&
-    b.badgeLeft<=left+b.width*.19,'Task icon is off-centre in the original relief');
+   assert.equal(b.medalBg,'none',
+    'Retired synthetic CSS medal obscures the actual source-relief rim');
+   assert.ok(b.badgeWidth>=b.width*.18&&b.badgeWidth<=b.width*.20,
+    'Task icon has wrong scale within the carved medal: '+JSON.stringify(b));
+   assert.ok(b.badgeLeft>=left+b.width*.185&&
+    b.badgeLeft<=left+b.width*.199,'Task icon is off-centre in the source relief');
   }
  }
  assert.ok(data.posts&&data.posts[1]<data.items[0].rect[1]&&
