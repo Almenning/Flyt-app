@@ -5,8 +5,12 @@ on:
     paths:
       - 'laer-litt-mer/laria-wooden-sign-v1.*'
       - 'laer-litt-mer/laria-scene-ui-v1.js'
+      - 'laer-litt-mer/laria-source-exact-sign-v3.js'
+      - 'laer-litt-mer/laria-english-source-group-v1.js'
+      - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/assets/ui/words-sign-candidate/**'
       - 'tests/laria-english-sign-group.playwright.js'
+      - 'tests/laria-english-source-group.playwright.js'
       - '.github/workflows/laria-english-three-signs-review.yml'
 permissions:
   contents: read
@@ -27,7 +31,10 @@ jobs:
         run: |
           node --check laer-litt-mer/laria-wooden-sign-v1.js
           node --check laer-litt-mer/laria-scene-ui-v1.js
+          node --check laer-litt-mer/laria-source-exact-sign-v3.js
+          node --check laer-litt-mer/laria-english-source-group-v1.js
           node --check tests/laria-english-sign-group.playwright.js
+          node --check tests/laria-english-source-group.playwright.js
           node --test tests/laria-locked-sign-design-v1.test.cjs
       - name: Serve the exact draft commit
         run: python3 -m http.server 8765 --directory . >/tmp/laria-english-group-http.log 2>&1 &
@@ -36,11 +43,18 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_ENGLISH_GROUP_SHOTS: /tmp/laria-english-group
         run: node tests/laria-english-sign-group.playwright.js
+      - name: Verify native Grovanova source planks + one twin-post rail on 5 iPads
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_ENGLISH_SOURCE_GROUP_SHOTS: /tmp/laria-english-source-group
+        run: node tests/laria-english-source-group.playwright.js
       - name: Upload real screenshots and failure diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: laria-english-3-board-shared-posts-REVIEW-${{ github.event.pull_request.head.sha || github.sha }}
-          path: /tmp/laria-english-group
+          path: |
+            /tmp/laria-english-group
+            /tmp/laria-english-source-group
           retention-days: 21
           if-no-files-found: warn
