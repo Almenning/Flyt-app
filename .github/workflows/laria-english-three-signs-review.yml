@@ -47,6 +47,13 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_ENGLISH_GROUP_SHOTS: /tmp/laria-english-group
         run: node tests/laria-english-sign-group.playwright.js
+      - name: Smoke-test original flower preview with fast failure diagnostics
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_BOTANICAL_SMOKE: '1'
+          LARIA_ENGLISH_BOTANICAL_REVIEW: '1'
+          LARIA_ENGLISH_SOURCE_GROUP_SHOTS: /tmp/laria-english-source-group/v4-smoke
+        run: node tests/laria-english-source-group.playwright.js
       - name: A/B Grovanova source rail V1 and refined wood V2 – 5 iPads each
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
