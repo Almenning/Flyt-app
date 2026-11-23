@@ -1,0 +1,68 @@
+name: Læria – kildebasert treskilt, kun kunstgjennomgang
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/laria_art/build_locked_sign_plank_candidate.py"
+      - ".github/workflows/laria-source-derived-wooden-sign-review.yml"
+      - "laer-litt-mer/assets/ui/locked-reference/laria-sign-master-v1.png"
+permissions:
+  contents: read
+jobs:
+  source-derived-art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deterministic image dependencies
+        run: python -m pip install --disable-pip-version-check Pillow==11.2.1 numpy==2.2.6
+      - name: Generate actual plank crop; refuse altered SHA
+        run: |
+          python -m py_compile tools/laria_art/build_locked_sign_plank_candidate.py
+          python tools/laria_art/build_locked_sign_plank_candidate.py --output-dir /tmp/laria-source-derived-sign-review
+      - name: Assert candidate alpha and labels; never rewrite locked source
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          import hashlib, json
+          out=Path('/tmp/laria-source-derived-sign-review')
+          r=json.loads((out/'NOT-APPROVED.json').read_text())
+          assert r['status']=='SOURCE-DERIVED-ART-PILOT-NOT-APPROVED'
+          assert r['app_runtime_changed'] is False
+          assert r['production_ready'] is False
+          m=Path('laer-litt-mer/assets/ui/locked-reference/laria-sign-master-v1.png')
+          assert hashlib.sha256(m.read_bytes()).hexdigest()==r['locked_master_sha256']
+          for name in ['blank-wooden-plank-CANDIDATE.png','words-CANDIDATE.png',
+                       'sentences-CANDIDATE.png','reading-CANDIDATE.png']:
+            with Image.open(out/name) as im:
+              assert im.mode=='RGBA' and im.size==(1395,366),name
+              assert im.getchannel('A').getextrema()==(0,255)
+          print('PASS: verified 4 transparent, unapproved original-derived art candidates')
+          PY
+      - name: Include the exact Grovanova source for source-pixel comparison
+        run: |
+          cp laer-litt-mer/assets/home-v16/laria-grovanova-v16-landscape-original.png /tmp/laria-source-derived-sign-review/locked-grovanova-landscape-ORIGINAL.png
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          import json, hashlib
+          img=Path('/tmp/laria-source-derived-sign-review/locked-grovanova-landscape-ORIGINAL.png')
+          with Image.open(img) as im:
+            assert im.size==(1448,1086),f'Unexpected locked Grovanova source size: {im.size}'
+          info={'source_repo_path':'laer-litt-mer/assets/home-v16/laria-grovanova-v16-landscape-original.png','sha256':hashlib.sha256(img.read_bytes()).hexdigest(),'resolution':[1448,1086],'retouched':False}
+          (img.parent/'ORIGINAL-SOURCE-MANIFEST.json').write_text(json.dumps(info,indent=2)+'\n')
+          PY
+      - name: Upload PNG art for owner review only, not for deployment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-wooden-sign-source-art-NOT-APPROVED-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-source-derived-sign-review
+          retention-days: 21
+          if-no-files-found: warn

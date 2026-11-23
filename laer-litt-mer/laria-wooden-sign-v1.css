@@ -1,0 +1,512 @@
+/* Locked Sign Design V1. The PNG master is a visual reference only;
+ * labels and hit targets stay in semantic DOM buttons. */
+.laria-wooden-sign-rail {
+  --laria-wooden-sign-serif: Georgia, "Times New Roman", serif;
+  --laria-wooden-sign-ink: #2e1a0c;
+  --laria-wooden-sign-plank:radial-gradient(ellipse at 22% 48%,transparent 0 14%,#6f3c1d22 15% 17%,transparent 18% 25%),radial-gradient(ellipse at 76% 50%,transparent 0 11%,#6f3c1d24 12% 14%,transparent 15% 22%),repeating-linear-gradient(4deg,#b96f31 0 2px,#dca85e 3px 7px,#96602c 8px 10px),linear-gradient(180deg,#f2c978,#b86d30 52%,#81421d);
+  isolation:isolate;
+}
+
+/* Existing two-post art is retained until the approved master has separately
+ * exported post layers. This never changes a locked background bitmap. */
+.laria-wooden-sign-rail::before {
+  background-image:linear-gradient(90deg,#4c2b14,#966034 20%,#d2a15f 48%,#77431f 74%,#412410);
+  background-size:100% 100%; filter:drop-shadow(0 6px 5px #25140699);
+}
+
+.laria-wooden-sign-surface,
+.laria-wooden-sign:not(.eg-scene-hit) {
+  position:relative; isolation:isolate; overflow:visible;
+  background:var(--laria-wooden-sign-plank);
+  border:2px solid #6e3818; border-radius:15% 10% 10% 15% / 26% 22% 22% 26%;
+  box-shadow:inset 0 2px 0 #ffe2a0,inset 0 -5px 0 #653117,0 5px 0 #5a2c15,0 10px 13px #28160666;
+  color:var(--laria-wooden-sign-ink); text-shadow:0 1px 0 #ffe4aa;
+  font-family:var(--laria-wooden-sign-serif); font-weight:800; letter-spacing:-.025em;
+}
+.laria-wooden-sign:not(.eg-scene-hit) { padding-left:calc(clamp(19px,2vw,28px) + 42px); }
+.eg-scene-hit.laria-wooden-sign > .laria-wooden-sign-surface { padding-left:calc(clamp(19px,2vw,28px) + 42px); }
+
+.laria-wooden-sign-surface::before,.laria-wooden-sign-surface::after,
+.laria-wooden-sign:not(.eg-scene-hit)::before,.laria-wooden-sign:not(.eg-scene-hit)::after {
+  content:""; display:block; position:absolute; top:50%; width:9px; height:9px; border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#fff0bc 0 16%,#9b6b3e 20% 52%,#452714 57% 100%);
+  box-shadow:0 1px 1px #2a160aaa; z-index:2;
+}
+.laria-wooden-sign-surface::before,.laria-wooden-sign:not(.eg-scene-hit)::before { left:11px; }
+.laria-wooden-sign-surface::after,.laria-wooden-sign:not(.eg-scene-hit)::after { right:11px; }
+
+.laria-wooden-sign-medallion {
+  position:absolute; left:clamp(15px,1.35vw,21px); top:50%; transform:translateY(-50%);
+  width:31px; height:31px; display:grid; place-items:center; border:2px solid #e4af63; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#b88448 0 20%,#4a2814 25% 73%,#28150b 78%);
+  box-shadow:inset 0 1px 2px #f5d38b,0 2px 2px #44210f; color:#ffe4a3; z-index:3;
+}
+.laria-wooden-sign-medallion svg { width:18px; height:18px; }
+.laria-wooden-sign:focus-visible { outline:4px solid #fff5bc; outline-offset:4px; }
+@media (hover:hover) { .laria-wooden-sign:hover { filter:brightness(1.045); } }
+.laria-wooden-sign:active { transform:translateY(2px); }
+@media (prefers-reduced-motion:reduce) { .laria-wooden-sign { transition:none; } }
+
+/* Compatibility boundary for the older scene stylesheet, which already uses
+ * !important on every legacy arrow-surface declaration. Kept in this one
+ * adapter rather than adding per-scene overrides. */
+.laria-reference-layout-v1 .laria-wooden-sign-surface,
+.laria-reference-layout-v1 .laria-wooden-sign:not(.eg-scene-hit) {
+  background:var(--laria-wooden-sign-plank) !important;
+  border:2px solid #6e3818 !important; border-radius:15% 10% 10% 15% / 26% 22% 22% 26% !important;
+  box-shadow:inset 0 2px 0 #ffe2a0,inset 0 -5px 0 #653117,0 5px 0 #5a2c15,0 10px 13px #28160666 !important;
+  color:var(--laria-wooden-sign-ink) !important; font-family:var(--laria-wooden-sign-serif) !important;
+}
+.laria-reference-layout-v1 .laria-wooden-sign:not(.eg-scene-hit),
+.laria-reference-layout-v1 .eg-scene-hit.laria-wooden-sign > .laria-wooden-sign-surface {
+  padding-left:calc(clamp(19px,2vw,28px) + 42px) !important;
+}
+
+/* All three real painted activity buttons have powerful legacy
+ * background + font shorthand rules. Override only when the approved wooden
+ * sign component is mounted; never override the historical subject menu. */
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign,
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface {
+  background:var(--laria-wooden-sign-plank)!important;
+  border:2px solid #6e3818!important;
+  border-radius:15% 10% 10% 15% / 26% 22% 22% 26%!important;
+  box-shadow:inset 0 2px 0 #ffe2a0,inset 0 -5px 0 #653117,0 5px 0 #5a2c15,0 10px 13px #28160666!important;
+  font-family:var(--laria-wooden-sign-serif)!important;
+  color:var(--laria-wooden-sign-ink)!important;
+}
+
+/* The former light-arrow scene stylesheet declares high-specificity
+ * font shorthand !important on the *inner* label. Keep the owner-approved
+ * carved-serif text and dark wood ink on the real interactive sign face.
+ * Scope this compatibility edge to the new component so legacy subject
+ * selection and unrelated scenes retain their own visual contracts. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign
+  .tv-sign-label,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign {
+  font-family:var(--laria-wooden-sign-serif)!important;
+  color:var(--laria-wooden-sign-ink)!important;
+}
+
+/* Dedicated nailed faces: the old arrow stylesheet intentionally suppressed
+ * pseudo-elements. Here they are 9px metal rivets, NOT legacy wood posts. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface::before,
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface::after,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign::before,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign::after,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign::before,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign::after {
+  content:""!important;display:block!important;position:absolute!important;
+  top:calc(50% - 4.5px)!important;width:9px!important;height:9px!important;
+  border-radius:50%!important;z-index:2!important;
+  background:radial-gradient(circle at 34% 28%,#fff0bc 0 16%,#9b6b3e 20% 52%,#452714 57% 100%)!important;
+  box-shadow:0 1px 1px #2a160aaa!important;
+  pointer-events:none!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface::before,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign::before,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign::before {
+  left:11px!important;right:auto!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+  > span.laria-wooden-sign-surface::after,
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign::after,
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder.laria-wooden-sign::after {
+  right:11px!important;left:auto!important;
+}
+
+/* FINAL COMPONENT INNER-LABEL ALIGNMENT: the retired subject CSS uses
+ * generic '#eggenipa-world .eg-scene-hit span' rules which also matched the
+ * new medal's span, enlarging it into a brown rectangle OUTSIDE the oak
+ * board. Tallvika's old icon occupied the new label's space. These selectors
+ * only apply while the user-locked wooden component is actually mounted.
+ * No change to the older non-wooden menu or any illustrated artwork. */
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+ > span.laria-wooden-sign-surface {
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ box-sizing:border-box!important;gap:0!important;
+ padding:8px 14px 8px 65px!important;
+ font:800 clamp(15px,1.75vw,21px)/1.12 var(--laria-wooden-sign-serif)!important;
+ white-space:nowrap!important;transform:none!important;
+ text-align:left!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+ > span.laria-wooden-sign-surface > span.laria-wooden-sign-medallion {
+ position:absolute!important;display:grid!important;place-items:center!important;
+ top:50%!important;left:16px!important;right:auto!important;bottom:auto!important;
+ transform:translateY(-50%)!important;box-sizing:border-box!important;
+ width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;
+ max-width:36px!important;max-height:36px!important;flex:0 0 36px!important;
+ padding:0!important;margin:0!important;z-index:3!important;
+ border:2px solid #e4af63!important;border-radius:50%!important;
+ background:radial-gradient(circle at 35% 30%,#b88448 0 20%,#4a2814 25% 73%,#28150b 78%)!important;
+ box-shadow:inset 0 1px 2px #f5d38b,0 2px 2px #44210f!important;
+ color:#ffe4a3!important;text-shadow:none!important;opacity:1!important;
+}
+#eggenipa-world .eg-hero.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.eg-scene-hit.laria-wayfinder.laria-wooden-sign
+ > span.laria-wooden-sign-surface > span.laria-wooden-sign-medallion svg {
+ display:block!important;width:19px!important;height:19px!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign {
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ box-sizing:border-box!important;gap:0!important;
+ padding:7px 14px 7px 60px!important; text-align:left!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign
+ > .tv-sign-label {
+ display:block!important;position:relative!important;
+ flex:1 1 auto!important;min-width:0!important;width:auto!important;
+ margin:0!important;padding:0!important;transform:none!important;
+ font:800 clamp(15px,1.7vw,20px)/1.07 var(--laria-wooden-sign-serif)!important;
+ color:var(--laria-wooden-sign-ink)!important;white-space:nowrap!important;
+ overflow:visible!important;text-align:left!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign[data-tv="table"]
+ > .tv-sign-label {
+ font-size:clamp(14px,1.5vw,18px)!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.tv-sign.laria-wayfinder.laria-wooden-sign
+ > .laria-wooden-sign-medallion {
+ left:16px!important;top:50%!important;width:36px!important;height:36px!important;
+ transform:translateY(-50%)!important;
+}
+
+/* ENGLISH LOCKED SIGN INNER LABEL CLEARANCE:
+ * The Kinnaklova legacy .ki-plank-name inherited compact padding intended
+ * for a transparent painted-art hotspot. It placed the first letters of
+ * Words / Sentences / Reading BELOW the new oak medal. One stable layout,
+ * scoped to the carved activity surfaces only. */
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign {
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ box-sizing:border-box!important;gap:0!important;
+ padding:5px 12px 5px 61px!important;text-align:left!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign
+ > .ki-plank-name {
+ display:block!important;position:relative!important;inset:auto!important;
+ flex:1 1 auto!important;min-width:0!important;width:auto!important;
+ padding:0!important;margin:0!important;transform:none!important;
+ font:800 clamp(15px,1.75vw,20px)/1.09 var(--laria-wooden-sign-serif)!important;
+ color:var(--laria-wooden-sign-ink)!important;white-space:nowrap!important;
+ overflow:visible!important;text-align:left!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign
+ > .laria-wooden-sign-medallion {
+ left:16px!important;top:50%!important;width:36px!important;height:36px!important;
+ transform:translateY(-50%)!important;position:absolute!important;z-index:3!important;
+}
+
+/* Words: owner-review artwork pilot. The plank and ABC medal are transparent
+ * raster layers reconstructed from the locked sign plate — never gradients,
+ * CSS wood texture or a static menu image. Text stays DOM for accessibility.
+ * It is enabled only by ?lariaWordsSignCandidate=1. */
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate {
+ position:relative!important;isolation:isolate!important;overflow:visible!important;
+ width:clamp(310px,32vw,390px)!important;height:auto!important;min-height:78px!important;
+ aspect-ratio:1395/366!important;padding:0!important;border:0!important;border-radius:0!important;
+ background:url("./assets/ui/words-sign-candidate/words-plank-source-derived-v2.png") center/100% 100% no-repeat!important;
+ box-shadow:0 8px 11px #1d120a75!important;filter:none!important;
+ }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate::before,
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate::after { content:none!important;display:none!important; }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate > .ki-plank-name {
+ display:block!important;position:absolute!important;z-index:3!important;left:42%!important;right:7%!important;top:50%!important;
+ width:auto!important;min-width:0!important;margin:0!important;padding:0!important;transform:translateY(-54%)!important;
+ color:#2d180d!important;font:900 clamp(28px,3vw,38px)/1 Georgia,"Times New Roman",serif!important;
+ letter-spacing:-.035em!important;text-align:center!important;text-shadow:0 1px 0 #ffe2a4,1px 2px 1px #70401e66!important;white-space:nowrap!important;
+ }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate > .laria-wooden-sign-medallion {
+ position:absolute!important;z-index:4!important;left:16.3%!important;top:50%!important;transform:translateY(-50%)!important;
+ width:21.5%!important;height:auto!important;aspect-ratio:1!important;padding:0!important;border:0!important;border-radius:0!important;
+ background:url("./assets/ui/words-sign-candidate/words-medallion-v2.png") center/contain no-repeat!important;
+ box-shadow:none!important;color:transparent!important;
+ }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate > .laria-wooden-sign-medallion svg { display:none!important; }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate > .laria-words-sign-posts {
+ position:absolute!important;z-index:1!important;display:block!important;left:4%!important;right:4%!important;top:53%!important;height:190%!important;
+ background:url("./assets/ui/laria-grovanova-signposts.svg") center top/100% 100% no-repeat!important;pointer-events:none!important;
+ /* Hide the caps behind the board: only two grounded shafts emerge below it. */
+ clip-path:inset(27% 0 0)!important;
+ }
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation > button.ki-painted-hit.laria-wayfinder.laria-wooden-sign-source-candidate:focus-visible { outline:4px solid #fff3b9!important;outline-offset:5px!important; }
+
+/* ENGLISH GROUP ART REVIEW V1
+ * Opt-in only: ?lariaEnglishSignGroupCandidate=1. The original three
+ * data-ki action buttons share ONE pair of posts belonging to their nav.
+ * No individual per-board post pair and no overpainting of Kinnaklova art.
+ * Derived oak V3 remains a candidate, NOT an approved production asset. */
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail {
+ --ref-menu-width:clamp(286px,34vw,390px);
+ --laria-group-tail:clamp(14px,2.2vh,26px);
+ width:var(--ref-menu-width)!important;
+ top:var(--laria-group-top,16%)!important;
+ left:3%!important;right:auto!important;
+ gap:clamp(5px,1vh,10px)!important;
+ isolation:isolate!important;overflow:visible!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail::before {
+ content:""!important;display:block!important;position:absolute!important;
+ left:0!important;right:auto!important;top:-15px!important;
+ width:100%!important;height:calc(100% + var(--laria-group-tail) + 15px)!important;
+ background:url("./assets/ui/laria-grovanova-signposts.svg") center/100% 100% no-repeat!important;
+ z-index:-1!important;pointer-events:none!important;
+ filter:drop-shadow(0 5px 4px #1d150b63)!important;
+ /* Softly bury the feet into the existing rocky/green slope. They must
+  * NOT end visibly in midair or sit on the painted church roof. */
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 96%,transparent 100%)!important;
+ mask-image:linear-gradient(to bottom,#000 0%,#000 96%,transparent 100%)!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail
+ > button.ki-painted-hit.laria-english-group-board {
+ display:block!important;position:relative!important;box-sizing:border-box!important;
+ flex:0 0 auto!important;align-self:stretch!important;inset:auto!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ height:auto!important;min-height:76px!important;aspect-ratio:1100/292!important;
+ margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+ background:url("./assets/ui/words-sign-candidate/words-plank-illustrated-v3-REVIEW.webp")
+   center/100% 100% no-repeat!important;
+ box-shadow:none!important;
+ filter:drop-shadow(0 5px 4px #21140777)!important;
+ cursor:pointer!important;visibility:visible!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail
+ > button.laria-english-group-board::before,
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail
+ > button.laria-english-group-board::after {
+ content:none!important;display:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail
+ > button.laria-english-group-board > .ki-plank-name {
+ position:absolute!important;inset:auto!important;left:41%!important;right:5%!important;
+ top:50%!important;transform:translateY(-54%)!important;
+ width:auto!important;max-width:none!important;min-width:0!important;
+ margin:0!important;padding:0!important;overflow:visible!important;
+ font:900 clamp(22px,2.6vw,32px)/1 Georgia,"Times New Roman",serif!important;
+ letter-spacing:-.025em!important;white-space:nowrap!important;
+ text-align:center!important;color:#2d180d!important;
+ text-shadow:0 1px 0 #ffe4ad,1px 2px 1px #6c381d55!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail
+ > button.laria-english-group-board > .laria-wooden-sign-medallion {
+ position:absolute!important;display:block!important;
+ left:16%!important;top:50%!important;transform:translateY(-50%)!important;
+ box-sizing:border-box!important;width:22%!important;height:auto!important;
+ min-width:0!important;max-width:none!important;min-height:0!important;max-height:none!important;
+ aspect-ratio:1!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;z-index:4!important;pointer-events:none!important;
+}
+#kinnaklova-world .ki-stage.laria-reference-layout-v1
+ > nav.laria-english-group-rail > button.laria-english-group-board
+ > .laria-wooden-sign-medallion svg {display:none!important;}
+#kinnaklova-world .ki-stage.laria-reference-layout-v1
+ > nav.laria-english-group-rail > button.laria-english-group-board:focus-visible {
+ outline:4px solid #fff5bd!important;outline-offset:4px!important;
+}
+@media(min-width:768px) and (orientation:portrait){
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1 { --laria-group-top:17.5%; }
+}
+@media(min-width:768px) and (orientation:landscape){
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1 { --laria-group-top:max(74px,9.5%); }
+}
+
+
+/* Kinnaklova terrain contact, iPad-only REVIEW. The church roof is much
+ * closer to the last board in compact landscape than in portrait. Therefore
+ * the same long post tail must NOT be reused for all five iPad viewports.
+ * Match the exact legacy nav selector specificity; otherwise the old
+ * --laria-group-tail silently wins and before/after PNGs stay identical.
+ * Only the shared POSTS extend: the artwork and three action buttons stay
+ * byte-for-byte unchanged. The fade buries their ends into the hillside. */
+@media (min-width:768px) and (orientation:portrait) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"] > nav.laria-scene-navigation.laria-english-group-rail {
+  --laria-group-tail:clamp(62px,6vh,88px);
+ }
+}
+@media (min-width:768px) and (orientation:landscape) and (max-height:850px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"] > nav.laria-scene-navigation.laria-english-group-rail {
+  --laria-group-tail:clamp(9px,1.35vh,12px);
+ }
+}
+@media (min-width:768px) and (orientation:landscape) and (min-height:851px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"] > nav.laria-scene-navigation.laria-english-group-rail {
+  --laria-group-tail:clamp(40px,4.9vh,56px);
+ }
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail::before {
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 94%,transparent 100%)!important;
+ mask-image:linear-gradient(to bottom,#000 0%,#000 94%,transparent 100%)!important;
+}
+
+/* Legacy Geography hid every aria-hidden <span> to remove its green arrow.
+ * The new carved relief badge is aria-hidden, too, but must remain VISIBLE.
+ * Scope to LariaWoodenSign so the historical fallback is unaffected. */
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation
+ > button.gv-sign.laria-wayfinder.laria-wooden-sign
+ > span.laria-wooden-sign-medallion[aria-hidden="true"] {
+ box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;
+ visibility:visible!important;opacity:1!important;pointer-events:none!important;
+ position:absolute!important;left:16px!important;right:auto!important;
+ top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;
+ width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;
+ max-width:36px!important;max-height:36px!important;padding:0!important;margin:0!important;
+ border:2px solid #e4af63!important;border-radius:50%!important;
+ background:radial-gradient(circle at 35% 30%,#b88448 0 20%,#4a2814 25% 73%,#28150b 78%)!important;
+ box-shadow:inset 0 1px 2px #f5d38b,0 2px 2px #44210f!important;
+ color:#ffe4a3!important;text-shadow:none!important;z-index:3!important;
+}
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation
+ > button.gv-sign.laria-wayfinder.laria-wooden-sign
+ > span.laria-wooden-sign-medallion svg {
+ display:block!important;width:19px!important;height:19px!important;
+}
+
+/* Source-original English three-board rail, opt-in ?lariaEnglishSignGroupCandidate=2.
+ * Replaces the synthetic vector support pair only inside this review.
+ * Three real activity buttons remain on ONE common grounded post sprite. */
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail.laria-english-source-group::before {
+ content:none!important;display:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group
+ > .laria-english-source-posts {
+ position:absolute!important;left:0!important;right:0!important;
+ top:-19px!important;width:100%!important;
+ height:calc(100% + var(--laria-group-tail) + 19px)!important;
+ z-index:0!important;display:block!important;pointer-events:none!important;
+ filter:drop-shadow(0 4px 4px #24130580)!important;
+ background-size:100% 100%!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group
+ > button.laria-english-group-board { z-index:1!important; }
+
+
+/* Compact landscape iPad: native aspect-ratio planks previously consumed
+ * all space above the painted church roof, leaving no visibly grounded
+ * posts. Reduce THIS opt-in source group, never default English or Home.
+ * The longer exposed supports now end before the roof. */
+@media (min-width:768px) and (orientation:landscape) and (max-height:850px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail.laria-english-source-group {
+  --ref-menu-width:clamp(280px,29vw,312px)!important;
+  --laria-group-tail:clamp(36px,4.65vh,43px)!important;
+ }
+}
+
+
+/* Kinnaklova 3-board terrain fit: explicit owner REVIEW ONLY (=6).
+ * The flat source landscape is LOCKED. Do not draw new plants or
+ * move anything in Grovanova/Home. Bring the three real DOM boards
+ * towards the original brush line; shorten the visible source-wood
+ * posts by approximately the same amount. The post feet MUST still
+ * stop above the painted church roof in every supported iPad size.
+ * Rejected floral candidate (=5) is intentionally not activated. */
+@media (min-width:768px) and (orientation:portrait) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group.laria-english-terrain-fit {
+  --laria-terrain-drop:22px;
+  --laria-group-tail:clamp(40px,calc(6vh - 22px),66px)!important;
+  top:calc(var(--laria-group-top,17.5%) + var(--laria-terrain-drop))!important;
+ }
+}
+@media (min-width:768px) and (orientation:landscape) and (max-height:850px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group.laria-english-terrain-fit {
+  --laria-terrain-drop:12px;
+  --laria-group-tail:clamp(23px,calc(4.65vh - 12px),31px)!important;
+  top:calc(var(--laria-group-top,max(74px,9.5%)) + var(--laria-terrain-drop))!important;
+ }
+}
+@media (min-width:768px) and (orientation:landscape) and (min-height:851px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group.laria-english-terrain-fit {
+  --laria-terrain-drop:16px;
+  --laria-group-tail:clamp(24px,calc(4.9vh - 16px),40px)!important;
+  top:calc(var(--laria-group-top,max(74px,9.5%)) + var(--laria-terrain-drop))!important;
+ }
+}

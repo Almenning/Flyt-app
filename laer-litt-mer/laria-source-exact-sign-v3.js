@@ -1,0 +1,316 @@
+/* Source-locked English Words exact-flag review V3. NEVER active without explicit opt-in.
+ * Crops the actual Grovanova Home v16 artwork (not a newly generated
+ * wooden plank) and reconstructs ONLY the embedded English label and
+ * NOTHING inside the original illustrated Union Jack / round medallion. All other source RGB pixels are kept unchanged.
+ * The original source image, existing Words button and routes remain intact.
+ */
+(function(){
+ 'use strict';
+ const SOURCE='./assets/home-v16/laria-grovanova-v16-landscape-original.png';
+ const LOCKED_SHA='9019d2d7be86d0f96d59770c0d141b935b1c4195fecc4e1dcfbf531ce226e028';
+ const CROP=Object.freeze({x:43,y:531,width:307,height:82});
+ const OUTLINE=[[6,47],[11,33],[18,20],[29,11],[45,5],[64,4],
+  [266,4],[279,9],[290,20],[303,36],[306,45],[297,57],
+  [283,70],[269,79],[58,80],[38,76],[23,65],[13,56]];
+ let cached=null;
+ const clamp=(value,lo,hi)=>Math.min(hi,Math.max(lo,value));
+ const toHex=bytes=>Array.from(new Uint8Array(bytes),n=>n.toString(16).padStart(2,'0')).join('');
+ async function checkedOriginal(){
+  if(!globalThis.crypto?.subtle)throw Error('Secure SHA-256 verification required for the locked illustration');
+  const response=await fetch(SOURCE,{cache:'force-cache'});
+  if(!response.ok)throw Error('Locked Grovanova original could not be loaded: '+response.status);
+  const buffer=await response.arrayBuffer();
+  const digest=toHex(await crypto.subtle.digest('SHA-256',buffer));
+  if(digest!==LOCKED_SHA)throw Error('Locked Grovanova bytes changed, stop review preview');
+  const blobUrl=URL.createObjectURL(new Blob([buffer],{type:'image/png'}));
+  try{
+   const picture=new Image();
+   picture.src=blobUrl;
+   await picture.decode();
+   if(picture.naturalWidth!==1448||picture.naturalHeight!==1086)
+    throw Error('Locked Grovanova original dimensions changed');
+   return picture;
+  }finally{ /* Retained until drawImage completes; released by caller. */ }
+ }
+
+ /* Copy the visible WOOD from the original two Grovanova supports, not the
+  * current gradient/vector imitation. The centre sections are occluded in
+  * the single source bitmap, so a short authentic lower-post sample is
+  * vertically extended. Caps and exposed wood are source-derived, while
+  * unseen connecting geometry is reconstructed. REVIEW, not pixel-perfect. */
+ function originalTwinPosts(picture){
+  const canvas=document.createElement('canvas');
+  canvas.width=307;canvas.height=390;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  if(!ctx)throw Error('Locked source post canvas unavailable');
+  const shafts=[
+   {sx:101,sy:738,sw:38,sh:20,dx:57,dy:36,dw:48},
+   {sx:256,sy:738,sw:39,sh:20,dx:212,dy:50,dw:49}
+  ];
+  for(const p of shafts){
+   ctx.save();
+   ctx.beginPath();
+   ctx.moveTo(p.dx+3,p.dy);
+   ctx.lineTo(p.dx+p.dw-3,p.dy);
+   ctx.lineTo(p.dx+p.dw,canvas.height-3);
+   ctx.lineTo(p.dx+4,canvas.height-3);
+   ctx.closePath();ctx.clip();
+   ctx.drawImage(picture,p.sx,p.sy,p.sw,p.sh,
+    p.dx,p.dy,p.dw,canvas.height-p.dy);
+   ctx.restore();
+  }
+  const caps=[
+   {sx:96,sy:304,sw:68,sh:49,dx:49,dy:0,dw:69,dh:55,
+    points:[[5,46],[7,29],[16,16],[29,8],[45,7],[59,17],[65,33],[65,48],[6,48]]},
+   {sx:250,sy:329,sw:63,sh:49,dx:208,dy:12,dw:63,dh:55,
+    points:[[4,46],[8,29],[18,15],[32,8],[46,8],[58,20],[60,35],[60,44],[4,44]]}
+  ];
+  for(const p of caps){
+   ctx.save();ctx.translate(p.dx,p.dy);ctx.beginPath();
+   p.points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+   ctx.closePath();ctx.clip();
+   ctx.drawImage(picture,p.sx,p.sy,p.sw,p.sh,0,0,p.dw,p.dh);
+   ctx.restore();
+  }
+  const art=ctx.getImageData(0,0,307,390);
+  // The source cap crop has sky around the WOOD. Mask only those
+  // background-coloured pixels, retaining the real carved wood.
+  for(let y=0;y<74;y++)for(let x=0;x<307;x++){
+   const off=(y*307+x)*4;
+   const r=art.data[off],g=art.data[off+1],b=art.data[off+2];
+   if(g>r*1.03||b>g*1.07)art.data[off+3]=0;
+  }
+  // Soften just the last 14% of the two lower posts. The previous
+  // 24-pixel fade left an obvious cutoff floating above the hillside.
+  for(let y=336;y<390;y++){
+   const opacity=(390-y)/54;
+   for(let x=0;x<307;x++)art.data[(y*307+x)*4+3]*=opacity;
+  }
+  ctx.putImageData(art,0,0);
+  return canvas.toDataURL('image/png');
+ }
+
+ /* Separate V2 preview: longer authentic source-shaft samples instead of
+  * stretching a 20px wood strip into a 350px smear. Still reconstructed
+  * where the Home master hides the middle of the post behind its signs.
+  * The root is an irregular, feathered alpha transition for vegetation,
+  * not a straight hard cutoff. No backdrop painting or new SVG wood. */
+ function originalTwinPostsV2(picture){
+  const W=307,H=390,canvas=document.createElement('canvas');
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  if(!ctx)throw Error('Source twin-post V2 canvas unavailable');
+  for(const p of [
+   {sx:100,sy:705,sw:40,sh:51,dx:57,dy:36,dw:48},
+   {sx:254,sy:704,sw:41,sh:52,dx:212,dy:50,dw:49}
+  ]){
+   ctx.save();
+   ctx.beginPath();
+   ctx.moveTo(p.dx+3,p.dy);ctx.lineTo(p.dx+p.dw-3,p.dy);
+   ctx.lineTo(p.dx+p.dw-2,H-1);ctx.lineTo(p.dx+4,H-1);
+   ctx.closePath();ctx.clip();
+   ctx.drawImage(picture,p.sx,p.sy,p.sw,p.sh,p.dx,p.dy,p.dw,H-p.dy);
+   ctx.restore();
+  }
+  for(const p of [
+   {sx:96,sy:304,sw:68,sh:49,dx:49,dy:0,dw:69,dh:55,
+    points:[[5,46],[7,29],[16,16],[29,8],[45,7],[59,17],[65,33],[65,48],[6,48]]},
+   {sx:250,sy:329,sw:63,sh:49,dx:208,dy:12,dw:63,dh:55,
+    points:[[4,46],[8,29],[18,15],[32,8],[46,8],[58,20],[60,35],[60,44],[4,44]]}
+  ]){
+   ctx.save();ctx.translate(p.dx,p.dy);ctx.beginPath();
+   p.points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+   ctx.closePath();ctx.clip();
+   ctx.drawImage(picture,p.sx,p.sy,p.sw,p.sh,0,0,p.dw,p.dh);
+   ctx.restore();
+  }
+  const art=ctx.getImageData(0,0,W,H);
+  for(let y=0;y<74;y++)for(let x=0;x<W;x++){
+   const off=(y*W+x)*4;
+   const r=art.data[off],g=art.data[off+1],b=art.data[off+2];
+   if(g>r*1.03||b>g*1.07)art.data[off+3]=0;
+  }
+  // Slightly irregular feathering hides the actual two WOOD feet among
+  // the scene foliage without fabricating a new flower or changing the art.
+  for(let y=328;y<H;y++)for(let x=0;x<W;x++){
+   const i=(y*W+x)*4;
+   if(!art.data[i+3])continue;
+   const wave=4.5*Math.sin(x*.18)+2.4*Math.sin(x*.36+.9)+1.2*Math.sin(x*.57+2.4);
+   const boundary=386+wave;
+   if(y>boundary-22){
+    const opacity=clamp((boundary+2-y)/24,0,1);
+    art.data[i+3]=Math.round(art.data[i+3]*opacity);
+   }
+  }
+  ctx.putImageData(art,0,0);
+  return canvas.toDataURL('image/png');
+ }
+
+ async function render(){
+  const picture=await checkedOriginal();
+  try{
+   const w=CROP.width,h=CROP.height;
+   const canvas=document.createElement('canvas');
+   canvas.width=w;canvas.height=h;
+   const context=canvas.getContext('2d',{willReadFrequently:true});
+   if(!context)throw Error('Source-pixel canvas is unavailable');
+   context.drawImage(picture,CROP.x,CROP.y,w,h,0,0,w,h);
+   const pixels=context.getImageData(0,0,w,h);
+   const original=new Uint8ClampedArray(pixels.data);
+   // Restrict alterations to the OLD 'Engelsk' lettering. The image
+   // is a photograph-like bitmap, not a layered asset, so source pixels
+   // below the old ink cannot be recovered. Derive a clean wood fill from
+   // unlettered strips on THIS SAME approved source bitmap.
+   let rebuilt=0;
+   for(let y=20;y<=70;y++)for(let x=138;x<=283;x++){
+    const fx=Math.min((x-138)/5,(283-x)/5,1);
+    const fy=Math.min((y-20)/5,(70-y)/5,1);
+    const blend=clamp(Math.min(fx,fy),0,1);
+    if(blend===0)continue;
+    const t=(x-137)/147,smooth=t*t*(3-2*t);
+    const dst=(y*w+x)*4,left=(y*w+136)*4,right=(y*w+286)*4;
+    const cleanRow=13+(y%6);
+    const clean=(cleanRow*w+x)*4;
+    for(let k=0;k<3;k++){
+     let sum=0;
+     for(let xx=136;xx<286;xx++)sum+=original[(cleanRow*w+xx)*4+k];
+     const grain=original[clean+k]-sum/150;
+     const fill=(1-smooth)*original[left+k]+smooth*original[right+k]+grain*.18;
+     pixels.data[dst+k]=Math.round((1-blend)*original[dst+k]+blend*fill);
+    }
+    rebuilt++;
+   }
+   // Original UK-flag medallion is kept intact. It cannot be
+   // 100% source-identical if we redraw an ABC icon on top.
+   const replacedIconPixels=0;
+   // Precisely isolated silhouette (transparent outside the original
+   // hand-carved board). Posts remain separate from the interactive board.
+   const matte=document.createElement('canvas');
+   matte.width=w;matte.height=h;
+   const m=matte.getContext('2d',{willReadFrequently:true});
+   m.beginPath();
+   for(let i=0;i<OUTLINE.length;i++){
+    const [x,y]=OUTLINE[i];
+    if(i===0)m.moveTo(x,y);else m.lineTo(x,y);
+   }
+   m.closePath();m.fillStyle='#fff';m.fill();
+   const mattePixels=m.getImageData(0,0,w,h).data;
+   let exact=0,visible=0;
+   for(let i=0;i<w*h;i++){
+    const off=i*4;
+    // The irregular plank tips touch BLUE fjord/sky pixels in the native
+    // photograph. Drop only obvious blue background on these edges rather
+    // than painting landscape onto a supposed transparent oak board.
+    const blue=original[off+2]>95&&
+     original[off+2]>original[off+1]+15&&
+     original[off+2]>original[off]+25;
+    const x=i%w,y=Math.floor(i/w);
+    const originalRoundMedal=(x-88)*(x-88)+(y-47)*(y-47)<35*35;
+    pixels.data[off+3]=blue&&!originalRoundMedal?0:mattePixels[off+3];
+    if(mattePixels[off+3]>0){
+     visible++;
+     if(pixels.data[off]===original[off]&&pixels.data[off+1]===original[off+1]&&pixels.data[off+2]===original[off+2])exact++;
+    }
+   }
+   context.putImageData(pixels,0,0);
+   const flagOriginalPng=canvas.toDataURL('image/png');
+   // Source-locked engraved task-medal variant. This keeps the ACTUAL
+   // original rounded relief frame and all board/nail pixels unchanged.
+   // The British flag is baked into the bitmap, so ONLY its interior
+   // (radius <= 29.5 native px) must be reconstructed for new icons.
+   // Colour variation is sampled from the same SHA-checked Grovanova plank.
+   const taskCanvas=document.createElement('canvas');
+   taskCanvas.width=w;taskCanvas.height=h;
+   const taskContext=taskCanvas.getContext('2d',{willReadFrequently:true});
+   if(!taskContext)throw Error('Carved source-medallion canvas unavailable');
+   const taskPixels=new ImageData(new Uint8ClampedArray(pixels.data),w,h);
+   let taskReplaced=0;
+   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const radius=Math.hypot(x-88,y-47);
+    if(radius>29.5)continue;
+    const blend=clamp((29.5-radius)/1.1,0,1);
+    const textureX=148+((x*13+y*17)%120);
+    const textureY=13+(y%9);
+    const sample=(textureY*w+textureX)*4;
+    const woodGrain=(original[sample]-180)*.11;
+    const grain=1.5*Math.sin(x*.31+y*.12)+1.2*Math.sin(x*.09+y*.34);
+    const illumination=7*(1-Math.min(1,radius/27))+
+     1.6*(x-88)/27-3*(y-47)/27;
+    const index=(y*w+x)*4;
+    const base=[72,40,21];
+    for(let channel=0;channel<3;channel++){
+     const painted=clamp(base[channel]+woodGrain+grain+illumination,0,255);
+     taskPixels.data[index+channel]=Math.round(
+      (1-blend)*pixels.data[index+channel]+blend*painted
+     );
+    }
+    taskReplaced++;
+   }
+   taskContext.putImageData(taskPixels,0,0);
+   return {png:flagOriginalPng,taskPng:taskCanvas.toDataURL('image/png'),
+    taskReplacedPixels:taskReplaced,postPng:originalTwinPosts(picture),
+    postPngV2:originalTwinPostsV2(picture),sourceSha:LOCKED_SHA,
+    nativeWidth:w,nativeHeight:h,pixelsExactlyCopied:exact,visiblePixels:visible,
+    retouchedLetterPixels:rebuilt,retouchedIconAreaPixels:replacedIconPixels};
+  }finally{
+   if(picture.src.startsWith('blob:'))URL.revokeObjectURL(picture.src);
+  }
+ }
+ function apply(button){
+  if(!button?.matches('button[data-ki="words"]'))return Promise.reject(Error('Source sign is limited to Words'));
+  button.dataset.lariaSourceArt='loading';
+  if(!cached)cached=render().catch(error=>{cached=null;throw error;});
+  return cached.then(art=>{
+   if(!button.isConnected)return;
+   button.style.setProperty('background','url("'+art.png+'") center/100% 100% no-repeat','important');
+   button.style.setProperty('width','clamp(310px,33vw,390px)','important');
+   button.style.setProperty('height','auto','important');
+   button.style.setProperty('aspect-ratio','307 / 82','important');
+   button.style.setProperty('min-height','84px','important');
+   button.style.setProperty('padding','0','important');
+   button.style.setProperty('border','0','important');
+   button.style.setProperty('border-radius','0','important');
+   button.style.setProperty('box-shadow','none','important');
+   const label=button.querySelector(':scope > .ki-plank-name');
+   if(label){
+    label.style.setProperty('position','absolute','important');
+    label.style.setProperty('left','40%','important');
+    label.style.setProperty('right','5%','important');
+    label.style.setProperty('top','50%','important');
+    label.style.setProperty('transform','translateY(-54%)','important');
+    label.style.setProperty('width','auto','important');
+    label.style.setProperty('font','900 clamp(35px,3.65vw,45px)/1.03 Georgia,"Times New Roman",serif','important');
+    label.style.setProperty('color','#281708','important');
+    label.style.setProperty('text-shadow','0 1px 0 #f6ca7a','important');
+    label.style.setProperty('text-align','center','important');
+   }
+   const medal=button.querySelector(':scope > .laria-wooden-sign-medallion');
+   if(medal){
+    // Keep the PHOTO-GRAPHIC flag, not an artificial new medal layer.
+    medal.textContent='';
+    medal.setAttribute('aria-hidden','true');
+    medal.style.setProperty('background','none','important');
+    medal.style.setProperty('display','none','important');
+    medal.style.setProperty('visibility','hidden','important');
+   }
+   button.dataset.lariaWordsArt='source-english-flag-v3';
+   button.dataset.lariaSourceOriginalSha=art.sourceSha;
+   button.dataset.lariaSourceCopied=String(art.pixelsExactlyCopied);
+   button.dataset.lariaSourceVisible=String(art.visiblePixels);
+   button.dataset.lariaSourceArt='ready';
+   return art;
+  }).catch(error=>{
+   button.dataset.lariaSourceArt='blocked';
+   button.dataset.lariaSourceError=String(error.message||error);
+   console.error('[Læria] Source-original Words pilot blocked',error);
+   throw error;
+  });
+ }
+ function getArt(){
+  if(!cached)cached=render().catch(error=>{cached=null;throw error;});
+  return cached;
+ }
+ window.LariaSourceExactSignV3=Object.freeze({
+  version:'review-v3-source-flag',sourceSha256:LOCKED_SHA,crop:CROP,apply,getArt
+ });
+})();

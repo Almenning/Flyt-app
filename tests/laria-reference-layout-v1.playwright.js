@@ -267,10 +267,18 @@ async function testEngine(engine,name,device,viewport){
    const samePosts=await activities.evaluate(el=>getComputedStyle(el,'::before').backgroundImage);
    assert.match(samePosts,/laria-grovanova-signposts\.svg/,
      world.id+' activity menu uses a different post system');
-   const sameArrow=await activities.locator('.laria-wayfinder').first().evaluate(el=>
-     getComputedStyle(el.matches('.eg-scene-hit')?el.querySelector('span'):el).backgroundImage);
-   assert.match(sameArrow,/laria-light-arrow-sign\.svg/,
-     world.id+' activity menu uses a different arrow board');
+   const actualBoard=await activities.locator('.laria-wayfinder').first().evaluate(el=>{
+     const surface=el.matches('.eg-scene-hit')?el.querySelector(':scope > span'):el;
+     return {art:getComputedStyle(surface).backgroundImage,
+       locked:el.classList.contains('laria-wooden-sign')};
+   });
+   if(actualBoard.locked){
+     assert.match(actualBoard.art,/gradient/,
+       world.id+' approved carved wood disappeared from active activities');
+   }else{
+     assert.match(actualBoard.art,/laria-light-arrow-sign\\.svg/,
+       world.id+' legacy fallback arrow board changed unexpectedly');
+   }
    assert.equal(await plaque.getAttribute('aria-expanded'),'false');
    assert.equal(await activities.locator('.laria-wayfinder').count(),3,
      world.id+' must preserve all three live activity controls');
@@ -304,6 +312,25 @@ async function testEngine(engine,name,device,viewport){
    assert.ok(activityBoxes.every(r=>Math.abs(r.h-boxes.menu[0].h)<=3),
      world.id+' activity planks differ in height from Home-style subject planks: '+
      JSON.stringify({subject:boxes.menu[0],activities:activityBoxes}));
+   // New locked wooden signs replace the old flat pictogram with a
+   // visible relief medallion, while preserving the original action buttons.
+   const isWooden=(await activities.locator('.laria-wayfinder.laria-wooden-sign').count())===3;
+   if(isWooden){
+     assert.equal(await activities.locator('.laria-reference-activity-icon').count(),0,
+       world.id+' retained duplicate legacy pictograms');
+     const medals=activities.locator('.laria-wooden-sign-medallion:visible');
+     assert.equal(await medals.count(),3,
+       'Approved wooden boards require one medal on each real activity sign');
+     const details=await medals.evaluateAll(nodes=>nodes.map(node=>{
+       const r=node.getBoundingClientRect(),s=getComputedStyle(node),
+         board=node.closest('.laria-wooden-sign').getBoundingClientRect();
+       return {width:r.width,height:r.height,border:s.borderTopWidth,
+         icon:!!node.querySelector('svg'),
+         contained:r.left>=board.left&&r.right<=board.right&&r.top>=board.top&&r.bottom<=board.bottom};
+     }));
+     assert.ok(details.every(x=>x.icon&&x.contained&&x.width>=27&&x.height>=27&&x.border!=='0px'),
+       world.id+' new medal is too small or disconnected: '+JSON.stringify(details));
+   }else{
    assert.equal(await activities.locator('.laria-reference-activity-icon').count(),3,
      world.id+' learning buttons lack matching subject-style pictograms');
    const icons=await activities.locator('.laria-reference-activity-icon').evaluateAll(nodes=>nodes.map(node=>{
@@ -336,6 +363,18 @@ async function testEngine(engine,name,device,viewport){
        'Geografi pictograms float outside the oak signs or inherit white legacy badges: '+
        JSON.stringify(iconPlacement));
    }
+   }
+   if(isWooden){
+     // The two 9px pseudo elements are metal nails, not legacy per-board posts.
+     const fasteners=await activities.locator('.laria-wayfinder.laria-wooden-sign').evaluateAll(nodes=>nodes.map(node=>{
+       const target=node.querySelector(':scope > .laria-wooden-sign-surface')||node;
+       const a=getComputedStyle(target,'::before'),b=getComputedStyle(target,'::after');
+       return {l:parseFloat(a.width),r:parseFloat(b.width),a:a.backgroundImage,b:b.backgroundImage};
+     }));
+     assert.ok(fasteners.every(x=>x.l>=8&&x.l<=11&&x.r>=8&&x.r<=11&&
+       /gradient/.test(x.a)&&/gradient/.test(x.b)),
+       world.id+' approved oak planks lack two small metal nails: '+JSON.stringify(fasteners));
+   }else{
    // The board shape now belongs to the whole sign stack, never to each
    // individual action. Check the rendered pseudo-elements, not only CSS text.
    const separatePosts=await activities.locator('.laria-wayfinder').evaluateAll(nodes=>
@@ -375,6 +414,7 @@ async function testEngine(engine,name,device,viewport){
        s.iconWidth>=18&&s.iconHeight>=18&&s.iconHeight<=36),
        'Norsk premium still has legacy green arrow discs or framed pictograms: '+
        JSON.stringify(arrows));
+   }
    }
    const leftEdges=activityBoxes.map(r=>r.l);
    const subjectsLeft=boxes.menu[0].l;

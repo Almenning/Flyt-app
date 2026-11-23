@@ -1015,10 +1015,12 @@
 
 /* The ORIGINAL Geography signs also carry a painted-era › span next to
  * each action. Keep those nodes for safe fallback, but hide them in the
- * premium reference scene so only the new dark pictograms remain. */
+ * premium reference scene so only the new dark pictograms remain.
+ * The new carved-sign medal is also aria-hidden decoration but MUST remain
+ * visible whenever LariaWoodenSign owns the real activity button. */
 #laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
  > nav.laria-scene-navigation > button.gv-sign.laria-wayfinder
- > span[aria-hidden="true"]:not(.laria-reference-activity-icon){
+ > span[aria-hidden="true"]:not(.laria-reference-activity-icon):not(.laria-wooden-sign-medallion){
  display:none!important;visibility:hidden!important;pointer-events:none!important;
 }
 /* Geography's historical sign span is an absolute white/green round badge.

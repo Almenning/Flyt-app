@@ -85,6 +85,56 @@
    // User's iPad reference is an opt-in, art-safe presentation adapter.
    // Original scenes, existing actions and stored learning are untouched.
    window.LARIA_REFERENCE_LAYOUT?.mount?.(scene,subject);
+   // The Words artwork is an owner-review candidate. It is limited to the
+   // separate, SHA-verified Kinnaklova master and never enables the other
+   // English signs or changes the default application.
+   const params=new URLSearchParams(window.location.search);
+   const wordsArtVersion=params.get('lariaWordsSignCandidate');
+   const wordsCandidate=subject==='english'&&
+     (wordsArtVersion==='1'||wordsArtVersion==='2'||wordsArtVersion==='3'||wordsArtVersion==='4'||wordsArtVersion==='5');
+   // Isolated English three-board review. Never alters default English,
+   // the two existing Words-only pilots, or the locked scene's artwork.
+   const englishGroupReview=subject==='english'&&
+     ['1','2','3','4','5','6'].includes(params.get('lariaEnglishSignGroupCandidate'));
+   if(scene.dataset.lariaArtworkUi==='separate'){
+     if(englishGroupReview){
+      window.LariaWoodenSign?.mount?.(navigation,subject,
+       {only:['words','sentences','reading'],illustratedGroup:true});
+      if(['2','3','4','5','6'].includes(params.get('lariaEnglishSignGroupCandidate'))){
+       // Explicit owner-review only. Same real buttons, now grouped around
+       // one SHA-locked Grovanova pixel source and two source-derived posts.
+       const sourceVersion=params.get('lariaEnglishSignGroupCandidate');
+       if(sourceVersion==='6'){
+        // Separate composition-only review: bring original signs closer
+        // to existing terrain while shortening their exposed support feet.
+        // Never change the locked scene or the default user experience.
+        navigation.classList.add('laria-english-terrain-fit');
+       }
+       const result=window.LariaEnglishSourceGroup?.mount?.(navigation,
+        {postVariant:['3','4','5','6'].includes(sourceVersion)?2:1});
+       if(sourceVersion==='4'||sourceVersion==='6'){
+        // Foliage is a NONINTERACTIVE layer from the already approved
+        // Kinnaklova master, installed only after source rail passes SHA.
+        Promise.resolve(result).then(ready=>{
+         if(ready)window.LariaEnglishVegetation?.mount?.(navigation);
+        });
+       }
+       if(sourceVersion==='5'){
+        // Compose the two original-source foreground layers: verified
+        // Kinnaklova ground first, then small Grovanova flowers in front
+        // of the authentic post feet. Both are aria-hidden and non-clickable.
+        Promise.resolve(result).then(async ready=>{
+         if(!ready)return;
+         await window.LariaEnglishVegetation?.mount?.(navigation);
+         window.LariaEnglishBotanical?.mount?.(navigation);
+        });
+       }
+      }
+     }
+     else if(wordsCandidate)window.LariaWoodenSign?.mount?.(navigation,subject,
+       {only:['words'],sourceDerived:true,sourceVariant:wordsArtVersion==='5'?6:wordsArtVersion==='4'?5:wordsArtVersion==='3'?4:wordsArtVersion==='2'?3:2});
+     else if(subject!=='english')window.LariaWoodenSign?.mount?.(navigation,subject);
+   }
    // Preserve all activity action attributes, data-troll, individual landscape
    // classes and the original source image. This does not create a new logo.
    return true;

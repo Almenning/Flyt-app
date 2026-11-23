@@ -231,14 +231,27 @@ async function run(browserType,engine,name,viewport){
    });
    assert.ok(b.w>=44&&b.h>=44&&b.x>=-2&&b.x+b.w<=viewport.width+2&&b.y>=-2&&b.y+b.h<=viewport.height+2,
      engine+' '+name+' '+spec.id+' sign outside device: '+JSON.stringify(b));
+   // The user-locked carved board replaces the retired light arrow on iPad.
+   // Keep the old image only as a deliberate small-screen fallback.
+   const wooden=await board.evaluate(el=>
+     el.classList.contains('laria-wooden-sign')||!!el.closest('.laria-wooden-sign'));
+   if(viewport.width>=768&&viewport.height>=650)
+     assert.equal(wooden,true,engine+' '+name+' '+spec.id+' missing the approved wooden sign');
+   if(wooden){
+     assert.match(b.background,/gradient/,spec.id+' retained the old arrow artwork');
+     assert.equal(await board.locator('.laria-wooden-sign-medallion svg').count(),1,
+       spec.id+' lost the real carved-sign medallion');
+     assert.equal(b.color,'rgb(46, 26, 12)',spec.id+' uses wrong carved-sign ink');
+   } else {
+     assert.match(b.background,/laria-light-arrow-sign\.svg/,
+       spec.id+' fallback arrow artwork unexpectedly changed');
+   }
    // Kinn now uses the certified UI-free image and the SAME left-hand
    // live sign family as the other subjects. Do not regress to invisible
    // hotspots over the original painted Words/Sentences/Reading labels.
    if(spec.id==='english'&&viewport.width>=701&&viewport.height>=600){
      assert.equal(await root.getAttribute('data-ki-premium-art'),'approved',
        engine+' '+name+' English clean art adapter not enabled');
-     assert.match(b.background,/laria-light-arrow-sign\.svg/,
-       engine+' '+name+' English missing shared oak board');
      assert.equal(await root.locator('.ki-world-brand:visible').count(),1,
        engine+' '+name+' English must show one live brand on clean art');
      const leftRail=root.locator('.ki-stage > nav.laria-scene-navigation');
@@ -247,9 +260,6 @@ async function run(browserType,engine,name,viewport){
      assert.equal(boxes.length,3,engine+' '+name+' requires three English activities');
      assert.ok(boxes.every(x=>x.left>=0&&x.right<viewport.width*.40),
        engine+' '+name+' English activity signs escaped left rail: '+JSON.stringify(boxes));
-   }else{
-     assert.match(b.background,/laria-light-arrow-sign\.svg/,
-       engine+' '+name+' '+spec.id+' did not render the matching Grovanova arrow');
    }
    await page.screenshot({path:path.join(out,engine+'-'+name+'-'+spec.id+'.png'),animations:'disabled',fullPage:false});
    await sign.click();

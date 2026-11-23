@@ -1,0 +1,78 @@
+name: Læria – tre Engelsk-skilt, felles stolper og ekte iPad
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/laria-wooden-sign-v1.*'
+      - 'laer-litt-mer/laria-scene-ui-v1.js'
+      - 'laer-litt-mer/laria-source-exact-sign-v3.js'
+      - 'laer-litt-mer/laria-english-source-group-v1.js'
+      - 'laer-litt-mer/laria-english-vegetation-v1.js'
+      - 'laer-litt-mer/laria-english-botanical-v1.js'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/assets/ui/words-sign-candidate/**'
+      - 'tests/laria-english-sign-group.playwright.js'
+      - 'tests/laria-english-source-group.playwright.js'
+      - '.github/workflows/laria-english-three-signs-review.yml'
+permissions:
+  contents: read
+jobs:
+  english-group:
+    name: Real Chromium/WebKit – 5 iPad sizes
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Guard JS syntax and original reusable sign component contract
+        run: |
+          node --check laer-litt-mer/laria-wooden-sign-v1.js
+          node --check laer-litt-mer/laria-scene-ui-v1.js
+          node --check laer-litt-mer/laria-source-exact-sign-v3.js
+          node --check laer-litt-mer/laria-english-source-group-v1.js
+          node --check laer-litt-mer/laria-english-vegetation-v1.js
+          node --check laer-litt-mer/laria-english-botanical-v1.js
+          node --check tests/laria-english-sign-group.playwright.js
+          node --check tests/laria-english-source-group.playwright.js
+          node --test tests/laria-locked-sign-design-v1.test.cjs
+      - name: Serve the exact draft commit
+        run: python3 -m http.server 8765 --directory . >/tmp/laria-english-group-http.log 2>&1 &
+      - name: Run actual English three-board interaction and visual tests
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_ENGLISH_GROUP_SHOTS: /tmp/laria-english-group
+        run: node tests/laria-english-sign-group.playwright.js
+      - name: Smoke-test original flower preview with fast failure diagnostics
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_BOTANICAL_SMOKE: '1'
+          LARIA_ENGLISH_BOTANICAL_REVIEW: '1'
+          LARIA_ENGLISH_SOURCE_GROUP_SHOTS: /tmp/laria-english-source-group/v4-smoke
+        run: node tests/laria-english-source-group.playwright.js
+      - name: A/B Grovanova source rail V1 and refined wood V2 – 5 iPads each
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: |
+          LARIA_ENGLISH_POST_VARIANT=1 LARIA_ENGLISH_SOURCE_GROUP_SHOTS=/tmp/laria-english-source-group/v1 \
+            node tests/laria-english-source-group.playwright.js
+          LARIA_ENGLISH_POST_VARIANT=2 LARIA_ENGLISH_SOURCE_GROUP_SHOTS=/tmp/laria-english-source-group/v2 \
+            node tests/laria-english-source-group.playwright.js
+          LARIA_ENGLISH_VEGETATION_REVIEW=1 LARIA_ENGLISH_SOURCE_GROUP_SHOTS=/tmp/laria-english-source-group/v3-vegetation \
+            node tests/laria-english-source-group.playwright.js
+          LARIA_ENGLISH_BOTANICAL_REVIEW=1 LARIA_ENGLISH_SOURCE_GROUP_SHOTS=/tmp/laria-english-source-group/v4-original-flowers \
+            node tests/laria-english-source-group.playwright.js
+      - name: Upload real screenshots and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-english-3-board-shared-posts-REVIEW-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            /tmp/laria-english-group
+            /tmp/laria-english-source-group
+          retention-days: 21
+          if-no-files-found: warn

@@ -1,0 +1,57 @@
+name: Læria Premium – låst skiltstandard på iPad
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/laria-wooden-sign-v1.*'
+      - 'laer-litt-mer/laria-scene-ui-v1.js'
+      - 'laer-litt-mer/laria-reference-layout-v1.*'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/assets/ui/locked-reference/laria-sign-master-v1.png'
+      - 'tests/laria-locked-sign-*'
+      - 'docs/laria-premium-3/LOCKED-SIGN-*'
+      - '.github/workflows/laria-locked-signs-ipad.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  visual-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Validate exact locked master and candidate source
+        run: >-
+          node --check laer-litt-mer/laria-wooden-sign-v1.js &&
+          node --check laer-litt-mer/laria-scene-ui-v1.js &&
+          node --check tests/laria-locked-sign-ipad.playwright.js &&
+          node --test tests/laria-locked-sign-design-v1.test.cjs
+      - name: Serve base and exact PR head for before/after evidence
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git worktree add --detach /tmp/laria-base origin/${{ github.base_ref }}
+          python3 -m http.server 8765 --directory . >/tmp/laria-sign-http.log 2>&1 &
+          python3 -m http.server 8766 --directory /tmp/laria-base >/tmp/laria-base-http.log 2>&1 &
+      - name: Capture actual Chromium and WebKit iPad evidence
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_BASELINE_URL: http://127.0.0.1:8766/laer-litt-mer/?app=laria
+          LARIA_LOCKED_SIGN_SHOTS: /tmp/laria-locked-signs
+        run: node tests/laria-locked-sign-ipad.playwright.js
+      - name: Upload actual iPad screenshots from exact PR commit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-locked-signs-ipad-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-locked-signs
+          retention-days: 14
+          if-no-files-found: warn
