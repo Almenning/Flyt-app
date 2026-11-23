@@ -32,6 +32,54 @@
    return picture;
   }finally{ /* Retained until drawImage completes; released by caller. */ }
  }
+
+ /* Copy the visible WOOD from the original two Grovanova supports, not the
+  * current gradient/vector imitation. The centre sections are occluded in
+  * the single source bitmap, so a short authentic lower-post sample is
+  * vertically extended. Caps and exposed wood are source-derived, while
+  * unseen connecting geometry is reconstructed. REVIEW, not pixel-perfect. */
+ function originalTwinPosts(picture){
+  const canvas=document.createElement('canvas');
+  canvas.width=307;canvas.height=390;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  if(!ctx)throw Error('Locked source post canvas unavailable');
+  const shafts=[
+   {sx:101,sy:721,sw:38,sh:34,dx:57,dy:36,dw:48},
+   {sx:256,sy:721,sw:39,sh:34,dx:212,dy:50,dw:49}
+  ];
+  for(const p of shafts){
+   ctx.save();
+   ctx.beginPath();
+   ctx.moveTo(p.dx+3,p.dy);
+   ctx.lineTo(p.dx+p.dw-3,p.dy);
+   ctx.lineTo(p.dx+p.dw,canvas.height-3);
+   ctx.lineTo(p.dx+4,canvas.height-3);
+   ctx.closePath();ctx.clip();
+   ctx.drawImage(picture,p.sx,p.sy,p.sw,p.sh,
+    p.dx,p.dy,p.dw,canvas.height-p.dy);
+   ctx.restore();
+  }
+  const caps=[
+   {sx:96,sy:304,sw:68,sh:49,dx:49,dy:0,dw:69,dh:55,
+    points:[[5,46],[7,29],[16,16],[29,8],[45,7],[59,17],[65,33],[65,53],[6,53]]},
+   {sx:250,sy:329,sw:63,sh:49,dx:208,dy:12,dw:63,dh:55,
+    points:[[4,46],[8,29],[18,15],[32,8],[46,8],[58,20],[60,35],[60,53],[4,53]]}
+  ];
+  for(const p of caps){
+   ctx.save();ctx.translate(p.dx,p.dy);ctx.beginPath();
+   p.points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+   ctx.closePath();ctx.clip();
+   ctx.drawImage(picture,p.sx,p.sy,p.sw,p.sh,0,0,p.dw,p.dh);
+   ctx.restore();
+  }
+  const art=ctx.getImageData(0,0,307,390);
+  for(let y=366;y<390;y++){
+   const opacity=(390-y)/24;
+   for(let x=0;x<307;x++)art.data[(y*307+x)*4+3]*=opacity;
+  }
+  ctx.putImageData(art,0,0);
+  return canvas.toDataURL('image/png');
+ }
  async function render(){
   const picture=await checkedOriginal();
   try{
@@ -99,7 +147,7 @@
     }
    }
    context.putImageData(pixels,0,0);
-   return {png:canvas.toDataURL('image/png'),sourceSha:LOCKED_SHA,
+   return {png:canvas.toDataURL('image/png'),postPng:originalTwinPosts(picture),sourceSha:LOCKED_SHA,
     nativeWidth:w,nativeHeight:h,pixelsExactlyCopied:exact,visiblePixels:visible,
     retouchedLetterPixels:rebuilt,retouchedIconAreaPixels:replacedIconPixels};
   }finally{
@@ -156,5 +204,11 @@
    throw error;
   });
  }
- window.LariaSourceExactSignV3=Object.freeze({version:'review-v3-source-flag',sourceSha256:LOCKED_SHA,crop:CROP,apply});
+ function getArt(){
+  if(!cached)cached=render().catch(error=>{cached=null;throw error;});
+  return cached;
+ }
+ window.LariaSourceExactSignV3=Object.freeze({
+  version:'review-v3-source-flag',sourceSha256:LOCKED_SHA,crop:CROP,apply,getArt
+ });
 })();
