@@ -156,7 +156,42 @@
     }
    }
    context.putImageData(pixels,0,0);
-   return {png:canvas.toDataURL('image/png'),postPng:originalTwinPosts(picture),sourceSha:LOCKED_SHA,
+   const flagOriginalPng=canvas.toDataURL('image/png');
+   // Source-locked engraved task-medal variant. This keeps the ACTUAL
+   // original rounded relief frame and all board/nail pixels unchanged.
+   // The British flag is baked into the bitmap, so ONLY its interior
+   // (radius <= 29.5 native px) must be reconstructed for new icons.
+   // Colour variation is sampled from the same SHA-checked Grovanova plank.
+   const taskCanvas=document.createElement('canvas');
+   taskCanvas.width=w;taskCanvas.height=h;
+   const taskContext=taskCanvas.getContext('2d',{willReadFrequently:true});
+   if(!taskContext)throw Error('Carved source-medallion canvas unavailable');
+   const taskPixels=new ImageData(new Uint8ClampedArray(pixels.data),w,h);
+   let taskReplaced=0;
+   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const radius=Math.hypot(x-88,y-47);
+    if(radius>29.5)continue;
+    const blend=clamp((29.5-radius)/1.1,0,1);
+    const textureX=148+((x*13+y*17)%120);
+    const textureY=13+(y%9);
+    const sample=(textureY*w+textureX)*4;
+    const woodGrain=(original[sample]-180)*.11;
+    const grain=1.5*Math.sin(x*.31+y*.12)+1.2*Math.sin(x*.09+y*.34);
+    const illumination=7*(1-Math.min(1,radius/27))+
+     1.6*(x-88)/27-3*(y-47)/27;
+    const index=(y*w+x)*4;
+    const base=[72,40,21];
+    for(let channel=0;channel<3;channel++){
+     const painted=clamp(base[channel]+woodGrain+grain+illumination,0,255);
+     taskPixels.data[index+channel]=Math.round(
+      (1-blend)*pixels.data[index+channel]+blend*painted
+     );
+    }
+    taskReplaced++;
+   }
+   taskContext.putImageData(taskPixels,0,0);
+   return {png:flagOriginalPng,taskPng:taskCanvas.toDataURL('image/png'),
+    taskReplacedPixels:taskReplaced,postPng:originalTwinPosts(picture),sourceSha:LOCKED_SHA,
     nativeWidth:w,nativeHeight:h,pixelsExactlyCopied:exact,visiblePixels:visible,
     retouchedLetterPixels:rebuilt,retouchedIconAreaPixels:replacedIconPixels};
   }finally{
