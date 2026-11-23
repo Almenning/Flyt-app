@@ -114,10 +114,13 @@
         });
        }
        if(sourceVersion==='5'){
-        // Source-exact FLOWERS from locked Grovanova. No invented plants,
-        // default mode unchanged, previous A/B/C candidates preserved.
-        Promise.resolve(result).then(ready=>{
-         if(ready)window.LariaEnglishBotanical?.mount?.(navigation);
+        // Compose the two original-source foreground layers: verified
+        // Kinnaklova ground first, then small Grovanova flowers in front
+        // of the authentic post feet. Both are aria-hidden and non-clickable.
+        Promise.resolve(result).then(async ready=>{
+         if(!ready)return;
+         await window.LariaEnglishVegetation?.mount?.(navigation);
+         window.LariaEnglishBotanical?.mount?.(navigation);
         });
        }
       }
