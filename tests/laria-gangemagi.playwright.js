@@ -263,6 +263,8 @@ async function check(engine,label,viewport,url){
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(sceneBackground,/gangemagi-tallenga-market-v1\.svg/,
     label+' Gangemagi must use its calm authored market scene, not the generic busy maths background');
+  assert.doesNotMatch(sceneBackground,/tallvika-fjord-no-buildings-(?:wide|portrait)-20261107\.webp/,
+    label+' approved strawberry-market mission must never inherit the new Tallvika free-play background');
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
@@ -851,6 +853,21 @@ async function check(engine,label,viewport,url){
   await page.keyboard.press('Escape');
   await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mode,'free');
+  // 22 Nov CSS extends ONLY free play on larger screens. Validate the actual
+  // background and resource on portrait/landscape iPads; do not mistake this
+  // mechanical check for visual owner approval.
+  const freePaint=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
+  if(viewport.width>=701&&viewport.height>=650){
+    const orientation=viewport.height>viewport.width?'portrait':'wide';
+    const art='tallvika-fjord-no-buildings-'+orientation+'-20261107.webp';
+    assert.ok(freePaint.includes(art),
+      label+' free play must show original Tallvika '+orientation+' art: '+freePaint);
+    const response=await page.request.get(new URL('assets/tallvika/'+art,url).href);
+    assert.equal(response.status(),200,label+' expected Tallvika art must load: '+art);
+  }else{
+    assert.doesNotMatch(freePaint,/tallvika-fjord-no-buildings-(?:wide|portrait)-20261107\.webp/,
+      label+' small-screen free play must retain its prior responsive background');
+  }
   assert.deepEqual(await page.locator('.gm-secondary-nav button strong').allInnerTexts(),
     ['Oppdrag','Markedsbok','Gangetabellen'],
     label+' free play must offer an obvious way back plus book and classic table');
