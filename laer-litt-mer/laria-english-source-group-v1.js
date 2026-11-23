@@ -54,7 +54,9 @@
     set(label,'text-shadow','0 1px 0 #ffe2a4');
     // The original Union Jack is unmodified on Words. Sentences/Reading
     // need new symbols, so ONLY their flag interior is covered; the original
-    // round wood rim remains intact. This is not a claim of 100% icon pixels.
+    // round wood rim remains intact. The inset disc is now large enough to
+    // cover the Union Jack instead of leaving red/white flags around it.
+    // This is NOT a claim of 100% icon pixel identity.
     if(id==='words'){
      medal.textContent='';
      set(medal,'display','none');
@@ -64,15 +66,15 @@
      set(medal,'display','grid');
      set(medal,'place-items','center');
      set(medal,'visibility','visible');
-     set(medal,'left','20.2%');
+     set(medal,'left','18%');
      set(medal,'top','57.3%');
      set(medal,'transform','translateY(-50%)');
-     set(medal,'width','17%');
+     set(medal,'width','21.4%');
      set(medal,'height','auto');
      set(medal,'aspect-ratio','1');
      set(medal,'border-radius','50%');
      set(medal,'border','0');
-     set(medal,'background','radial-gradient(circle at 32% 24%,#744321 0%,#4c2915 55%,#2b170c 100%)');
+     set(medal,'background','radial-gradient(circle at 32% 24%,#764626 0%,#4c2915 56%,#29180d 100%)');
      set(medal,'box-shadow','inset 0 2px 3px #1c0c06a6');
      set(medal,'color','#ffe5a0');
      const icon=medal.querySelector('svg');
