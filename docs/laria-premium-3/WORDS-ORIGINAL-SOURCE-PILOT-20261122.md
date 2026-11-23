@@ -80,6 +80,22 @@ Bildegjennomgangen av de tre kildebaserte skiltene viste at den flate, brunfarge
 - Playwright-kontroll for **5 iPad-størrelser × Chromium/WebKit** krever eksakt kilde-SHA, ingen tegning over Reading-skiltet, faktiske blomst-/bladpiksler, fysisk fotdekning, uendrede click-ruter og fremdeles én felles to-stolpe-rail.
 - **Visuell risiko:** Dersom plantelagene ser ut som pålimte klynger fremfor naturlig vegetasjon, skal kandidaten AVVISES i visuell port, selv om CI er grønn. Ikke bruk flere små justeringer til å skjule en manglende kunstnerisk integrasjon.
 
+## 23.11.2026 – Terrengtilpasning uten nye planter (isolert variant 6)
+
+**Kunstbeslutning:** Blomsterforgrunnen i `lariaEnglishSignGroupCandidate=5` er **visuelt avvist**, selv om de målrettede iPad-testene bestod. Blomstene ser pålimte ut og er ikke godkjent som skiltmaster.
+
+**Ny kandidat:** `?app=laria&lariaEnglishSignGroupCandidate=6`. Den bygger på teknisk verifisert variant `=4`, som bruker låst Kinnaklova-master og den subtile vegetasjonsmasken. Ingen nye blomster eller annet generert treverk. Kode: `laria-scene-ui-v1.js` og `laria-wooden-sign-v1.css`.
+
+Tiltak er **kompositorisk**, ikke en ny kunstressurs:
+- Stående iPad: alle tre originale skilt flyttes 22 px ned mot den allerede malte vegetasjonen, mens den synlige posthalen kortes med omtrent 22 px.
+- Kompakt liggende iPad (høyde maks. 850 px): 12 px lavere skiltgruppe og tilsvarende kortere synlig stolpedel.
+- Større liggende iPad: 16 px forskyvning og tilsvarende kortere stolper.
+- Stolpeføttene skal dermed forbli omtrent på sin opprinnelige høyde og foran terrenget, **uten** å flyttes inn i den malte kirketakflaten.
+- Identisk source SHA, original Kinnaklova-art, originale treplanker, medaljonger, ruter, overskrifter, TrollActor og Hjem. Bare synlige nav-koordinater og avstanden fra nederste skilt til stolpenes avslutning endres.
+- Variant `=4` beholdes urørt som før-kontroll. Variant `=5` forblir tilgjengelig kun for å dokumentere avvisningen. **Standard Engelsk er fortsatt uendret.**
+
+**Godkjenningsport:** `tests/laria-english-terrain-fit.playwright.js` kontrollerer ekte før-/etter-bilder, uendrede kildeboards, 22/12/16px posisjonsforskjell, stabil postfot over kirketak, minst 19px synlig støtte under Reading, opprinnelig Words-økt og ingen nye blomster. Egen workflow `laria-english-terrain-fit-review.yml` dekker fem iPad-størrelser × Chromium/WebKit, og tar screenshot også ved testfeil. **Kun testutkast**, ikke visuelt godkjent eller produksjonsklart, før bildene faktisk er inspisert.
+
 ## Eksakt-head kvalitetssikring
 
 `tests/laria-words-source-original.playwright.js` og workflow `laria-words-sign-candidate.yml` kontrollerer:
