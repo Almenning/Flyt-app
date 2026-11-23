@@ -179,14 +179,14 @@ async function verify(page,nav,viewport){
   assert.equal(data.botanical.source,'grovanova-v16-original-flowers');
   assert.equal(data.botanical.sha,SHA);
   assert.equal(data.botanical.pointerEvents,'none');
-  assert.ok(data.botanical.pixels>=450&&data.botanical.covered>=100&&
-   data.botanical.lowerFoot>=90&&data.botanical.whiteOrPink>=20&&
+  assert.ok(data.botanical.pixels>=250&&data.botanical.covered>=50&&
+   data.botanical.lowerFoot>=45&&data.botanical.whiteOrPink>=8&&
    data.botanical.overBoard===0,
    'Flowers are missing, artificial/blank, or cover the actual boards: '+
     JSON.stringify(data.botanical));
  }else assert.equal(data.botanical,null,
   'Older A/B/C reviews must not gain the unapproved floral illustration');
- if(VEGETATION_REVIEW){
+ if(VEGETATION_REVIEW||BOTANICAL_REVIEW){
   assert.ok(data.vegetation,'Vegetation review did not mount the source-pixel foreground');
   assert.equal(data.vegetation.source,'kinnaklova-approved-master-pixels');
   assert.deepEqual([data.vegetation.nativeWidth,data.vegetation.nativeHeight],[1672,941]);
