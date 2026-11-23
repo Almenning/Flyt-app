@@ -7,6 +7,7 @@ on:
       - 'laer-litt-mer/laria-scene-ui-v1.js'
       - 'laer-litt-mer/laria-source-exact-sign-v3.js'
       - 'laer-litt-mer/laria-english-source-group-v1.js'
+      - 'laer-litt-mer/laria-english-vegetation-v1.js'
       - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/assets/ui/words-sign-candidate/**'
       - 'tests/laria-english-sign-group.playwright.js'
@@ -33,6 +34,7 @@ jobs:
           node --check laer-litt-mer/laria-scene-ui-v1.js
           node --check laer-litt-mer/laria-source-exact-sign-v3.js
           node --check laer-litt-mer/laria-english-source-group-v1.js
+          node --check laer-litt-mer/laria-english-vegetation-v1.js
           node --check tests/laria-english-sign-group.playwright.js
           node --check tests/laria-english-source-group.playwright.js
           node --test tests/laria-locked-sign-design-v1.test.cjs
@@ -50,6 +52,8 @@ jobs:
           LARIA_ENGLISH_POST_VARIANT=1 LARIA_ENGLISH_SOURCE_GROUP_SHOTS=/tmp/laria-english-source-group/v1 \
             node tests/laria-english-source-group.playwright.js
           LARIA_ENGLISH_POST_VARIANT=2 LARIA_ENGLISH_SOURCE_GROUP_SHOTS=/tmp/laria-english-source-group/v2 \
+            node tests/laria-english-source-group.playwright.js
+          LARIA_ENGLISH_VEGETATION_REVIEW=1 LARIA_ENGLISH_SOURCE_GROUP_SHOTS=/tmp/laria-english-source-group/v3-vegetation \
             node tests/laria-english-source-group.playwright.js
       - name: Upload real screenshots and failure diagnostics
         if: always()
