@@ -27,13 +27,15 @@
   rail.querySelectorAll('button.laria-wayfinder').forEach(button=>{
    const action=actionFor(button),surface=surfaceFor(button),label=labelFor(button);
    const reviewV3=!!(options.sourceDerived&&options.sourceVariant===3&&action==='words');
-   const originalSourceReview=!!(options.sourceDerived&&options.sourceVariant===4&&action==='words');
+   const originalSourceReview=!!(options.sourceDerived&&(options.sourceVariant===4||options.sourceVariant===5)&&action==='words');
+   const roundSourceReview=originalSourceReview&&options.sourceVariant===5;
    if(options.only&& !options.only.includes(action))return;
    button.classList.add('laria-wooden-sign');surface.classList.add('laria-wooden-sign-surface');
    if(options.sourceDerived&&action==='words'){
     button.classList.add('laria-words-sign-source-candidate');
     if(reviewV3)button.classList.add('laria-words-sign-art-v3');
     if(originalSourceReview)button.classList.add('laria-words-sign-original-source');
+    if(roundSourceReview)button.classList.add('laria-words-sign-original-english-round');
     button.dataset.lariaWordsArt=originalSourceReview?'source-loading':reviewV3?'v3':'v2';
     // Kinnaklova still ships a legacy, !important arrow background rule for
     // its three original hotspots.  The review candidate is an explicit
@@ -154,13 +156,14 @@
     posts.setAttribute('aria-hidden','true');button.append(posts);
    }
    if(originalSourceReview){
-    if(!window.LariaSourceExactSignV1){
+    const sourceArt=roundSourceReview?window.LariaSourceExactSignV2:window.LariaSourceExactSignV1;
+    if(!sourceArt){
      button.dataset.lariaSourceArt='blocked';
      button.dataset.lariaSourceError='Source-pixel module not loaded';
     }else{
      // Asynchronous SHA-verified original, never an unverified artistic
      // replacement. The preview remains opt-in, its failure stays isolated.
-     window.LariaSourceExactSignV1.apply(button).catch(()=>{});
+     sourceArt.apply(button).catch(()=>{});
     }
    }
    if(label)button.setAttribute('data-laria-sign-label',label);
