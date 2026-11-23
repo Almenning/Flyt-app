@@ -50,7 +50,9 @@ async function verify(page,nav,viewport){
    const range=document.createRange();if(name)range.selectNodeContents(name);
    const glyph=name?range.getBoundingClientRect():null;
    const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+   const badgeRect=medal?.getBoundingClientRect();
    return {action:button.dataset.ki,label:name?.textContent?.trim(),
+    badgeWidth:badgeRect?.width,badgeLeft:badgeRect?.left,
     bg:getComputedStyle(button).backgroundImage,
     medalDisplay:medal?getComputedStyle(medal).display:null,
     iconDisplay:ic?getComputedStyle(ic).display:null,
@@ -103,6 +105,13 @@ async function verify(page,nav,viewport){
    assert.notEqual(b.medalDisplay,'none','Task icon is missing');
    assert.notEqual(b.iconDisplay,'none','Task icon SVG is not visible');
    assert.match(b.medalBg,/gradient/,'Task icon must remain inside original wooden frame');
+   // The previous small inset left visible red and white Union Jack fragments
+   // at its right edge. The new inset must cover the original 307px source
+   // flag interior while remaining inside its original carved rim.
+   assert.ok(b.badgeWidth>=b.width*.208&&b.badgeWidth<=b.width*.225,
+    'Source flag is not completely covered by the rounded badge: '+JSON.stringify(b));
+   assert.ok(b.badgeLeft>=left+b.width*.175&&
+    b.badgeLeft<=left+b.width*.19,'Task icon is off-centre in the original relief');
   }
  }
  assert.ok(data.posts&&data.posts[1]<data.items[0].rect[1]&&
