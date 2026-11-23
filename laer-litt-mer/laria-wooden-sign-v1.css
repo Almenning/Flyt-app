@@ -474,3 +474,39 @@
   --laria-group-tail:clamp(36px,4.65vh,43px)!important;
  }
 }
+
+
+/* Kinnaklova 3-board terrain fit: explicit owner REVIEW ONLY (=6).
+ * The flat source landscape is LOCKED. Do not draw new plants or
+ * move anything in Grovanova/Home. Bring the three real DOM boards
+ * towards the original brush line; shorten the visible source-wood
+ * posts by approximately the same amount. The post feet MUST still
+ * stop above the painted church roof in every supported iPad size.
+ * Rejected floral candidate (=5) is intentionally not activated. */
+@media (min-width:768px) and (orientation:portrait) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group.laria-english-terrain-fit {
+  --laria-terrain-drop:22px;
+  --laria-group-tail:clamp(40px,calc(6vh - 22px),66px)!important;
+  top:calc(var(--laria-group-top,17.5%) + var(--laria-terrain-drop))!important;
+ }
+}
+@media (min-width:768px) and (orientation:landscape) and (max-height:850px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group.laria-english-terrain-fit {
+  --laria-terrain-drop:12px;
+  --laria-group-tail:clamp(23px,calc(4.65vh - 12px),31px)!important;
+  top:calc(var(--laria-group-top,max(74px,9.5%)) + var(--laria-terrain-drop))!important;
+ }
+}
+@media (min-width:768px) and (orientation:landscape) and (min-height:851px) {
+ #kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group.laria-english-terrain-fit {
+  --laria-terrain-drop:16px;
+  --laria-group-tail:clamp(24px,calc(4.9vh - 16px),40px)!important;
+  top:calc(var(--laria-group-top,max(74px,9.5%)) + var(--laria-terrain-drop))!important;
+ }
+}
