@@ -9,9 +9,10 @@ const {chromium,webkit}=require('playwright');
 const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const SHA='9019d2d7be86d0f96d59770c0d141b935b1c4195fecc4e1dcfbf531ce226e028';
 const VEGETATION_REVIEW=process.env.LARIA_ENGLISH_VEGETATION_REVIEW==='1';
-const POST_VARIANT=VEGETATION_REVIEW?'2':process.env.LARIA_ENGLISH_POST_VARIANT==='2'?'2':'1';
+const BOTANICAL_REVIEW=process.env.LARIA_ENGLISH_BOTANICAL_REVIEW==='1';
+const POST_VARIANT=(VEGETATION_REVIEW||BOTANICAL_REVIEW)?'2':process.env.LARIA_ENGLISH_POST_VARIANT==='2'?'2':'1';
 const BASE=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+
- '&lariaEnglishSignGroupCandidate='+(VEGETATION_REVIEW?'4':POST_VARIANT==='2'?'3':'2');
+ '&lariaEnglishSignGroupCandidate='+(BOTANICAL_REVIEW?'5':VEGETATION_REVIEW?'4':POST_VARIANT==='2'?'3':'2');
 const OUT=process.env.LARIA_ENGLISH_SOURCE_GROUP_SHOTS||'/tmp/laria-english-source-group';
 const DEVICES=[
  ['820x1180',{width:820,height:1180}],
@@ -42,6 +43,9 @@ async function scene(page){
  if(VEGETATION_REVIEW)
   await page.waitForFunction(()=>document.querySelector('#kinnaklova-world nav.laria-english-source-group')
    ?.dataset.lariaVegetationOcclusion==='ready',null,{timeout:35000});
+ if(BOTANICAL_REVIEW)
+  await page.waitForFunction(()=>document.querySelector('#kinnaklova-world nav.laria-english-source-group')
+   ?.dataset.lariaBotanicalForeground==='ready',null,{timeout:35000});
  return nav;
 }
 async function verify(page,nav,viewport){
@@ -135,6 +139,31 @@ async function verify(page,nav,viewport){
    .map(index=>activePixels[index]);
   const postCapOpacity=[(22*307+84)*4+3,(35*307+236)*4+3]
    .map(index=>activePixels[index]);
+  const floral=posts?.querySelector(':scope > canvas.laria-english-botanical-foreground');
+  let botanical=null;
+  if(floral){
+   const img=floral.getContext('2d',{willReadFrequently:true})
+    .getImageData(0,0,floral.width,floral.height);
+   const start=Number(floral.dataset.rootStart);
+   let covered=0,overBoard=0,lowerFoot=0,whiteOrPink=0;
+   for(let y=0;y<floral.height;y+=2)for(let x=0;x<floral.width;x+=2){
+    const off=(y*floral.width+x)*4;
+    const alpha=img.data[off+3];
+    if(alpha>28){
+     covered++;if(y<start-4)overBoard++;else lowerFoot++;
+     if(img.data[off]>145&&img.data[off+1]>115)whiteOrPink++;
+    }
+   }
+   botanical={source:floral.dataset.source,
+    sha:floral.dataset.originalSha,
+    pixels:Number(floral.dataset.paintedPixels),
+    rootStart:start,
+    paintHeight:Number(floral.dataset.paintHeight),
+    rectangles:floral.dataset.sourceRectangles,
+    pointerEvents:getComputedStyle(floral).pointerEvents,
+    covered,overBoard,lowerFoot,whiteOrPink,
+    size:[floral.width,floral.height]};
+  }
   return {postDifference,footOpacity,postCapOpacity,
    sha:el.dataset.lariaEnglishSourceSha,source:el.dataset.lariaEnglishSourceGroup,
    postVariant:el.dataset.lariaEnglishPostsVariant,
@@ -142,9 +171,21 @@ async function verify(page,nav,viewport){
    posts:p?[p.left,p.top,p.right,p.bottom]:null,
    sourcePostsCount:el.querySelectorAll(':scope > .laria-english-source-posts').length,
    legacyPosts:getComputedStyle(el,'::before').display,
-   plank,taskPlank,protectedFrame,innerWood,supports,vegetation,items};
+   plank,taskPlank,protectedFrame,innerWood,supports,vegetation,botanical,items};
  });
  assert.equal(data.source,'ready');
+ if(BOTANICAL_REVIEW){
+  assert.ok(data.botanical,'Original-source flower illustration failed to mount');
+  assert.equal(data.botanical.source,'grovanova-v16-original-flowers');
+  assert.equal(data.botanical.sha,SHA);
+  assert.equal(data.botanical.pointerEvents,'none');
+  assert.ok(data.botanical.pixels>=450&&data.botanical.covered>=100&&
+   data.botanical.lowerFoot>=90&&data.botanical.whiteOrPink>=20&&
+   data.botanical.overBoard===0,
+   'Flowers are missing, artificial/blank, or cover the actual boards: '+
+    JSON.stringify(data.botanical));
+ }else assert.equal(data.botanical,null,
+  'Older A/B/C reviews must not gain the unapproved floral illustration');
  if(VEGETATION_REVIEW){
   assert.ok(data.vegetation,'Vegetation review did not mount the source-pixel foreground');
   assert.equal(data.vegetation.source,'kinnaklova-approved-master-pixels');
@@ -241,7 +282,7 @@ async function run(engine,engineName,device,viewport){
    let nav=await scene(page);
    const facts=await verify(page,nav,viewport);
    await page.screenshot({path:path.join(OUT,engineName+'-'+device+
-    (VEGETATION_REVIEW?'-source-vegetation':'-original-source-group')+'.png'),
+    (BOTANICAL_REVIEW?'-botanical-flowers':VEGETATION_REVIEW?'-source-vegetation':'-original-source-group')+'.png'),
     animations:'disabled'});
    const deep=device==='1024x1366'||device==='1366x1024';
    for(const action of (deep?ACTIONS:['words'])){
