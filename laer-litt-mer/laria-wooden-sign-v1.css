@@ -436,3 +436,27 @@
  > span.laria-wooden-sign-medallion svg {
  display:block!important;width:19px!important;height:19px!important;
 }
+
+/* Source-original English three-board rail, opt-in ?lariaEnglishSignGroupCandidate=2.
+ * Replaces the synthetic vector support pair only inside this review.
+ * Three real activity buttons remain on ONE common grounded post sprite. */
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-group-rail.laria-english-source-group::before {
+ content:none!important;display:none!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group
+ > .laria-english-source-posts {
+ position:absolute!important;left:0!important;right:0!important;
+ top:-19px!important;width:100%!important;
+ height:calc(100% + var(--laria-group-tail) + 19px)!important;
+ z-index:0!important;display:block!important;pointer-events:none!important;
+ filter:drop-shadow(0 4px 4px #24130580)!important;
+ background-size:100% 100%!important;
+}
+#kinnaklova-world[data-ki-premium-art="approved"]
+ .ki-stage.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-english-source-group
+ > button.laria-english-group-board { z-index:1!important; }
