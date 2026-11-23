@@ -95,10 +95,17 @@
    // Isolated English three-board review. Never alters default English,
    // the two existing Words-only pilots, or the locked scene's artwork.
    const englishGroupReview=subject==='english'&&
-     params.get('lariaEnglishSignGroupCandidate')==='1';
+     ['1','2'].includes(params.get('lariaEnglishSignGroupCandidate'));
    if(scene.dataset.lariaArtworkUi==='separate'){
-     if(englishGroupReview)window.LariaWoodenSign?.mount?.(navigation,subject,
+     if(englishGroupReview){
+      window.LariaWoodenSign?.mount?.(navigation,subject,
        {only:['words','sentences','reading'],illustratedGroup:true});
+      if(params.get('lariaEnglishSignGroupCandidate')==='2'){
+       // Explicit owner-review only. Same real buttons, now grouped around
+       // one SHA-locked Grovanova pixel source and two source-derived posts.
+       window.LariaEnglishSourceGroup?.mount?.(navigation);
+      }
+     }
      else if(wordsCandidate)window.LariaWoodenSign?.mount?.(navigation,subject,
        {only:['words'],sourceDerived:true,sourceVariant:wordsArtVersion==='5'?6:wordsArtVersion==='4'?5:wordsArtVersion==='3'?4:wordsArtVersion==='2'?3:2});
      else if(subject!=='english')window.LariaWoodenSign?.mount?.(navigation,subject);
