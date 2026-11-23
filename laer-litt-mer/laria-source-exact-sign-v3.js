@@ -89,6 +89,63 @@
   ctx.putImageData(art,0,0);
   return canvas.toDataURL('image/png');
  }
+
+ /* Separate V2 preview: longer authentic source-shaft samples instead of
+  * stretching a 20px wood strip into a 350px smear. Still reconstructed
+  * where the Home master hides the middle of the post behind its signs.
+  * The root is an irregular, feathered alpha transition for vegetation,
+  * not a straight hard cutoff. No backdrop painting or new SVG wood. */
+ function originalTwinPostsV2(picture){
+  const W=307,H=390,canvas=document.createElement('canvas');
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  if(!ctx)throw Error('Source twin-post V2 canvas unavailable');
+  for(const p of [
+   {sx:100,sy:705,sw:40,sh:51,dx:57,dy:36,dw:48},
+   {sx:254,sy:704,sw:41,sh:52,dx:212,dy:50,dw:49}
+  ]){
+   ctx.save();
+   ctx.beginPath();
+   ctx.moveTo(p.dx+3,p.dy);ctx.lineTo(p.dx+p.dw-3,p.dy);
+   ctx.lineTo(p.dx+p.dw-2,H-1);ctx.lineTo(p.dx+4,H-1);
+   ctx.closePath();ctx.clip();
+   ctx.drawImage(picture,p.sx,p.sy,p.sw,p.sh,p.dx,p.dy,p.dw,H-p.dy);
+   ctx.restore();
+  }
+  for(const p of [
+   {sx:96,sy:304,sw:68,sh:49,dx:49,dy:0,dw:69,dh:55,
+    points:[[5,46],[7,29],[16,16],[29,8],[45,7],[59,17],[65,33],[65,48],[6,48]]},
+   {sx:250,sy:329,sw:63,sh:49,dx:208,dy:12,dw:63,dh:55,
+    points:[[4,46],[8,29],[18,15],[32,8],[46,8],[58,20],[60,35],[60,44],[4,44]]}
+  ]){
+   ctx.save();ctx.translate(p.dx,p.dy);ctx.beginPath();
+   p.points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+   ctx.closePath();ctx.clip();
+   ctx.drawImage(picture,p.sx,p.sy,p.sw,p.sh,0,0,p.dw,p.dh);
+   ctx.restore();
+  }
+  const art=ctx.getImageData(0,0,W,H);
+  for(let y=0;y<74;y++)for(let x=0;x<W;x++){
+   const off=(y*W+x)*4;
+   const r=art.data[off],g=art.data[off+1],b=art.data[off+2];
+   if(g>r*1.03||b>g*1.07)art.data[off+3]=0;
+  }
+  // Slightly irregular feathering hides the actual two WOOD feet among
+  // the scene foliage without fabricating a new flower or changing the art.
+  for(let y=328;y<H;y++)for(let x=0;x<W;x++){
+   const i=(y*W+x)*4;
+   if(!art.data[i+3])continue;
+   const wave=4.5*Math.sin(x*.18)+2.4*Math.sin(x*.36+.9)+1.2*Math.sin(x*.57+2.4);
+   const boundary=386+wave;
+   if(y>boundary-22){
+    const opacity=clamp((boundary+2-y)/24,0,1);
+    art.data[i+3]=Math.round(art.data[i+3]*opacity);
+   }
+  }
+  ctx.putImageData(art,0,0);
+  return canvas.toDataURL('image/png');
+ }
+
  async function render(){
   const picture=await checkedOriginal();
   try{
@@ -191,7 +248,8 @@
    }
    taskContext.putImageData(taskPixels,0,0);
    return {png:flagOriginalPng,taskPng:taskCanvas.toDataURL('image/png'),
-    taskReplacedPixels:taskReplaced,postPng:originalTwinPosts(picture),sourceSha:LOCKED_SHA,
+    taskReplacedPixels:taskReplaced,postPng:originalTwinPosts(picture),
+    postPngV2:originalTwinPostsV2(picture),sourceSha:LOCKED_SHA,
     nativeWidth:w,nativeHeight:h,pixelsExactlyCopied:exact,visiblePixels:visible,
     retouchedLetterPixels:rebuilt,retouchedIconAreaPixels:replacedIconPixels};
   }finally{
