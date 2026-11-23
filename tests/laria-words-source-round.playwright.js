@@ -55,7 +55,7 @@ async function run(engine,engineName,device,viewport){
    const c=canvas.getContext('2d',{willReadFrequently:true});
    c.drawImage(board,0,0);
    const generated=c.getImageData(0,0,307,82).data;
-   const unchanged=[[18,47],[46,67],[280,47]].map(([x,y])=>{
+   const unchanged=[[18,47],[46,67],[291,47]].map(([x,y])=>{
     const i=(y*307+x)*4;
     return generated[i+3]>100&&[0,1,2].every(j=>generated[i+j]===original[i+j]);
    });
