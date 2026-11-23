@@ -68,7 +68,7 @@
    const flower=red>170&&green>135&&blue>100&&red>green*1.10;
    const strength=flower?.97:leaf?.88:.48;
    const alpha=start*side*bottom*ellipse*strength;
-   pixels.data[at+3]=Math.round(alpha*245);
+   pixels.data[at+3]=Math.round(alpha*198);
    if(alpha>.17)visible++;
   }
   t.putImageData(pixels,0,0);
@@ -112,8 +112,8 @@
     const start=lastBoard.bottom-root.top+3;
     const remaining=h-start;
     if(remaining<30)throw Error('No separate foot space for source flowers');
-    const clusterH=Math.round(Math.min(84,remaining-1,h*.24));
-    const clusterW=Math.round(Math.min(122,Math.max(63,w*.335)));
+    const clusterH=Math.round(Math.min(64,(remaining-1)*.88,h*.20));
+    const clusterW=Math.round(Math.min(94,Math.max(57,w*.27)));
     const top=Math.round(start);
     canvas.width=w;canvas.height=h;
     const ctx=canvas.getContext('2d',{willReadFrequently:true});
@@ -125,7 +125,7 @@
      copied+=paintCluster(source,ctx,w,h,CROPS[i],x,top,
       clusterW,clusterH,i===1);
     }
-    if(copied<450)throw Error('Original source botanical foreground too sparse');
+    if(copied<250)throw Error('Original source botanical foreground too sparse');
     canvas.dataset.originalSha=SHA;
     canvas.dataset.sourceRectangles=CROPS.map(c=>[c.x,c.y,c.w,c.h].join(':')).join(',');
     canvas.dataset.source='grovanova-v16-original-flowers';
