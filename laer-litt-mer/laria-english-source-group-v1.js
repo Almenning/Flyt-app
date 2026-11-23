@@ -7,7 +7,7 @@
  'use strict';
  const ACTIONS=['words','sentences','reading'];
  const set=(element,name,value)=>element.style.setProperty(name,value,'important');
- async function mount(nav){
+ async function mount(nav,options={}){
   if(!nav||nav.dataset.lariaEnglishSourceGroup)return false;
   nav.dataset.lariaEnglishSourceGroup='loading';
   const source=window.LariaSourceExactSignV3;
@@ -21,12 +21,16 @@
    if(!nav.isConnected)return false;
    const boards=ACTIONS.map(id=>nav.querySelector('button[data-ki="'+id+'"]'));
    if(boards.some(board=>!board))throw Error('English source group is missing a real activity button');
+   const alternatePosts=options.postVariant===2;
+   if(alternatePosts&&!art.postPngV2)throw Error('Source-wood V2 posts unavailable');
    nav.classList.add('laria-english-source-group');
+   if(alternatePosts)nav.classList.add('laria-english-post-v2');
+   nav.dataset.lariaEnglishPostsVariant=alternatePosts?'2':'1';
    const posts=document.createElement('span');
    posts.className='laria-english-source-posts';
    posts.setAttribute('aria-hidden','true');
-   posts.dataset.source='grovanova-locked-post-pixels-v1';
-   set(posts,'background','url("'+art.postPng+'") center/100% 100% no-repeat');
+   posts.dataset.source=alternatePosts?'grovanova-locked-post-pixels-v2':'grovanova-locked-post-pixels-v1';
+   set(posts,'background','url("'+(alternatePosts?art.postPngV2:art.postPng)+'") center/100% 100% no-repeat');
    nav.prepend(posts);
    boards.forEach((board,i)=>{
     const id=ACTIONS[i],label=board.querySelector(':scope > .ki-plank-name');
