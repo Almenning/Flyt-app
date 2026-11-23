@@ -96,9 +96,12 @@
       // forest/grass/shrub pixels selected from the approved source itself.
       const foliage=clamp((g-b+15)/70,0,1)*
         clamp((g-r*.48+8)/75,0,1);
-      const base=clamp((progress-.08)/.92,0,1);
-      const cover=clamp(Math.pow(base,1.18)*(.36+.64*foliage),0,1);
-      const opacity=progress>.975?1:cover;
+      // The first pass masked too little at real iPad scale. Preserve
+      // more of the painted shrubs in front of the lower third of each
+      // support while leaving the board and upper post fully untouched.
+      const base=clamp((progress+.035)/.9,0,1);
+      const cover=clamp(Math.pow(base,.82)*(.46+.54*foliage),0,1);
+      const opacity=progress>.955?1:cover;
       background.data[i+3]=Math.round(opacity*woodAlpha*255);
       if(opacity>.12){pixels++;visibleWood++;}
      }
