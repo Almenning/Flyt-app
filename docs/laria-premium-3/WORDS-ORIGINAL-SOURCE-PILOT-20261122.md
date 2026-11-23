@@ -48,7 +48,11 @@ Bildene fra den tidligere `Words`-kandidaten ble funksjonelt godkjent i Chromium
 Dette oppsettet er den første **samlede** English/Kinnaklova-kandidaten med originalkilde:
 - Bruker samme eksakte Grovanova/Engelsk-plankekilde (original 1448×1086, SHA-256 `9019d2d7...`, utsnitt 307×82) på alle tre reelle `data-ki`-knappene, med endret DOM-etikett Words / Sentences / Reading. Ingen ny CSS-treplankegenerering.
 - Én felles kildebasert **to-stolpe-ressurs**, generert i minnet fra faktisk originale Grovanova-piksler (trekapper og synlig aksel) ved kildeverifisering. Manglende/overmalte partier av stolpene i den flate originalen **må vertikalt forlenges/rekonstrueres**; dette er ikke piksel-for-piksel identisk med et usett originalmotiv. Den gamle CSS-/SVG-stolperailen skjules kun for denne kandidaten.
-- Words bruker **det uendrede britiske flagget** i originalens runde medaljong. Sentences/Reading har oppgaveegne SVG-ikoner på **mørk, tilpasset innerflate** mens den kildeoriginale ytterrammen består. Disse innersymbolene er nye og er **ikke** 100 % originale bildepiksler.
+- Words bruker et separat **ABC-/ordsymbol** på samme mørke, rekonstruerte
+  innerflate som Sentences og Reading. Den kildeoriginale ytterrammen,
+  plankekanten og naglene beholdes; bare ikonets indre flate er ny og er
+  derfor ikke en påstand om 100 % originale bildepiksler. Dette er korrekt
+  for Words som læringsaktivitet og erstatter Union Jack i denne kandidaten.
 - Original Kinnaklova fjell, kirke, trollet, Hjem, oppgaver, handlere og fremdriftslagring er urørte. Andre kandidater `?lariaEnglishSignGroupCandidate=1` og `?lariaWordsSignCandidate=1..5` beholdes separat.
 - Ny Playwright-test `tests/laria-english-source-group.playwright.js` gir reelle skjermbilder på **alle fem iPad-størrelser i Chromium og WebKit**, undersøker alle tre ekte knappene, nøyaktig én stolpegruppe, kilde-SHA og korrekt bildekilde og at stolpeføtter ikke treffer kirketaket. Den åpner de originale Words/Sentences/Reading-rutene.
 

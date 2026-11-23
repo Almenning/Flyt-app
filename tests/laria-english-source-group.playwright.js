@@ -81,6 +81,7 @@ async function verify(page,nav,viewport){
     bg:getComputedStyle(button).backgroundImage,
     medalSource:button.dataset.lariaMedalSource,
     medalDisplay:medal?getComputedStyle(medal).display:null,
+    medalText:medal?.textContent?.trim()||'',
     iconDisplay:ic?getComputedStyle(ic).display:null,
     medalBg:medal?getComputedStyle(medal).backgroundImage:null,
     rect:[r.left,r.top,r.right,r.bottom],height:r.height,width:r.width,
@@ -245,12 +246,10 @@ async function verify(page,nav,viewport){
   assert.ok(firstBg.includes('data:image/png;base64')&&
    b.bg.includes('data:image/png;base64'),
    'Missing real original-source painted plank: '+b.action);
-  assert.equal(b.medalSource,i===0?'original-flag':'source-reconstructed-engraving',
-   'Source-labelled medal variant does not match intended activity');
-  assert.equal(b.bg===firstBg,i===0,
-   'Words should retain untouched UK flag; the other two share only the textured task variant');
-  if(i===2)assert.equal(b.bg,data.items[1].bg,
-   'Sentences and Reading must use identical engraved original-source relief artwork');
+  assert.equal(b.medalSource,'source-reconstructed-engraving',
+   'Every activity must share the source-rim / dark-relief medal family');
+  assert.equal(b.bg,firstBg,
+   'All three activities must use the same illustrated plank and medal source');
   assert.ok(b.canTap&&b.width>=265&&b.height>=75&&
    left>=-1&&right<=viewport.width+1&&top>=0&&bottom<=viewport.height+1,
    'Source group board is clipped or not clickable: '+JSON.stringify(b));
@@ -259,8 +258,12 @@ async function verify(page,nav,viewport){
    'Board lettering is clipped or collides with original round medallion: '+b.action);
   assert.ok(b.fontSize>=26,'Source label is too small compared with locked Grovanova serif');
   if(i)assert.ok(top>=data.items[i-1].rect[3]+2,'Planks overlap');
-  if(i===0)assert.equal(b.medalDisplay,'none','Words must retain the original British flag');
-  else{
+  if(i===0){
+   assert.notEqual(b.medalDisplay,'none','Words needs its own visible ABC medal');
+   assert.equal(b.medalText,'ABC','Words must use ABC, never the British flag');
+   assert.ok(b.badgeWidth>=b.width*.18&&b.badgeWidth<=b.width*.20,
+    'Words medal has wrong scale within the carved relief: '+JSON.stringify(b));
+  }else{
    assert.notEqual(b.medalDisplay,'none','Task icon is missing');
    assert.notEqual(b.iconDisplay,'none','Task icon SVG is not visible');
    assert.equal(b.medalBg,'none',

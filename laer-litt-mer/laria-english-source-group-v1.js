@@ -1,5 +1,5 @@
 /* Læria: ONE source-illustration English sign rail, review only.
- * Uses pixel-identical Grovanova plank/flag/rim regions from the SHA-checked
+ * Uses pixel-identical Grovanova plank/rim regions from the SHA-checked
  * Home v16 original. Lettering and two task-specific symbols remain real
  * DOM, not painted into the scene. No default app behaviour is changed.
  */
@@ -37,8 +37,12 @@
     const medal=board.querySelector(':scope > .laria-wooden-sign-medallion');
     if(!label||!medal)throw Error('Source group lacks a semantic label or icon');
     board.dataset.lariaEnglishSourceBoard=id;
-    set(board,'background','url("'+(id==='words'?art.png:art.taskPng)+'") center/100% 100% no-repeat');
-    board.dataset.lariaMedalSource=id==='words'?'original-flag':'source-reconstructed-engraving';
+    // Words is a vocabulary activity, not an English-language selector.
+    // All three boards therefore share the same reconstructed dark inner
+    // medal surface while retaining the source-painted outer rim, plank and
+    // nails. This removes the inappropriate Union Jack from Words.
+    set(board,'background','url("'+art.taskPng+'") center/100% 100% no-repeat');
+    board.dataset.lariaMedalSource='source-reconstructed-engraving';
     set(board,'aspect-ratio','307 / 82');
     set(board,'min-height','76px');
     set(board,'width','100%');
@@ -57,14 +61,29 @@
     set(label,'color','#2b180b');
     set(label,'text-align','center');
     set(label,'text-shadow','0 1px 0 #ffe2a4');
-    // Words retains the real illustrated UK flag and original carved rim.
-    // Sentences/Reading share a NEW INNER disc reconstructed in the bitmap
-    // from its SHA-locked wood texture. The surrounding round frame is still
-    // ORIGINAL pixels. Only task glyphs are rendered separately over the disc.
+    // Every activity shares one reconstructed dark inner disc over the same
+    // original carved rim. Its task glyph remains a real, non-interactive DOM
+    // layer; nothing turns the board into a flattened image menu.
     if(id==='words'){
-     medal.textContent='';
-     set(medal,'display','none');
+     medal.textContent='ABC';
+     medal.dataset.lariaSourceMedal='words';
+     set(medal,'display','grid');
+     set(medal,'place-items','center');
+     set(medal,'visibility','visible');
+     set(medal,'left','19.1%');
+     set(medal,'top','57.3%');
+     set(medal,'transform','translateY(-50%)');
+     set(medal,'width','19%');
+     set(medal,'height','auto');
+     set(medal,'aspect-ratio','1');
+     set(medal,'border-radius','50%');
+     set(medal,'border','0');
      set(medal,'background','none');
+     set(medal,'box-shadow','none');
+     set(medal,'color','#ffe5a0');
+     set(medal,'font','900 clamp(12px,1.38vw,17px)/1 Georgia,"Times New Roman",serif');
+     set(medal,'letter-spacing','-.08em');
+     set(medal,'text-shadow','0 1px 1px #170b05');
     }else{
      medal.dataset.lariaSourceMedal=id;
      set(medal,'display','grid');
