@@ -10,6 +10,7 @@ const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const SHA='9019d2d7be86d0f96d59770c0d141b935b1c4195fecc4e1dcfbf531ce226e028';
 const VEGETATION_REVIEW=process.env.LARIA_ENGLISH_VEGETATION_REVIEW==='1';
 const BOTANICAL_REVIEW=process.env.LARIA_ENGLISH_BOTANICAL_REVIEW==='1';
+const QUICK_SMOKE=process.env.LARIA_BOTANICAL_SMOKE==='1';
 const POST_VARIANT=(VEGETATION_REVIEW||BOTANICAL_REVIEW)?'2':process.env.LARIA_ENGLISH_POST_VARIANT==='2'?'2':'1';
 const BASE=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+
  '&lariaEnglishSignGroupCandidate='+(BOTANICAL_REVIEW?'5':VEGETATION_REVIEW?'4':POST_VARIANT==='2'?'3':'2');
@@ -43,9 +44,24 @@ async function scene(page){
  if(VEGETATION_REVIEW)
   await page.waitForFunction(()=>document.querySelector('#kinnaklova-world nav.laria-english-source-group')
    ?.dataset.lariaVegetationOcclusion==='ready',null,{timeout:35000});
- if(BOTANICAL_REVIEW)
-  await page.waitForFunction(()=>document.querySelector('#kinnaklova-world nav.laria-english-source-group')
-   ?.dataset.lariaBotanicalForeground==='ready',null,{timeout:35000});
+ if(BOTANICAL_REVIEW){
+  await page.waitForFunction(()=>{
+   const nav=document.querySelector('#kinnaklova-world nav.laria-english-source-group');
+   return ['ready','blocked'].includes(nav?.dataset.lariaBotanicalForeground);
+  },null,{timeout:14000});
+  const status=await nav.evaluate(el=>({
+   source:el.dataset.lariaEnglishSourceGroup,
+   posts:el.dataset.lariaEnglishPostsVariant,
+   botanical:el.dataset.lariaBotanicalForeground,
+   reason:el.dataset.lariaBotanicalReason,
+   vegetation:el.dataset.lariaVegetationOcclusion,
+   vegetationReason:el.dataset.lariaVegetationReason,
+   sourceModule:!!window.LariaEnglishBotanical,
+   sourceArt:!!window.LariaSourceExactSignV3
+  }));
+  assert.equal(status.botanical,'ready',
+   'Original-source flower preview cannot render: '+JSON.stringify(status));
+ }
  return nav;
 }
 async function verify(page,nav,viewport){
@@ -306,8 +322,8 @@ async function run(engine,engineName,device,viewport){
 }
 (async()=>{
  const report=[];
- for(const [device,viewport] of DEVICES)
-  for(const [name,engine] of [['chromium',chromium],['webkit',webkit]])
+ for(const [device,viewport] of (QUICK_SMOKE?DEVICES.slice(0,1):DEVICES))
+  for(const [name,engine] of (QUICK_SMOKE?[['chromium',chromium]]:[['chromium',chromium],['webkit',webkit]]))
    report.push(await run(engine,name,device,viewport));
  fs.mkdirSync(OUT,{recursive:true});
  fs.writeFileSync(path.join(OUT,'source-group-qa.json'),JSON.stringify(report,null,2)+'\n');
