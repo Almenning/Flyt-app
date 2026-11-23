@@ -1,0 +1,51 @@
+name: Læria Kinnaklova – terrengforankring A/B på iPad
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/laria-scene-ui-v1.js'
+      - 'laer-litt-mer/laria-wooden-sign-v1.css'
+      - 'laer-litt-mer/laria-english-source-group-v1.js'
+      - 'laer-litt-mer/laria-english-vegetation-v1.js'
+      - 'tests/laria-english-terrain-fit.playwright.js'
+      - '.github/workflows/laria-english-terrain-fit-review.yml'
+permissions:
+  contents: read
+jobs:
+  terrain-fit:
+    name: Original vs terrain-fit – 5 iPads x Chromium/WebKit
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Syntax guard and original sign invariant
+        run: |
+          node --check laer-litt-mer/laria-scene-ui-v1.js
+          node --check laer-litt-mer/laria-english-source-group-v1.js
+          node --check tests/laria-english-terrain-fit.playwright.js
+          node --test tests/laria-locked-sign-design-v1.test.cjs
+      - name: Serve the actual PR commit
+        run: python3 -m http.server 8765 --directory . >/tmp/laria-terrain-http.log 2>&1 &
+      - name: Fast before/after smoke on portrait iPad
+        env:
+          LARIA_TERRAIN_SMOKE: '1'
+          LARIA_TERRAIN_FIT_SHOTS: /tmp/laria-terrain-fit/smoke
+        run: node tests/laria-english-terrain-fit.playwright.js
+      - name: Original vs terrain-fit screenshots and real navigation
+        env:
+          LARIA_TERRAIN_FIT_SHOTS: /tmp/laria-terrain-fit/real
+        run: node tests/laria-english-terrain-fit.playwright.js
+      - name: Upload before/after evidence even on failed test
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-terrain-fit-REVIEW-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-terrain-fit
+          retention-days: 21
+          if-no-files-found: warn
