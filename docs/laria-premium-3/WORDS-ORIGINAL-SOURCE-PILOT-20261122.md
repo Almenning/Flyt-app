@@ -54,6 +54,20 @@ Dette oppsettet er den første **samlede** English/Kinnaklova-kandidaten med ori
 
 **Visuell sperre:** Før denne kan bli ny master, må de reelle iPad-bildene kontrolleres for kildeform, tekstfjerning, nok terrengkontakt, at medaljong-ikonene ikke ser kunstige ut, og om alle tre plankene faktisk har samme størrelse og skiltstil. Grønne Playwright-tester betyr bare teknisk kontroll. Ingen utrulling i normal visning uten eksplisitt eiergodkjenning.
 
+## 23. november: Original utskåret ring uten CSS-medaljong (opt-in review v2, videreføring)
+
+Bildegjennomgangen av de tre kildebaserte skiltene viste at den flate, brunfargede CSS-sirkelen i Sentences og Reading ikke tilsvarte Grovanovas illustrerte, utskårne medaljong.
+
+**Endring i `lariaEnglishSignGroupCandidate=2`:**
+
+- `laria-source-exact-sign-v3.js` leverer nå **to adskilte plankebilder** fra samme SHA-256-verifiserte originalkilde: `png` med uendret Union Jack for Words; `taskPng` for de to andre aktivitetene.
+- I `taskPng` bearbeides kun den runde flaten med radius **29,5 kildepiksler** rundt medaljongsenteret (88,47) i originalutsnittet 307 × 82. Ytre utskåret ramme, plankekant, nagler og resten av treverket beholdes. Den nye innerflaten får subtil struktur som samples fra samme låste treplanke, ikke en flat CSS-gradient.
+- `laria-english-source-group-v1.js` bruker `taskPng` bak ikonene for Sentences og Reading, og **ingen CSS-sirkelfylling**. De originale knappene, handlings-ID-ene og læringsrutene er uendret. Symbolene er fortsatt separate tilgjengelighetsnøytrale SVG-dekorasjoner over innerflaten.
+- Den nye Playwright-sperren verifiserer ekte dekodet `taskPng`, mørkt bearbeidet innfelt på medaljongsenteret, identiske piksler på utvalgte punkter i originalrammen/treverket og at CSS-medaljongen faktisk er fraværende.
+- **Begrensning:** Det britiske flagget og den nye illustrasjonen kan ikke begge være originale på samme sted. Bare uendrede deler er pikselidentiske. Den nye innerflaten er rekonstruksjon og krever særskilt visuell godkjenning på faktisk iPad-skjerm, ikke kun en grønn test.
+
+**Denne kandidaten er fortsatt visuelt IKKE GODKJENT.** Ingen endring av den publiserte appen, intet nytt stolpedesign på tvers av fag, ingen merge.
+
 ## Eksakt-head kvalitetssikring
 
 `tests/laria-words-source-original.playwright.js` og workflow `laria-words-sign-candidate.yml` kontrollerer:
