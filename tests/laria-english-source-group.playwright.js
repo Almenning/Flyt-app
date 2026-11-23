@@ -60,8 +60,9 @@ async function verify(page,nav,viewport){
     glyph:glyph?[glyph.left,glyph.top,glyph.right,glyph.bottom]:null,
     canTap:hit===button||button.contains(hit),aria:button.getAttribute('aria-label')};
   });
+  const url=css=>css.startsWith('url("')?css.slice(5,-2):css.startsWith('url(')?css.slice(4,-1):'';
   const load=async css=>{
-   const image=new Image();image.src=cssURL(css);await image.decode();
+   const image=new Image();image.src=url(css);await image.decode();
    return {width:image.naturalWidth,height:image.naturalHeight};
   };
   const plank=await load(items[0].bg);
