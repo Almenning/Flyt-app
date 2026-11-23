@@ -44,8 +44,8 @@
   const ctx=canvas.getContext('2d',{willReadFrequently:true});
   if(!ctx)throw Error('Locked source post canvas unavailable');
   const shafts=[
-   {sx:101,sy:721,sw:38,sh:34,dx:57,dy:36,dw:48},
-   {sx:256,sy:721,sw:39,sh:34,dx:212,dy:50,dw:49}
+   {sx:101,sy:738,sw:38,sh:20,dx:57,dy:36,dw:48},
+   {sx:256,sy:738,sw:39,sh:20,dx:212,dy:50,dw:49}
   ];
   for(const p of shafts){
    ctx.save();
@@ -61,9 +61,9 @@
   }
   const caps=[
    {sx:96,sy:304,sw:68,sh:49,dx:49,dy:0,dw:69,dh:55,
-    points:[[5,46],[7,29],[16,16],[29,8],[45,7],[59,17],[65,33],[65,53],[6,53]]},
+    points:[[5,46],[7,29],[16,16],[29,8],[45,7],[59,17],[65,33],[65,48],[6,48]]},
    {sx:250,sy:329,sw:63,sh:49,dx:208,dy:12,dw:63,dh:55,
-    points:[[4,46],[8,29],[18,15],[32,8],[46,8],[58,20],[60,35],[60,53],[4,53]]}
+    points:[[4,46],[8,29],[18,15],[32,8],[46,8],[58,20],[60,35],[60,44],[4,44]]}
   ];
   for(const p of caps){
    ctx.save();ctx.translate(p.dx,p.dy);ctx.beginPath();
@@ -73,6 +73,13 @@
    ctx.restore();
   }
   const art=ctx.getImageData(0,0,307,390);
+  // The source cap crop has sky around the WOOD. Mask only those
+  // background-coloured pixels, retaining the real carved wood.
+  for(let y=0;y<74;y++)for(let x=0;x<307;x++){
+   const off=(y*307+x)*4;
+   const r=art.data[off],g=art.data[off+1],b=art.data[off+2];
+   if(g>r*1.03||b>g*1.07)art.data[off+3]=0;
+  }
   for(let y=366;y<390;y++){
    const opacity=(390-y)/24;
    for(let x=0;x<307;x++)art.data[(y*307+x)*4+3]*=opacity;
