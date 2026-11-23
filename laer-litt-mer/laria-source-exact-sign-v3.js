@@ -90,7 +90,9 @@
     const blue=original[off+2]>95&&
      original[off+2]>original[off+1]+15&&
      original[off+2]>original[off]+25;
-    pixels.data[off+3]=blue?0:mattePixels[off+3];
+    const x=i%w,y=Math.floor(i/w);
+    const originalRoundMedal=(x-88)*(x-88)+(y-47)*(y-47)<35*35;
+    pixels.data[off+3]=blue&&!originalRoundMedal?0:mattePixels[off+3];
     if(mattePixels[off+3]>0){
      visible++;
      if(pixels.data[off]===original[off]&&pixels.data[off+1]===original[off+1]&&pixels.data[off+2]===original[off+2])exact++;
