@@ -47,7 +47,7 @@
     set(label,'right','4%');
     set(label,'top','50%');
     set(label,'transform','translateY(-54%)');
-    set(label,'font','900 clamp(23px,2.55vw,35px)/1 Georgia,"Times New Roman",serif');
+    set(label,'font','900 clamp(26px,2.95vw,35px)/1 Georgia,"Times New Roman",serif');
     set(label,'white-space','nowrap');
     set(label,'letter-spacing','-.025em');
     set(label,'color','#2b180b');
