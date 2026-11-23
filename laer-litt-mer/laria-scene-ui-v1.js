@@ -95,15 +95,24 @@
    // Isolated English three-board review. Never alters default English,
    // the two existing Words-only pilots, or the locked scene's artwork.
    const englishGroupReview=subject==='english'&&
-     ['1','2','3'].includes(params.get('lariaEnglishSignGroupCandidate'));
+     ['1','2','3','4'].includes(params.get('lariaEnglishSignGroupCandidate'));
    if(scene.dataset.lariaArtworkUi==='separate'){
      if(englishGroupReview){
       window.LariaWoodenSign?.mount?.(navigation,subject,
        {only:['words','sentences','reading'],illustratedGroup:true});
-      if(['2','3'].includes(params.get('lariaEnglishSignGroupCandidate'))){
+      if(['2','3','4'].includes(params.get('lariaEnglishSignGroupCandidate'))){
        // Explicit owner-review only. Same real buttons, now grouped around
        // one SHA-locked Grovanova pixel source and two source-derived posts.
-       window.LariaEnglishSourceGroup?.mount?.(navigation,{postVariant:params.get('lariaEnglishSignGroupCandidate')==='3'?2:1});
+       const sourceVersion=params.get('lariaEnglishSignGroupCandidate');
+       const result=window.LariaEnglishSourceGroup?.mount?.(navigation,
+        {postVariant:sourceVersion==='3'||sourceVersion==='4'?2:1});
+       if(sourceVersion==='4'){
+        // Foliage is a NONINTERACTIVE layer from the already approved
+        // Kinnaklova master, installed only after source rail passes SHA.
+        Promise.resolve(result).then(ready=>{
+         if(ready)window.LariaEnglishVegetation?.mount?.(navigation);
+        });
+       }
       }
      }
      else if(wordsCandidate)window.LariaWoodenSign?.mount?.(navigation,subject,
