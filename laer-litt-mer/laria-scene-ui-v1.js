@@ -95,18 +95,24 @@
    // Isolated English three-board review. Never alters default English,
    // the two existing Words-only pilots, or the locked scene's artwork.
    const englishGroupReview=subject==='english'&&
-     ['1','2','3','4','5'].includes(params.get('lariaEnglishSignGroupCandidate'));
+     ['1','2','3','4','5','6'].includes(params.get('lariaEnglishSignGroupCandidate'));
    if(scene.dataset.lariaArtworkUi==='separate'){
      if(englishGroupReview){
       window.LariaWoodenSign?.mount?.(navigation,subject,
        {only:['words','sentences','reading'],illustratedGroup:true});
-      if(['2','3','4','5'].includes(params.get('lariaEnglishSignGroupCandidate'))){
+      if(['2','3','4','5','6'].includes(params.get('lariaEnglishSignGroupCandidate'))){
        // Explicit owner-review only. Same real buttons, now grouped around
        // one SHA-locked Grovanova pixel source and two source-derived posts.
        const sourceVersion=params.get('lariaEnglishSignGroupCandidate');
+       if(sourceVersion==='6'){
+        // Separate composition-only review: bring original signs closer
+        // to existing terrain while shortening their exposed support feet.
+        // Never change the locked scene or the default user experience.
+        navigation.classList.add('laria-english-terrain-fit');
+       }
        const result=window.LariaEnglishSourceGroup?.mount?.(navigation,
-        {postVariant:['3','4','5'].includes(sourceVersion)?2:1});
-       if(sourceVersion==='4'){
+        {postVariant:['3','4','5','6'].includes(sourceVersion)?2:1});
+       if(sourceVersion==='4'||sourceVersion==='6'){
         // Foliage is a NONINTERACTIVE layer from the already approved
         // Kinnaklova master, installed only after source rail passes SHA.
         Promise.resolve(result).then(ready=>{
