@@ -68,6 +68,18 @@ Bildegjennomgangen av de tre kildebaserte skiltene viste at den flate, brunfarge
 
 **Denne kandidaten er fortsatt visuelt IKKE GODKJENT.** Ingen endring av den publiserte appen, intet nytt stolpedesign på tvers av fag, ingen merge.
 
+## 23.11.2026: Ekte blomster fra Grovanova, separat illustrasjonslag (review 5)
+
+**Status:** Kun review via `?app=laria&lariaEnglishSignGroupCandidate=5`. Visuell godkjenning GJENSTÅR. Ikke merge eller publiser.
+
+- Forrige `=4` repeterte godkjente Kinnaklova-bakgrunnspiksler over stolpeføttene, men var for svak til å gi et troverdig vegetasjonslag. Vi endrer ikke mer CSS/alpha i den varianten.
+- I ny `laria-english-botanical-v1.js` hentes **de faktiske blomstene og bladene fra den låste Grovanova v16-illustrasjonen**, med SHA-256 `9019d2d7be86d0f96d59770c0d141b935b1c4195fecc4e1dcfbf531ce226e028`, 1448×1086. Nøyaktige kildeutsnitt er `(300,690,114,150)` og `(292,718,121,135)`. Disse cropene inneholder plantefelt uten originale knapper, treplanker eller navnefelt.
+- Kun transparens-/kantmaske, skala og plassering redigeres. RGB-fargene kommer fra originalens illustrasjon; **det er ikke en påstand om at blomstertegningens nye plassering er original**.
+- To adskilte plantelag legges **foran de opprinnelige stolpeføttene, men bak de tre skiltplankene**, uten å flytte eller endre godkjent Kinnaklova-landskap, Home, troll, oppgaver eller den originale DOM-navigasjonen.
+- Foreground er `aria-hidden`, `pointer-events:none` og bruker samme sikre post-V2-sprite som `=3/4`. Kandidat `=2/3/4` bevares identisk som A/B/C-kontroller.
+- Playwright-kontroll for **5 iPad-størrelser × Chromium/WebKit** krever eksakt kilde-SHA, ingen tegning over Reading-skiltet, faktiske blomst-/bladpiksler, fysisk fotdekning, uendrede click-ruter og fremdeles én felles to-stolpe-rail.
+- **Visuell risiko:** Dersom plantelagene ser ut som pålimte klynger fremfor naturlig vegetasjon, skal kandidaten AVVISES i visuell port, selv om CI er grønn. Ikke bruk flere små justeringer til å skjule en manglende kunstnerisk integrasjon.
+
 ## Eksakt-head kvalitetssikring
 
 `tests/laria-words-source-original.playwright.js` og workflow `laria-words-sign-candidate.yml` kontrollerer:
