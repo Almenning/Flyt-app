@@ -1,0 +1,53 @@
+name: Læria Premium integration – exact-head iPad evidence
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/laria-premium-sign-art-v1.js'
+      - 'laer-litt-mer/laria-premium-sign-art-v1.css'
+      - 'laer-litt-mer/laria-scene-ui-v1.js'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-gangemagi-release-cache.test.cjs'
+      - 'tests/laria-premium-sign-integration.playwright.js'
+      - '.github/workflows/laria-premium-integration-ipad.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: ${{ github.event.pull_request.head.sha || github.sha }}}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - run: npm run test:node
+  ipad-webkit-chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    env:
+      QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+      LARIA_PREMIUM_INTEGRATION_SCREENSHOTS: /tmp/laria-premium-integration
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: ${{ github.event.pull_request.head.sha || github.sha }}}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - run: node --check laer-litt-mer/laria-premium-sign-art-v1.js && node --check tests/laria-premium-sign-integration.playwright.js
+      - run: python3 -m http.server 8765 --directory . >/tmp/laria-premium-http.log 2>&1 &
+      - run: node tests/laria-premium-sign-integration.playwright.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-premium-integration-ipad-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            /tmp/laria-premium-integration
+            /tmp/laria-premium-http.log
+          if-no-files-found: error
+          retention-days: 14
