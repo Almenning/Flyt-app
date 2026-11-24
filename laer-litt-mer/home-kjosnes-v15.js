@@ -652,6 +652,7 @@ addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(
   if(document.getElementById('laria-troll-voice-test'))return;
   const screen=document.getElementById('home-screen');
   if(!screen)return;
+  const onboarding=document.getElementById('onboarding');
   const panel=document.createElement('aside');
   panel.id='laria-troll-voice-test';
   panel.setAttribute('aria-label','Midlertidig test av trollstemmer');
@@ -697,12 +698,16 @@ addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(
   screen.append(panel);
   function sync(){
    const host=screen.querySelector('.bc12');
-   const visible=screen.classList.contains('active')&&(!host||host.dataset.mode!=='explore');
+   const visible=screen.classList.contains('active')&&
+     !onboarding?.classList.contains('show')&&
+     (!host||((!host.dataset.mode||host.dataset.mode==='home')&&
+       (!host.dataset.bc13View||host.dataset.bc13View==='home')));
    panel.style.display=visible?'block':'none';
    if(!visible&&current){current=null;window.speechSynthesis?.cancel();}
   }
   const observer=new MutationObserver(sync);
-  observer.observe(screen,{subtree:true,attributes:true,attributeFilter:['class','data-mode','data-bc13-view']});
+  observer.observe(screen,{subtree:true,childList:true,attributes:true,attributeFilter:['class','data-mode','data-bc13-view']});
+  if(onboarding)observer.observe(onboarding,{attributes:true,attributeFilter:['class']});
   sync();
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
