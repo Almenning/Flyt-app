@@ -85,6 +85,7 @@
    // User's iPad reference is an opt-in, art-safe presentation adapter.
    // Original scenes, existing actions and stored learning are untouched.
    window.LARIA_REFERENCE_LAYOUT?.mount?.(scene,subject);
+   window.LariaPremiumSignArt?.mount?.(scene.querySelector('nav.laria-scene-navigation'));
    // Preserve all activity action attributes, data-troll, individual landscape
    // classes and the original source image. This does not create a new logo.
    return true;
