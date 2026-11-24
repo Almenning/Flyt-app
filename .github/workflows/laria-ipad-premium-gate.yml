@@ -47,6 +47,7 @@ jobs:
       LARIA_WAYFINDER_SHOTS: /tmp/laria-ipad-wayfinder
       HOME_V15_SCREENSHOTS: /tmp/laria-ipad-home-no-bottom-cards
       LARIA_TALLVIKA_PREMIUM_SCREENSHOTS: /tmp/laria-ipad-tallvika
+      LARIA_PREMIUM_INTEGRATION_SCREENSHOTS: /tmp/laria-premium-integration
     steps:
       - uses: actions/checkout@v4
         with:
@@ -66,6 +67,7 @@ jobs:
           node --check tests/laria-home-kjosnes-v15.playwright.js
           node --check laer-litt-mer/home-kjosnes-v15.js
           node --check tests/laria-tallvika-premium-signs.playwright.js
+          node --check tests/laria-premium-sign-integration.playwright.js
       - name: Serve exact checked-out PR files
         run: |
           python3 -m http.server 8765 --directory . >/tmp/laria-ipad-http.log 2>&1 &
@@ -114,6 +116,11 @@ jobs:
         if: always()
         continue-on-error: true
         run: node tests/laria-tallvika-premium-signs.playwright.js
+      - name: Capture review-gated source-art candidate at five iPad sizes
+        id: premium_integration
+        if: always()
+        continue-on-error: true
+        run: node tests/laria-premium-sign-integration.playwright.js
       - name: Upload actual screenshots and failure evidence for visual approval
         if: always()
         uses: actions/upload-artifact@v4
@@ -126,6 +133,7 @@ jobs:
             /tmp/laria-ipad-wayfinder
             /tmp/laria-ipad-tallvika
             /tmp/laria-ipad-home-no-bottom-cards
+            /tmp/laria-premium-integration
             /tmp/laria-ipad-http.log
           if-no-files-found: warn
           retention-days: 14
@@ -138,11 +146,13 @@ jobs:
           echo "Kinnaklova: ${{ steps.english.outcome }}"
           echo "Wayfinding: ${{ steps.wayfinder.outcome }}"
           echo "Tallvika: ${{ steps.tallvika.outcome }}"
+          echo "Premium integration: ${{ steps.premium_integration.outcome }}"
           echo "Home no-card: ${{ steps.home.outcome }}"
           test "${{ steps.identity.outcome }}" = "success"
           test "${{ steps.reference.outcome }}" = "success"
           test "${{ steps.english.outcome }}" = "success"
           test "${{ steps.wayfinder.outcome }}" = "success"
           test "${{ steps.tallvika.outcome }}" = "success"
+          test "${{ steps.premium_integration.outcome }}" = "success"
           test "${{ steps.home.outcome }}" = "success"
           echo "Automated iPad checks passed. Separate human visual approval is still required."
