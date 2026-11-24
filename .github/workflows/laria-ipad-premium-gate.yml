@@ -33,6 +33,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  premium-integration-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    env:
+      QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+      LARIA_PREMIUM_INTEGRATION_SCREENSHOTS: /tmp/laria-premium-integration
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.event.pull_request.head.sha || github.sha }}'}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - run: python3 -m http.server 8765 --directory . >/tmp/laria-premium-http.log 2>&1 &
+      - run: node tests/laria-premium-sign-integration.playwright.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-premium-candidate-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            /tmp/laria-premium-integration
+            /tmp/laria-premium-http.log
+          if-no-files-found: error
+          retention-days: 14
   real-ipad-webkit-chromium:
     runs-on: ubuntu-latest
     timeout-minutes: 40
