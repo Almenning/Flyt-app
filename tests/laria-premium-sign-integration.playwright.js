@@ -74,6 +74,7 @@ async function visit(engine,engineName,viewName,viewport){
    assert.equal(new Set(data.signs.map(s=>s.pictogram)).size,3,id+' activities must use distinguishable motifs');
    for(const sign of data.signs){
     assert.ok(sign.w>=44&&sign.h>=44,id+' touch target smaller than 44px');
+    assert.ok(Math.abs(sign.w/sign.h-3.5)<.06,id+' plaque distorted from the exact Grovanova source ratio: '+sign.w+'x'+sign.h);
     assert.ok(sign.l>=-2&&sign.r<=viewport.width+2&&sign.t>=-2&&sign.b<=viewport.height+2,id+' sign clipped');
     if(id==='english')assert.ok(sign.r<viewport.width*.40,'English activity sign escaped the left rail');
     assert.deepEqual(sign.board,[0,0,0,0],id+' plank must have transparent corners');

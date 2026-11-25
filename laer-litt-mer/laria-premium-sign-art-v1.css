@@ -1,5 +1,5 @@
-/* Keep the existing responsive scene anchors and three real activity buttons.
-   Everything here is exclusive to the explicit art-review flag. */
+/* The iPad activity edition of the approved Home sign. The authentic wood
+   layers are extracted from Grovanova; the actual buttons and names stay live. */
 :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,
     #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1,
     #laria-geography-world .gv-scene) > nav.laria-scene-navigation.laria-premium-sign-rail::before{
@@ -34,12 +34,12 @@
  content:none!important;display:none!important;
 }
 .laria-premium-sign-rail > .laria-premium-sign > .laria-premium-sign-face{
- position:absolute;inset:0;display:block;pointer-events:none;
+ position:absolute;inset:0;display:block;pointer-events:none;container-type:inline-size;
  background:var(--laria-premium-plank) center/100% 100% no-repeat;
  font-style:normal;
 }
 .laria-premium-sign-face > .laria-premium-sign-medallion{
- position:absolute;left:28.6%;top:51%;width:14%;height:54%;
+ position:absolute;left:28.6%;top:51%;width:16%;height:auto;aspect-ratio:1;
  transform:translate(-50%,-50%);display:grid;place-items:center;
  color:#ffe6aa;font:900 clamp(9px,1.1vw,17px)/1 Georgia,serif;
  letter-spacing:-.07em;text-shadow:0 1px 2px #211009;pointer-events:none;
@@ -49,14 +49,13 @@
  stroke-linecap:round;stroke-linejoin:round;pointer-events:none;
 }
 .laria-premium-sign-face > .laria-premium-sign-label{
- position:absolute;inset:0 9% 0 37%;display:grid;place-items:center;pointer-events:none;
- color:#2b180b;text-shadow:0 1px 0 #ffdc9d;white-space:nowrap;
- font:900 clamp(15px,1.8vw,26px)/1 Georgia,"Times New Roman",serif;
- letter-spacing:-.03em;
+ position:absolute;inset:0 8% 0 44%;display:grid;align-items:center;justify-items:start;pointer-events:none;
+ color:#301805;text-shadow:0 1px 0 #f3cb88;white-space:nowrap;
+ font:900 clamp(16px,10cqw,28px)/1 Georgia,"Times New Roman",serif;
+ letter-spacing:-.035em;
 }
-.laria-premium-sign[data-tv="table"] .laria-premium-sign-label,
-.laria-premium-sign[data-gv="journey"] .laria-premium-sign-label{
- font-size:clamp(14px,1.57vw,23px);
+.laria-premium-sign:is([data-tv="table"],[data-tv="multiply"],[data-gv="journey"],[data-gv="country"]) .laria-premium-sign-label{
+ font-size:clamp(12px,8cqw,24px);
 }
 .laria-premium-sign:focus-visible{outline:4px solid #fff6b4!important;outline-offset:3px!important}
 @media(max-width:767px){
@@ -69,6 +68,20 @@
    the working buttons intact. The small occlusion mask reveals the real
    terrain through an irregular edge at each foot; no new grass is painted. */
 @media(min-width:768px) and (max-width:1366px) and (min-height:650px){
+ /* 315 × 90 is the untouched geometry of the Home crop. Let the hit
+    target follow that ratio instead of stretching the wood to 90px tall. */
+ :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
+     #tallvika-world .tv-scene.laria-reference-layout-v1,
+     #kinnaklova-world .ki-stage.laria-reference-layout-v1,
+     #laria-geography-world .gv-scene.laria-reference-layout-v1)[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]
+ > button:is(.laria-wayfinder.laria-premium-sign,.tv-next-sign.laria-reference-next),
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1
+ > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]
+ > button.laria-wayfinder.laria-premium-sign{
+  width:100%!important;height:auto!important;min-height:44px!important;max-height:none!important;
+  aspect-ratio:315 / 90;flex:none!important;
+ }
  #eggenipa-world .eg-hero.laria-reference-layout-v1{
   --ground-line:74%;--ground-tail:clamp(23px,3.8vh,44px);
   --ground-shadow:#3526138c;
@@ -129,13 +142,18 @@
   /* Preserve the tested left boundary for the whole plank. */
   --ground-left:min(28%,calc(40% - var(--ref-menu-width) - 4px));
  }
+ /* The lower rail can cross the moving companion's old left edge.
+    Keep the church placement and shift only the live companion. */
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1:has(> nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]) .ki-companion-actor{
+  left:max(calc(var(--ref-left) + var(--ref-menu-width) + 5%),calc(var(--ground-left) + var(--ref-menu-width) + 12px))!important;
+ }
  #laria-geography-world .gv-scene.laria-reference-layout-v1{--ground-line:65%}
 }
 
 /* Enamel pictograms belong to the oak faces, not the scene illustration. */
 .laria-premium-sign-medallion svg.laria-enamel{
- width:94%;height:94%;stroke:none;
- filter:drop-shadow(0 1px 1px #211009a8);
+ width:96%;height:96%;stroke:none;
+ filter:saturate(.66) drop-shadow(0 1px 1px #211009a8);
 }
 #tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
  > nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]
