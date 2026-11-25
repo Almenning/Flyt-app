@@ -15,12 +15,16 @@
  color:transparent!important;text-shadow:none!important;
  filter:drop-shadow(1px 4px 3px #20110782)!important;
 }
+/* The review-flag rail renders only its art face. Retain old children for
+   fallback and out-rank subject-specific !important icon rules. */
 :is(#eggenipa-world,#tallvika-world,#kinnaklova-world,#laria-geography-world)
- nav.laria-scene-navigation.laria-premium-sign-rail > button.laria-wayfinder.laria-premium-sign
- > :is(.laria-premium-sign-legacy,.laria-reference-activity-icon),
-#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
- > nav.laria-scene-navigation.laria-premium-sign-rail > button.gv-sign.laria-wayfinder.laria-premium-sign
- > :is(.laria-premium-sign-legacy,.laria-reference-activity-icon){
+ nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]
+ > button.laria-wayfinder.laria-premium-sign.laria-premium-sign
+ > :not(.laria-premium-sign-face).laria-premium-sign-legacy,
+:is(#eggenipa-world,#tallvika-world,#kinnaklova-world,#laria-geography-world)
+ nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]
+ > button.laria-wayfinder.laria-premium-sign.laria-premium-sign
+ > :not(.laria-premium-sign-face).laria-reference-activity-icon{
  display:none!important;visibility:hidden!important;pointer-events:none!important;
 }
 :is(#eggenipa-world,#tallvika-world,#kinnaklova-world,#laria-geography-world)
