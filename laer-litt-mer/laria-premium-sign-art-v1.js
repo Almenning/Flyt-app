@@ -1,4 +1,4 @@
-/* Review-only sign rail. The locked Grovanova illustration is read, never changed. */
+/* iPad activity sign rail. The locked Grovanova illustration is read, never changed. */
 (function(){
  'use strict';
  const SOURCE='./assets/home-v16/laria-grovanova-v16-landscape-original.png';
@@ -115,9 +115,19 @@
    return {world,id,label:legacy?.textContent.trim()||direct||names[id]};
   }
  }
+ function enabled(nav){
+  const params=new URLSearchParams(location.search);
+  const mode=params.get('lariaPremiumSignArt');
+  if(mode==='0'||params.get('lariaReferenceLayout')==='0')return false;
+  if(mode==='1')return true;
+  // Roll out to the reviewed tablet layout only, including iPadOS in
+  // desktop browsing mode. No change to phone or desktop defaults.
+  return !!nav.parentElement?.classList.contains('laria-reference-layout-v1') &&
+    matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches &&
+    (navigator.maxTouchPoints>0||matchMedia('(any-pointer:coarse)').matches);
+ }
  async function mount(nav){
-  if(new URLSearchParams(location.search).get('lariaPremiumSignArt')!=='1')return false;
-  if(!nav||nav.dataset.lariaPremiumSignArt)return false;
+  if(!nav||nav.dataset.lariaPremiumSignArt||!enabled(nav))return false;
   const buttons=[...nav.querySelectorAll('button.laria-wayfinder')];
   const items=buttons.map(descriptor);
   if(items.length!==3||items.some(item=>!item))return false;
@@ -148,5 +158,5 @@
    console.error('[Læria] premium sign art blocked',error);return false;
   }
  }
- window.LariaPremiumSignArt=Object.freeze({version:'v3',mount});
+ window.LariaPremiumSignArt=Object.freeze({version:'v4',mount});
 })();

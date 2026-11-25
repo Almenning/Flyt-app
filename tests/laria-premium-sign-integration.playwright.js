@@ -1,11 +1,12 @@
 'use strict';
-/* Exact-head evidence for the review-gated Premium sign candidate. */
+/* Exact-head evidence for the default iPad entry, without preview parameters. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const base=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
-const url=base+(base.includes('?')?'&':'?')+'lariaPremiumSignArt=1&lariaReferenceLayout=1';
+const url=new URL(base);
+assert.ok(!url.searchParams.has('lariaPremiumSignArt')&&!url.searchParams.has('lariaReferenceLayout'),'test the normal app entry, not a preview override');
 const out=process.env.LARIA_PREMIUM_INTEGRATION_SCREENSHOTS||'/tmp/laria-premium-integration';
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Premium QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 const views=[['820x1180',{width:820,height:1180}],['1024x1366',{width:1024,height:1366}],['1180x820',{width:1180,height:820}],['1024x768',{width:1024,height:768}],['1366x1024',{width:1366,height:1024}]];
@@ -15,7 +16,7 @@ async function visit(engine,engineName,viewName,viewport){
  try{const context=await browser.newContext({viewport,hasTouch:true,deviceScaleFactor:1,reducedMotion:'reduce',serviceWorkers:'block'});
   await context.addInitScript(v=>localStorage.setItem('laerlittmer-v2',JSON.stringify(v)),seed);
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+  await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:90000});
   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:25000});
   await fs.promises.mkdir(out,{recursive:true});
   await page.screenshot({path:path.join(out,`${engineName}-${viewName}-home.png`),animations:'disabled'});
