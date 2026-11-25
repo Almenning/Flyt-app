@@ -17,7 +17,10 @@
 }
 :is(#eggenipa-world,#tallvika-world,#kinnaklova-world,#laria-geography-world)
  nav.laria-scene-navigation.laria-premium-sign-rail > button.laria-wayfinder.laria-premium-sign
- > .laria-premium-sign-legacy.laria-premium-sign-legacy{
+ > :is(.laria-premium-sign-legacy,.laria-reference-activity-icon),
+#laria-geography-world .gv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-scene-navigation.laria-premium-sign-rail > button.gv-sign.laria-wayfinder.laria-premium-sign
+ > :is(.laria-premium-sign-legacy,.laria-reference-activity-icon){
  display:none!important;visibility:hidden!important;pointer-events:none!important;
 }
 :is(#eggenipa-world,#tallvika-world,#kinnaklova-world,#laria-geography-world)
