@@ -10,7 +10,12 @@ assert.ok(!url.searchParams.has('lariaPremiumSignArt')&&!url.searchParams.has('l
 const out=process.env.LARIA_PREMIUM_INTEGRATION_SCREENSHOTS||'/tmp/laria-premium-integration';
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Premium QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 const views=[['820x1180',{width:820,height:1180}],['1024x1366',{width:1024,height:1366}],['1180x820',{width:1180,height:820}],['1024x768',{width:1024,height:768}],['1366x1024',{width:1366,height:1024}]];
-const subjects=[['norwegian','#eggenipa-world .eg-hero'],['math','#tallvika-world .tv-scene'],['english','#kinnaklova-world .ki-stage'],['geography','#laria-geography-world .gv-scene']];
+const subjects=[
+ ['norwegian','#eggenipa-world .eg-hero','.eg-scene-reading','#session-screen.active'],
+ ['math','#tallvika-world .tv-scene','[data-tv="table"]','#multiplication-lab-screen.active .mp-grid-cell'],
+ ['english','#kinnaklova-world .ki-stage','[data-ki="words"]','#session-screen.active .laria-task-card'],
+ ['geography','#laria-geography-world .gv-scene','[data-gv="globe"]','#world-screen.active']
+];
 async function visit(engine,engineName,viewName,viewport){
  const browser=await engine.launch({headless:true,args:engineName==='chromium'?['--no-sandbox']:[]});
  try{const context=await browser.newContext({viewport,hasTouch:true,deviceScaleFactor:1,reducedMotion:'reduce',serviceWorkers:'block'});
@@ -18,9 +23,16 @@ async function visit(engine,engineName,viewName,viewport){
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:90000});
   await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:25000});
+  const reisen=page.locator('#home-screen.active .bc15-v16-reisen');
+  await reisen.tap({timeout:25000});
+  const overview=page.locator('#bc15-v16-journey-dialog:modal');
+  await overview.waitFor({state:'visible',timeout:12000});
+  assert.equal(await overview.locator('.bc15-v16-journey-choices button:visible').count(),4);
+  await overview.locator('.bc15-v16-dialog-close').tap();
+  await overview.waitFor({state:'hidden',timeout:12000});
   await fs.promises.mkdir(out,{recursive:true});
   await page.screenshot({path:path.join(out,`${engineName}-${viewName}-home.png`),animations:'disabled'});
-  for(const [id,selector] of subjects){
+  for(const [id,selector,activity,destination] of subjects){
    await openHomeSubject(page,id); const scene=page.locator(selector); await scene.waitFor({state:'visible',timeout:25000});
    const nav=scene.locator('nav.laria-scene-navigation');await nav.waitFor({state:'visible',timeout:15000});
    await page.waitForFunction(n=>document.querySelector(n)?.dataset.lariaPremiumSignArt==='ready',selector+' nav.laria-scene-navigation',{timeout:25000});
@@ -69,7 +81,14 @@ async function visit(engine,engineName,viewName,viewport){
     assert.ok(sign.clickable&&sign.accessible,id+' original button must stay clickable and named');
    }
    await page.screenshot({path:path.join(out,`${engineName}-${viewName}-${id}.png`),animations:'disabled'});
-   await page.locator('[data-laria-component="home"]').first().click();await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:15000});
+   await nav.locator('button.laria-premium-sign'+activity).tap();
+   await page.locator(destination).first().waitFor({state:'visible',timeout:18000});
+   if(id==='math'){
+    await page.locator('.mp-explore-tab[data-mode="pick"]').tap();
+    await page.locator('.mp-pick-screen').waitFor({state:'visible',timeout:18000});
+   }
+   // Use a fresh default app entry after smoke-testing each destination.
+   if(id!=='geography')await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:90000});
   }
   assert.deepEqual(errors,[],engineName+'/'+viewName+' page errors');await context.close();console.log('PASS',engineName,viewName);
  }finally{await browser.close()}

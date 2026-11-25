@@ -68,8 +68,10 @@ async function visit(engine,name,device,viewport){
   assert.ok(Math.max(...signData.map(x=>x.rect.x))-Math.min(...signData.map(x=>x.rect.x))<3,
    'All three signs must align on the left, not scatter across the landscape');
   assert.ok(signData[0].rect.x<viewport.width*.48,'The activity group must be on the left');
+  const nativeTablet=viewport.width>=768&&viewport.width<=1366&&viewport.height>=650;
+  if(nativeTablet)await stage.locator('nav[data-laria-premium-sign-art="ready"]').waitFor({timeout:25000});
   const posts=await rail.evaluate(el=>getComputedStyle(el,'::before').backgroundImage);
-  assert.match(posts,/laria-grovanova-signposts\.svg/,'Shared two continuous posts missing');
+  assert.match(posts,nativeTablet?/data:image\/png;base64,/:/laria-grovanova-signposts\.svg/,'Shared two continuous posts missing');
   const actor=stage.locator('.ki-companion-actor[data-troll="lillesoster"]');
   await actor.waitFor({state:'visible'});
   assert.equal(await stage.locator('.ki-companion-actor:visible').count(),1,

@@ -47,7 +47,9 @@ async function collect(page){
       const el=matches[0],base=summary(el)||{};
       if(!el)return {key,count:matches.length,...base};
       const before=getComputedStyle(el,'::before'),after=getComputedStyle(el,'::after');
+      const face=el.querySelector('.laria-premium-sign-face');
       return {key,count:matches.length,...base,
+        background:face?getComputedStyle(face).backgroundImage:base.background,
         postBefore:before.content,postAfter:after.content,
         postBeforeWidth:before.width,postAfterWidth:after.width};
     });
@@ -64,7 +66,9 @@ async function collect(page){
       before:navBefore.content,
       after:navAfter.content,
       beforeImage:navBefore.backgroundImage,
-      afterImage:navAfter.backgroundImage
+      afterImage:navAfter.backgroundImage,
+      afterPointerEvents:navAfter.pointerEvents,
+      sourceArt:nav.dataset.lariaPremiumSignArt==='ready'
     }:null;
     const sceneCss=getComputedStyle(scene);
     return {viewport:{width:innerWidth,height:innerHeight},
@@ -93,7 +97,7 @@ function assertPremium(a,label){
     assert.ok(x.y>=-2&&x.bottom<=a.viewport.height+4,
       label+' '+x.key+' below visible device');
     assert.ok(x.width/x.height>=1.7,label+' '+x.key+' is not an easily tappable wooden sign');
-    assert.ok(/gradient|laria-light-arrow-sign/.test(x.background),
+    assert.ok((a.lockedSign?.sourceArt?/data:image\/png;base64,/:/gradient|laria-light-arrow-sign/).test(x.background),
       label+' '+x.key+' must be a visible live wooden sign over clean scenery');
   }
   for(let i=0;i<a.actions.length;i++)for(let j=0;j<i;j++){
@@ -113,10 +117,13 @@ function assertPremium(a,label){
   if(a.referenceLayout){
     // The real premium rail has ONE shared pair of oak posts behind all signs.
     // It is not the old fake full-stage sign rack or a second right-side menu.
-    assert.match(a.lockedSign.beforeImage||'',/laria-grovanova-signposts\.svg/,
+    assert.match(a.lockedSign.beforeImage||'',a.lockedSign.sourceArt?/data:image\/png;base64,/:/laria-grovanova-signposts\.svg/,
       label+' premium rail lost its shared oak support');
     assert.notEqual(a.lockedSign.before,'none',label+' shared posts are invisible');
-    assert.equal(a.lockedSign.after,'none',label+' an extra right-side signpost returned');
+    if(a.lockedSign.sourceArt){
+      assert.match(a.lockedSign.afterImage,/radial-gradient/,label+' missing terrain contact shadows');
+      assert.equal(a.lockedSign.afterPointerEvents,'none',label+' grounding shadow must not intercept taps');
+    }else assert.equal(a.lockedSign.after,'none',label+' an extra right-side signpost returned');
   }else{
     assert.equal(a.lockedSign.before,'none',label+' old left signpost returned');
     assert.equal(a.lockedSign.after,'none',label+' old right signpost returned');
@@ -165,6 +172,8 @@ async function run(browserType,engine,device,viewport,sha){
     await openHomeSubject(page,'math');
     const scene=page.locator('#subject-screen.active #tallvika-world .tv-scene');
     await scene.waitFor({state:'visible',timeout:18000});
+    if(viewport.width>=768&&viewport.width<=1366&&viewport.height>=650)
+      await scene.locator('nav[data-laria-premium-sign-art="ready"]').waitFor({timeout:25000});
     await page.evaluate(()=>document.fonts?.ready);
     // WebKit desktop can finish painting the landscape before the selected
     // original troll image decodes. Never capture a false "empty actor" frame.

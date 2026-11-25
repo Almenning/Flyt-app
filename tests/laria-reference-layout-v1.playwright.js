@@ -6,7 +6,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const base=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&lariaV16=0'; // subject-facade acceptance, separate from default Home v16 art QA
-const url=base+(base.includes('?')?'&':'?')+'lariaReferenceLayout=1';
+const url=base+(base.includes('?')?'&':'?')+'lariaReferenceLayout=1&lariaPremiumSignArt=0'; // exact fallback rail / legacy geometry
 const out=process.env.LARIA_REFERENCE_SCREENSHOTS||'/tmp/laria-reference-layout';
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Referanse QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 const worlds=[
