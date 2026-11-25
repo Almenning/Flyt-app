@@ -23,10 +23,47 @@ async function visit(engine,engineName,viewName,viewport){
    await openHomeSubject(page,id); const scene=page.locator(selector); await scene.waitFor({state:'visible',timeout:25000});
    const nav=scene.locator('nav.laria-scene-navigation');await nav.waitFor({state:'visible',timeout:15000});
    await page.waitForFunction(n=>document.querySelector(n)?.dataset.lariaPremiumSignArt==='ready',selector+' nav.laria-scene-navigation',{timeout:25000});
-   const data=await nav.evaluate(el=>({state:el.dataset.lariaPremiumSignArt,rail:el.classList.contains('laria-premium-sign-rail'),posts:getComputedStyle(el,'::before').backgroundImage,signs:[...el.querySelectorAll('button.laria-premium-sign')].map(b=>{const r=b.getBoundingClientRect();const face=b.matches('.laria-premium-sign-face')?b:b.querySelector('.laria-premium-sign-face');return {w:r.width,h:r.height,l:r.left,r:r.right,t:r.top,b:r.bottom,board:face?getComputedStyle(face).backgroundImage:'missing'}})}));
-   assert.equal(data.state,'ready',id+' source-art rail did not complete');assert.equal(data.rail,true,id+' source-art rail class missing');
-   assert.match(data.posts,/data:image\/png/,id+' posts are not source-derived PNG');assert.equal(data.signs.length,3,id+' must retain three real activity actions');
-   for(const sign of data.signs){assert.ok(sign.w>=44&&sign.h>=44,id+' touch target smaller than 44px');assert.ok(sign.l>=-2&&sign.r<=viewport.width+2&&sign.t>=-2&&sign.b<=viewport.height+2,id+' sign clipped');assert.match(sign.board,/data:image\/png/,id+' plank lacks source art')}
+   const data=await nav.evaluate(async el=>{
+    async function cornerAlpha(background){
+     const source=background.match(/data:image\/png[^"')]+/)?.[0];
+     if(!source)return null;
+     const image=new Image();image.src=source;await image.decode();
+     const canvas=document.createElement('canvas');
+     canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+     const ctx=canvas.getContext('2d');
+     ctx.drawImage(image,0,0);
+     return [[0,0],[canvas.width-1,0],[0,canvas.height-1],[canvas.width-1,canvas.height-1]]
+      .map(([x,y])=>ctx.getImageData(x,y,1,1).data[3]);
+    }
+    const posts=getComputedStyle(el,'::before').backgroundImage;
+    return {posts:await cornerAlpha(posts),signs:await Promise.all(
+     [...el.querySelectorAll('button.laria-premium-sign')].map(async b=>{
+      const r=b.getBoundingClientRect(),face=b.querySelector('.laria-premium-sign-face');
+      const medal=face.querySelector('.laria-premium-sign-medallion').getBoundingClientRect();
+      const label=face.querySelector('.laria-premium-sign-label');
+      const range=document.createRange();range.selectNodeContents(label);
+      const text=range.getBoundingClientRect(),box=label.getBoundingClientRect();
+      return {w:r.width,h:r.height,l:r.left,r:r.right,t:r.top,b:r.bottom,
+       board:await cornerAlpha(getComputedStyle(face).backgroundImage),
+       hidden:[...b.querySelectorAll('.laria-premium-sign-legacy')].every(n=>!n.getClientRects().length),
+       badges:face.querySelectorAll('.laria-premium-sign-medallion').length,
+       readable:!!label.textContent.trim()&&text.left>=box.left&&text.right<=box.right&&text.left>=medal.right,
+       clickable:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('button')===b,
+       accessible:!!b.getAttribute('aria-label')
+      };
+     })
+    )};
+   });
+   assert.deepEqual(data.posts,[0,0,0,0],id+' post silhouettes must not carry scene corners');
+   assert.equal(data.signs.length,3,id+' must retain three real activity actions');
+   for(const sign of data.signs){
+    assert.ok(sign.w>=44&&sign.h>=44,id+' touch target smaller than 44px');
+    assert.ok(sign.l>=-2&&sign.r<=viewport.width+2&&sign.t>=-2&&sign.b<=viewport.height+2,id+' sign clipped');
+    assert.deepEqual(sign.board,[0,0,0,0],id+' plank must have transparent corners');
+    assert.ok(sign.hidden&&sign.badges===1,id+' overlapping legacy or duplicate icon');
+    assert.ok(sign.readable,id+' label overlaps the badge or overflows the plank');
+    assert.ok(sign.clickable&&sign.accessible,id+' original button must stay clickable and named');
+   }
    await page.screenshot({path:path.join(out,`${engineName}-${viewName}-${id}.png`),animations:'disabled'});
    await page.locator('[data-laria-component="home"]').first().click();await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:15000});
   }

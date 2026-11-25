@@ -1,4 +1,58 @@
-/* Source-art sign rail: no CSS wood, gradients or replacement scenery. */
-.laria-premium-sign-rail{isolation:isolate!important}.laria-premium-sign-rail::before{background:var(--laria-premium-posts) center top/100% 100% no-repeat!important;filter:drop-shadow(0 5px 4px #20110788)!important}.laria-premium-sign-rail .laria-premium-sign{position:relative!important;isolation:isolate!important;overflow:visible!important;background:none!important;border:0!important;box-shadow:none!important;filter:drop-shadow(0 5px 4px #21140777)!important}.laria-premium-sign-rail .laria-premium-sign-face{position:relative!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:76px!important;padding:0 5% 0 39%!important;overflow:visible!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#2b180b!important;background:transparent center/100% 100% no-repeat!important;font:900 clamp(16px,1.9vw,27px)/1 Georgia,"Times New Roman",serif!important;letter-spacing:-.025em!important;text-align:center!important;text-shadow:0 1px 0 #ffe2a4!important;white-space:nowrap!important}.laria-premium-sign-rail .laria-premium-sign-face::before,.laria-premium-sign-rail .laria-premium-sign-face::after,.laria-premium-sign-rail .laria-premium-sign::before,.laria-premium-sign-rail .laria-premium-sign::after{content:none!important;display:none!important}.laria-premium-sign-medallion{position:absolute!important;left:19.1%!important;top:57.3%!important;z-index:3!important;width:19%!important;aspect-ratio:1!important;transform:translateY(-50%)!important;display:grid!important;place-items:center!important;color:#ffe5a0!important;font:900 clamp(11px,1.35vw,17px)/1 Georgia,"Times New Roman",serif!important;letter-spacing:-.08em!important;text-shadow:0 1px 1px #170b05!important;background:none!important;border:0!important;box-shadow:none!important}.laria-premium-sign-medallion svg{display:block!important;width:69%!important;height:69%!important;fill:none!important;stroke:currentColor!important;stroke-width:2.4!important;stroke-linecap:round!important;stroke-linejoin:round!important;filter:drop-shadow(0 1px 1px #170b05)!important}.laria-premium-sign:focus-visible{outline:4px solid #fff6b4!important;outline-offset:3px!important}@media(max-width:767px){.laria-premium-sign-rail .laria-premium-sign-face{min-height:58px!important;font-size:clamp(13px,4vw,18px)!important}}@media(prefers-reduced-motion:reduce){.laria-premium-sign{transition:none!important}}
-#eggenipa-world .eg-hero > nav.laria-premium-sign-rail::before,#tallvika-world .tv-scene > nav.laria-premium-sign-rail::before,#kinnaklova-world .ki-stage > nav.laria-premium-sign-rail::before,#laria-geography-world .gv-scene > nav.laria-premium-sign-rail::before{background:var(--laria-premium-posts) center top/100% 100% no-repeat!important}
-#kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > nav.laria-scene-navigation.laria-premium-sign-rail::before{background:var(--laria-premium-posts) center top/100% 100% no-repeat!important}
+/* Keep the existing responsive scene anchors and three real activity buttons.
+   Everything here is exclusive to the explicit art-review flag. */
+:is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,
+    #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1,
+    #laria-geography-world .gv-scene) > nav.laria-scene-navigation.laria-premium-sign-rail::before{
+ isolation:isolate!important;
+ background:var(--laria-premium-posts) center top/100% 100% no-repeat!important;
+ filter:drop-shadow(1px 3px 2px #20110775)!important;
+}
+:is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,
+    #kinnaklova-world,#laria-geography-world .gv-scene)
+ nav.laria-scene-navigation.laria-premium-sign-rail > button.laria-wayfinder.laria-premium-sign{
+ position:relative!important;isolation:isolate!important;overflow:visible!important;
+ padding:0!important;border:0!important;background:none!important;box-shadow:none!important;
+ color:transparent!important;text-shadow:none!important;
+ filter:drop-shadow(1px 4px 3px #20110782)!important;
+}
+:is(#eggenipa-world,#tallvika-world,#kinnaklova-world,#laria-geography-world)
+ nav.laria-scene-navigation.laria-premium-sign-rail > button.laria-wayfinder.laria-premium-sign
+ > .laria-premium-sign-legacy.laria-premium-sign-legacy{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+:is(#eggenipa-world,#tallvika-world,#kinnaklova-world,#laria-geography-world)
+ nav.laria-scene-navigation.laria-premium-sign-rail > button.laria-wayfinder.laria-premium-sign::before,
+:is(#eggenipa-world,#tallvika-world,#kinnaklova-world,#laria-geography-world)
+ nav.laria-scene-navigation.laria-premium-sign-rail > button.laria-wayfinder.laria-premium-sign::after{
+ content:none!important;display:none!important;
+}
+.laria-premium-sign-rail > .laria-premium-sign > .laria-premium-sign-face{
+ position:absolute;inset:0;display:block;pointer-events:none;
+ background:var(--laria-premium-plank) center/100% 100% no-repeat;
+ font-style:normal;
+}
+.laria-premium-sign-face > .laria-premium-sign-medallion{
+ position:absolute;left:28.6%;top:51%;width:14%;height:54%;
+ transform:translate(-50%,-50%);display:grid;place-items:center;
+ color:#ffe6aa;font:900 clamp(9px,1.1vw,17px)/1 Georgia,serif;
+ letter-spacing:-.07em;text-shadow:0 1px 2px #211009;pointer-events:none;
+}
+.laria-premium-sign-medallion svg{
+ display:block;width:76%;height:76%;fill:none;stroke:currentColor;stroke-width:2;
+ stroke-linecap:round;stroke-linejoin:round;pointer-events:none;
+}
+.laria-premium-sign-face > .laria-premium-sign-label{
+ position:absolute;inset:0 9% 0 37%;display:grid;place-items:center;pointer-events:none;
+ color:#2b180b;text-shadow:0 1px 0 #ffdc9d;white-space:nowrap;
+ font:900 clamp(15px,1.8vw,26px)/1 Georgia,"Times New Roman",serif;
+ letter-spacing:-.03em;
+}
+.laria-premium-sign[data-tv="table"] .laria-premium-sign-label,
+.laria-premium-sign[data-gv="journey"] .laria-premium-sign-label{
+ font-size:clamp(14px,1.57vw,23px);
+}
+.laria-premium-sign:focus-visible{outline:4px solid #fff6b4!important;outline-offset:3px!important}
+@media(max-width:767px){
+ .laria-premium-sign-face > .laria-premium-sign-label{font-size:clamp(11px,3.1vw,17px)}
+}
+@media(prefers-reduced-motion:reduce){.laria-premium-sign{transition:none!important}}
