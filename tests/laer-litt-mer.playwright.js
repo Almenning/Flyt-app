@@ -880,15 +880,6 @@ async function finishSession(page){
       const finalResult={correct:5,learningCorrect:5,total:5};
       recordJourneySessionResult(finalResult);
       const final={complete:journeyProgress('math',2).complete,gradeCompleted:finalResult.gradeCompleted||null,gradeWin:state.journey.gradeWins['math:2']||null};
-      renderSubjectJourney();
-      // The premium renderer uses earned trophy objects and finished live
-      // journey places, not the retired locked-hotspot presentation classes.
-      final.visiblePrizes=document.querySelectorAll(
-        '#journey-map .locked-journey-hotspot.state-complete, #journey-map .premium-world-prize'
-      ).length;
-      final.replayable=document.querySelectorAll(
-        '#journey-map .locked-journey-hotspot.state-complete, #journey-map .premium-place.is-done'
-      ).length;
 
       state.skillMastery=backup.skillMastery;state.skillEvidence=backup.skillEvidence;state.journey=backup.journey;state.lastMilestone=backup.lastMilestone;sessionScope=oldScope;saveState();renderAll();openSubject('math');
       return {first,final};
@@ -899,8 +890,52 @@ async function finishSession(page){
     assert.ok(journeyRewardCheck.final.gradeCompleted,'legacy completion event is required for old clients');
     assert.equal(journeyRewardCheck.final.gradeCompleted.grade,2);
     assert.ok(journeyRewardCheck.final.gradeWin,'grade completion should be persisted');
-    assert.ok(journeyRewardCheck.final.visiblePrizes>=1,'finished worlds should show trophies in the landscape');
-    assert.ok(journeyRewardCheck.final.replayable>=1,'finished places should remain interactive');
+    // Tallvika deliberately hides the old map. Put a synthetic child one
+    // checkpoint from the grade win and use the actual visible sign and reward.
+    const finalCheckpoint=await page.evaluate(()=>{
+      window.__tallvikaTrophyFixture=JSON.parse(JSON.stringify(state));
+      const model=journeyModel('math',2);
+      for(const area of model.areas){
+        for(const node of area.nodes.filter(n=>n.type==='skill')){
+          for(const skill of node.skills)state.skillMastery[learningMasteryKey('math',skill,2)]=2;
+        }
+      }
+      for(const area of model.areas.slice(0,-1)){
+        const cp=area.nodes.find(n=>n.type==='checkpoint');
+        state.journey.nodes[journeyNodeKey('math',2,cp.id)]={passed:true,best:5,attempts:1,lastAt:Date.now(),passedAt:Date.now()};
+      }
+      const cp=model.areas.at(-1).nodes.find(n=>n.type==='checkpoint');
+      delete state.journey.nodes[journeyNodeKey('math',2,cp.id)];
+      delete state.journey.gradeWins['math:2'];
+      saveState();openSubject('math');
+      return cp.id;
+    });
+    await page.locator('#tallvika-world button[data-tv="next"]:visible').click();
+    await page.locator('#session-screen.active').waitFor();
+    assert.equal(await page.evaluate(()=>sessionScope.journeyNode),finalCheckpoint,
+      'the visible Tallvika sign must open the outstanding trophy checkpoint');
+    assert.equal(await page.evaluate(()=>sessionScope.practiceOnly),false,
+      'a first-time trophy checkpoint must count towards the journey');
+    await finishSession(page);
+    const trophyCard=page.locator('#complete-screen.active #young-reward-title');
+    await trophyCard.waitFor({state:'visible'});
+    assert.match(await trophyCard.innerText(),/🏆/,'the completed journey must show the trophy to the child');
+    const gradeWin=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.gradeWins['math:2']);
+    assert.ok(gradeWin,'live trophy completion must persist the grade win');
+    await page.locator('#complete-repeat').click();
+    await page.locator('#session-screen.active').waitFor();
+    assert.deepEqual(await page.evaluate(()=>[sessionScope.journeyNode,sessionScope.practiceOnly]),[finalCheckpoint,true],
+      'replay must repeat the earned checkpoint as practice');
+    await page.locator('#close-session').click();
+    await page.locator('#subject-screen.active #tallvika-world:visible').waitFor();
+    assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.gradeWins['math:2']),gradeWin,
+      'replay must preserve the original grade win');
+    await page.evaluate(()=>{
+      const backup=window.__tallvikaTrophyFixture;
+      for(const key of Object.keys(state))if(!(key in backup))delete state[key];
+      Object.assign(state,backup);delete window.__tallvikaTrophyFixture;
+      saveState();renderAll();openSubject('math');
+    });
 
     const nextMathNode=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
     assert.ok(nextMathNode,'missing recommended math journey node');

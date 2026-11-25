@@ -220,11 +220,13 @@ async function run(browserType,engine,name,viewport){
        engine+' landscape-first English rotation rewrote saved progress');
    }
    const sign=root.locator(spec.sign);
-   const board=root.locator(spec.paint);
+   const nativeTablet=viewport.width>=768&&viewport.width<=1366&&viewport.height>=650;
+   const board=nativeTablet?sign.locator('.laria-premium-sign-face'):root.locator(spec.paint);
    if(spec.id==='english')
      assert.equal(await root.locator('.ki-actions:visible').count(),0,
        engine+' '+name+' English must not duplicate its three painted signs');
    await sign.waitFor({state:'visible',timeout:13000});
+   await board.waitFor({state:'visible',timeout:25000});
    const b=await board.evaluate(el=>{
     const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
     return {x:r.x,y:r.y,w:r.width,h:r.height,background:cs.backgroundImage,color:cs.color,visibility:cs.visibility};
@@ -237,7 +239,7 @@ async function run(browserType,engine,name,viewport){
    if(spec.id==='english'&&viewport.width>=701&&viewport.height>=600){
      assert.equal(await root.getAttribute('data-ki-premium-art'),'approved',
        engine+' '+name+' English clean art adapter not enabled');
-     assert.match(b.background,/laria-light-arrow-sign\.svg/,
+     assert.match(b.background,nativeTablet?/data:image\/png;base64,/:/laria-light-arrow-sign\.svg/,
        engine+' '+name+' English missing shared oak board');
      assert.equal(await root.locator('.ki-world-brand:visible').count(),1,
        engine+' '+name+' English must show one live brand on clean art');
@@ -248,7 +250,7 @@ async function run(browserType,engine,name,viewport){
      assert.ok(boxes.every(x=>x.left>=0&&x.right<viewport.width*.40),
        engine+' '+name+' English activity signs escaped left rail: '+JSON.stringify(boxes));
    }else{
-     assert.match(b.background,/laria-light-arrow-sign\.svg/,
+     assert.match(b.background,nativeTablet?/data:image\/png;base64,/:/laria-light-arrow-sign\.svg/,
        engine+' '+name+' '+spec.id+' did not render the matching Grovanova arrow');
    }
    await page.screenshot({path:path.join(out,engine+'-'+name+'-'+spec.id+'.png'),animations:'disabled',fullPage:false});

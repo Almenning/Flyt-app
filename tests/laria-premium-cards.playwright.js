@@ -27,7 +27,7 @@ async function run(engine,label,width,height){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   const base=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
-  await page.goto(base+'&premium-card-qa='+label,{waitUntil:'domcontentloaded'});
+  await page.goto(base+'&lariaV16=0&premium-card-qa='+label,{waitUntil:'domcontentloaded'});
   await page.locator('.bc12-nav [data-camp="travel"]').waitFor({timeout:18000});
   for(const mode of ['travel','explore']){
    await page.locator('.bc12-nav [data-camp="'+mode+'"]').click();

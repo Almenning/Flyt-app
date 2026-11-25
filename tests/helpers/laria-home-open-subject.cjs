@@ -11,19 +11,21 @@ module.exports=async function openHomeSubject(page,id){
  // On approved default iPad Home the legacy rail can exist for a moment
  // while SHA verification loads v16. Never tap that transient control.
  // Explicit v15 fixture tests keep the original fallback route.
- const requiresV16=await page.evaluate(()=>{
+ const expectedV16=await page.evaluate(()=>{
    const q=new URLSearchParams(location.search);
-   return matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches &&
-     !!document.querySelector('.grade-band-young') && q.get('lariaV16')!=='0' &&
-     window.__LARIA_QA_SKIP_V16!==true;
+   if(!document.querySelector('.grade-band-young')||q.get('lariaV16')==='0'||
+      window.__LARIA_QA_SKIP_V16===true)return null;
+   const desktop=window.LARIA_HOME_V16?.supportsDesktop?.();
+   const ipad=matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches;
+   if(!desktop&&!ipad)return null;
+   return (desktop?'desktop':'ipad')+'-v16-'+
+     (matchMedia('(orientation:portrait)').matches?'portrait':'landscape');
  });
- if(requiresV16){
-   await page.waitForFunction(()=>{
+ if(expectedV16){
+   await page.waitForFunction(expected=>{
      const h=document.querySelector('#home-screen.active .bc12');
-     const dir=matchMedia('(orientation:portrait)').matches?'portrait':'landscape';
-     return h?.dataset.bc15Asset==='ipad-v16-'+dir &&
-       h.querySelectorAll('.bc15-v16-signs button').length===4;
-   },null,{timeout:30000});
+     return h?.dataset.bc15Asset===expected && h.querySelectorAll('.bc15-v16-signs button').length===4;
+   },expectedV16,{timeout:30000});
  }
  // Wait for a final Home artwork state before choosing the ACTUAL visible
  // child-facing route. The old photo-card row is intentionally inert whenever
@@ -32,26 +34,16 @@ module.exports=async function openHomeSubject(page,id){
    const h=document.querySelector('#home-screen.active .bc12.bc15-locked-home');
    return !!h&&!h.classList.contains('bc15-pending')&&
      (/^(phone|tablet)-ready$/.test(h.dataset.bc15Asset||'')||
-       /^ipad-v16-(portrait|landscape)$/.test(h.dataset.bc15Asset||''));
+       /^(ipad|desktop)-v16-(portrait|landscape)$/.test(h.dataset.bc15Asset||''));
  },null,{timeout:26000});
- const v16=home.locator('.bc15-v16-signs .bc15-v16-sign[data-bc15-subject="'+id+'"]');
- const rail=home.locator('.bc15-subject-signs:not([hidden]) [data-bc15-subject="'+id+'"]');
- const original=home.locator('.bc14-subjects:not([inert]) .bc14-subject[data-camp="subject-'+id+'"]');
- // The child-facing rails sometimes remount after returning from another
- // subject. Wait for the rail first. The old cards may briefly become visible
- // during paint, but are intentionally inert in the final premium scene.
- if(await v16.count()&&await v16.isVisible()){
-   await v16.click({timeout:26000});
-   return;
- }
- try{
-   await rail.waitFor({state:'visible',timeout:12000});
-   await rail.click({timeout:18000});
-   return;
- }catch(error){
-   // Never activate a retired photo-card if the wooden rail is present.
-   if(await rail.count())throw error;
- }
- await original.waitFor({state:'visible',timeout:15000});
- await original.click({timeout:15000});
+ // Resolve the active button at click time. A Home rerender can replace an
+ // entire rail between reading isVisible() and doing the real pointer action.
+ const key='[data-bc15-subject="'+id+'"]';
+ const activeRail=page.locator('#home-screen.active .bc12.bc15-locked-home:not(.bc15-pending) :is('+
+   '.bc15-v16-locked .bc15-v16-signs .bc15-v16-sign'+key+
+   ', .bc12:not(.bc15-v16-locked) .bc15-subject-signs:not([hidden]) '+key+
+   ', .bc12:not(.bc15-v16-locked):not(:has(.bc15-subject-signs:not([hidden]))) '+
+   '.bc14-subjects:not([inert]) .bc14-subject[data-camp="subject-'+id+'"]'+
+   '):visible');
+ await activeRail.click({timeout:26000});
 };

@@ -1,0 +1,100 @@
+'use strict';
+/* Exact-head evidence for the default iPad entry, without preview parameters. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const {chromium,webkit}=require('playwright');
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
+const base=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
+const url=new URL(base);
+assert.ok(!url.searchParams.has('lariaPremiumSignArt')&&!url.searchParams.has('lariaReferenceLayout'),'test the normal app entry, not a preview override');
+const out=process.env.LARIA_PREMIUM_INTEGRATION_SCREENSHOTS||'/tmp/laria-premium-integration';
+const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Premium QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+const views=[['820x1180',{width:820,height:1180}],['1024x1366',{width:1024,height:1366}],['1180x820',{width:1180,height:820}],['1024x768',{width:1024,height:768}],['1366x1024',{width:1366,height:1024}]];
+const subjects=[
+ ['norwegian','#eggenipa-world .eg-hero','.eg-scene-reading','#session-screen.active'],
+ ['math','#tallvika-world .tv-scene','[data-tv="table"]','#multiplication-lab-screen.active .mp-grid-cell'],
+ ['english','#kinnaklova-world .ki-stage','[data-ki="words"]','#session-screen.active .laria-task-card'],
+ ['geography','#laria-geography-world .gv-scene','[data-gv="globe"]','#world-screen.active']
+];
+async function visit(engine,engineName,viewName,viewport){
+ const browser=await engine.launch({headless:true,args:engineName==='chromium'?['--no-sandbox']:[]});
+ try{const context=await browser.newContext({viewport,hasTouch:true,deviceScaleFactor:1,reducedMotion:'reduce',serviceWorkers:'block'});
+  await context.addInitScript(v=>localStorage.setItem('laerlittmer-v2',JSON.stringify(v)),seed);
+  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:90000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:25000});
+  const reisen=page.locator('#home-screen.active .bc15-v16-reisen');
+  await reisen.tap({timeout:25000});
+  const overview=page.locator('#bc15-v16-journey-dialog:modal');
+  await overview.waitFor({state:'visible',timeout:12000});
+  assert.equal(await overview.locator('.bc15-v16-journey-choices button:visible').count(),4);
+  await overview.locator('.bc15-v16-dialog-close').tap();
+  await overview.waitFor({state:'hidden',timeout:12000});
+  await fs.promises.mkdir(out,{recursive:true});
+  await page.screenshot({path:path.join(out,`${engineName}-${viewName}-home.png`),animations:'disabled'});
+  for(const [id,selector,activity,destination] of subjects){
+   await openHomeSubject(page,id); const scene=page.locator(selector); await scene.waitFor({state:'visible',timeout:25000});
+   const nav=scene.locator('nav.laria-scene-navigation');await nav.waitFor({state:'visible',timeout:15000});
+   await page.waitForFunction(n=>document.querySelector(n)?.dataset.lariaPremiumSignArt==='ready',selector+' nav.laria-scene-navigation',{timeout:25000});
+   const data=await nav.evaluate(async el=>{
+    async function cornerAlpha(background){
+     const source=background.match(/data:image\/png[^"')]+/)?.[0];
+     if(!source)return null;
+     const image=new Image();image.src=source;await image.decode();
+     const canvas=document.createElement('canvas');
+     canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+     const ctx=canvas.getContext('2d');
+     ctx.drawImage(image,0,0);
+     return [[0,0],[canvas.width-1,0],[0,canvas.height-1],[canvas.width-1,canvas.height-1]]
+      .map(([x,y])=>ctx.getImageData(x,y,1,1).data[3]);
+    }
+    const posts=getComputedStyle(el,'::before').backgroundImage;
+    return {posts:await cornerAlpha(posts),signs:await Promise.all(
+     [...el.querySelectorAll('button.laria-premium-sign')].map(async b=>{
+      const r=b.getBoundingClientRect(),face=b.querySelector('.laria-premium-sign-face');
+      const medal=face.querySelector('.laria-premium-sign-medallion').getBoundingClientRect();
+      const label=face.querySelector('.laria-premium-sign-label');
+      const range=document.createRange();range.selectNodeContents(label);
+      const text=range.getBoundingClientRect(),box=label.getBoundingClientRect();
+      return {w:r.width,h:r.height,l:r.left,r:r.right,t:r.top,b:r.bottom,
+       board:await cornerAlpha(getComputedStyle(face).backgroundImage),
+       hidden:[...b.querySelectorAll('.laria-premium-sign-legacy')].every(n=>!n.getClientRects().length),
+       badges:face.querySelectorAll('.laria-premium-sign-medallion').length,
+       pictogram:face.querySelector('svg.laria-enamel[aria-hidden="true"]')?.innerHTML||'',
+       label:label.textContent.trim(),
+       textWidth:text.width,labelWidth:box.width,
+       readable:!!label.textContent.trim()&&text.left>=box.left&&text.right<=box.right&&text.left>=medal.right,
+       clickable:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('button')===b,
+       accessible:!!b.getAttribute('aria-label')
+      };
+     })
+    )};
+   });
+   assert.deepEqual(data.posts,[0,0,0,0],id+' post silhouettes must not carry scene corners');
+   assert.equal(data.signs.length,3,id+' must retain three real activity actions');
+   assert.ok(data.signs.every(s=>s.pictogram.includes('fill="#')),id+' activity badge must have a painted motif');
+   assert.equal(new Set(data.signs.map(s=>s.pictogram)).size,3,id+' activities must use distinguishable motifs');
+   for(const sign of data.signs){
+    assert.ok(sign.w>=44&&sign.h>=44,id+' touch target smaller than 44px');
+    assert.ok(Math.abs(sign.w/sign.h-3.5)<.06,id+' plaque distorted from the exact Grovanova source ratio: '+sign.w+'x'+sign.h);
+    assert.ok(sign.l>=-2&&sign.r<=viewport.width+2&&sign.t>=-2&&sign.b<=viewport.height+2,id+' sign clipped');
+    if(id==='english')assert.ok(sign.r<viewport.width*.40,'English activity sign escaped the left rail');
+    assert.deepEqual(sign.board,[0,0,0,0],id+' plank must have transparent corners');
+    assert.ok(sign.hidden&&sign.badges===1,id+' overlapping legacy or duplicate icon');
+    assert.ok(sign.readable,id+' label '+JSON.stringify(sign.label)+' overlaps the badge or overflows the plank ('+sign.textWidth+'/'+sign.labelWidth+'px)');
+    assert.ok(sign.clickable&&sign.accessible,id+' original button must stay clickable and named');
+   }
+   await page.screenshot({path:path.join(out,`${engineName}-${viewName}-${id}.png`),animations:'disabled'});
+   await nav.locator('button.laria-premium-sign'+activity).tap();
+   await page.locator(destination).first().waitFor({state:'visible',timeout:18000});
+   if(id==='math'){
+    await page.locator('.mp-explore-tab[data-mode="pick"]').tap();
+    await page.locator('.mp-pick-screen').waitFor({state:'visible',timeout:18000});
+   }
+   // Use a fresh default app entry after smoke-testing each destination.
+   if(id!=='geography')await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:90000});
+  }
+  assert.deepEqual(errors,[],engineName+'/'+viewName+' page errors');await context.close();console.log('PASS',engineName,viewName);
+ }finally{await browser.close()}
+}
+(async()=>{for(const [engineName,engine] of [['chromium',chromium],['webkit',webkit]])for(const [name,viewport] of views)await visit(engine,engineName,name,viewport)})().catch(e=>{console.error(e);process.exitCode=1});
