@@ -124,7 +124,9 @@
  #eggenipa-world .eg-hero.laria-reference-layout-v1{--ground-line:75%}
  #tallvika-world .tv-scene.laria-reference-layout-v1{--ground-line:60%;--ground-left:6%}
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
-  --ground-line:61%;--ground-left:28%;--ground-tail:clamp(22px,3.5vh,44px);
+  --ground-line:61%;--ground-tail:clamp(22px,3.5vh,44px);
+  /* Keep both feet in the foreground and the full plank in the left rail. */
+  --ground-left:min(28%,calc(40% - var(--ref-menu-width) - 4px));
  }
  #laria-geography-world .gv-scene.laria-reference-layout-v1{--ground-line:65%}
 }

@@ -75,6 +75,7 @@ async function visit(engine,engineName,viewName,viewport){
    for(const sign of data.signs){
     assert.ok(sign.w>=44&&sign.h>=44,id+' touch target smaller than 44px');
     assert.ok(sign.l>=-2&&sign.r<=viewport.width+2&&sign.t>=-2&&sign.b<=viewport.height+2,id+' sign clipped');
+    if(id==='english')assert.ok(sign.r<viewport.width*.40,'English activity sign escaped the left rail');
     assert.deepEqual(sign.board,[0,0,0,0],id+' plank must have transparent corners');
     assert.ok(sign.hidden&&sign.badges===1,id+' overlapping legacy or duplicate icon');
     assert.ok(sign.readable,id+' label overlaps the badge or overflows the plank');

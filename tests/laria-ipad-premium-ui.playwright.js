@@ -56,20 +56,25 @@ async function run(engine,engineName,label,viewport){
        label+' Kinnaklova clean art must show exactly one live Læria logo');
      const rail=world.locator('nav.laria-scene-navigation:visible');
      assert.equal(await rail.count(),1,label+' Kinn must have exactly one left navigation rail');
-     const boards=await rail.locator('.ki-painted-hit.laria-wayfinder:visible').evaluateAll(els=>els.map(el=>({
-       id:el.dataset.ki,background:getComputedStyle(el).backgroundImage,
-       labelVisibility:getComputedStyle(el.querySelector('.ki-plank-name')).visibility,
-       x:el.getBoundingClientRect().x,width:el.getBoundingClientRect().width
-     })));
+     await world.locator('nav[data-laria-premium-sign-art="ready"]:visible').waitFor({timeout:25000});
+     const boards=await rail.locator('.ki-painted-hit.laria-wayfinder:visible').evaluateAll(els=>els.map(el=>{
+       const face=el.querySelector('.laria-premium-sign-face');
+       const label=face.querySelector('.laria-premium-sign-label');
+       const range=document.createRange();range.selectNodeContents(label);
+       const text=range.getBoundingClientRect(),rect=el.getBoundingClientRect(),style=getComputedStyle(label);
+       return {id:el.dataset.ki,background:getComputedStyle(face).backgroundImage,
+         readable:style.visibility==='visible'&&text.width>0&&text.left>=rect.left&&text.right<=rect.right,
+         x:rect.x,width:rect.width};
+     }));
      assert.deepEqual(boards.map(x=>x.id),['words','sentences','reading'],
        label+' Kinnaklova activity menu changed its learning destinations');
-     assert.ok(boards.every(x=>/laria-light-arrow-sign\\?\.svg/.test(x.background)&&
-       x.labelVisibility==='visible'&&x.width>=44),
-       label+' Kinnaklova must use three readable matching oak arrows: '+JSON.stringify(boards));
+     assert.ok(boards.every(x=>x.background.startsWith('url("data:image/png;base64,')&&
+       x.readable&&x.width>=44),
+       label+' Kinnaklova must use three readable matching oak arrows');
      assert.ok(Math.max(...boards.map(x=>x.x))-Math.min(...boards.map(x=>x.x))<4,
        label+' Kinnaklova arrows must stay aligned on the left');
      const sharedPosts=await rail.evaluate(el=>getComputedStyle(el,'::before').backgroundImage);
-     assert.match(sharedPosts,/laria-grovanova-signposts\\?\.svg/,
+     assert.ok(sharedPosts.startsWith('url("data:image/png;base64,'),
        label+' Kinnaklova must reuse the same continuous two-post wood support');
      const signs=await world.locator('.ki-painted-hit.laria-wayfinder:visible').evaluateAll(nodes=>nodes.map(el=>{
        const a=el.getBoundingClientRect(),hit=document.elementFromPoint(a.x+a.width/2,a.y+a.height/2);
