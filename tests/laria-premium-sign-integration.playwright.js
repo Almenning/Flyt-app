@@ -61,6 +61,8 @@ async function visit(engine,engineName,viewName,viewport){
        hidden:[...b.querySelectorAll('.laria-premium-sign-legacy')].every(n=>!n.getClientRects().length),
        badges:face.querySelectorAll('.laria-premium-sign-medallion').length,
        pictogram:face.querySelector('svg.laria-enamel[aria-hidden="true"]')?.innerHTML||'',
+       label:label.textContent.trim(),
+       textWidth:text.width,labelWidth:box.width,
        readable:!!label.textContent.trim()&&text.left>=box.left&&text.right<=box.right&&text.left>=medal.right,
        clickable:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('button')===b,
        accessible:!!b.getAttribute('aria-label')
@@ -79,7 +81,7 @@ async function visit(engine,engineName,viewName,viewport){
     if(id==='english')assert.ok(sign.r<viewport.width*.40,'English activity sign escaped the left rail');
     assert.deepEqual(sign.board,[0,0,0,0],id+' plank must have transparent corners');
     assert.ok(sign.hidden&&sign.badges===1,id+' overlapping legacy or duplicate icon');
-    assert.ok(sign.readable,id+' label overlaps the badge or overflows the plank');
+    assert.ok(sign.readable,id+' label '+JSON.stringify(sign.label)+' overlaps the badge or overflows the plank ('+sign.textWidth+'/'+sign.labelWidth+'px)');
     assert.ok(sign.clickable&&sign.accessible,id+' original button must stay clickable and named');
    }
    await page.screenshot({path:path.join(out,`${engineName}-${viewName}-${id}.png`),animations:'disabled'});

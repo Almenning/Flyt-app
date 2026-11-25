@@ -49,13 +49,13 @@
  stroke-linecap:round;stroke-linejoin:round;pointer-events:none;
 }
 .laria-premium-sign-face > .laria-premium-sign-label{
- position:absolute;inset:0 8% 0 44%;display:grid;align-items:center;justify-items:start;pointer-events:none;
+ position:absolute;inset:0 6% 0 41%;display:grid;align-items:center;justify-items:start;pointer-events:none;
  color:#301805;text-shadow:0 1px 0 #f3cb88;white-space:nowrap;
- font:900 clamp(16px,10cqw,28px)/1 Georgia,"Times New Roman",serif;
+ font:900 clamp(13px,8cqw,22px)/1 Georgia,"Times New Roman",serif;
  letter-spacing:-.035em;
 }
 .laria-premium-sign:is([data-tv="table"],[data-tv="multiply"],[data-gv="journey"],[data-gv="country"]) .laria-premium-sign-label{
- font-size:clamp(12px,8cqw,24px);
+ font-size:clamp(12px,6.6cqw,19px);
 }
 .laria-premium-sign:focus-visible{outline:4px solid #fff6b4!important;outline-offset:3px!important}
 @media(max-width:767px){
@@ -91,8 +91,13 @@
   --ground-shadow:#29261380;
  }
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
-  --ground-line:48%;--ground-tail:clamp(16px,2.8vh,29px);
+  --ground-line:88%;--ground-tail:clamp(16px,2.8vh,29px);
   --ground-left:12%;--ground-shadow:#35351380;
+ }
+ /* The lower rail can cross the moving companion's old left edge.
+    Keep the church placement and shift only the live companion. */
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1:has(> nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]) .ki-companion-actor{
+  left:max(calc(var(--ref-left) + var(--ref-menu-width) + 5%),calc(var(--ground-left) + var(--ref-menu-width) + 12px))!important;
  }
  #laria-geography-world .gv-scene.laria-reference-layout-v1{
   --ground-line:61%;--ground-tail:clamp(20px,3.4vh,38px);
@@ -138,14 +143,9 @@
  #tallvika-world .tv-scene.laria-reference-layout-v1{--ground-line:60%;--ground-left:6%}
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
   /* Ground the posts below the church roof line, in the near foreground. */
-  --ground-line:74%;--ground-tail:clamp(22px,3.5vh,44px);
+  --ground-line:84%;--ground-tail:clamp(22px,3.5vh,44px);
   /* Preserve the tested left boundary for the whole plank. */
   --ground-left:min(28%,calc(40% - var(--ref-menu-width) - 4px));
- }
- /* The lower rail can cross the moving companion's old left edge.
-    Keep the church placement and shift only the live companion. */
- #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1:has(> nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]) .ki-companion-actor{
-  left:max(calc(var(--ref-left) + var(--ref-menu-width) + 5%),calc(var(--ground-left) + var(--ref-menu-width) + 12px))!important;
  }
  #laria-geography-world .gv-scene.laria-reference-layout-v1{--ground-line:65%}
 }
