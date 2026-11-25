@@ -47,6 +47,7 @@ async function visit(engine,engineName,viewName,viewport){
        board:await cornerAlpha(getComputedStyle(face).backgroundImage),
        hidden:[...b.querySelectorAll('.laria-premium-sign-legacy')].every(n=>!n.getClientRects().length),
        badges:face.querySelectorAll('.laria-premium-sign-medallion').length,
+       pictogram:face.querySelector('svg.laria-enamel[aria-hidden="true"]')?.innerHTML||'',
        readable:!!label.textContent.trim()&&text.left>=box.left&&text.right<=box.right&&text.left>=medal.right,
        clickable:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('button')===b,
        accessible:!!b.getAttribute('aria-label')
@@ -56,6 +57,8 @@ async function visit(engine,engineName,viewName,viewport){
    });
    assert.deepEqual(data.posts,[0,0,0,0],id+' post silhouettes must not carry scene corners');
    assert.equal(data.signs.length,3,id+' must retain three real activity actions');
+   assert.ok(data.signs.every(s=>s.pictogram.includes('fill="#')),id+' activity badge must have a painted motif');
+   assert.equal(new Set(data.signs.map(s=>s.pictogram)).size,3,id+' activities must use distinguishable motifs');
    for(const sign of data.signs){
     assert.ok(sign.w>=44&&sign.h>=44,id+' touch target smaller than 44px');
     assert.ok(sign.l>=-2&&sign.r<=viewport.width+2&&sign.t>=-2&&sign.b<=viewport.height+2,id+' sign clipped');

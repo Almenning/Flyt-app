@@ -74,12 +74,12 @@
   --ground-shadow:#3526138c;
  }
  #tallvika-world .tv-scene.laria-reference-layout-v1{
-  --ground-line:66%;--ground-tail:clamp(22px,4vh,44px);
+  --ground-line:67%;--ground-left:6%;--ground-tail:clamp(19px,3.2vh,34px);
   --ground-shadow:#29261380;
  }
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
-  --ground-line:63%;--ground-tail:clamp(26px,4.2vh,46px);
-  --ground-left:27%;--ground-shadow:#35351380;
+  --ground-line:48%;--ground-tail:clamp(16px,2.8vh,29px);
+  --ground-left:12%;--ground-shadow:#35351380;
  }
  #laria-geography-world .gv-scene.laria-reference-layout-v1{
   --ground-line:61%;--ground-tail:clamp(20px,3.4vh,38px);
@@ -122,9 +122,28 @@
 }
 @media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
  #eggenipa-world .eg-hero.laria-reference-layout-v1{--ground-line:75%}
- #tallvika-world .tv-scene.laria-reference-layout-v1{--ground-line:58%}
+ #tallvika-world .tv-scene.laria-reference-layout-v1{--ground-line:60%;--ground-left:6%}
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
-  --ground-line:61%;--ground-left:28%;
+  --ground-line:61%;--ground-left:28%;--ground-tail:clamp(22px,3.5vh,44px);
  }
  #laria-geography-world .gv-scene.laria-reference-layout-v1{--ground-line:65%}
+}
+
+/* Enamel pictograms belong to the oak faces, not the scene illustration. */
+.laria-premium-sign-medallion svg.laria-enamel{
+ width:94%;height:94%;stroke:none;
+ filter:drop-shadow(0 1px 1px #211009a8);
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]
+ > button.tv-next-sign.laria-reference-next{
+ background:var(--laria-premium-plank) center/100% 100% no-repeat!important;
+ padding:3px 8% 6px 36%!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1
+ > nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]
+ > button.tv-next-sign.laria-reference-next::before{
+ content:""!important;display:block!important;position:absolute!important;
+ inset:0!important;pointer-events:none!important;
+ background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23edab64' stroke='%23fff0c2' stroke-width='1.7' stroke-linejoin='round' d='m16 3 3.6 8.1 8.8.9-6.6 5.9 1.8 8.7-7.6-4.5-7.6 4.5 1.8-8.7-6.6-5.9 8.8-.9z'/%3E%3C/svg%3E") 26% 55%/11% 65% no-repeat!important;
 }

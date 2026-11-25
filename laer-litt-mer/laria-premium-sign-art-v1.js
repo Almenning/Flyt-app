@@ -7,7 +7,24 @@
  // Outer wood silhouette only. Do not carry the blue sky, leaves or grass into the rail.
  const OUTLINE=[[82,538],[106,535],[272,535],[326,535],[333,537],[337,541],[343,550],[353,570],[354,575],[350,583],[341,602],[335,609],[327,612],[274,613],[111,620],[77,620],[69,616],[60,606],[50,591],[44,579],[44,574],[52,558],[65,544],[74,539]];
  let cached;
- const icons={words:'ABC',sentences:'<svg viewBox="0 0 24 24"><path d="M3 5h18v12H9l-5 4v-4H3zM7 9h10M7 13h7"/></svg>',reading:'<svg viewBox="0 0 24 24"><path d="M12 6C9 4 5 4 2 5v14c4-1 7-1 10 1m0-14c3-2 7-2 10-1v14c-4-1-7-1-10 1M12 6v14"/></svg>',multiply:'<svg viewBox="0 0 24 24"><path d="M5 5 19 19M19 5 5 19"/></svg>',fraction:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2v10h10M5 19l7-7"/></svg>',table:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>',find:'<svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M8 10h4M10 8v4"/></svg>',journey:'<svg viewBox="0 0 24 24"><path d="m4 20 8-16 8 16-8-4-8 4z"/><circle cx="12" cy="12" r="2"/></svg>',globe:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c6 5 6 15 0 20M12 2c-6 5-6 15 0 20"/></svg>',country:'<svg viewBox="0 0 24 24"><path d="M5 22V2m0 2c6-3 8 3 15 0v12c-7 3-9-3-15 0"/></svg>'};
+ // Painted enamel badges: clear silhouettes at iPad size, not emoji or
+ // abstract toolbar icons. All vectors are decorative; existing action names stay live.
+ const enamel=(shapes)=>'<svg class="laria-enamel" viewBox="0 0 32 32" focusable="false" aria-hidden="true"><g stroke="#fff1cc" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">'+shapes+'</g></svg>';
+ const sparkle='<path fill="#ffd47d" d="m26 2 1.1 3.9L31 7l-3.9 1.1L26 12l-1.1-3.9L21 7l3.9-1.1z"/>';
+ const icons={
+  'eg:words':enamel('<path d="M5 25c0-10 6-17 17-18 2 10-3 17-13 19l-4 3z" fill="#6ead79"/><path d="m10 22 5-11 5 11m-8-3h6" fill="none" stroke-width="2.1"/>'+sparkle),
+  'eg:find':enamel('<path d="m20 20 7 7-3 3-8-8" fill="#e58b5d"/><circle cx="13" cy="13" r="9" fill="#77b5bf"/><path d="m9 14 4-5 4 5m-7-1h6" fill="none"/><path d="M6 12c0-2 1-4 3-5" fill="none"/>'),
+  'eg:reading':enamel('<path d="M3 10q8-3 13 2 5-5 13-2v15q-8-2-13 2-5-4-13-2z" fill="#c7828f"/><path d="M16 13v13M7 15l5 1m-5 3 5 1m8-4 5-1m-5 5 5-1" fill="none"/>'+sparkle),
+  'tv:multiply':enamel('<path d="M9 23 22 10l3 3-13 13-5 2z" fill="#df9663"/><path d="m23 4 1.5 4.5L29 10l-4.5 1.5L23 16l-1.5-4.5L17 10l4.5-1.5z" fill="#f8cb70"/><path d="M7 8v8m-4-4h8m13 10v4m-2-2h4" fill="none"/>'),
+  'tv:fraction':enamel('<path d="M17 6a11 11 0 1 0 11 11H17z" fill="#eaa262"/><path d="M20 3a11 11 0 0 1 9 10h-9z" fill="#e27d77"/><g fill="#a34c44" stroke="none"><circle cx="12" cy="13" r="2"/><circle cx="10" cy="21" r="2"/><circle cx="19" cy="23" r="2"/></g>'),
+  'tv:table':enamel('<rect x="4" y="4" width="24" height="24" rx="4" fill="#679991"/><path d="M5 8a3 3 0 0 1 3-3h16a3 3 0 0 1 3 3v4H5z" fill="#e6a362" stroke="none"/><path d="M12 6v20m8-20v20M6 12h20M6 20h20" fill="none"/><path d="M8 8h1m7 7h1m7 8h1" stroke-width="2.2"/>'),
+  'ki:words':enamel('<rect x="4" y="5" width="14" height="14" rx="3" transform="rotate(-8 11 12)" fill="#8fac7a"/><rect x="14" y="14" width="14" height="14" rx="3" transform="rotate(8 21 21)" fill="#d78070"/><path d="m7 15 3-7 3 7m-5-2h4m6 11v-7h3q4 1 1 3 4 2 0 4z" fill="none"/>'),
+  'ki:sentences':enamel('<path d="M13 14h12q4 0 4 4v6l-4-2H13q-3 0-3-3v-2q0-3 3-3z" fill="#e9a464"/><path d="M6 5h15q4 0 4 4v4q0 4-4 4H11l-7 5v-5q-2-1-2-4V9q0-4 4-4z" fill="#82afbd"/><path d="M8 11h1m4 0h1m4 0h1" fill="none" stroke-width="2.2"/>'),
+  'ki:reading':enamel('<path d="M3 9q8-2 13 3 5-5 13-3v16q-8-2-13 2-5-4-13-2z" fill="#e3a769"/><path d="M16 12v14M7 15l5 1m-5 3 5 1m9-11v12l3-2 3 1V9" fill="none"/><path d="m22 4 1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#ffc963"/>'),
+  'gv:journey':enamel('<path d="M3 26 16 8l13 18z" fill="#e49564"/><path d="m13 26 4-10 4 10" fill="#724110"/><path d="M2 26h28" fill="none"/>'+sparkle),
+  'gv:globe':enamel('<circle cx="16" cy="16" r="12" fill="#70a8bc"/><path d="m6 10 7-4 5 3-3 3 3 4-4 3-2 5-4-4v-5zm17 5 4 1-2 6-4-1z" fill="#7bae78" stroke-width="1.2"/>'),
+  'gv:country':enamel('<path d="M6 29V5m1 1q5-4 11 0v12q-6-4-11 0m10-7q6-3 11 0v11q-5-3-10 0" fill="#91b6c8"/><path d="M7 6q5-4 11 0v12q-6-4-11 0z" fill="#d18172"/><path d="M10 10h5m-2.5-2.5v5" fill="none"/>')
+ };
  const labels={
   eg:{words:'Ordjakt',find:'Finn ordene',reading:'Lesekroken'},
   tv:{multiply:'Gangemagi',fraction:'Brøklab',table:'Gangetabellen'},
@@ -95,7 +112,7 @@
     world==='tv'?button.querySelector('.tv-sign-label'):
     world==='ki'?button.querySelector('.ki-plank-name'):null;
    const direct=[...button.childNodes].filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent).join('').trim();
-   return {id,label:legacy?.textContent.trim()||direct||names[id]};
+   return {world,id,label:legacy?.textContent.trim()||direct||names[id]};
   }
  }
  async function mount(nav){
@@ -111,7 +128,7 @@
    nav.style.setProperty('--laria-premium-plank','url("'+art.board+'")');
    nav.style.setProperty('--laria-premium-posts','url("'+art.posts+'")');
    buttons.forEach((button,index)=>{
-    const {id,label}=items[index];
+    const {world,id,label}=items[index];
     if(!button.hasAttribute('aria-label'))button.setAttribute('aria-label',label);
     // Keep the actual button and every legacy child intact. The review-only
     // visual face is pointer-transparent and does not duplicate spoken labels.
@@ -119,7 +136,7 @@
     const face=document.createElement('i');
     face.className='laria-premium-sign-face';face.setAttribute('aria-hidden','true');
     const badge=document.createElement('i');
-    badge.className='laria-premium-sign-medallion';badge.innerHTML=icons[id]||icons.globe;
+    badge.className='laria-premium-sign-medallion';badge.innerHTML=icons[world+':'+id];
     const text=document.createElement('b');
     text.className='laria-premium-sign-label';text.textContent=label;
     face.append(badge,text);button.append(face);button.classList.add('laria-premium-sign');
@@ -131,5 +148,5 @@
    console.error('[Læria] premium sign art blocked',error);return false;
   }
  }
- window.LariaPremiumSignArt=Object.freeze({version:'v2',mount});
+ window.LariaPremiumSignArt=Object.freeze({version:'v3',mount});
 })();
