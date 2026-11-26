@@ -1724,3 +1724,74 @@ body.laria-task-scene-open .app:after{
     --task-sky:#9dbeb8;
   }
 }
+
+/* Pilot: the lesson keeps the same locked landscape as its entrance. */
+#session-screen.task-scene[data-task-subject="geography"][data-land-flag]{
+  --task-world:url("./assets/nordlysleiren/nordlysleiren-bluehour-landscape-v1.webp");
+  --task-ink:#3c2a20;
+}
+@media(orientation:portrait){
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag]{
+    --task-world:url("./assets/nordlysleiren/nordlysleiren-bluehour-portrait-v1.webp");
+  }
+}
+/* Feedback has one voice. The selected live TrollActor remains visible. */
+#session-screen[data-land-flag] .task-troll-companion .laria-troll-speech{display:none!important}
+#session-screen[data-land-flag] .land-flag-hint{
+  margin:0 auto 10px;color:#3c2a20;text-align:center;
+}
+#session-screen[data-land-flag] .land-flag-hint summary,
+#land-flag-map-choices summary{
+  width:max-content;box-sizing:border-box;margin:auto;min-height:44px;
+  padding:10px 16px;border-radius:15px;background:#fff5da;color:#3c2a20;
+  border:1px solid #ae8559;cursor:pointer;font-weight:750;
+}
+#session-screen[data-land-flag] .land-flag-hint p{margin:8px 0 0}
+#land-flag-map-choices .answers{margin-top:8px}
+#session-screen[data-land-flag] summary:focus-visible{outline:3px solid #774926;outline-offset:3px}
+#complete-progress[hidden]{display:none!important}
+#complete-screen[data-land-flag] .complete{
+  display:flex;flex-direction:column;isolation:isolate;
+  color:#3c2a20;background:linear-gradient(#fffaf1f5,#fff5dcfa);
+  border:1px solid #d8b982;border-radius:24px;padding:clamp(16px,3vw,32px);
+}
+#complete-screen[data-land-flag] #complete-home{background:#254e3c;color:#fff9e8}
+#session-screen.task-scene[data-land-flag][data-task-subject="geography"] #land-flag-map-choices .answers{
+  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,115px),1fr))!important;
+  gap:8px!important;
+}
+#session-screen.task-scene[data-land-flag] .task-type-map .task-prompt-fox-stage{
+  min-height:unset!important;margin-block:6px!important;
+}
+#session-screen.task-scene[data-land-flag] .task-type-map .task-fox-companion{
+  height:clamp(70px,11vh,102px)!important;
+}
+#session-screen.task-scene[data-land-flag][data-task-subject="geography"] .quiz-real-map{
+  height:clamp(180px,30vh,285px);
+}
+body:has(#complete-screen.active[data-land-flag]) .app{
+  width:100%!important;max-width:none!important;
+  background:#244451 url("./assets/nordlysleiren/nordlysleiren-bluehour-landscape-v1.webp") center/cover fixed no-repeat!important;
+}
+@media(orientation:portrait){
+  body:has(#complete-screen.active[data-land-flag]) .app{
+    background-image:url("./assets/nordlysleiren/nordlysleiren-bluehour-portrait-v1.webp")!important;
+  }
+}
+#complete-screen[data-land-flag] .complete:after{content:none!important}
+#complete-screen[data-land-flag] #complete-home{
+  background:#254e3c!important;color:#fff9e8!important;box-shadow:0 4px 0 #193727!important;
+}
+#complete-screen[data-land-flag] #complete-next{background:#efe5ca;color:#53442b}
+#complete-screen.active[data-land-flag]{
+  display:grid!important;place-items:center;
+  width:100%;max-width:none;min-height:100dvh;
+  padding:clamp(16px,3vw,34px);
+  background:transparent!important;
+}
+#complete-screen.active[data-land-flag] .complete{width:min(100%,700px)}
+@media(orientation:landscape) and (max-height:900px){
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .quiz-real-map{
+    height:clamp(160px,25vh,255px);
+  }
+}

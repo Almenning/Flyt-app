@@ -2428,7 +2428,7 @@
   <link rel="stylesheet" href="./home-subjects-v14.css?v=20261013-phase4c-young-explore-visible" />
   <link rel="stylesheet" href="./home-kjosnes-v15.css?v=20261115-journey-clean1" />
   <link rel="stylesheet" href="./home-grades-v16.css?v=20261011-unified-home2" />
-  <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261122-matte-english-backdrops1" />
+  <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261126-land-flag1" />
   <!-- Kloden: one active scene stylesheet; art + renderer are loaded below in runtime order -->
   <link rel="stylesheet" href="./globe-v24.css?v=20261011-iphone-shortportrait1" />
   <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261026-norsk-readaloud44" />
@@ -2929,6 +2929,7 @@
         <div class="complete-next" id="complete-next">Neste gang venter en ny liten utfordring.</div>
         <button class="secondary" id="complete-repeat" type="button">↻ Ta samme test igjen</button>
         <button class="primary" id="complete-home">Ferdig! ⭐</button>
+        <button class="secondary" id="complete-progress" type="button" hidden>Se hva jeg kan</button>
       </div>
     </section>
 
@@ -5816,6 +5817,9 @@ function startNorwayRegions(){
   sessionScope={type:'subject',subject:'geography',label:'Geografi · Norges landsdeler',grade:currentGrade(),practiceOnly:sessionQuestions.every(q=>q.practiceRepeat)};state.lastActivity={kind:'geography-theme',theme:'regions',label:'Norges landsdeler'};
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
+function isLandFlagScope(scope){
+  return scope?.type==='geography-theme'&&(scope.theme==='country'||(!scope.theme&&scope.label==='Geografi · Land'));
+}
 function startGeographyTheme(){
   const ids=gradeScopeIds();
   if(geoTheme==='regions'){startNorwayRegions();return}
@@ -5834,7 +5838,7 @@ function startGeographyTheme(){
   for(const item of freshCandidates)addItem(item);
   if(qs.length<5)for(const item of allCandidates)addItem(item);
   if(qs.length<5){toast('Fant ikke nok oppgaver akkurat nå.');return}
-  sessionScope={type:'geography-theme',label:'Geografi · '+({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',map:'Kart'}[geoTheme]||'Geografi'),ids,includeMap:geoTheme==='map',practiceOnly:qs.every(q=>q.practiceRepeat)};
+  sessionScope={type:'geography-theme',theme:geoTheme,label:'Geografi · '+({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',map:'Kart'}[geoTheme]||'Geografi'),ids,includeMap:geoTheme==='map',practiceOnly:qs.every(q=>q.practiceRepeat)};
   state.lastActivity={kind:'geography-theme',theme:geoTheme,label:({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme]||'Geografi')};
   sessionQuestions=qs;qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
@@ -6643,7 +6647,15 @@ function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElem
   const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#BDE9F4');g.addColorStop(1,'#D9F5F2');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   for(const id of ids){let fill='#BFD7A2';if(answered&&id===q.answer)fill='#62BB88';else if(answered&&id===answered.selected)fill='#E99388';drawFlatCountry(ctx,countries[id],project,fill)}
   for(const id of ids){const c=countries[id];if(!isTinyCountry(c)&&c.geometry)continue;const p=project(c.lon,c.lat);if(!p)continue;ctx.beginPath();ctx.arc(p[0],p[1],answered&&id===q.answer?6:4,0,Math.PI*2);ctx.fillStyle=answered&&id===q.answer?'#62BB88':answered&&id===answered.selected?'#E99388':'#FFF2A9';ctx.fill();ctx.strokeStyle='rgba(60,70,90,.4)';ctx.stroke()}
-  canvas.onclick=answered?null:(e=>{const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,xlon=bounds.minLon+(x-pad)/(w-pad*2)*(bounds.maxLon-bounds.minLon),lat=bounds.maxLat-(y-pad)/(h-pad*2)*(bounds.maxLat-bounds.minLat),lon=((xlon+540)%360)-180;let c=ids.map(id=>countries[id]).find(c=>{const geom=c?._detailGeometry||c?.geometry;return geom&&pointInCountry(Object.assign({},c,{geometry:geom}),lon,lat)});if(!c){let best=null,dist=Infinity;for(const id of ids){const item=countries[id],p=project(item.lon,item.lat);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=item}}const hitRadius=best&&isTinyCountry(best)?24:18;if(dist<hitRadius)c=best}if(c)answerMap(c.id)});
+  if(document.getElementById('land-flag-map-choices')?.open){
+    ctx.font='bold 11px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+    ids.forEach((id,index)=>{
+      const c=countries[id],p=project(c.lon,c.lat);if(!p)return;
+      ctx.beginPath();ctx.arc(p[0],p[1],9,0,Math.PI*2);ctx.fillStyle='#fff5da';ctx.fill();
+      ctx.strokeStyle='#543624';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#39281d';ctx.fillText(String(index+1),p[0],p[1]);
+    });
+  }
+  canvas.onclick=answered?null:(e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*w/Math.max(1,r.width),y=(e.clientY-r.top)*h/Math.max(1,r.height),xlon=bounds.minLon+(x-pad)/(w-pad*2)*(bounds.maxLon-bounds.minLon),lat=bounds.maxLat-(y-pad)/(h-pad*2)*(bounds.maxLat-bounds.minLat),lon=((xlon+540)%360)-180;let c=ids.map(id=>countries[id]).find(c=>{const geom=c?._detailGeometry||c?.geometry;return geom&&pointInCountry(Object.assign({},c,{geometry:geom}),lon,lat)});if(!c){let best=null,dist=Infinity;for(const id of ids){const item=countries[id],p=project(item.lon,item.lat);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=item}}const hitRadius=best&&isTinyCountry(best)?24:18;if(dist<hitRadius)c=best}if(c)answerMap(c.id)});
 }
 
 
@@ -6781,7 +6793,16 @@ function recordAnswer(q,correct,selected){
   if(correct)celebrateCorrect();
 }
 function applyAnsweredState(q,answered){
-  if(q.type==='map')renderQuizMap(q,answered);
+  const hint=document.querySelector('#session-screen[data-land-flag] .land-flag-hint');
+  if(hint)hint.open=false;
+  if(q.type==='map'){
+    renderQuizMap(q,answered);
+    document.querySelectorAll('[data-land-flag-map]').forEach(b=>{
+      b.disabled=true;
+      if(b.dataset.landFlagMap===q.answer)b.classList.add('correct');
+      else if(b.dataset.landFlagMap===answered.selected)b.classList.add('wrong');
+    });
+  }
   else document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;if(b.dataset.answer===q.answer)b.classList.add('correct');else if(b.dataset.answer===answered.selected)b.classList.add('wrong')});
   showFeedback(q,answered.correct);
 }
@@ -6848,8 +6869,16 @@ function finishSession(){
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
   // Direct Norwegian practice belongs to Eggenipa, not the retired map
   // or the generic grade-two progress dashboard.
+  const landFlag=isLandFlagScope(sessionScope);
+  document.getElementById('complete-screen').toggleAttribute('data-land-flag',landFlag);
+  const progressButton=document.getElementById('complete-progress');
+  const repeatButton=document.getElementById('complete-repeat');
+  const homeButton=document.getElementById('complete-home');
+  progressButton.hidden=!landFlag;
+  if(landFlag){repeatButton.before(homeButton,progressButton)}
+  else homeButton.before(repeatButton);
   const returnToKinnaklova=sessionScope?.type==='subject'&&sessionScope?.subject==='english';
-  document.getElementById('complete-home').textContent=returnToKinnaklova?'Tilbake til Kinnaklova 🌿':(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':sessionScope?.subject==='norwegian'?'Tilbake til Eggenipa 🌿':'Tilbake til reisekartet 🗺️'):sessionScope?.subject==='norwegian'?'Tilbake til Eggenipa 🌿':result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
+  document.getElementById('complete-home').textContent=landFlag?'Tilbake til Geografi':returnToKinnaklova?'Tilbake til Kinnaklova 🌿':(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':sessionScope?.subject==='norwegian'?'Tilbake til Eggenipa 🌿':'Tilbake til reisekartet 🗺️'):sessionScope?.subject==='norwegian'?'Tilbake til Eggenipa 🌿':result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }
@@ -6861,6 +6890,7 @@ function repeatCompletedSession(){
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 document.getElementById('complete-repeat').onclick=repeatCompletedSession;
+document.getElementById('complete-progress').onclick=()=>setTab('progress');
 function armJourneyWorldReaction(scope){
   if(!scope||scope.practiceOnly||scope.previewOnly||scope.journeyWasComplete)return;
   const isGeo=scope.type==='geo-journey'||scope.subject==='geography';
@@ -6873,6 +6903,7 @@ function armJourneyWorldReaction(scope){
 }
 document.getElementById('complete-home').onclick=()=>{
   const scope=lastCompletedScope||{};
+  if(isLandFlagScope(scope)){renderGeographyContinue();showScreen('geography');return}
   armJourneyWorldReaction(scope);
   if(scope.type==='subject'&&scope.subject==='english'){openSubject('english');return}
   if(scope.type==='journey'&&scope.subject&&scope.subject!=='geography'){openSubject(scope.subject);return}
@@ -7214,13 +7245,13 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./find-the-words.js?v=20261026-norsk-find-steps1" defer></script>
 <script src="./laria-magical-collection-v2.js?v=20261107-no-fox-feature1" defer></script>
 <script src="./home-basecamp-v12.js?v=20261126-geography-two1" defer></script>
-<script defer src="./laria-grovanova-v16.js?v=20261119-owner-locked-1"></script>
+<script defer src="./laria-grovanova-v16.js?v=20261126-one-greeting1"></script>
 <script defer src="./home-kjosnes-v15.js?v=20261119-grovanova-v16-home1"></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261026-norsk-no-map1" defer></script>
 <script src="./norsk-object-extras-v1.js?v=20261026-all-early-norsk1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261107-kinnaklova-reading2-a11y2" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261126-kinnaklova-reading2-land-flag1" defer></script>
 <script src="./laria-fox-presence.js?v=20261027-nordlys-troll1" defer></script>
 <script src="./laria-troll-runtime-v1.js?v=20261107-premium-beta3" defer></script>
 
@@ -7266,7 +7297,7 @@ window.LARIA_TALLVIKA_BRIDGE={
 <link rel="stylesheet" href="./laria-kinnaklova-unified-v1.css?v=20261115-locked-kinn-sha-safe-live4">
 <link rel="stylesheet" href="./laria-home-ipad-rail-v1.css?v=20261115-journey-clean1">
 <link rel="stylesheet" href="./laria-viewport-premium-v1.css?v=20261116-viewport-ipad-portrait1">
-<link rel="stylesheet" href="./laria-grovanova-v16.css?v=20261119-owner-locked-1">
+<link rel="stylesheet" href="./laria-grovanova-v16.css?v=20261126-one-greeting1">
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>
 <script src="./discovery-globe-phase1.js?v=20261018-antarctica-ne110-1" defer></script>
