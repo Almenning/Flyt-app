@@ -6,7 +6,7 @@ const CACHE='laria-stable-2026-10-12-pwa-network-first-20261108-globe36-pigment3
 // the actual update policy below is now network-first for executable assets.
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 const SHELL=['./manifest.webmanifest','./icon.svg'];
-const FRESH_CODE=/\.(?:js|css|html|json|webmanifest)$/i;
+const FRESH_CODE=/\.(?:m?js|css|html|json|webmanifest)$/i;
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
@@ -20,22 +20,29 @@ self.addEventListener('activate',event=>{
 });
 async function keepFresh(req,response){
   if(response?.ok){
-    const cache=await caches.open(CACHE);
-    await cache.put(req,response.clone());
+    // A full/denied disk cache must never replace a successful online
+    // response with stale code, or interrupt an active learning session.
+    try{
+      const cache=await caches.open(CACHE);
+      await cache.put(req,response.clone());
+    }catch(_){ /* Offline caching is best effort. */ }
   }
   return response;
+}
+async function matchAvailable(req){
+  try{return await caches.match(req)}catch(_){return undefined}
 }
 async function networkFirst(req){
   try{
     return await keepFresh(req,await fetch(req,{cache:'no-store'}));
   }catch(err){
-    const cached=await caches.match(req);
+    const cached=await matchAvailable(req);
     if(cached)return cached;
     throw err;
   }
 }
 async function cacheFirst(req){
-  const cached=await caches.match(req);
+  const cached=await matchAvailable(req);
   if(cached)return cached;
   return keepFresh(req,await fetch(req));
 }
@@ -45,7 +52,7 @@ self.addEventListener('fetch',event=>{
   if(req.mode==='navigate'){
     event.respondWith(
       networkFirst(req).catch(async()=>{
-        const fallback=await caches.match('./index.html');
+        const fallback=await matchAvailable('./index.html');
         if(fallback)return fallback;
         return fetch('./index.html?offline=1',{cache:'no-store'});
       })
