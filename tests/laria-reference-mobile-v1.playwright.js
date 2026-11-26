@@ -41,10 +41,10 @@ async function run(engine,name,viewport){
    await openHomeSubject(page,world.id);
    const scene=page.locator(world.selector);
    await scene.waitFor({state:'visible',timeout:25000});
-   // The new approved picture opens on the three actual activity signs,
+   // The new approved picture opens on its actual activity signs,
    // under a plain centered heading with no rejected wooden place plaque.
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
-   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),3);
+   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),world.id==='geography'?2:3);
    assert.equal(await scene.locator('button.laria-reference-place').count(),0,
      world.id+' rejected large wooden place plaque must not be mounted');
    const entryHeading=scene.locator('button.laria-reference-heading');
@@ -99,7 +99,7 @@ async function run(engine,name,viewport){
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
    assert.equal(await nav.isVisible(),false,'subject signs remain visible with activities');
    assert.equal(await actions.isVisible(),true,'activities not visible in single rail');
-   assert.equal(await actions.locator('.laria-wayfinder:visible').count(),3);
+   assert.equal(await actions.locator('.laria-wayfinder:visible').count(),world.id==='geography'?2:3);
    const actionBoxes=await actions.locator('.laria-wayfinder').evaluateAll(nodes=>
     nodes.map(n=>{const r=n.getBoundingClientRect();
       return {left:r.left,right:r.right,width:r.width,height:r.height};}));
@@ -272,7 +272,7 @@ async function run(engine,name,viewport){
     assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
     assert.equal(await scene.locator('nav.laria-reference-subject-nav').isVisible(),false);
     const rail=scene.locator('nav.laria-scene-navigation');
-    assert.equal(await rail.locator('.laria-wayfinder:visible').count(),3);
+    assert.equal(await rail.locator('.laria-wayfinder:visible').count(),other.id==='geography'?2:3);
     if(other.id==='math'){
       assert.equal(await rail.locator('button.tv-next-sign.laria-reference-next').count(),1);
       assert.ok(await rail.locator('button.tv-next-sign.laria-reference-next').isVisible(),

@@ -7,6 +7,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
 const {chromium,webkit}=require('playwright');
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const base=path.resolve(__dirname,'..');
 const out=process.env.LARIA_RESPONSIVE_C3_IMAGES||'/tmp/laria-responsive-c3';
 const subjects=['geography'];
@@ -45,7 +46,7 @@ async function photo(page,name){
  await page.screenshot({path:path.join(out,name+'.png'),animations:'disabled',timeout:18000});
 }
 async function visit(page,subject){
- await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible').click();
+ await openHomeSubject(page,subject);
  if(subject==='geography'){
   const landing=page.locator('#laria-geography-world:visible');
   await landing.waitFor({timeout:16000});
@@ -191,7 +192,7 @@ async function validate(page,subject,label,view,screen){
   await page.locator('#laria-geography-world:visible').waitFor({timeout:12000});
   await page.locator('#laria-geography-world [data-gv="home"]').click();
  }
- await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:11000});
+ await page.locator('#home-screen.active .bc12.bc15-locked-home').first().waitFor({timeout:11000});
  // A subject class left on the body must not leak scenery onto Home.
  const home=await page.evaluate(()=>({
   active:document.querySelector('.screen.active')?.id,
@@ -216,7 +217,7 @@ async function run(engine,label,view,url){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(url+'&responsive-phasec3='+label,{waitUntil:'domcontentloaded'});
-  await page.locator('.bc14-subject[data-camp="subject-geography"]:visible').waitFor({timeout:16000});
+  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({timeout:16000});
   for(const subject of subjects){
    const screen=await visit(page,subject);
    await validate(page,subject,label,view,screen);
