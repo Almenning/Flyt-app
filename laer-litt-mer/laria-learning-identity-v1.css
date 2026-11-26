@@ -124,3 +124,77 @@
 @media(min-width:1000px) and (orientation:landscape){
  .app:has(#fraction-lab-screen.active){width:100%!important;max-width:none!important}
 }
+
+/* Secondary views use the same materials, not the same composition.
+   Keep the book, puzzle and dialog structures recognizable. */
+:where(#progress-screen,#continent-screen,#detail-screen).active :is(.stat,.grade-round-card,.knowledge,.subject-progress-card,.fact,.continent-head){
+ border-color:var(--learn-edge)!important;
+ background:linear-gradient(160deg,#fffdf0,var(--learn-paper-deep))!important;
+}
+#progress-screen.active .progress-page-banner{
+ background:linear-gradient(105deg,#fff8e3f6 0 49%,#fff8e36b 79%,#fff8e320),var(--learn-nordlys) center 37%/cover no-repeat!important;
+ border:1px solid var(--learn-edge)!important;box-shadow:var(--learn-shadow)!important;
+}
+#progress-screen.active .progress-page-banner::after{content:none!important}
+#progress-screen.active .progress-trophy{opacity:.9}
+#subject-screen.active :is(.subject-hub-card,.module-card),
+#continent-screen.active .country{
+ border-color:var(--learn-edge)!important;
+}
+#continent-screen.active #start-continent{
+ background:var(--learn-action)!important;color:#fff9e8!important;
+}
+
+/* The live helper must never take over Plukk og tell on desktop or tablet. */
+#multiplication-lab-screen.active .mp-pick-easy-intro > img.laria-premium-troll-art{
+ display:block!important;width:clamp(45px,5vw,58px)!important;
+ height:clamp(52px,6vw,67px)!important;
+ flex:0 0 clamp(45px,5vw,58px)!important;object-fit:contain!important;
+}
+#multiplication-lab-screen.active .mp-pick-easy-intro{
+ border:1px solid var(--learn-edge);background:var(--learn-paper);
+}
+
+.app:has(:is(#commerce-screen,#terms-screen,#parent-info-screen,#feedback-screen).active){
+ background:#f8f3e8!important;
+}
+:is(#adult-screen,#commerce-screen,#terms-screen,#parent-info-screen,#feedback-screen).active{
+ background:#f8f3e8!important;color:#30291f!important;
+}
+:is(#adult-screen,#commerce-screen,#terms-screen,#parent-info-screen,#feedback-screen).active .card{
+ background:#fffdf4!important;color:#30291f!important;
+ border:1px solid #d7c7a7!important;border-radius:16px;box-shadow:0 3px 12px #886d3820!important;
+}
+:is(#adult-screen,#commerce-screen,#terms-screen,#parent-info-screen,#feedback-screen).active .detail-back{
+ background:var(--learn-paper)!important;color:var(--learn-ink)!important;
+ border:1px solid var(--learn-edge)!important;border-radius:999px!important;min-height:44px;
+}
+:is(#commerce-screen,#terms-screen).active :is(.secondary,.parent-source-link){
+ background:#fffcf0!important;color:var(--learn-ink)!important;border:1px solid #d7c7a7!important;
+}
+.app:has(:is(#progress-screen,#adult-screen,#commerce-screen,#terms-screen,#parent-info-screen,#feedback-screen).active) #topbar .brand{
+ color:var(--learn-ink)!important;
+}
+.app:has(:is(#progress-screen,#adult-screen,#commerce-screen,#terms-screen,#parent-info-screen,#feedback-screen).active) #bottom-nav{
+ background:#fffaf0!important;border:1px solid #e1d1b2!important;
+}
+.app:has(:is(#progress-screen,#adult-screen,#commerce-screen,#terms-screen,#parent-info-screen,#feedback-screen).active) #bottom-nav button{
+ color:#4c3d2c!important;
+}
+.app:has(:is(#progress-screen,#adult-screen,#commerce-screen,#terms-screen,#parent-info-screen,#feedback-screen).active) #bottom-nav button.active{
+ background:#eadcbf!important;color:#33271b!important;
+}
+/* Portrait WebKit may end the market content before the viewport. Extend
+   the outer landscape, not the market board or the child’s scroll targets. */
+@media(max-aspect-ratio:1/1){
+ #multiplication-lab-screen.active:has(.gm-shell),
+ #multiplication-lab-screen.active .gm-shell{
+  min-height:100vh!important;min-height:100svh!important;
+ }
+}
+
+/* The intro already gives the child an instruction next to the small troll.
+   Do not float a generic second greeting over the activity title. */
+#multiplication-lab-screen.active .mp-pick-easy-intro > .laria-troll-speech{
+ display:none!important;
+}
