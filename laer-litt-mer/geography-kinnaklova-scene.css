@@ -147,3 +147,18 @@ body:has(#geography-screen.gv-visible){background:#e8eadc!important}
 #laria-geography-world .gv-troll[data-gv="troll"]:focus-visible{
   outline:3px solid #fff1b2;outline-offset:4px;border-radius:15px;
 }
+
+/* Approved Nordlysleiren entrance: background only. Illustration and
+   live controls remain independent so the posts can follow the painted ground. */
+#laria-geography-world .gv-scene:has(> .gv-landscape-art){
+  background:#4c718c;
+}
+#laria-geography-world .gv-landscape-art > .gv-landscape{
+  filter:none;
+  object-position:center center;
+}
+#laria-geography-world .gv-scene.laria-reference-layout-v1:has(> .gv-landscape-art){
+  --ground-line:89%;
+  --ground-left:7%;
+  --ground-shadow:#3022127a;
+}
