@@ -192,3 +192,9 @@
   min-height:100vh!important;min-height:100svh!important;
  }
 }
+
+/* The intro already gives the child an instruction next to the small troll.
+   Do not float a generic second greeting over the activity title. */
+#multiplication-lab-screen.active .mp-pick-easy-intro > .laria-troll-speech{
+ display:none!important;
+}
