@@ -118,5 +118,5 @@
   }).observe(screen,{attributes:true,attributeFilter:['class']});
   document.addEventListener('laria:troll-changed',()=>{if(active()&&phase==='landing')landing();});
   if(active())landing();
-  window.LARIA_GEOGRAPHY_SCENE=Object.freeze({landing,journey,art:ART});
+  window.LARIA_GEOGRAPHY_SCENE=Object.freeze({landing,journey,art:LANDSCAPE});
 })();
