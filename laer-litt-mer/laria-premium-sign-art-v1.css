@@ -1,4 +1,4 @@
-/* The iPad activity edition of the approved Home sign. The authentic wood
+/* The activity edition of the approved Home sign. The authentic wood
    layers are extracted from Grovanova; the actual buttons and names stay live. */
 :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,
     #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1,
@@ -63,11 +63,11 @@
 }
 @media(prefers-reduced-motion:reduce){.laria-premium-sign{transition:none!important}}
 
-/* iPad review only. Anchor the two feet to a visible patch of near terrain,
+/* Anchor the two feet to a visible patch of near terrain,
    not the top plank to an arbitrary height. Leave both the locked scene and
    the working buttons intact. The small occlusion mask reveals the real
    terrain through an irregular edge at each foot; no new grass is painted. */
-@media(min-width:768px) and (max-width:1366px) and (min-height:650px){
+@media(min-width:768px) and (min-height:650px){
  /* 315 × 90 is the untouched geometry of the Home crop. Let the hit
     target follow that ratio instead of stretching the wood to 90px tall. */
  :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
@@ -87,8 +87,13 @@
   --ground-shadow:#3526138c;
  }
  #tallvika-world .tv-scene.laria-reference-layout-v1{
-  --ground-line:67%;--ground-left:6%;--ground-tail:clamp(19px,3.2vh,34px);
-  --ground-shadow:#29261380;
+  /* Tallvika wide art is 1440 × 810, cover/centered. Follow the near
+     bank at ~94% of source height as the panorama crops on wider screens. */
+  --ground-line:clamp(93%,calc(50% + 24.75vw),96.5%);--ground-left:7%;
+  --ground-tail:clamp(23px,3.5vh,37px);--ground-shadow:#29261380;
+ }
+ #tallvika-world .tv-scene.laria-reference-layout-v1:has(> nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]) .tv-actor{
+  left:max(calc(var(--ref-left) + var(--ref-menu-width) + 7%),calc(var(--ground-left) + var(--ref-menu-width) + 12px))!important;
  }
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
   --ground-line:88%;--ground-tail:clamp(16px,2.8vh,29px);
@@ -138,9 +143,13 @@
    radial-gradient(ellipse 10% 25% at 75% 45%,var(--ground-shadow),transparent);
  }
 }
-@media(min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
+@media(min-width:768px) and (min-height:650px) and (orientation:portrait){
  #eggenipa-world .eg-hero.laria-reference-layout-v1{--ground-line:75%}
- #tallvika-world .tv-scene.laria-reference-layout-v1{--ground-line:60%;--ground-left:6%}
+ /* The approved 720 × 1280 portrait art is cover-aligned to the top;
+    source y ≈ 69% stays on the same bank at both iPad aspect ratios. */
+ #tallvika-world .tv-scene.laria-reference-layout-v1{
+  --ground-line:clamp(69%,122.66vw,94%);--ground-left:7%;
+ }
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
   /* Ground the posts below the church roof line, in the near foreground. */
   --ground-line:84%;--ground-tail:clamp(22px,3.5vh,44px);
@@ -167,4 +176,28 @@
  content:""!important;display:block!important;position:absolute!important;
  inset:0!important;pointer-events:none!important;
  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23edab64' stroke='%23fff0c2' stroke-width='1.7' stroke-linejoin='round' d='m16 3 3.6 8.1 8.8.9-6.6 5.9 1.8 8.7-7.6-4.5-7.6 4.5 1.8-8.7-6.6-5.9 8.8-.9z'/%3E%3C/svg%3E") 26% 55%/11% 65% no-repeat!important;
+}
+
+/* Tallvika uses one common pair, never the inherited short per-button feet. */
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]
+ > button.tv-next-sign.laria-reference-next::after{
+ content:none!important;display:none!important;
+}
+
+/* Pointer-based layouts use the same kit; anchor below the treehouse, and
+   keep the Nordlysleiren feet on the near campsite away from the fire. */
+@media(min-width:768px) and (min-height:650px) and (hover:hover) and (pointer:fine) and (orientation:landscape){
+ #eggenipa-world .eg-hero.laria-reference-layout-v1{--ground-line:91%;--ground-left:7%}
+ #laria-geography-world .gv-scene.laria-reference-layout-v1{--ground-line:75%;--ground-left:3%}
+ #eggenipa-world .eg-hero.laria-reference-layout-v1:has(> nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]) .eg-companion-actor{
+  left:max(calc(var(--ref-left) + var(--ref-menu-width) + 7%),calc(var(--ground-left) + var(--ref-menu-width) + 12px))!important;
+ }
+}
+
+#tallvika-world .tv-scene.laria-reference-layout-v1[data-laria-reference-mode="activities"]
+ > nav.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]
+ > button.tv-next-sign.laria-reference-next strong{
+ white-space:nowrap!important;letter-spacing:-.025em!important;
+ font-size:clamp(11px,1.25vw,16px)!important;
 }

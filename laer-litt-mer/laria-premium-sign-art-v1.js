@@ -1,4 +1,4 @@
-/* iPad activity sign rail. The locked Grovanova illustration is read, never changed. */
+/* Source-derived activity sign rail. The locked Grovanova illustration is read, never changed. */
 (function(){
  'use strict';
  const SOURCE='./assets/home-v16/laria-grovanova-v16-landscape-original.png';
@@ -120,11 +120,13 @@
   const mode=params.get('lariaPremiumSignArt');
   if(mode==='0'||params.get('lariaReferenceLayout')==='0')return false;
   if(mode==='1')return true;
-  // Roll out to the reviewed tablet layout only, including iPadOS in
-  // desktop browsing mode. No change to phone or desktop defaults.
-  return !!nav.parentElement?.classList.contains('laria-reference-layout-v1') &&
-    matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches &&
+  if(!nav.parentElement?.classList.contains('laria-reference-layout-v1'))return false;
+  const tablet=matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches &&
     (navigator.maxTouchPoints>0||matchMedia('(any-pointer:coarse)').matches);
+  const desktop=matchMedia('(min-width:768px) and (min-height:650px) and (hover:hover) and (pointer:fine)').matches;
+  // Use the same Home artwork for desktop pointers and the iPad touch rail.
+  // Short/narrow phone layouts remain on their established presentation.
+  return tablet||desktop;
  }
  async function mount(nav){
   if(!nav||nav.dataset.lariaPremiumSignArt||!enabled(nav))return false;
