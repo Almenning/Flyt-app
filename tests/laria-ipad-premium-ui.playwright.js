@@ -96,7 +96,7 @@ async function run(engine,engineName,label,viewport){
    assert.ok(controls.width>=44&&controls.height>=44&&controls.x>=-2&&
        controls.right<=viewport.width+2&&controls.bottom<=viewport.height+2,
        label+' '+spec.id+' Mine troll not reachable: '+JSON.stringify(controls));
-   assert.equal(await world.locator(spec.signs+':visible').count(),3,label+' '+spec.id+' must show three scene destinations');
+   assert.equal(await world.locator(spec.signs+':visible').count(),spec.id==='geography'?2:3,label+' '+spec.id+' has unexpected destinations');
    const actor=world.locator(spec.actor);
    await actor.waitFor({state:'visible',timeout:14000});
    if(spec.id==='english'){

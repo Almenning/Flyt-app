@@ -344,7 +344,7 @@ async function run(engine,label,viewport){
    if(subject==='geography'){
      const landing=page.locator('#laria-geography-world:visible');
      await landing.waitFor({timeout:16000});
-     await landing.locator('[data-gv="journey"]').click();
+     await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
    }
    const isTallvika=subject==='math';
    const base=isTallvika?'#subject-screen.active #tallvika-world':
@@ -461,8 +461,9 @@ async function run(engine,label,viewport){
     return journey.places.find(place=>place.nodes.some(n=>n.id===next.id))?.title;
    },subject);
    assert.ok(nextPaintedPlace,label+' no painted next stop for '+subject);
-   assert.equal((await page.locator('.bc12-journey [data-camp-next]').innerText()).trim(),nextPaintedPlace,
-    label+' Home sign does not match actual painted next journey stop for '+subject);
+   const expectedHomeTitle=subject==='geography'?'Nordlysleiren':nextPaintedPlace;
+   assert.equal((await page.locator('.bc12-journey [data-camp-next]').innerText()).trim(),expectedHomeTitle,
+    label+' Home must preserve published next stops without recommending the archived geography journey');
    await page.reload({waitUntil:'domcontentloaded'});
    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
    const persisted=await progress(page,subject);

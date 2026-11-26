@@ -92,7 +92,7 @@ async function run(engine,label){
     // the new approved navigation hierarchy without fabricating progress.
     const landing=page.locator('#geography-screen.active #laria-geography-world');
     await landing.waitFor({state:'visible',timeout:12000});
-    await landing.locator('[data-gv="journey"]').click();
+    await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
     const geoMap=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
     await geoMap.waitFor({state:'visible',timeout:14000});
     await geoMap.locator('[data-locked-place="4"]').click();

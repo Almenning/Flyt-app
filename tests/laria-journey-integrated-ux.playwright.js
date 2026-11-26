@@ -114,9 +114,9 @@ async function run(engine,label,viewport){
      // scene, not directly from Home. Check the real sign navigation.
      const landing=page.locator('#laria-geography-world:visible');
      await landing.waitFor({timeout:16000});
-     assert.equal(await landing.locator('.gv-sign').count(),3,
+     assert.equal(await landing.locator('.gv-sign').count(),2,
        label+' missing Nordlysleiren activity signs');
-     await landing.locator('[data-gv="journey"]').click();
+     await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
    }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    try{

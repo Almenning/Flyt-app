@@ -65,7 +65,7 @@ async function navigateTo(page,subject){
  if(subject==='geography'){
   const landing=page.locator('#laria-geography-world:visible');
   await landing.waitFor({timeout:16000});
-  await landing.locator('[data-gv="journey"]').click();
+  await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
  }
  return page.locator('#'+screen+'-screen.active');
 }

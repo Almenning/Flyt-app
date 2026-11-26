@@ -92,8 +92,8 @@ async function run(engine,label,viewport,avatar){
    assert.equal(await world.locator('.laria-fox-wardrobe-art,.laria-fox-wardrobe-placed').count(),0,
     label+' '+spec.subject+' retired fox rig still exists in active scene');
    const controls=world.locator('.laria-wayfinder');
-   assert.equal(await controls.count(),3,
-    label+' '+spec.subject+' must offer exactly THREE real activity signs');
+   assert.equal(await controls.count(),spec.subject==='geography'?2:3,
+    label+' '+spec.subject+' must offer its approved real activity signs');
    assert.equal(await page.evaluate(()=>state.profile.avatar),avatar,
     label+' '+spec.subject+' changed historical profile state');
    await page.screenshot({path:OUT+'/'+label+'-'+spec.subject+'-troll.png',

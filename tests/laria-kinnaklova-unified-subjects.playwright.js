@@ -45,13 +45,13 @@ function assertRect(rect,viewport,title){
  assert.ok(rect.left>=-2&&rect.right<=viewport.width+2,title+' outside horizontal view '+JSON.stringify(rect));
  assert.ok(rect.top>=-2&&rect.bottom<=viewport.height+2,title+' outside vertical view '+JSON.stringify(rect));
 }
-async function checkNav(page,selector,viewport,title){
+async function checkNav(page,selector,viewport,title,expected=3){
  const items=await page.locator(selector).evaluateAll(els=>els.map(el=>{
   const r=el.getBoundingClientRect(),st=getComputedStyle(el);
   return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,
    visible:st.display!=='none'&&st.visibility==='visible'};
  }));
- assert.equal(items.length,3,title+' requires exactly three primary activity signs');
+ assert.equal(items.length,expected,title+' has unexpected primary activity signs');
  assert.ok(items.every(x=>x.visible),title+' hidden primary sign');
  items.forEach((x,i)=>assertRect(x,viewport,title+' sign '+i));
  for(let i=0;i<items.length;i++)for(let j=0;j<i;j++){
@@ -104,12 +104,12 @@ async function verify(type,name,width,height,url){
 
   await visit(page,url,'geography');
   await page.locator('#laria-geography-world .gv-brand:visible').waitFor({timeout:20000});
-  await checkNav(page,'#laria-geography-world .gv-sign:visible',v,tag+' Geografi');
+  await checkNav(page,'#laria-geography-world .gv-sign:visible',v,tag+' Geografi',2);
   assert.equal(await page.locator('#laria-geography-world .gv-home:visible').count(),1,'Geography home missing');
   assert.ok(await page.locator('#laria-geography-world .gv-landscape').evaluate(el=>el.complete&&el.naturalWidth>900),
    'Geography landscape asset missing');
   await screenshot(page,tag+'-geografi');
-  await page.locator('[data-gv="journey"]').click();
+  await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
   await page.locator('#geography-screen.active .locked-journey-map:visible').waitFor({timeout:14000});
   // Long, scrollable journey illustrations legitimately substitute a fixed
   // floating back button when the painted/native back arrow is off-screen.

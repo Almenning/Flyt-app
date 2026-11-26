@@ -146,7 +146,7 @@ async function verify(engine,label,viewport){
    if(subject==='geography'){
     const landing=page.locator('#laria-geography-world:visible');
     await landing.waitFor({timeout:16000});
-    await landing.locator('[data-gv="journey"]').click();
+    await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
    }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map');
    await root.waitFor({timeout:16000});

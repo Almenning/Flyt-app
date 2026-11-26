@@ -151,7 +151,7 @@ async function run(engine,name,layout,viewport){
    assert.equal(await shell.count(),1,spec.id+' must mount the common scene component');
    const sharedNav=shell.locator('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
    assert.equal(await sharedNav.count(),1,spec.id+' needs exactly one semantic activity rail');
-   assert.equal(await sharedNav.locator('.laria-wayfinder[data-laria-component="sign"]').count(),3,
+   assert.equal(await sharedNav.locator('.laria-wayfinder[data-laria-component="sign"]').count(),spec.id==='geography'?2:3,
      spec.id+' must not clone or lose activity actions during common-shell enhancement');
    const title=({norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'})[spec.id];
    const adapted=await shell.getAttribute('data-laria-reference-layout')==='v1';
@@ -167,14 +167,14 @@ async function run(engine,name,layout,viewport){
    assert.match(button.image,/laria-home-round\.svg/,spec.id+' has a different Home control');
    assert.match(button.role,/Hjem/,spec.id+' Home accessibility text missing');
    const signs=world.locator(spec.sign+':visible');
-   assert.equal(await signs.count(),3,spec.id+' should have exactly three navigable scene signs');
+   assert.equal(await signs.count(),spec.id==='geography'?2:3,spec.id+' has unexpected navigable scene signs');
    if(spec.id!=='english'){
      // Real rendered positions, not string matches on stylesheet source.
      const railBoxes=await signs.evaluateAll(elements=>elements.map(el=>{
        const r=el.getBoundingClientRect();
        return {x:r.left,y:r.top,w:r.width,h:r.height,right:r.right,bottom:r.bottom};
      }));
-     assert.equal(railBoxes.length,3,spec.id+' sign rail must have three physical signs');
+     assert.equal(railBoxes.length,spec.id==='geography'?2:3,spec.id+' has unexpected signs on the rail');
      const xSpread=Math.max(...railBoxes.map(b=>b.x))-Math.min(...railBoxes.map(b=>b.x));
      const widthSpread=Math.max(...railBoxes.map(b=>b.w))-Math.min(...railBoxes.map(b=>b.w));
      assert.ok(xSpread<=3,spec.id+' sign rail is scattered horizontally: '+JSON.stringify(railBoxes));

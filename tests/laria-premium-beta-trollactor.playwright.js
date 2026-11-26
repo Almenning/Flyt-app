@@ -486,7 +486,7 @@ async function verifyWorldSurfaces(browser,url,out,engineName,name,width,height)
     if(spec.id==='geography'){
       // The geography subject now starts at Nordlysleiren. Verify that the
       // original five-stop journey is still genuinely reachable through it.
-      await page.locator('#laria-geography-world [data-gv="journey"]').click();
+      await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
       await page.locator('#geography-screen.active .locked-journey-map:visible')
         .first().waitFor({state:'visible',timeout:16000});
       await page.locator('#geography-screen.active .locked-journey-back:visible')

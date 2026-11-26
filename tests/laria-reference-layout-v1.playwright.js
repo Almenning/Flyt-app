@@ -35,7 +35,7 @@ async function testEngine(engine,name,device,viewport){
    const defaultGeography=page.locator('#laria-geography-world .gv-scene.laria-reference-layout-v1');
    await defaultGeography.waitFor({state:'visible',timeout:20000});
    assert.equal(await defaultGeography.locator('button.laria-reference-heading strong').textContent(),'Geografi');
-   assert.equal(await defaultGeography.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),3);
+   assert.equal(await defaultGeography.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),2);
    assert.equal(await defaultGeography.locator('nav.laria-reference-subject-nav:visible').count(),0);
    await page.goto(normal+(normal.includes('?')?'&':'?')+'lariaReferenceLayout=0',{waitUntil:'domcontentloaded',timeout:90000});
    await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
@@ -63,10 +63,10 @@ async function testEngine(engine,name,device,viewport){
     assert.equal(await scene.locator('.laria-troll-speech').count(),1,
       world.id+' duplicated the chosen troll speech bubble');
    }
-   // Approved scene opens with the three real activity signs, not an extra back sign.
+   // Approved scene opens with the real activity signs, not an extra back sign.
    const entryTitle=scene.locator('button.laria-reference-heading');
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
-   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),3);
+   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),world.id==='geography'?2:3);
    assert.equal(await scene.locator('nav.laria-reference-subject-nav').isVisible(),false);
    assert.equal(await scene.locator('button.laria-reference-place').count(),0);
    assert.equal(await scene.locator('.laria-reference-activities-back').count(),0);
@@ -145,7 +145,7 @@ async function testEngine(engine,name,device,viewport){
       hiddenActions:[...el.querySelectorAll('.laria-scene-navigation > .laria-wayfinder')].length
     };
    });
-   assert.equal(boxes.hiddenActions,3,world.id+' did not retain real original learning buttons');
+   assert.equal(boxes.hiddenActions,world.id==='geography'?2:3,world.id+' did not retain real original learning buttons');
    for(const box of boxes.menu){
     assert.ok(box.l>=0&&box.t>=0&&box.r<=viewport.width+3&&box.b<=viewport.height+3,
       world.id+' left sign clipped: '+JSON.stringify(box));
@@ -273,10 +273,10 @@ async function testEngine(engine,name,device,viewport){
    assert.match(sameArrow,/laria-light-arrow-sign\.svg/,
      world.id+' activity menu uses a different arrow board');
    assert.equal(await plaque.getAttribute('aria-expanded'),'false');
-   assert.equal(await activities.locator('.laria-wayfinder').count(),3,
-     world.id+' must preserve all three live activity controls');
+   assert.equal(await activities.locator('.laria-wayfinder').count(),world.id==='geography'?2:3,
+     world.id+' must preserve its live activity controls');
    const allVisibleActions=scene.locator('.laria-wayfinder:visible, .tv-next-sign:visible');
-   assert.equal(await allVisibleActions.count(),world.id==='math'?4:3,
+   assert.equal(await allVisibleActions.count(),world.id==='math'?4:world.id==='geography'?2:3,
      world.id+' has duplicated or missing visible activity signs');
    const visibleXs=await allVisibleActions.evaluateAll(nodes=>nodes.map(n=>{
      const r=n.getBoundingClientRect();return {left:r.left,right:r.right};
@@ -305,7 +305,7 @@ async function testEngine(engine,name,device,viewport){
    assert.ok(activityBoxes.every(r=>Math.abs(r.h-boxes.menu[0].h)<=3),
      world.id+' activity planks differ in height from Home-style subject planks: '+
      JSON.stringify({subject:boxes.menu[0],activities:activityBoxes}));
-   assert.equal(await activities.locator('.laria-reference-activity-icon').count(),3,
+   assert.equal(await activities.locator('.laria-reference-activity-icon').count(),world.id==='geography'?2:3,
      world.id+' learning buttons lack matching subject-style pictograms');
    const icons=await activities.locator('.laria-reference-activity-icon').evaluateAll(nodes=>nodes.map(node=>{
      const style=getComputedStyle(node),r=node.getBoundingClientRect();
@@ -324,10 +324,10 @@ async function testEngine(engine,name,device,viewport){
            boardTop:board.top,boardBottom:board.bottom,
            transform:style.transform,border:style.borderTopWidth,color:style.color};
        }));
-     assert.equal(iconPlacement.length,3,'Geografi original activity buttons changed');
+     assert.equal(iconPlacement.length,2,'Geografi original activity buttons changed');
      const oldArrowStates=await activities.locator('button.gv-sign.laria-wayfinder > span[aria-hidden="true"]:not(.laria-reference-activity-icon)').evaluateAll(nodes=>
        nodes.map(node=>getComputedStyle(node).display));
-     assert.equal(oldArrowStates.length,3,'Geografi lost its three original fallback icons');
+     assert.equal(oldArrowStates.length,2,'Geografi lost its two fallback icons');
      assert.ok(oldArrowStates.every(display=>display==='none'),
        'Geografi still exposes legacy white arrow badges: '+JSON.stringify(oldArrowStates));
      assert.ok(iconPlacement.every(icon=>

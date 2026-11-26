@@ -153,7 +153,7 @@ async function run(engine,label,viewport){
    // illustrated wooden sign to the original journey and return in two steps.
    const landing=page.locator('#laria-geography-world:visible');
    await landing.waitFor({timeout:16000});
-   await landing.locator('[data-gv="journey"]').click();
+   await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
    const back=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});
    await back.click();

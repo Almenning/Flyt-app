@@ -85,9 +85,14 @@ async function visit(engine,engineName,viewName,viewport,hasTouch){
     assert.ok(data.footY>=.83&&data.footY<=.97,'Tallvika supports must reach the foreground bank: '+data.footY);
     assert.equal(data.nextFeet,'none','Next adventure duplicated the shared supports');
    }
-   assert.equal(data.signs.length,3,id+' must retain three real activity actions');
+   const expected=id==='geography'?2:3;
+   assert.equal(data.signs.length,expected,id+' has unexpected primary activity actions');
+   if(id==='geography'){
+    assert.deepEqual(await nav.locator('button.laria-wayfinder').evaluateAll(buttons=>buttons.map(b=>b.dataset.gv)),['globe','country']);
+    assert.equal(await scene.locator('[data-gv="journey"]').count(),0,'Retired Geografireisen must not be focusable or present');
+   }
    assert.ok(data.signs.every(s=>s.pictogram.includes('fill="#')),id+' activity badge must have a painted motif');
-   assert.equal(new Set(data.signs.map(s=>s.pictogram)).size,3,id+' activities must use distinguishable motifs');
+   assert.equal(new Set(data.signs.map(s=>s.pictogram)).size,expected,id+' activities must use distinguishable motifs');
    for(const sign of data.signs){
     assert.ok(sign.w>=44&&sign.h>=44,id+' touch target smaller than 44px');
     assert.ok(Math.abs(sign.w/sign.h-3.5)<.06,id+' plaque distorted from the exact Grovanova source ratio: '+sign.w+'x'+sign.h);
@@ -104,6 +109,12 @@ async function visit(engine,engineName,viewName,viewport,hasTouch){
    if(id==='math'){
     await page.locator('.mp-explore-tab[data-mode="pick"]')[hasTouch?'tap':'click']();
     await page.locator('.mp-pick-screen').waitFor({state:'visible',timeout:18000});
+   }
+   if(id==='geography'){
+    await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:90000});
+    await openHomeSubject(page,id);
+    await scene.locator('nav.laria-scene-navigation [data-gv="country"]')[hasTouch?'tap':'click']();
+    await page.locator('#session-screen.active').waitFor({state:'visible',timeout:18000});
    }
    // Use a fresh default app entry after smoke-testing each destination.
    if(id!=='geography')await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:90000});
@@ -122,7 +133,7 @@ async function legacyGeography(engine,engineName){
   fallback.searchParams.set('lariaPremiumSignArt','0');
   await page.goto(fallback.href,{waitUntil:'domcontentloaded',timeout:90000});
   await openHomeSubject(page,'geography');
-  const sign=page.locator('#laria-geography-world .gv-sign[data-gv="journey"]:visible');
+  const sign=page.locator('#laria-geography-world .gv-sign[data-gv="country"]:visible');
   await sign.waitFor({state:'visible',timeout:20000});
   await page.evaluate(()=>document.fonts.ready.then(()=>true));
   const words=await sign.evaluate(el=>{
@@ -132,7 +143,7 @@ async function legacyGeography(engine,engineName){
    const b=el.getBoundingClientRect(),t=range.getBoundingClientRect(),icon=el.querySelector('.laria-reference-activity-icon').getBoundingClientRect();
    return {label:node.textContent.trim(),fits:t.left>=icon.right&&t.right<=b.right-b.width*.10};
   });
-  assert.deepEqual(words,{label:'Geografireisen',fits:true},'Geography fallback must contain its complete label');
+  assert.deepEqual(words,{label:'Land og flagg',fits:true},'Geography fallback must contain its complete label');
   await page.screenshot({path:path.join(out,`${engineName}-desktop-geography-fallback.png`),animations:'disabled'});
  }finally{await browser.close()}
 }

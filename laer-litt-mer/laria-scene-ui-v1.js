@@ -40,8 +40,11 @@
    if(!scene)return false;
    if(scene.dataset.lariaSceneComponent==='v1')return true;
    const signs=[...scene.querySelectorAll(cfg.signs)];
-   if(signs.length!==3){
-     console.warn('[Læria] Scene component expected 3 signs',subject,signs.length);
+   const valid=subject==='geography'
+     ? signs.map(sign=>sign.dataset.gv).join(',')==='globe,country'
+     : signs.length===3;
+   if(!valid){
+     console.warn('[Læria] Scene component received unexpected activity signs',subject,signs.length);
      return false;
    }
    for(const name of REQUIRED){
