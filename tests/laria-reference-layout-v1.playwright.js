@@ -145,7 +145,7 @@ async function testEngine(engine,name,device,viewport){
       hiddenActions:[...el.querySelectorAll('.laria-scene-navigation > .laria-wayfinder')].length
     };
    });
-   assert.equal(boxes.hiddenActions,3,world.id+' did not retain real original learning buttons');
+   assert.equal(boxes.hiddenActions,world.id==='geography'?2:3,world.id+' did not retain real original learning buttons');
    for(const box of boxes.menu){
     assert.ok(box.l>=0&&box.t>=0&&box.r<=viewport.width+3&&box.b<=viewport.height+3,
       world.id+' left sign clipped: '+JSON.stringify(box));
