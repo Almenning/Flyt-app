@@ -1,0 +1,126 @@
+/* Common learning identity: subject landscape, parchment task/control surface,
+   forest-green primary action. Real puzzle boards and illustrations retain
+   their own mechanics and content; this layer owns only their presentation. */
+:root{
+ --learn-paper:#fff8e3;--learn-paper-deep:#f8eac7;--learn-edge:#c49a61;
+ --learn-ink:#443025;--learn-action:#254e3c;--learn-focus:#864b25;
+ --learn-shadow:0 3px 0 #8b5a2878,0 12px 32px #162b2c40;
+ --learn-tallvika:url("./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp");
+ --learn-nordlys:url("./assets/nordlysleiren/nordlysleiren-bluehour-landscape-v1.webp");
+ --learn-eggenipa:url("./assets/norsk/eggenipa-master-laast-20261025.png");
+ --learn-kinn:url("./assets/kinnaklova/kinnaklova-ui-free-approved.webp");
+}
+@media(max-aspect-ratio:1/1){
+ :root{
+  --learn-tallvika:url("./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp");
+  --learn-nordlys:url("./assets/nordlysleiren/nordlysleiren-bluehour-portrait-v1.webp");
+ }
+}
+#session-screen.task-scene[data-task-subject="math"]{--task-world:var(--learn-tallvika);--task-sky:#83adb6}
+#session-screen.task-scene[data-task-subject="geography"]{--task-world:var(--learn-nordlys)}
+#complete-screen[data-laria-lesson-world="math"]{--completion-art:var(--learn-tallvika)}
+#complete-screen[data-laria-lesson-world="norwegian"]{--completion-art:var(--learn-eggenipa)}
+#complete-screen[data-laria-lesson-world="english"]{--completion-art:var(--learn-kinn)}
+#complete-screen[data-laria-lesson-world="geography"]{--completion-art:var(--learn-nordlys)}
+#complete-screen.active[data-laria-lesson-world]{
+ background:linear-gradient(#152e3222,#152e323b),var(--completion-art) center/cover no-repeat;
+}
+#complete-screen.active[data-laria-lesson-world] .complete{
+ background:linear-gradient(160deg,var(--learn-paper),#fffdf0);
+ border:1px solid var(--learn-edge);border-radius:24px;box-shadow:var(--learn-shadow);
+}
+#complete-screen.active[data-laria-lesson-world] .complete::after{content:none}
+#complete-screen.active[data-laria-lesson-world] #complete-home{
+ background:var(--learn-action)!important;color:#fff9e8!important;
+}
+
+.app:has(#fraction-lab-screen.active),
+.app:has(#multiplication-lab-screen.active :is(.gm-shell,.mp-shell)),
+#multiplication-lab-screen.active:has(.gm-shell){
+ background:#8db1bb!important;
+}
+#fraction-lab-screen.active .fr2-shell,
+#multiplication-lab-screen.active :is(.gm-shell,.mp-shell){
+ background:linear-gradient(#15374013,#15374033),var(--learn-tallvika) center center/cover no-repeat fixed!important;
+}
+@supports(-webkit-touch-callout:none){
+ #fraction-lab-screen.active .fr2-shell,
+ #multiplication-lab-screen.active :is(.gm-shell,.mp-shell){background-attachment:scroll!important}
+}
+#fraction-lab-screen.active .fr2-world-art,
+#multiplication-lab-screen.active .mp-scenery{background:none!important}
+#fraction-lab-screen.active .fr2-content::before{content:none!important}
+/* Keep the locked strawberry market scenery, cake portions, labels, cards and
+   digit grid. A consistent calm frame replaces the old surround. */
+#fraction-lab-screen.active .fr2-top.fr4-top,
+#fraction-lab-screen.active .fr2-sign,
+#fraction-lab-screen.active .fr2-stage,
+#multiplication-lab-screen.active .gm-top,
+#multiplication-lab-screen.active .mp-top{
+ box-sizing:border-box;border:1px solid var(--learn-edge)!important;
+ border-radius:18px!important;
+ background:linear-gradient(160deg,var(--learn-paper),var(--learn-paper-deep))!important;
+ color:var(--learn-ink);box-shadow:var(--learn-shadow)!important;
+}
+#multiplication-lab-screen.active .gm-top{padding:5px 9px;margin-bottom:10px}
+#multiplication-lab-screen.active .mp-top{padding:5px 9px}
+#fraction-lab-screen.active .fr2-sign::before,
+#fraction-lab-screen.active .fr2-sign::after,
+#fraction-lab-screen.active .fr2-sign-decoration,
+#fraction-lab-screen.active .fr4-top-token{display:none!important}
+#fraction-lab-screen.active .fr2-sign{margin-block:8px 12px}
+#fraction-lab-screen.active .fr2-sign :is(h1,p){text-shadow:none}
+:is(#fraction-lab-screen,#multiplication-lab-screen).active :is(#fraction-lab-back,#multiplication-lab-back){
+ min-width:44px;min-height:44px;border:1px solid var(--learn-edge)!important;
+ color:var(--learn-ink)!important;background:var(--learn-paper)!important;border-radius:999px!important;
+}
+:is(#fraction-lab-screen,#multiplication-lab-screen).active :is(.gm-classic,.fr2-primary){
+ color:#fff9e8;background:var(--learn-action);
+}
+
+#world-screen.active.globe-v30{background-image:var(--learn-nordlys)!important;background-color:#456881}
+#world-screen.active.globe-v30 :is(.premium-globe-header,#globe-status){
+ border:1px solid var(--learn-edge)!important;
+ background:linear-gradient(160deg,var(--learn-paper),var(--learn-paper-deep))!important;
+ box-shadow:var(--learn-shadow)!important;
+}
+#world-screen.active.globe-v30 #globe-status :is(button,a){color:var(--learn-ink)}
+#world-screen.active.globe-v30 #globe-status :is(.premium-country-learn){
+ background:var(--learn-action)!important;color:#fff9e8!important;
+}
+#world-screen.active.globe-v30 .globe-actions.laria-atlas-controls{
+ display:flex!important;justify-content:flex-end!important;gap:6px!important;
+ align-items:flex-end!important;pointer-events:none!important;
+}
+#world-screen.active.globe-v30 .laria-atlas-controls details{position:relative;pointer-events:auto}
+#world-screen.active.globe-v30 .laria-atlas-controls summary{
+ display:grid;place-items:center;box-sizing:border-box;min-height:44px;padding:7px 12px;
+ color:var(--learn-ink);background:var(--learn-paper);border:1px solid var(--learn-edge);
+ border-radius:14px;box-shadow:0 3px 0 #80552d80;cursor:pointer;
+ font:850 clamp(11px,1.1vw,14px)/1.15 system-ui;text-align:center;list-style:none;
+}
+.laria-atlas-controls summary::-webkit-details-marker{display:none}
+#world-screen.active.globe-v30 .laria-atlas-controls summary:focus-visible{
+ outline:3px solid var(--learn-focus);outline-offset:2px;
+}
+#world-screen.active.globe-v30 .laria-atlas-controls .laria-atlas-panel{
+ position:absolute;right:0;bottom:calc(100% + 9px);z-index:6;
+ display:grid;gap:5px;width:min(282px,76vw);max-height:min(410px,55dvh);overflow:auto;
+ padding:9px;border:1px solid var(--learn-edge);border-radius:15px;
+ background:var(--learn-paper);box-shadow:var(--learn-shadow);
+}
+#world-screen.active.globe-v30 .laria-atlas-controls .searchbox{margin:0}
+#world-screen.active.globe-v30 .laria-atlas-controls .country-list{margin:0}
+#world-screen.active.globe-v30 .laria-atlas-controls .secondary{
+ min-height:44px!important;background:var(--learn-paper)!important;
+ color:var(--learn-ink)!important;border:1px solid var(--learn-edge)!important;
+}
+#world-screen.active.globe-v30 #globe-status .premium-country-learn :is(span,b){
+ color:#fff9e8!important;text-shadow:none!important;
+}
+#world-screen.active.globe-v30 #globe-status .premium-country-learn{
+ font-weight:850!important;text-shadow:none!important;
+}
+@media(min-width:1000px) and (orientation:landscape){
+ .app:has(#fraction-lab-screen.active){width:100%!important;max-width:none!important}
+}

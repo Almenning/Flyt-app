@@ -155,4 +155,5 @@ async function legacyGeography(engine,engineName){
 }
  if(process.env.CI&&!process.env.LARIA_SIGN_ENGINE)await require('./laria-land-flag-pilot.playwright.js')();
  if(process.env.CI&&!process.env.LARIA_SIGN_ENGINE)await require('./laria-subject-identity.playwright.js')();
+ if(process.env.CI&&!process.env.LARIA_SIGN_ENGINE)await require('./laria-learning-identity.playwright.js')();
 })().catch(e=>{console.error(e);process.exitCode=1});
