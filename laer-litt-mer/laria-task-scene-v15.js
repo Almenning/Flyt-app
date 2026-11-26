@@ -267,6 +267,7 @@
     closeButton.setAttribute('aria-label','Tilbake til '+subjectNameForBack);
   }
   function clearScene(){
+    screen.removeAttribute('data-land-flag');
     screen.classList.remove('task-scene');
     delete screen.dataset.taskSubject;
     delete screen.dataset.taskBand;
@@ -305,17 +306,32 @@
     return '<div class="answers">'+options.map(o=>'<button class="answer" data-answer="'+attr(o)+'">'+text(o)+'</button>').join('')+'</div>';
   }
 
+  function landFlagPilot(){
+    return typeof isLandFlagScope==='function'&&isLandFlagScope(sessionScope);
+  }
   function geographyInteractionMarkup(q){
     if(q.type==='map'){
       const region=q.mapRegion||(typeof countries!=='undefined'&&countries[q.k]?countries[q.k].continent:'Verden');
-      return '<div class="map-region">🗺️ '+text(region)+'</div><div class="map quiz-real-map" id="quiz-map"><canvas id="quiz-map-canvas" aria-label="Kart over '+attr(region)+'"></canvas></div>';
+      const ids=(q.mapIds||[]).filter(id=>countries[id]);
+      const alternatives=landFlagPilot()&&ids.length
+        ?'<details id="land-flag-map-choices"><summary>Velg område med knapper</summary><div class="answers">'+ids.map((id,i)=>'<button class="answer" type="button" data-land-flag-map="'+attr(id)+'">Område '+(i+1)+'</button>').join('')+'</div></details>':'';
+      return '<div class="map-region">🗺️ '+text(region)+'</div><div class="map quiz-real-map" id="quiz-map"><canvas id="quiz-map-canvas" aria-label="Kart over '+attr(region)+'"></canvas></div>'+alternatives;
     }
     const options=Array.isArray(q.options)?q.options:[];
     return '<div class="answers">'+options.map(o=>'<button class="answer" data-answer="'+attr(o)+'">'+text(o)+'</button>').join('')+'</div>';
   }
   function bindGeographyInteraction(q,wrap){
-    if(q.type==='map')requestAnimationFrame(()=>renderQuizMap(q,currentAnswered));
-    else wrap.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerText(b.dataset.answer));
+    if(q.type==='map'){
+      requestAnimationFrame(()=>renderQuizMap(q,currentAnswered));
+      wrap.querySelector('#land-flag-map-choices')?.addEventListener('toggle',()=>renderQuizMap(q,currentAnswered));
+      wrap.querySelectorAll('[data-land-flag-map]').forEach(b=>b.onclick=()=>answerMap(b.dataset.landFlagMap));
+    }else wrap.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerText(b.dataset.answer));
+  }
+  function landFlagHint(q){
+    if(q.type==='flag')return 'Se på fargene og mønsteret i flagget.';
+    if(q.type==='map')return 'Se på formen på landene og hva som ligger rundt dem.';
+    if(q.type==='continent')return 'Tenk på hvor i verden landet ligger.';
+    return 'Les spørsmålet én gang til og se på svarene.';
   }
 
   function bindInteraction(q,wrap){
@@ -389,6 +405,8 @@
     if(!wrap)return;
     wrap.classList.add('task-scene-wrap');
 
+    const pilot=subject==='geography'&&landFlagPilot();
+    screen.toggleAttribute('data-land-flag',pilot);
     const gradeLabel=GRADE_CONFIG[currentGrade()]?.label||currentGrade()+'. klasse';
     const prompt=cleanPrompt(q);
     const mode=cardMode(q);
@@ -434,8 +452,8 @@
       '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+(subject==='norwegian'?'task-norsk-storybook ':'')+taskTypeClass(q)+'">'+
         (subject==='norwegian'?'<div class="task-norsk-bookmark" aria-hidden="true">✦ <span>LESEKROKEN</span> ✦</div>':'')+
         '<div class="task-world-chip">'+text(directKinnaklova?'Kinnaklova':sceneName(subject))+'</div>'+
-        '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
-        questionScene+norskHelper+
+        '<div class="task-card-head"><div class="qtype">'+(pilot?'LAND OG FLAGG':subjectName(subject))+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
+        questionScene+norskHelper+(pilot?'<details class="land-flag-hint"><summary>Hint</summary><p>'+text(landFlagHint(q))+'</p></details>':'')+
         '<div class="task-interaction"'+(directKinnaklova?' lang="'+answerLanguage+'"':'')+'>'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
         '<div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p>'+(subject==='english'?'<button class="task-hear-word" id="task-hear-word" type="button" hidden aria-label="Hør engelsk uttale">🔊 Hør engelsk</button>':'')+'</div>'+
         '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button>'+

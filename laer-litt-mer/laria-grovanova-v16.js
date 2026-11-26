@@ -153,7 +153,10 @@ function ensureGreeting(host){
 function syncGreeting(host){
  const name=host.querySelector('.bc12-heading h1')?.textContent?.trim()||'Hei, eventyrer!';
  const label=host.querySelector('.bc15-v16-greeting-name');
- if(label)label.textContent=name;
+ if(label){
+  label.textContent=name;
+  label.parentElement.toggleAttribute('data-long-greeting',Array.from(name).length>19);
+ }
 }
 
 function syncTroll(host){

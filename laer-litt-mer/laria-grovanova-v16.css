@@ -116,28 +116,6 @@
  .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll:focus-visible{
   outline:3px solid #fff1ae!important;outline-offset:3px!important;border-radius:16px!important;
  }
- /* The portrait illustration contains a temporary name; cover only its
-    printed greeting panel with a live, personalized accessible DOM label.
-    The mountain, signs and all art outside this exact panel are unchanged. */
- .grade-band-young .bc12.bc15-v16-locked .bc15-v16-greeting{
-  position:absolute!important;display:flex!important;flex-direction:column!important;
-  align-items:flex-start!important;justify-content:center!important;gap:5px!important;
-  box-sizing:border-box!important;z-index:26!important;
-  background:linear-gradient(180deg,#fffaec 0%,#fff0ce 100%)!important;
-  color:#4e3324!important;
-  border:1.5px solid #d5b17e!important;border-radius:45px!important;
-  padding:6px clamp(12px,2.7vw,31px)!important;
-  box-shadow:0 3px 6px #2d261d24!important;transform:none!important;
-  overflow:hidden!important;pointer-events:none!important;
- }
- .grade-band-young .bc12.bc15-v16-locked .bc15-v16-greeting strong{
-  display:block!important;font:800 clamp(15px,2.35vw,32px)/1.08 system-ui,sans-serif!important;
-  letter-spacing:-.015em!important;color:#4c3020!important;
- }
- .grade-band-young .bc12.bc15-v16-locked .bc15-v16-greeting span{
-  display:block!important;font:500 clamp(12px,1.9vw,25px)/1.17 system-ui,sans-serif!important;
-  color:#563823!important;
- }
  /* Adult access is preserved as an actual 1.5s hold button; it is not part
     of the illustrated child navigation. */
  .grade-band-young .bc12.bc15-v16-locked .bc12-adult-entry{
@@ -196,3 +174,45 @@
 }
 .bc15-v16-journey-choices button:focus-visible,
 .bc15-v16-dialog-close:focus-visible{outline:4px solid #3b81ac;outline-offset:2px}
+
+/* Grovanova v16: retain the one illustrated frame and its tail. Mask the old
+   placeholder lettering inside the parchment; never touch the locked art. */
+.grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting{
+  position:absolute!important;display:flex!important;flex-direction:column!important;
+  align-items:flex-start!important;justify-content:center!important;
+  box-sizing:border-box!important;z-index:26!important;transform:none!important;
+  overflow:hidden!important;pointer-events:none!important;
+  background:none!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;color:#4e3324!important;
+  container-type:inline-size;isolation:isolate;
+  padding:0!important;
+  text-indent:0!important;gap:3px!important;
+}
+.grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:9% 24% 8% 4%;
+  background:linear-gradient(173deg,#fdf5e2 0%,#fdf0d8 43%,#fbe7c7 100%);
+  mask-image:linear-gradient(to right,transparent,#000 4%,#000 90%,transparent),
+             linear-gradient(to bottom,transparent,#000 7%,#000 94%,transparent);
+  mask-composite:intersect;
+}
+.grade-band-young #home-screen .bc12.bc15-v16-locked[data-bc15-v16-orientation="portrait"] .bc15-v16-greeting::before{
+  inset:10% 23% 4% 4%;background:linear-gradient(172deg,#fdf4e2 0%,#fcf0d7 47%,#fbe8c8 100%);
+}
+.grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting strong,
+.grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting span{
+  display:block!important;position:relative;z-index:1;margin-left:8.7%;max-width:82%;text-overflow:ellipsis;
+  white-space:nowrap;overflow:hidden;
+}
+.grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting strong{
+  font:800 clamp(15px,6.3cqw,34px)/1.08 system-ui,sans-serif!important;
+  letter-spacing:-.015em!important;color:#4c3020!important;
+}
+.grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting span{
+  font:500 clamp(11px,4.45cqw,23px)/1.17 system-ui,sans-serif!important;
+  color:#563823!important;
+}
+
+.grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting[data-long-greeting] strong{
+  font-size:clamp(13px,4.8cqw,25px)!important;
+}

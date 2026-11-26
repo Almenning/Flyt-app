@@ -152,4 +152,6 @@ async function legacyGeography(engine,engineName){
  for(const [name,viewport] of views)await visit(engine,engineName,name,viewport,true);
  for(const [name,viewport] of desktopViews)await visit(engine,engineName,name,viewport,false);
  await legacyGeography(engine,engineName);
-}})().catch(e=>{console.error(e);process.exitCode=1});
+}
+ if(process.env.CI&&!process.env.LARIA_SIGN_ENGINE)await require('./laria-land-flag-pilot.playwright.js')();
+})().catch(e=>{console.error(e);process.exitCode=1});
