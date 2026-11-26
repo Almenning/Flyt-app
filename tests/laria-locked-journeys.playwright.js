@@ -54,7 +54,7 @@ async function run(engine,label,viewport){
    if(subject==='geography'){
      const entry=page.locator('#laria-geography-world:visible');
      await entry.waitFor({timeout:16000});
-     await entry.locator('[data-gv="journey"]').click();
+     await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
      await page.locator('#geo-journey-map:visible').waitFor({timeout:16000});
    }
    if(subject==='norwegian'){
@@ -144,7 +144,7 @@ async function run(engine,label,viewport){
        await page.locator('#geography-screen.active').waitFor({timeout:16000});
        const landing=page.locator('#laria-geography-world:visible');
        await landing.waitFor({timeout:16000});
-       await landing.locator('[data-gv="journey"]').click();
+       await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
        await page.locator('#geo-journey-map:visible').waitFor({timeout:16000});
        await companion.waitFor({state:'attached',timeout:16000});
        assert.equal(await companion.getAttribute('data-troll'),choice,

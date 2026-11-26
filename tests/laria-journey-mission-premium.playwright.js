@@ -163,7 +163,7 @@ async function run(engine,label,viewport,url){
    if(subject==='geography'){
      const landing=page.locator('#laria-geography-world:visible');
      await landing.waitFor({timeout:16000});
-     await landing.locator('[data-gv="journey"]').click();
+     await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
    }
    const map=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await map.waitFor({timeout:14000});
@@ -270,7 +270,7 @@ async function run(engine,label,viewport,url){
    if(subject==='geography'){
      const landing=page.locator('#laria-geography-world:visible');
      await landing.waitFor({timeout:16000});
-     await landing.locator('[data-gv="journey"]').click();
+     await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
    }
    const afterReload=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await afterReload.waitFor({timeout:14000});

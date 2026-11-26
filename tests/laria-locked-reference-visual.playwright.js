@@ -132,13 +132,13 @@ async function check(engine,label,viewport){
    const landing=page.locator('#geography-screen.active #laria-geography-world');
    await landing.waitFor({state:'visible',timeout:16000});
    assert.deepEqual(await landing.locator('.gv-sign').evaluateAll(nodes=>nodes.map(x=>x.dataset.gv)),
-     ['journey','globe','country'],label+' Geography landing lost its three real signs');
+     ['globe','country'],label+' Geography landing lost its two real signs');
    assert.equal(await landing.locator('.gv-troll[data-troll="storesoster"]').count(),1,
      label+' Geography must display one selected original TrollActor');
    assert.match(await landing.locator('.gv-troll img').getAttribute('src'),
      /\/storesoster\.webp$/,label+' Geography is using retired fox art');
    await landing.screenshot({path:path.join(output,label+'-geography-landing.png')});
-   await landing.locator('[data-gv="journey"]').click();
+   await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
    await page.waitForFunction(s=>{
     const host=document.querySelector('.screen.active .locked-journey-map');
     const image=host?.querySelector('.locked-journey-image');

@@ -29,13 +29,12 @@
     if(key!==next||!root.firstElementChild){
       key=next;
       root.innerHTML=
-        '<div class="gv-scene laria-sign-rail-v2" role="group" aria-label="Nordlysleiren med tre veier videre">'+
+        '<div class="gv-scene laria-sign-rail-v2" role="group" aria-label="Nordlysleiren med to aktiviteter">'+
         '<picture class="gv-landscape-art"><source srcset="'+PORTRAIT+'" media="(orientation: portrait)"><img class="gv-landscape" src="'+LANDSCAPE+'" alt="Nordlys over en fjord og en teltleir i Nord-Norge" width="1672" height="941" draggable="false" loading="eager" decoding="async"></picture>'+
         '<button class="gv-home" type="button" data-gv="home" aria-label="Tilbake til Hjem">‹ Hjem</button>'+
         '<span class="gv-grade" aria-hidden="true">'+grade+'. klasse</span>'+
         '<button type="button" class="gv-choose" data-gv="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
         '<div class="gv-brand" aria-label="Læria, Geografi"><strong>Læria</strong><span>Oppdag Nordlysleiren</span></div>'+
-        '<button type="button" class="gv-sign gv-sign-journey laria-wayfinder" data-gv="journey" aria-label="Åpne Geografireisen">Geografireisen <span aria-hidden="true">›</span></button>'+
         '<button type="button" class="gv-sign gv-sign-globe laria-wayfinder" data-gv="globe" aria-label="Åpne Kloden">Kloden <span aria-hidden="true">›</span></button>'+
         '<button type="button" class="gv-sign gv-sign-country laria-wayfinder" data-gv="country" aria-label="Start Land og flagg">Land og flagg <span aria-hidden="true">›</span></button>'+
         '<button type="button" class="gv-troll laria-troll-host laria-troll-actor" data-gv="troll" data-troll="'+id+'" data-laria-troll-mood="idle" aria-label="Snakk med trollet ditt i Nordlysleiren">'+
@@ -78,8 +77,6 @@
     }else if(action==='troll'){
       const actor=root?.querySelector('.gv-troll');
       if(actor)window.LARIA_TROLL_ACTOR?.mood?.(actor,'curious',{say:'Skal vi utforske verden sammen?'});
-    }else if(action==='journey'){
-      journey();
     }else if(action==='globe'){
       window.openGlobe?.('explore');
     }else if(action==='country'){

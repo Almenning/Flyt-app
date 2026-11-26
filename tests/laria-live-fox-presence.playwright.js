@@ -57,7 +57,7 @@ async function run(engine,name,viewport,legacyAvatar){
   await sceneActor.waitFor({state:'visible',timeout:14000});
   assert.match(await sceneActor.locator('img').getAttribute('src'),
     /\/storesoster\.webp$/,name+' wrong chosen forest troll in Nordlysleiren');
-  await landing.locator('[data-gv="journey"]').click();
+  await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
   const map=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
   await map.waitFor({state:'visible',timeout:15000});
   const traveler=map.locator('.locked-journey-traveler[data-troll="storesoster"]');

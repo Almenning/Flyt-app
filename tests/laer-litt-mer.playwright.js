@@ -1127,9 +1127,9 @@ async function finishSession(page){
     assert.equal(await page.locator('.geo-theme').count(),6);
     const geoEntrance=page.locator('#laria-geography-world:visible');
     await geoEntrance.waitFor({timeout:16000});
-    assert.equal(await geoEntrance.locator('.gv-sign').count(),3,
-      'Nordlysleiren must provide three scene-native destinations');
-    await geoEntrance.locator('[data-gv="journey"]').click();
+    assert.equal(await geoEntrance.locator('.gv-sign').count(),2,
+      'Nordlysleiren must provide two scene-native destinations');
+    await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
     await page.locator('#geo-journey-map:visible').waitFor({timeout:16000});
     await page.locator('#geo-journey-map.locked-journey-map[data-journey-subject="geography"] .locked-journey-image').waitFor({timeout:16000});
     assert.equal(await page.locator('#geo-journey-map .locked-journey-image').getAttribute('src'),'./locked-journeys/nordlysleiren-locked-20261010.png');
@@ -1213,7 +1213,7 @@ async function finishSession(page){
     const landing=page.locator('#laria-geography-world:visible');
     await landing.waitFor({timeout:16000});
     const themeHeights=await landing.locator('.gv-sign').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
-    assert.equal(themeHeights.length,3,'Nordlysleiren must show three activities');
+    assert.equal(themeHeights.length,2,'Nordlysleiren must show only the two current activities');
     assert.ok(themeHeights.every(h=>h>=44),`small geography touch target: ${themeHeights}`);
     const backHeight=await landing.locator('[data-gv="home"]').evaluate(e=>e.getBoundingClientRect().height);
     assert.ok(backHeight>=44,`small back target: ${backHeight}`);

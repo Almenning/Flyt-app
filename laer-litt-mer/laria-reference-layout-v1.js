@@ -101,7 +101,11 @@
   const iphoneLandscape=root.matchMedia('(min-width:740px) and (max-width:1050px) and (min-height:320px) and (max-height:600px) and (orientation:landscape)').matches;
   if(!ipad&&!iphonePortrait&&!iphoneLandscape)return false;
   const rail=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
-  if(!rail||rail.querySelectorAll('.laria-wayfinder').length!==3)return false;
+  if(!rail)return false;
+  const activitySigns=[...rail.querySelectorAll('.laria-wayfinder')];
+  if(subject==='geography'
+    ? activitySigns.map(sign=>sign.dataset.gv).join(',')!=='globe,country'
+    : activitySigns.length!==3)return false;
   // Preserve the real round Home action and its original click handler.
   // It is not a second wooden sign rail.
   const nav=root.document.createElement('nav');
@@ -127,11 +131,11 @@
   heading.innerHTML='<strong>'+safe(names[subject])+'</strong><small>'+safe(places[subject])+'</small>';
   heading.addEventListener('click',()=>setMode(scene,
     scene.dataset.lariaReferenceMode==='subjects'?'activities':'subjects',true));
-  // Reuse, never clone, the three REAL activity buttons. They become the
+  // Reuse, never clone, the REAL activity buttons. They become the
   // left-hand signs only when the child explicitly opens this subject.
   rail.id='laria-reference-activities-'+subject;
   rail.setAttribute('aria-label','Velg eventyr i '+names[subject]);
-  // Only three actual activity signs appear in the approved scene.
+  // Only actual activity signs appear in the approved scene.
   // Tapping the heading switches to five-subject navigation.
   // Keep the original live buttons and handlers. Add presentation-only
   // icons from the SAME pictogram family used by the five Home-style signs.

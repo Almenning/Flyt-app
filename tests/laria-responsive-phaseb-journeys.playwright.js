@@ -53,8 +53,8 @@ async function visit(page,subject){
  if(subject==='geography'){
   const landing=page.locator('#laria-geography-world:visible');
   await landing.waitFor({timeout:16000});
-  assert.equal(await landing.locator('.gv-sign').count(),3,'Nordlysleiren entrances missing');
-  await landing.locator('[data-gv="journey"]').click();
+  assert.equal(await landing.locator('.gv-sign').count(),2,'Nordlysleiren entrances missing');
+  await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
  }
  await page.locator('#'+screen+'-screen.active.locked-journey-active:not(.gv-visible)').waitFor({timeout:16000});
  await page.waitForFunction(s=>{

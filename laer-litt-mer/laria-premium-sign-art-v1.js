@@ -29,7 +29,7 @@
   eg:{words:'Ordjakt',find:'Finn ordene',reading:'Lesekroken'},
   tv:{multiply:'Gangemagi',fraction:'Brøklab',table:'Gangetabellen'},
   ki:{words:'Ord',sentences:'Setninger',reading:'Lesing'},
-  gv:{journey:'Geografireisen',globe:'Kloden',country:'Land og flagg'}
+  gv:{globe:'Kloden',country:'Land og flagg'}
  };
  const clamp=(n,a=0,b=1)=>Math.min(b,Math.max(a,n));
  const hex=b=>Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,'0')).join('');
@@ -132,7 +132,9 @@
   if(!nav||nav.dataset.lariaPremiumSignArt||!enabled(nav))return false;
   const buttons=[...nav.querySelectorAll('button.laria-wayfinder')];
   const items=buttons.map(descriptor);
-  if(items.length!==3||items.some(item=>!item))return false;
+  if(items.some(item=>!item))return false;
+  const geography=!!nav.closest('#laria-geography-world');
+  if(geography ? items.map(item=>item.world+':'+item.id).join(',')!=='gv:globe,gv:country' : items.length!==3)return false;
   nav.dataset.lariaPremiumSignArt='loading';
   try{
    const art=await source();

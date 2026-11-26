@@ -9,10 +9,10 @@ const rail=read('laria-sign-rail-v2.css');
 // component stylesheet. The former 34% expectation predated the final layout.
 
 assert.match(rail,/laria-wayfinder/,'the shared sign component must own rail placement');
-assert.match(rail,/data-eg="words"[\s\S]*top:35%/,'Eggenipa must start its rail at the shared 35% anchor');
-assert.match(rail,/data-gv="journey"[\s\S]*top:35%/,'Nordlysleiren must start its rail at the shared 35% anchor');
+assert.match(rail,/data-eg="words"[\s\S]*top:35%/,'Eggenipa must keep the approved Kloden anchor before Land og flagg');
+assert.match(rail,/data-gv="globe"[\s\S]*top:45%/,'Nordlysleiren must keep the approved Kloden anchor before Land og flagg');
 assert.match(rail,/--rail-left:4%/,'the desktop rail needs one common left anchor');
 assert.match(rail,/min-width:44px|laria-wayfinder/,'touch targets remain governed by the shared accessible component');
 for(const file of ['eggenipa.js','tallvika.js','geography-kinnaklova-scene.js'])
   assert.match(read(file),/laria-sign-rail-v2/,file+' must opt into the common rail layout');
-console.log('Læria Sign Rail v2: clean worlds share a left-hand three-sign layout.');
+console.log('Læria Sign Rail v2: clean worlds share a left-hand sign layout.');

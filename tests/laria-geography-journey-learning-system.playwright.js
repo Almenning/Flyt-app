@@ -114,7 +114,7 @@ async function run(engine,label){
     // Open the actual journey sign, then verify the real map and its missions.
     const landing=page.locator('#geography-screen.active #laria-geography-world');
     await landing.waitFor({state:'visible',timeout:12000});
-    await landing.locator('[data-gv="journey"]').click();
+    await page.evaluate(()=>window.LARIA_GEOGRAPHY_SCENE.journey());
     const map=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
     await map.waitFor({state:'visible',timeout:14000});
     await map.locator('[data-locked-place="1"]').click();

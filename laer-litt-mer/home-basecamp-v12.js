@@ -65,6 +65,7 @@ function next(){
  const active=state.activeSession?.scope;
  const subject=activitySubject(active,state.lastActivity);
  const grade=Number(active?.journeyGrade||active?.grade||state.lastActivity?.grade||currentGrade());
+ if(subject==='geography'&&!active)return {subject,grade,title:'Nordlysleiren',active:false,pct:0,complete:false};
  const progress=subject==='geography'?geoJourneyProgress(grade):journeyProgress(subject,grade);
  const node=subject==='geography'?geoJourneyRecommendedNode(grade):journeyRecommendedNode(subject,grade);
  return {subject,grade,title:active?.label||approvedNextPlace(subject,progress,node,grade)||(subject==='norwegian'?PLACES[node?.id]:null)||node?.title||'Bokskogen',active:!!active,pct:Number(progress?.pct||0),complete:!!progress?.complete};
@@ -72,7 +73,7 @@ function next(){
        
 function journeyCopy(info){
  if(info?.active)return 'Du har allerede startet. Reisen fortsetter der du slapp.';
- if(info?.subject==='geography')return 'Et nytt sted i verden venter.';
+ if(info?.subject==='geography')return 'Velg Kloden eller Land og flagg.';
  if(info?.subject==='math')return 'Tall, mønstre og neste utfordring venter.';
  if(info?.subject==='english')return 'Nye ord og et nytt oppdrag venter.';
  return 'Bokskogen har et nytt oppdrag til deg.';
