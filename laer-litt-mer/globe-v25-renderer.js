@@ -186,24 +186,30 @@ function enhanceSelectedCountryV24(id){
   if(!box||!id||typeof countries==='undefined'||!countries[id])return;
   const c=countries[id];
   const st=typeof globeStatusInfo==='function'?globeStatusInfo(id):{key:'new',symbol:'–',label:'Ikke startet'};
-  const scene=sceneForCountry(c);
   const capital=c.capitalDisplay||c.capital||'–';
 
   box.classList.add('premium-country-selected');
   box.innerHTML=
-    '<div class="flag">'+c.flag+'</div>'+
     '<div class="globe-country-copy">'+
-      '<div class="globe-country-line"><strong>'+c.name+'</strong><span class="globe-status-badge '+st.key+'">'+st.symbol+' '+st.label+'</span></div>'+
-      '<div class="premium-country-facts"><span>🌍 '+c.continent+'</span><span>📍 '+capital+'</span><span class="globe-country-tagline"></span></div>'+
+      '<div class="globe-country-identity">'+
+        '<div class="flag" role="img">'+c.flag+'</div>'+
+        '<div class="globe-country-line"><strong>'+c.name+'</strong><span class="globe-status-badge '+st.key+'">'+st.symbol+' '+st.label+'</span></div>'+
+      '</div>'+
+      '<div class="premium-country-facts"><span>🌍 '+c.continent+'</span><span>📍 '+capital+'</span></div>'+
+      '<p class="globe-country-tagline"></p>'+
     '</div>'+
-    '<button type="button" class="premium-country-learn" aria-label="Lær mer om '+c.name+'">'+bookSvg+'<span>Lær mer</span><b>›</b></button>';
+    '<button type="button" class="premium-country-learn">'+bookSvg+'<span>Lær mer</span><b aria-hidden="true">›</b></button>';
+  box.querySelector('.flag').setAttribute('aria-label','Flagget til '+c.name);
 
   const teaser=box.querySelector('.globe-country-tagline');
   if(teaser)teaser.textContent=window.LARIA_COUNTRY_DISCOVERIES?.get(id)?.teaser||'Se flagget, hovedstaden og kartet.';
   box.style.cursor='pointer';
   box.onclick=()=>openDetail(id,'world');
   const btn=box.querySelector('.premium-country-learn');
-  if(btn)btn.onclick=e=>{e.stopPropagation();openDetail(id,'world')};
+  if(btn){
+    btn.setAttribute('aria-label','Lær mer om '+c.name);
+    btn.onclick=e=>{e.stopPropagation();openDetail(id,'world')};
+  }
 }
 
 function addPath(ctx,c,w,h){
