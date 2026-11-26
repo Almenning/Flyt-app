@@ -8,6 +8,8 @@ on:
       - 'laer-litt-mer/laria-premium-sign-art-v1.css'
       - 'laer-litt-mer/laria-scene-ui-v1.js'
       - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/laria-grovanova-v16.css'
+      - 'tests/laria-troll-pose.playwright.js'
       - 'tests/laria-gangemagi-release-cache.test.cjs'
       - 'tests/laria-premium-sign-integration.playwright.js'
       - '.github/workflows/laria-premium-integration-ipad.yml'

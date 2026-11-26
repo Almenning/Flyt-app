@@ -88,7 +88,7 @@
  /* Only the existing chosen TrollActor is drawn above the unmodified art. */
  .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll{
   display:flex!important;position:absolute!important;z-index:28!important;
-  right:6.8%!important;bottom:14%!important;
+  right:0!important;bottom:14%!important;
   width:var(--laria-front-troll-width)!important;height:var(--laria-front-troll-height)!important;
   align-items:flex-end!important;justify-content:center!important;
   padding:0!important;margin:0!important;border:0!important;
@@ -220,19 +220,20 @@
 
 /* Scene fronts only: one visible character scale shared by Hjem and the
    four subject entrances. Each scene retains its own terrain anchor.
-   The original 1:2 artwork fills the identical width and height on each front. */
+   The original 1:2 artwork fills the identical width and height on each front.
+   Larger silhouette only; the painted iPhone Home trio is not a live actor. */
 :root{
- --laria-front-troll-height:clamp(184px,31vh,258px);
+ --laria-front-troll-height:clamp(230px,39vh,324px);
  --laria-front-troll-width:calc(var(--laria-front-troll-height) / 2);
 }
 @media(orientation:portrait){
- :root{--laria-front-troll-height:clamp(222px,24vh,318px)}
+ :root{--laria-front-troll-height:clamp(277px,30vh,398px)}
 }
 @media(max-width:700px) and (orientation:portrait){
- :root{--laria-front-troll-height:clamp(155px,24vh,208px)}
+ :root{--laria-front-troll-height:clamp(194px,30vh,260px)}
 }
 @media(orientation:landscape) and (max-height:600px){
- :root{--laria-front-troll-height:clamp(105px,31vh,160px)}
+ :root{--laria-front-troll-height:clamp(130px,39vh,200px)}
 }
 :is(#eggenipa-world .eg-hero .eg-companion-actor[data-eg="troll"],
     #tallvika-world .tv-scene .tv-actor[data-troll-id],
@@ -247,4 +248,32 @@
 #laria-geography-world .gv-scene.laria-reference-layout-v1 .gv-troll[data-gv="troll"],
 #laria-geography-world .gv-scene .gv-troll[data-gv="troll"]{
  left:auto!important;right:clamp(12px,10vw,144px)!important;bottom:4%!important;
+}
+
+/* In the shallow phone landscape and the narrowest phones, the legacy
+   anchors can sit inside the left rail or below the visible scene. Keep
+   the enlarged actor on the opposite foreground, within the first fold. */
+@media(max-width:360px) and (orientation:portrait),
+       (orientation:landscape) and (max-height:520px){
+ :is(#eggenipa-world .eg-hero .eg-companion-actor[data-eg="troll"],
+     #tallvika-world .tv-scene .tv-actor[data-troll-id],
+     #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage .ki-companion-actor[data-ki="troll"],
+     #laria-geography-world .gv-scene .gv-troll[data-gv="troll"]){
+  inset:auto clamp(12px,8vw,85px) max(10px,calc(100% - 100svh + 10px)) auto!important;
+ }
+}
+/* The legacy English landscape is a short, sign-painted strip below 600px
+   in phone portrait. Keep its companion inside the empty space above Words
+   rather than letting it cover the fixed signs or clip out of the artwork. */
+@media(max-width:767px) and (max-height:599px) and (orientation:portrait){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage:not(.laria-reference-layout-v1) .ki-companion-actor[data-ki="troll"]{
+  inset:4% auto auto 27%!important;
+  width:18vw!important;height:36vw!important;
+ }
+}
+@media(orientation:landscape) and (max-height:520px){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage:not(.laria-reference-layout-v1) .ki-companion-actor[data-ki="troll"]{
+  /* This legacy landscape still has a Reading sign on the far right. */
+  left:48%!important;right:auto!important;
+ }
 }

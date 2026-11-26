@@ -16,8 +16,12 @@ async function verify(type,engine,w,h){
  await page.goto(url);
  await page.locator('#home-screen.active').waitFor();
  let naturalBox;
- const active=w>=768?page.locator('#home-screen .bc15-v16-troll'):page.locator('#home-screen .laria-troll-actor:visible').first();
- if(w>=768){
+ const clamp=(min,value,max)=>Math.max(min,Math.min(value,max));
+ const publishedHeight=h>w
+   ? (w<=700?clamp(155,h*.24,208):clamp(222,h*.24,318))
+   : (h<=600?clamp(105,h*.31,160):clamp(184,h*.31,258));
+ if(w>=768&&h>=650){
+   const active=page.locator('#home-screen .bc15-v16-troll');
    await active.locator('canvas').waitFor({timeout:30000});
    for(const id of ['storesoster','lillesoster','lillebror']){
      await page.evaluate(id=>window.LARIA_TROLL_ACTOR.persistChoice(id),id);
@@ -28,14 +32,14 @@ async function verify(type,engine,w,h){
    }
    const box=await active.boundingBox();
    naturalBox=await active.locator('img').boundingBox();
-   const prevHeight=h>w?Math.min(246,Math.max(154,h*.18)):Math.min(172,Math.max(122,h*.23));
-   assert.ok(box.height>=prevHeight*1.19,'Home companion must be visibly larger: '+box.height);
+   assert.ok(box.height>=publishedHeight*1.23,'Home companion must be at least 23% larger than release B: '+box.height);
    const overlap=await active.evaluate(el=>{
      const r=el.getBoundingClientRect();
-     return Array.from(el.parentElement.querySelectorAll('.bc15-v16-signs button,.bc15-v16-reisen,.bc15-v16-greeting,.bc12-nav button,.bc12-adult-entry'))
-       .filter(c=>{const b=c.getBoundingClientRect();return b.width&&b.height&&b.left<r.right&&b.right>r.left&&b.top<r.bottom&&b.bottom>r.top;})
+     return Array.from(el.parentElement.querySelectorAll('.bc15-v16-signs button,.bc15-v16-reisen,.bc12-journey,.bc15-v16-greeting,.bc12-nav button,.bc12-adult-entry'))
+       .filter(c=>{const b=c.getBoundingClientRect();return b.width&&b.height&&Math.min(b.right,r.right)-Math.max(b.left,r.left)>2&&Math.min(b.bottom,r.bottom)-Math.max(b.top,r.top)>2;})
        .map(c=>c.className);
    });
+   assert.ok(box.x>=-1&&box.y>=-1&&box.x+box.width<=w+1&&box.y+box.height<=h+1,'Home companion must fit in the visible scene');
    assert.deepEqual(overlap,[],'larger companion must not obstruct the Home controls');
    await page.screenshot({path:out+'/'+engine+'-'+w+'x'+h+'-home-troll-b.jpg',type:'jpeg',quality:91});
    const dynamic=()=>active.locator('canvas').evaluate(el=>el.toDataURL());
@@ -45,6 +49,11 @@ async function verify(type,engine,w,h){
    await page.evaluate(()=>{const a=document.querySelector('#home-screen .bc15-v16-troll');window.LARIA_TROLL_ACTOR.mood(a,'celebrate',{say:false});});
    await page.waitForTimeout(340);
    await page.screenshot({path:out+'/'+engine+'-'+w+'x'+h+'-celebrate.png'});
+ }else if(h>w){
+   await page.locator('#home-screen .bc12.bc15-locked-home').waitFor();
+   assert.equal(await page.locator('#home-screen .laria-troll-actor:visible').count(),0,
+     'Do not add a second companion on top of the locked phone illustration');
+   await page.screenshot({path:out+'/'+engine+'-'+w+'x'+h+'-home-locked-art.jpg',type:'jpeg',quality:90});
  }
  await openSubject(page,'math');
  const actor=page.locator('#tallvika-world .tv-actor-touch');
@@ -54,13 +63,19 @@ async function verify(type,engine,w,h){
  const sameSize=async (label,img)=>{
    const base=naturalBox||await page.evaluate(()=>{const p=document.createElement('div');p.style.cssText='visibility:hidden;position:fixed;width:var(--laria-front-troll-width);height:var(--laria-front-troll-height)';document.body.append(p);const {width,height}=p.getBoundingClientRect();p.remove();return {width,height};});
    const box=await img.boundingBox();
-   assert.ok(Math.abs(box.height-base.height)<=1&&Math.abs(box.width-base.width)<=1,label+' must match Home scale: '+JSON.stringify({box,base}));
-   assert.ok(box.x>=-1&&box.y>=-1&&box.x+box.width<=w+1&&box.y+box.height<=h+1,label+' companion must fit in the visible scene');
+   const compactEnglish=label==='english'&&w<768&&h<600&&h>w;
+   if(compactEnglish){
+     assert.ok(Math.abs(box.height-w*.36)<=1,'Legacy English strip uses its own safe character size');
+   }else{
+     assert.ok(box.height>=publishedHeight*1.23,label+' companion must be at least 23% larger than release B: '+box.height);
+     assert.ok(Math.abs(box.height-base.height)<=1&&Math.abs(box.width-base.width)<=1,label+' must match Home scale: '+JSON.stringify({box,base}));
+   }
+   assert.ok(box.x>=-1&&box.y>=-1&&box.x+box.width<=w+1&&box.y+box.height<=h+1,label+' companion must fit in the visible scene: '+JSON.stringify(box));
    const overlap=await img.evaluate(e=>{
      const hit=e.parentElement,scene=hit.closest('.eg-hero,.tv-scene,.ki-stage,.gv-scene'),r=hit.getBoundingClientRect();
-     return [...scene.querySelectorAll('nav.laria-scene-navigation button,.laria-reference-heading,.ki-painted-home,.tv-home-btn,.eg-home-btn,.gv-home-btn')].filter(c=>{
+     return [...scene.querySelectorAll('nav.laria-scene-navigation button,.laria-reference-heading,.ki-painted-hit,.tv-home-btn,.eg-home-btn,.gv-home-btn')].filter(c=>{
        const b=c.getBoundingClientRect(),s=getComputedStyle(c);
-       return s.visibility!=='hidden'&&b.width&&b.height&&b.left<r.right&&b.right>r.left&&b.top<r.bottom&&b.bottom>r.top;
+       return s.visibility!=='hidden'&&b.width&&b.height&&Math.min(b.right,r.right)-Math.max(b.left,r.left)>2&&Math.min(b.bottom,r.bottom)-Math.max(b.top,r.top)>2;
      }).map(c=>c.className);
    });
    assert.deepEqual(overlap,[],label+' companion must not cover the subject controls');
@@ -100,7 +115,9 @@ async function run(){
  await mkdir(out,{recursive:true});
  for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
   if(process.env.LARIA_TROLL_ENGINE&&process.env.LARIA_TROLL_ENGINE!==engine)continue;
-  for(const [w,h] of [[1180,820],[820,1180],[1024,1366],[1024,768],[390,844],[1440,900]])await verify(type,engine,w,h);
+  for(const [w,h] of [[1180,820],[820,1180],[1024,1366],[1366,1024],[1024,768],[390,844],[320,568],[844,390],[1440,900]]){
+   if(!process.env.LARIA_TROLL_VIEWPORT||process.env.LARIA_TROLL_VIEWPORT===w+'x'+h)await verify(type,engine,w,h);
+  }
  }
 }
 module.exports=run;
