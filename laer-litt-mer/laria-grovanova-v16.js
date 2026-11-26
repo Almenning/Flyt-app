@@ -168,7 +168,7 @@ function syncTroll(host){
  const label=companion?.label?.(id)||'Storesøster';
  const img=actor.querySelector('img');
  actor.dataset.troll=id;
- actor.setAttribute('aria-label',label+' er med deg. Trykk for å vinke.');
+ actor.setAttribute('aria-label',label+' er med deg. Trykk for å si hei.');
  if(img&&img.getAttribute('src')!==src)img.setAttribute('src',src);
  if(img)img.dataset.troll=id;
 }

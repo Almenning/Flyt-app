@@ -152,6 +152,7 @@
     if(!host||!MOODS.has(kind))return false;
     root.clearTimeout(timers.get(host));
     host.dataset.lariaTrollMood=kind;
+    if(kind!=='idle')host.dataset.lariaTrollBeat=String((Number(host.dataset.lariaTrollBeat)||0)+1);
     if(opts.say!==false){
       const text=typeof opts.say==='string'?opts.say:line(kind);
       if(text)speech(host,text);

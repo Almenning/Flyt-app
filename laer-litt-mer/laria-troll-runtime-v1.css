@@ -348,3 +348,31 @@ html[data-laria-character-system="troll"] #world-screen .premium-globe-guide:not
 #home-screen .dashboard-mascot[data-laria-legacy-troll]:focus-visible{
  outline:3px solid #fff1b2;outline-offset:4px;border-radius:15px;
 }
+
+/* Trim only the old paper/stone base; the approved painted characters stay byte-locked. */
+img[src*="/gangemagi-troll/"]{
+  -webkit-mask: var(--laria-troll-contour) center bottom / contain no-repeat content-box;
+  mask: var(--laria-troll-contour) center bottom / contain no-repeat content-box;
+}
+img[src*="/gangemagi-troll/storesoster.webp"]{--laria-troll-contour:url("./assets/troll-contours/storesoster.svg?v=contour1")}
+img[src*="/gangemagi-troll/lillesoster.webp"]{--laria-troll-contour:url("./assets/troll-contours/lillesoster.svg?v=contour1")}
+img[src*="/gangemagi-troll/lillebror.webp"]{--laria-troll-contour:url("./assets/troll-contours/lillebror.svg?v=contour1")}
+/* Cancel the legacy whole-figure float. Motion paints a separate, modelled pose. */
+img:is(.laria-premium-troll-art,.ki-troll)[src*="/gangemagi-troll/"]{
+  animation:none!important;will-change:auto!important;
+}
+@media(prefers-reduced-motion:no-preference){
+  /* Old scene selectors explicitly force opaque images, so match their specificity. */
+  :is(#home-screen,#session-screen,#eggenipa-world,#tallvika-world,#kinnaklova-world,#laria-geography-world,
+      #multiplication-lab-screen,#fraction-lab-screen,#world-screen,body)
+      .laria-troll-actor.laria-troll-host>img.laria-premium-troll-art[data-laria-troll-posed]{opacity:0!important}
+}
+.laria-troll-pose{
+  position:absolute!important;max-width:none!important;max-height:none!important;
+  pointer-events:none!important;z-index:1;display:block!important;
+  filter:drop-shadow(0 2px 2px rgba(23,34,25,.18));
+}
+@media(prefers-reduced-motion:reduce){
+  .laria-troll-pose{display:none!important}
+}
+.laria-troll-pose-anchor{position:relative}
