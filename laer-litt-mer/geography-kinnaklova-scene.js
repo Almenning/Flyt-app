@@ -6,7 +6,8 @@
   'use strict';
   const screen=document.getElementById('geography-screen');
   if(!screen)return;
-  const ART='./assets/cards/reisen/geography-premium.webp';
+  const LANDSCAPE='./assets/nordlysleiren/nordlysleiren-bluehour-landscape-v1.webp';
+  const PORTRAIT='./assets/nordlysleiren/nordlysleiren-bluehour-portrait-v1.webp';
   const bridge=()=>window.LARIA_TALLVIKA_BRIDGE;
   const safe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const active=()=>screen.classList.contains('active');
@@ -29,7 +30,7 @@
       key=next;
       root.innerHTML=
         '<div class="gv-scene laria-sign-rail-v2" role="group" aria-label="Nordlysleiren med tre veier videre">'+
-        '<img class="gv-landscape" src="'+ART+'" alt="Illustrert nordlyshimmel over norske fjell, fjord og eventyrleir" width="1024" height="704" draggable="false" loading="eager" decoding="async">'+
+        '<picture class="gv-landscape-art"><source srcset="'+PORTRAIT+'" media="(orientation: portrait)"><img class="gv-landscape" src="'+LANDSCAPE+'" alt="Nordlys over en fjord og en teltleir i Nord-Norge" width="1672" height="941" draggable="false" loading="eager" decoding="async"></picture>'+
         '<button class="gv-home" type="button" data-gv="home" aria-label="Tilbake til Hjem">‹ Hjem</button>'+
         '<span class="gv-grade" aria-hidden="true">'+grade+'. klasse</span>'+
         '<button type="button" class="gv-choose" data-gv="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
@@ -117,5 +118,5 @@
   }).observe(screen,{attributes:true,attributeFilter:['class']});
   document.addEventListener('laria:troll-changed',()=>{if(active()&&phase==='landing')landing();});
   if(active())landing();
-  window.LARIA_GEOGRAPHY_SCENE=Object.freeze({landing,journey,art:ART});
+  window.LARIA_GEOGRAPHY_SCENE=Object.freeze({landing,journey,art:LANDSCAPE});
 })();

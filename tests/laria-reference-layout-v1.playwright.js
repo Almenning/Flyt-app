@@ -246,13 +246,14 @@ async function testEngine(engine,name,device,viewport){
    }
    if(world.id==='geography'){
     const source=await scene.locator('img.gv-landscape').evaluate(el=>({
-      src:el.getAttribute('src'),transform:getComputedStyle(el).transform,
-      loaded:el.complete&&el.naturalWidth>0
+      src:el.currentSrc,transform:getComputedStyle(el).transform,
+      width:el.naturalWidth,height:el.naturalHeight
     }));
-    assert.ok(source.loaded&&/geography-premium\.webp/.test(source.src),
-      'Nordlysleiren original low-resolution source unexpectedly replaced');
-    assert.match(source.transform,/matrix\(1\.054, 0, 0, 1\.054, 0, 0\)/,
-      'original thumbnail white sky stripe was not cropped by art-safe overscan');
+    const portrait=viewport.height>viewport.width;
+    assert.match(source.src,new RegExp('/assets/nordlysleiren/nordlysleiren-bluehour-'+(portrait?'portrait':'landscape')+'-v1[.]webp$'));
+    assert.deepEqual([source.width,source.height],portrait?[1086,1448]:[1672,941],
+      'Nordlysleiren must load the approved native-resolution source for the device orientation');
+    assert.equal(source.transform,'none','the clean artwork does not need legacy overscan');
    }
    const liveHome=scene.locator('[data-laria-component="home"]');
    assert.equal(await liveHome.count(),1,'original round Home control must remain');
@@ -529,7 +530,7 @@ async function assembleRealArtReviewSheets(){
   {id:'norwegian',name:'NORSK · Eggenipa',status:'FELLES LAYOUT: klar for visuell vurdering'},
   {id:'math',name:'MATTE · Tallvika',status:'FELLES LAYOUT: klar for visuell vurdering'},
   {id:'english-unified-approved',name:'ENGELSK · Kinnaklova',status:'REN KINN ORIGINAL: skilt samlet til venstre'},
-  {id:'geography',name:'GEOGRAFI · Nordlysleiren',status:'FELLES LAYOUT: lavoppløst kunst'}
+  {id:'geography',name:'GEOGRAFI · Nordlysleiren',status:'Godkjent motiv i høy oppløsning'}
  ];
  const reports=[];
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
@@ -583,7 +584,7 @@ async function assembleRealArtReviewSheets(){
    generatedFrom:'actual app in Playwright WebKit iPad',
    sourceMasterPolicy:'originals unmodified',
    artBlocked:['Grovanova/Hjem','Kinnaklova/Engelsk'],
-   geographyResolutionBlocked:true,
+   geographyResolutionBlocked:false,
    visualApproval:false,publish:false,sheets:reports},null,2));
  console.log('Real iPad art review sheets: '+reports.map(x=>x.file).join(', '));
 }

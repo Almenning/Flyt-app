@@ -35,11 +35,22 @@
         1024,
         704
       ],
-      "clean": null,
-      "cleanSha256": null,
+      "clean": "laer-litt-mer/assets/nordlysleiren/nordlysleiren-bluehour-landscape-v1.webp",
+      "cleanSha256": "0eb58d0eef1716d38248a037e20b8cd41adb30325adf95b049fe884179d5d27a",
       "minWidth": 1600,
       "minHeight": 900,
-      "ownerApproved": false
+      "ownerApproved": true,
+      "cleanDimensions": [
+        1672,
+        941
+      ],
+      "portraitClean": "laer-litt-mer/assets/nordlysleiren/nordlysleiren-bluehour-portrait-v1.webp",
+      "portraitCleanSha256": "57c810f891915a7e394d3a87c7271602d4cd58523140e8ac363d51b64bd37fbb",
+      "portraitCleanDimensions": [
+        1086,
+        1448
+      ],
+      "ownerApproval": "2026-11-26: «Jeg liker det. Lås denne og publiser i app.» Approved both compositions in the actual Mac-size and landscape/portrait iPad previews; Geography facade only."
     }
   },
   "devices": {
@@ -93,7 +104,6 @@
   "openBlocks": [
     "Grovanova: krever source-tro ren 4:3-kunst på minst 1366x1024 og visuell godkjenning, uten endring av låst fjellmotiv",
     "Kinnaklova: ren kandidat må bestå pikselintegritet utenfor UI-masken og godkjennes visuelt; bevare fjell og kirke",
-    "Nordlysleiren: mangler separat ren høyoppløselig landskapskilde på minst 1600x900 og eiergodkjenning",
     "Full kritisk regresjonskontroll på siste testsuite-HEAD og faktisk barnetest mangler",
     "PR #243 forblir draft; ingen merge/produksjonspublisering før godkjenningsporter er oppfylt",
     "iPhone og desktop er ikke visuelt godkjent; iPad stående/liggende er godkjent av produkteier 2026-11-15"
