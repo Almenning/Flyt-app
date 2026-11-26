@@ -124,9 +124,11 @@
   const tablet=matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches &&
     (navigator.maxTouchPoints>0||matchMedia('(any-pointer:coarse)').matches);
   const desktop=matchMedia('(min-width:768px) and (min-height:650px) and (hover:hover) and (pointer:fine)').matches;
-  // Use the same Home artwork for desktop pointers and the iPad touch rail.
-  // Short/narrow phone layouts remain on their established presentation.
-  return tablet||desktop;
+  const englishPhone=nav.closest('#kinnaklova-world[data-ki-premium-art="approved"]') &&
+    matchMedia('(min-width:320px) and (max-width:767px) and (min-height:600px) and (orientation:portrait)').matches;
+  // Reuse the verified Home faces and pair of posts in Kinnaklova on portrait
+  // phones, where the approved clean painting already uses the shared scene.
+  return tablet||desktop||!!englishPhone;
  }
  async function mount(nav){
   if(!nav||nav.dataset.lariaPremiumSignArt||!enabled(nav))return false;
@@ -135,10 +137,12 @@
   if(items.some(item=>!item))return false;
   const geography=!!nav.closest('#laria-geography-world');
   if(geography ? items.map(item=>item.world+':'+item.id).join(',')!=='gv:globe,gv:country' : items.length!==3)return false;
+  const token=Symbol();
+  pending.set(nav,token);
   nav.dataset.lariaPremiumSignArt='loading';
   try{
    const art=await source();
-   if(!nav.isConnected)return false;
+   if(!nav.isConnected||pending.get(nav)!==token)return false;
    nav.style.setProperty('--laria-premium-plank','url("'+art.board+'")');
    nav.style.setProperty('--laria-premium-posts','url("'+art.posts+'")');
    buttons.forEach((button,index)=>{
@@ -158,9 +162,22 @@
    nav.classList.add('laria-premium-sign-rail');
    nav.dataset.lariaPremiumSignArt='ready';return true;
   }catch(error){
+   if(pending.get(nav)!==token)return false;
    nav.dataset.lariaPremiumSignArt='blocked';nav.dataset.lariaPremiumSignError=String(error.message||error);
    console.error('[Læria] premium sign art blocked',error);return false;
   }
  }
- window.LariaPremiumSignArt=Object.freeze({version:'v4',mount});
+ const pending=new WeakMap();
+ function unmount(nav){
+  pending.delete(nav);
+  delete nav.dataset.lariaPremiumSignArt;
+  delete nav.dataset.lariaPremiumSignError;
+  nav.classList.remove('laria-premium-sign-rail');
+  nav.style.removeProperty('--laria-premium-plank');
+  nav.style.removeProperty('--laria-premium-posts');
+  nav.querySelectorAll('.laria-premium-sign-face').forEach(face=>face.remove());
+  nav.querySelectorAll('.laria-premium-sign-legacy').forEach(child=>child.classList.remove('laria-premium-sign-legacy'));
+  nav.querySelectorAll('.laria-premium-sign').forEach(button=>button.classList.remove('laria-premium-sign'));
+ }
+ window.LariaPremiumSignArt=Object.freeze({unmount,version:'v4',mount});
 })();

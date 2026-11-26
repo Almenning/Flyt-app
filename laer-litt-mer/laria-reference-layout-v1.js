@@ -213,6 +213,7 @@
   scene.dataset.lariaReferenceLayout='v1';
   scene.dataset.lariaReferenceArt=subject==='english'?'locked-kinn-ui-free-approved':'original-preserved';
   scene.dataset.lariaReferenceSubject=names[subject];
+  root.LariaPremiumSignArt?.mount?.(rail);
   setMode(scene,preferredRail.get(names[subject])||'activities');
   // External iPad keyboards: Escape returns from activities to the same
   // subject sign rail. Restrict it to menu controls, not the live troll,
@@ -260,6 +261,7 @@
   }
   const rail=scene.querySelector('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
   if(rail){
+   root.LariaPremiumSignArt?.unmount?.(rail);
    rail.inert=false;
    rail.removeAttribute('aria-hidden');
    // Unmount restores each original learning button without decoration.
