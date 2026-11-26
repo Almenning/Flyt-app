@@ -2840,10 +2840,19 @@
         <div class="globe-hint">Dra for å snurre · knip med to fingre for zoom</div>
       </div>
       <div class="globe-status" id="globe-status"><div class="flag">🧭</div><div><strong>Finn et land</strong><span>Kloden kan snurres i alle retninger.</span></div></div>
-      <div class="globe-actions"><button class="secondary" id="random-country">🎲 Tilfeldig land</button><button class="secondary" id="reset-globe">↺ Startposisjon</button></div>
-      <button class="primary" id="start-world-from-globe" type="button">Start 5 spørsmål fra hele verden 🚀</button>
-      <div class="searchbox"><input id="world-search" autocomplete="off" aria-label="Søk etter land" placeholder="Søk etter land" /></div>
-      <div class="country-list" id="world-search-results"></div>
+      <div class="globe-actions laria-atlas-controls">
+        <details class="laria-atlas-find"><summary>Søk etter land</summary>
+          <div class="laria-atlas-panel"><div class="searchbox"><input id="world-search" autocomplete="off" aria-label="Søk etter land" placeholder="Søk etter land" /></div>
+          <div class="country-list" id="world-search-results"></div></div>
+        </details>
+        <details class="laria-atlas-more"><summary>Flere valg</summary>
+          <div class="laria-atlas-panel">
+            <button class="secondary" id="random-country" type="button">Tilfeldig land</button>
+            <button class="secondary" id="reset-globe" type="button">Startposisjon</button>
+            <button class="secondary" id="start-world-from-globe" type="button">Start 5 spørsmål</button>
+          </div>
+        </details>
+      </div>
       <div class="data-status" id="data-status">Norske navn og hovedsteder · laster detaljkart og befolkningstall …</div>
     </section>
 
@@ -6625,7 +6634,7 @@ document.getElementById('globe-zoom-in').onclick=()=>setGlobeZoom(globeZoom+.35)
 document.getElementById('globe-zoom-out').onclick=()=>setGlobeZoom(globeZoom-.35);
 document.getElementById('random-country').onclick=()=>focusCountry(WORLD_COUNTRIES[Math.floor(Math.random()*WORLD_COUNTRIES.length)].id);
 document.getElementById('reset-globe').onclick=()=>{globeLon=15;globeLat=18;globeSelected=null;setGlobeMode(globeMode);setGlobeZoom(1)};
-function renderWorldSearch(){const q=document.getElementById('world-search').value.trim().toLocaleLowerCase('nb'),out=document.getElementById('world-search-results');out.innerHTML='';if(!q)return;WORLD_COUNTRIES.filter(c=>c.name.toLocaleLowerCase('nb').includes(q)).slice(0,8).forEach(c=>{const el=document.createElement('button');el.type='button';el.className='country';el.innerHTML=`<div class="flag">${c.flag}</div><div class="namewrap"><span class="name">${c.name}</span><span class="sub">${c.continent}${c.capitalDisplay?' · '+c.capitalDisplay:''}</span></div><div>›</div>`;el.onclick=()=>{document.getElementById('world-search').value='';out.innerHTML='';focusCountry(c.id)};out.appendChild(el)})}
+function renderWorldSearch(){const q=document.getElementById('world-search').value.trim().toLocaleLowerCase('nb'),out=document.getElementById('world-search-results');out.innerHTML='';if(!q)return;WORLD_COUNTRIES.filter(c=>c.name.toLocaleLowerCase('nb').includes(q)).slice(0,8).forEach(c=>{const el=document.createElement('button');el.type='button';el.className='country';el.innerHTML=`<div class="flag">${c.flag}</div><div class="namewrap"><span class="name">${c.name}</span><span class="sub">${c.continent}${c.capitalDisplay?' · '+c.capitalDisplay:''}</span></div><div>›</div>`;el.onclick=()=>{document.getElementById('world-search').value='';out.innerHTML='';const disclosure=out.closest('details');if(disclosure){disclosure.open=false;disclosure.querySelector('summary')?.focus({preventScroll:true})}focusCountry(c.id)};out.appendChild(el)})}
 document.getElementById('world-search').addEventListener('input',renderWorldSearch);
 
 // --- Accurate map used by quiz ---
@@ -6870,7 +6879,11 @@ function finishSession(){
   // Direct Norwegian practice belongs to Eggenipa, not the retired map
   // or the generic grade-two progress dashboard.
   const landFlag=isLandFlagScope(sessionScope);
-  document.getElementById('complete-screen').toggleAttribute('data-land-flag',landFlag);
+  const completeScreen=document.getElementById('complete-screen');
+  completeScreen.toggleAttribute('data-land-flag',landFlag);
+  const completeWorld=sessionScope?.subject||lastCompletedQuestions[0]?.subject;
+  if(['math','norwegian','english','geography'].includes(completeWorld))completeScreen.dataset.lariaLessonWorld=completeWorld;
+  else delete completeScreen.dataset.lariaLessonWorld;
   const progressButton=document.getElementById('complete-progress');
   const repeatButton=document.getElementById('complete-repeat');
   const homeButton=document.getElementById('complete-home');
@@ -7299,6 +7312,8 @@ window.LARIA_TALLVIKA_BRIDGE={
 <link rel="stylesheet" href="./laria-viewport-premium-v1.css?v=20261116-viewport-ipad-portrait1">
 <link rel="stylesheet" href="./laria-grovanova-v16.css?v=20261126-one-greeting2">
 <link rel="stylesheet" href="./laria-subject-identity-v1.css?v=20261126-header1">
+<link rel="stylesheet" href="./laria-learning-identity-v1.css?v=20261126-world1">
+<script defer src="./laria-learning-identity-v1.js?v=20261126-world1"></script>
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>
 <script src="./discovery-globe-phase1.js?v=20261018-antarctica-ne110-1" defer></script>
