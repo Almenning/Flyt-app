@@ -147,7 +147,7 @@ async function run(browserType,name,viewport){
   assert.equal(await actor.count(),1,name+' must render one selected TrollActor');
   const actorImg=actor.locator('.ki-troll');
   assert.equal(await actorImg.getAttribute('data-ki-character'),'lillesoster',name+' wrong selected Kinnaklova troll');
-  assert.equal(await actorImg.getAttribute('src'),'./assets/gangemagi-troll/lillesoster.webp',
+  assert.equal(await actorImg.getAttribute('src'),'./assets/troll-b/gangemagi-troll/lillesoster.webp',
     name+' selected Kinnaklova troll must use the persistent identity asset');
   assert.equal(await world.locator('.ki-troll').count(),1,name+' Kinnaklova must not show all three trolls at once');
   if(art.ready){

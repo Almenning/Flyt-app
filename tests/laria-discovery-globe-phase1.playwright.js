@@ -497,7 +497,7 @@ async function runDevice(engine,label,viewport,urls){
          assert.ok(toggle.y+toggle.height<=card.y,label+' country card overlaps the view selector');
        }
        assert.equal(await discovery.page.locator('.discovery-country-companion img').getAttribute('src'),
-          await discovery.page.evaluate(()=>window.LARIA_TROLL_ACTOR?.source?.(state?.profile?.tallvikaTroll||'storesoster')||'./assets/gangemagi-troll/storesoster.webp'),
+          await discovery.page.evaluate(()=>window.LARIA_TROLL_ACTOR?.source?.(state?.profile?.tallvikaTroll||'storesoster')||'./assets/troll-b/gangemagi-troll/storesoster.webp'),
           label+' country discovery must show the selected original forest troll, never a saved fox profile avatar');
      }
      for(const pose of poses){

@@ -28,7 +28,7 @@ async function assertScene(page,label){
   assert.equal(await scene.locator('.tv-next-sign[data-tv="next"]').count(),1,label+' missing illustrated mission button');
   const actor=scene.locator('.tv-actor[data-troll-id]');
   assert.equal(await actor.count(),1,label+' missing selected original troll');
-  assert.equal(await actor.locator('img').getAttribute('src'),'./assets/gangemagi-troll/'+(await actor.getAttribute('data-troll-id'))+'.webp',label+' wrong selected artwork');
+  assert.equal(await actor.locator('img').getAttribute('src'),'./assets/troll-b/gangemagi-troll/'+(await actor.getAttribute('data-troll-id'))+'.webp',label+' wrong selected artwork');
   assert.equal(await actor.locator('.tv-actor-speech').count(),1,label+' troll has no speech');
   // Portrait deliberately uses one continuous figure-free asset.  The prior
   // panorama overlay caused visible seams, so it must not return.
@@ -61,7 +61,7 @@ async function run(browserType,label,viewport){
       null,{timeout:10000});
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),'lillebror',label+' troll selection did not persist');
     assert.equal(await page.locator('#tallvika-world .tv-actor').getAttribute('data-troll-id'),'lillebror',label+' scene failed to display selected troll');
-    assert.equal(await page.locator('#tallvika-world .tv-actor img').getAttribute('src'),'./assets/gangemagi-troll/lillebror.webp',label+' scene changed original character identity');
+    assert.equal(await page.locator('#tallvika-world .tv-actor img').getAttribute('src'),'./assets/troll-b/gangemagi-troll/lillebror.webp',label+' scene changed original character identity');
     // Each painted destination opens its existing activity and returns in one tap.
     await page.locator('.tv-sign[data-tv="multiply"]').click();await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});
     assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Gangemagi lost Tallvika return');

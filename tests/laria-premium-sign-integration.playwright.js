@@ -157,4 +157,5 @@ async function legacyGeography(engine,engineName){
  if(process.env.CI&&!process.env.LARIA_SIGN_ENGINE)await require('./laria-subject-identity.playwright.js')();
  if(process.env.CI&&!process.env.LARIA_SIGN_ENGINE)await require('./laria-learning-identity.playwright.js')();
  if(process.env.CI&&!process.env.LARIA_SIGN_ENGINE)await require('./laria-support-identity.playwright.js')();
+ if(process.env.CI&&!process.env.LARIA_SIGN_ENGINE)await require('./laria-troll-pose.playwright.js')();
 })().catch(e=>{console.error(e);process.exitCode=1});
