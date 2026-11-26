@@ -257,7 +257,12 @@ async function testEngine(engine,name,device,viewport){
    }
    const liveHome=scene.locator('[data-laria-component="home"]');
    assert.equal(await liveHome.count(),1,'original round Home control must remain');
-   assert.equal(await liveHome.isVisible(),true,'original Home control is hidden');
+   assert.equal(await liveHome.isVisible(),false,'retired Home must not compete with shared return');
+   const sharedBack=page.locator('.screen.active > .laria-back-control:visible');
+   assert.equal(await sharedBack.count(),1,world.id+' must show exactly one shared return');
+   const returnBounds=await sharedBack.boundingBox();
+   assert.ok(returnBounds&&returnBounds.width>=44&&returnBounds.height>=44,
+     world.id+' shared return has too small a touch target');
    await page.screenshot({path:path.join(out,name+'-'+device+'-'+world.id+'.png'),animations:'disabled'});
    // The plain subject heading swaps the one left-hand rail without
    // creating a second activity menu on the right.
@@ -397,8 +402,18 @@ async function testEngine(engine,name,device,viewport){
    assert.equal(await currentSubject.evaluate(el=>document.activeElement===el),true,
      world.id+' Escape did not restore focus to the current subject');
    await page.keyboard.press('Escape');
+   // Second Escape is the global return; the first was the scene-local
+   // activity-to-subject-menu step. Both must remain keyboard reachable.
+   await home.waitFor({state:'visible',timeout:15000});
+   await openHomeSubject(page,world.id);
+   await scene.waitFor({state:'visible',timeout:15000});
+   // A remounted scene may restore its default activity rail. Prove both
+   // modes work after returning, without assuming DOM remount persistence.
+   const reopenedMode=await scene.getAttribute('data-laria-reference-mode');
+   assert.ok(['activities','subjects'].includes(reopenedMode),world.id+' reopened without a valid rail');
+   if(reopenedMode==='activities')await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'subjects',
-     world.id+' Escape from subject menu must not toggle a second rail');
+     world.id+' cannot restore the subject selector after return');
    await plaque.click();
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
    await plaque.click();

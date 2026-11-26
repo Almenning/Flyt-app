@@ -1,0 +1,88 @@
+/* One return-control contract. The oak/parchment palette matches approved Læria wayfinding. */
+.laria-back-control{
+  position:absolute; z-index:1000; left:max(16px,env(safe-area-inset-left)); top:max(16px,env(safe-area-inset-top));
+  min-width:44px; min-height:44px; padding:7px 14px 7px 10px; display:inline-flex!important; align-items:center; gap:4px;
+  border:2px solid #714d31; border-radius:15px; color:#fff7df; cursor:pointer;
+  background:linear-gradient(145deg,#b77a42 0%,#87552f 54%,#633d28 100%);
+  box-shadow:0 3px 0 #53321f,0 7px 15px rgba(43,31,21,.28),inset 0 1px 0 rgba(255,245,211,.45);
+  font:800 clamp(13px,1.55vw,16px)/1.05 ui-rounded,"Nunito",system-ui,sans-serif;
+  letter-spacing:.01em; text-shadow:0 1px 1px rgba(48,28,15,.72); touch-action:manipulation;
+}
+.laria-back-control>span:first-child{font:900 30px/.72 Georgia,serif; margin-top:-2px}
+.laria-back-control:focus-visible{outline:4px solid #fff4a9;outline-offset:3px}
+.laria-back-control:hover{filter:brightness(1.07)}
+.laria-back-control:active{transform:translateY(2px);box-shadow:0 1px 0 #53321f,0 4px 9px rgba(43,31,21,.28)}
+/* Subject facades intentionally hide unknown direct children. These explicit
+   screen selectors outrank that containment rule without reviving old UI. */
+#subject-screen.active>.laria-back-control,
+#geography-screen.active>.laria-back-control,
+#world-screen.active>.laria-back-control,
+#continent-screen.active>.laria-back-control,
+#fraction-lab-screen.active>.laria-back-control,
+#multiplication-lab-screen.active>.laria-back-control,
+#session-screen.active>.laria-back-control,
+#complete-screen.active>.laria-back-control{display:inline-flex!important}
+/* Scene facades previously mounted their own Home hit-target. Keep their proven
+   handlers in the DOM for the adapter, but present exactly one return action. */
+#subject-screen.active.tallvika-active #tallvika-world [data-tv="back"],
+#subject-screen.active.eggenipa-active #eggenipa-world [data-eg="home"],
+#subject-screen.active.kinnaklova-active #kinnaklova-world [data-ki="home"],
+#geography-screen.active.gv-visible #laria-geography-world [data-gv="home"],
+/* The facade deliberately hides all siblings except its painted world.
+   Match the facade's :not(#world) specificity to keep the shared control
+   available. Non-facade screens retain their native return buttons. */
+#subject-screen.active.eggenipa-active > .laria-back-control:not(#eggenipa-world),
+#subject-screen.active.tallvika-active > .laria-back-control:not(#tallvika-world),
+#subject-screen.active.kinnaklova-active > .laria-back-control:not(#kinnaklova-world),
+#geography-screen.active.gv-visible > .laria-back-control:not(#laria-geography-world){
+  display:inline-flex!important;
+}
+/* Only facades have two return targets; hide their painted back hotspots.
+   For normal screens, reuse and style the existing button instead. */
+#subject-screen.active.eggenipa-active>#subject-back,
+#subject-screen.active.tallvika-active>#subject-back,
+#subject-screen.active.kinnaklova-active>#subject-back,
+#geography-screen.active.gv-visible>#geography-back{display:none!important}
+/* Native painted return controls are retained for route adapters, but must
+   never intercept taps or appear as duplicate buttons next to the shared
+   control. Hide them in the actual transformed scene as well. */
+#subject-screen.active.tallvika-active #tallvika-world [data-tv="back"],
+#subject-screen.active.eggenipa-active #eggenipa-world [data-eg="home"],
+#subject-screen.active.kinnaklova-active #kinnaklova-world [data-ki="home"],
+#geography-screen.active.gv-visible #laria-geography-world [data-gv="home"]{
+  visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
+/* Unified visual standard for existing clickable return buttons. Keep all
+   existing IDs, learning-state persistence and gesture handlers intact. */
+:is(#subject-back,#geography-back,#world-back,#continent-back,#detail-back,
+    #adult-back,#parent-info-back,#feedback-back,#complete-home,#close-session,
+    #fraction-lab-back,#multiplication-lab-back){
+  box-sizing:border-box!important;min-width:44px!important;min-height:44px!important;
+  border:2px solid #714d31!important;border-radius:15px!important;
+  color:#fff7df!important;cursor:pointer!important;
+  background:linear-gradient(145deg,#b77a42,#87552f 54%,#633d28)!important;
+  box-shadow:0 3px 0 #53321f,0 7px 15px rgba(43,31,21,.28),inset 0 1px 0 rgba(255,245,211,.45)!important;
+  font:800 clamp(13px,1.55vw,16px)/1.05 ui-rounded,"Nunito",system-ui,sans-serif!important;
+  text-shadow:0 1px 1px rgba(48,28,15,.72)!important;touch-action:manipulation;
+}
+:is(#subject-back,#geography-back,#world-back,#continent-back,#detail-back,
+    #adult-back,#parent-info-back,#feedback-back,#complete-home,#close-session,
+    #fraction-lab-back,#multiplication-lab-back):focus-visible{
+  outline:4px solid #fff4a9!important;outline-offset:3px!important;
+}
+#session-screen.active #close-session{
+  width:auto!important;height:48px!important;min-width:100px!important;
+  flex:0 0 auto!important;padding:6px 12px!important;white-space:nowrap!important;
+}
+#fraction-lab-screen.active #fraction-lab-back,
+#multiplication-lab-screen.active #multiplication-lab-back{
+  width:auto!important;height:48px!important;padding:6px 14px!important;
+  min-width:48px!important;
+}
+@media (min-width:768px){
+  .laria-back-control{left:max(24px,env(safe-area-inset-left));top:max(22px,env(safe-area-inset-top));min-height:48px}
+}
+@media (orientation:landscape) and (max-height:600px){
+  .laria-back-control{top:max(10px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));padding:5px 11px 5px 8px;min-height:44px}
+}
+@media (prefers-reduced-motion:reduce){.laria-back-control{transition:none}}

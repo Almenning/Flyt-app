@@ -143,7 +143,7 @@ async function run(engine,name,viewport,corrupt=false,desktop=false){
     await page.keyboard.press('Enter');
    }else await norwegian.click();
    await page.locator('#subject-screen.active #eggenipa-world').waitFor({state:'visible',timeout:20000});
-   await page.locator('#eggenipa-world [data-eg="home"]').click();
+   await page.locator('#subject-screen.active > .laria-back-control:visible').click();
    await page.waitForFunction(device=>document.querySelector('#home-screen.active .bc12')?.dataset.bc15Asset===
      device+'-v16-'+(matchMedia('(orientation:portrait)').matches?'portrait':'landscape'),
      desktop?'desktop':'ipad',{timeout:30000});

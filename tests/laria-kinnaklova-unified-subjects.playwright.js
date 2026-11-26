@@ -85,27 +85,30 @@ async function verify(type,name,width,height,url){
   await page.locator('#eggenipa-world .eg-world-brand:visible').waitFor({timeout:20000});
   await checkNav(page,'#eggenipa-world .eg-scene-hit:visible',v,tag+' Norsk');
   assert.equal(await page.locator('#eggenipa-world .eg-portals:visible').count(),0,'Norsk has duplicate card row');
-  assert.equal(await page.locator('#eggenipa-world .eg-scene-home:visible').count(),1,'Norsk needs in-world Home');
+  assert.equal(await page.locator('#eggenipa-world .eg-scene-home:visible').count(),0,'Norsk retired Home must stay hidden');
+   assert.equal(await page.locator('#subject-screen.active > .laria-back-control:visible').count(),1,'Norsk needs one shared return');
   assert.ok(await page.locator('#eggenipa-world .eg-master').evaluate(el=>el.complete&&el.naturalWidth>1000),
     'Norsk approved scene missing');
   await screenshot(page,tag+'-norsk');
-  await page.locator('#eggenipa-world .eg-scene-home').click();
+  await page.locator('#subject-screen.active > .laria-back-control:visible').click();
   await page.locator('#home-screen.active').waitFor({timeout:15000});
 
   await visit(page,url,'math');
   await page.locator('#tallvika-world .tv-sign-nav:visible').waitFor({timeout:20000});
   await checkNav(page,'#tallvika-world .tv-sign:visible',v,tag+' Matte');
-  assert.equal(await page.locator('#tallvika-world .tv-scene-home:visible').count(),1,'Math home missing');
+  assert.equal(await page.locator('#tallvika-world .tv-scene-home:visible').count(),0,'Tallvika retired Home must stay hidden');
+   assert.equal(await page.locator('#subject-screen.active > .laria-back-control:visible').count(),1,'Tallvika needs one shared return');
   const menuBackground=await page.locator('#tallvika-world .tv-sign-nav').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.equal(menuBackground,'none','Old stacked Tallvika signpost still rendered');
   await screenshot(page,tag+'-matte');
-  await page.locator('#tallvika-world .tv-scene-home').click();
+  await page.locator('#subject-screen.active > .laria-back-control:visible').click();
   await page.locator('#home-screen.active').waitFor({timeout:15000});
 
   await visit(page,url,'geography');
   await page.locator('#laria-geography-world .gv-brand:visible').waitFor({timeout:20000});
   await checkNav(page,'#laria-geography-world .gv-sign:visible',v,tag+' Geografi');
-  assert.equal(await page.locator('#laria-geography-world .gv-home:visible').count(),1,'Geography home missing');
+  assert.equal(await page.locator('#laria-geography-world .gv-home:visible').count(),0,'Nordlysleiren retired Home must stay hidden');
+   assert.equal(await page.locator('#geography-screen.active > .laria-back-control:visible').count(),1,'Nordlysleiren needs one shared return');
   assert.ok(await page.locator('#laria-geography-world .gv-landscape').evaluate(el=>el.complete&&el.naturalWidth>900),
    'Geography landscape asset missing');
   await screenshot(page,tag+'-geografi');

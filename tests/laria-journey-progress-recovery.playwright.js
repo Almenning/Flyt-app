@@ -110,7 +110,7 @@ async function returnFromJourney(page,root,label,subject){
    assert.equal(await back.getAttribute('aria-label'),'Tilbake til Eggenipa',label+' native Bokskogen return');
    await back.click();
    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-   await page.locator('#eggenipa-world [data-eg="home"]').click();
+   await page.locator('#subject-screen.active > .laria-back-control:visible').click();
    await page.locator('#home-screen.active').waitFor({timeout:16000});
    return;
  }
@@ -121,7 +121,7 @@ async function returnFromJourney(page,root,label,subject){
  if(subject==='geography'){
    const landing=page.locator('#laria-geography-world:visible');
    await landing.waitFor({timeout:16000});
-   await landing.locator('[data-gv="home"]').click();
+   await page.locator('#geography-screen.active > .laria-back-control:visible').click();
  }
  try{await page.locator('#home-screen.active').waitFor({timeout:16000});}
  catch(error){
@@ -220,9 +220,9 @@ async function recoverEnglishDirect(page,label,before){
    const host=document.querySelector('#subject-screen.active #kinnaklova-world');
    return ['ready','missing','unapproved'].includes(host?.dataset.kiArt);
  },null,{timeout:20000});
- const back=live.locator('.ki-utility [data-ki="home"]');
- if(await back.isVisible())await back.click();
- else await live.locator('.ki-painted-home').click();
+ const back=page.locator('#subject-screen.active > .laria-back-control:visible');
+ assert.equal(await back.count(),1,label+' English must offer one shared return');
+ await back.click();
  await page.locator('#home-screen.active').waitFor({timeout:16000});
  await page.reload({waitUntil:'domcontentloaded'});
  await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({state:'visible',timeout:22000});
@@ -320,7 +320,7 @@ async function run(engine,label,viewport){
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      assert.equal(await page.locator('#eggenipa-world [data-eg="resume"]').count(),0,
        label+' completed reading round incorrectly offers resume');
-     await page.locator('#eggenipa-world [data-eg="home"]').click();
+     await page.locator('#subject-screen.active > .laria-back-control:visible').click();
      await page.reload({waitUntil:'domcontentloaded'});
      assert.equal((await progress(page,'norwegian')).sessionCount,before.sessionCount+1,
        label+' completed reading session not durable after reload');
@@ -447,7 +447,7 @@ async function run(engine,label,viewport){
      assert.ok(nextTitle,label+' next math mission missing after completion');
      assert.match((await root.locator('.tv-next-sign[data-tv="next"]').innerText()),new RegExp(nextTitle),
        label+' Tallvika did not show the newly unlocked next mission');
-     await root.locator('[data-tv="back"]').click();
+     await page.locator('#subject-screen.active > .laria-back-control:visible').click();
      await page.locator('#home-screen.active').waitFor({timeout:16000});
    }else{
      assert.match((await root.locator('.locked-journey-live-progress').innerText()),new RegExp('\\b'+after.done+'\\s*/\\s*'+after.total+'\\b'));

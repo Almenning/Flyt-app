@@ -1,0 +1,41 @@
+name: Læria Premium 3.0 Fase 2A – felles tilbakeknapp
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/laria-back-control.*'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-back-control.playwright.js'
+      - '.github/workflows/laria-back-control.yml'
+      - 'docs/laria-premium-3/phase-2a-return-contract.md'
+permissions:
+  contents: read
+jobs:
+  ipad-navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Check navigation source
+        run: node --check laer-litt-mer/laria-back-control.js && node --check tests/laria-back-control.playwright.js
+      - name: Serve exact PR head
+        run: python3 -m http.server 8765 --directory . >/tmp/laria-back-control-http.log 2>&1 &
+      - name: Verify Chromium and WebKit iPad return routes
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_BACK_CONTROL_SHOTS: /tmp/laria-back-control
+        run: node tests/laria-back-control.playwright.js
+      - name: Upload actual iPad navigation screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-premium-3-phase-2a-navigation-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-back-control
+          retention-days: 14
+          if-no-files-found: warn

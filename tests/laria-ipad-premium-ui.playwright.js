@@ -132,7 +132,14 @@ async function run(engine,engineName,label,viewport){
    await fs.promises.mkdir(OUT,{recursive:true});
    await page.screenshot({path:path.join(OUT,engineName+'-'+label+'-'+spec.id+'.png'),fullPage:false,animations:'disabled'});
    assert.ok(await page.locator('html').evaluate(el=>el.scrollWidth<=innerWidth+2),label+' '+spec.id+' horizontal page overflow');
-   await world.locator(spec.home).click();
+   assert.equal(await world.locator(spec.home+':visible').count(),0,
+      label+' '+spec.id+' retired Home must not be visible beside the common control');
+    const back=page.locator('.screen.active > .laria-back-control:visible');
+    assert.equal(await back.count(),1,label+' '+spec.id+' requires one shared back action');
+    const bounds=await back.boundingBox();
+    assert.ok(bounds&&bounds.width>=44&&bounds.height>=44,
+      label+' '+spec.id+' common return is smaller than 44px');
+    await back.click();
    await page.locator('#home-screen.active').waitFor({timeout:12000});
   }
   assert.equal(await page.evaluate(()=>{
