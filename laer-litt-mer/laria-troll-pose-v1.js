@@ -1,10 +1,10 @@
-/* Non-destructive pose rig: approved illustration + hand-traced contour.
+/* Non-destructive pose rig: approved artwork with native transparency.
  * Horizontal bands follow the head, upper body and feet at different rates.
  * Only visible, full-size companions receive animation. Buttons and speech stay in the DOM. */
 (function(){
   'use strict';
   const W=512,H=1024,STEP=8;
-  const ART='.laria-troll-actor > img:is(.laria-premium-troll-art,.ki-troll)[src*="/gangemagi-troll/"]';
+  const ART='.laria-troll-actor > img:is(.laria-premium-troll-art,.ki-troll)[src*="/troll-b/gangemagi-troll/"]';
   const SETTINGS={
     storesoster:{head:220,body:480,feet:935,style:1},
     lillesoster:{head:245,body:505,feet:922,style:1.16},
@@ -26,15 +26,9 @@
   function readImage(src){
     return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;});
   }
-  function texture(src,id){
+  function texture(src){
     if(!sources.has(src)){
-      sources.set(src,Promise.all([readImage(src),readImage('./assets/troll-contours/'+id+'.svg?v=contour1')])
-        .then(([art,mask])=>{
-          const c=canvas(W,H),ctx=c.getContext('2d');
-          ctx.drawImage(art,0,0,W,H);
-          ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0,W,H);
-          return c;
-        }).catch(()=>null)); // CSS still has the clean, static silhouette if canvas is unavailable.
+      sources.set(src,readImage(src).catch(()=>null)); // CSS still has the clean, static silhouette if canvas is unavailable.
     }
     return sources.get(src);
   }
@@ -79,7 +73,7 @@
     const sig=[l.x,l.y,l.w,l.h,devicePixelRatio].join('|');
     if(a.layout!==sig||a.layer.width===1){
       a.layout=sig;
-      const d=Math.min(2,devicePixelRatio||1);
+      const d=Math.min(3,devicePixelRatio||1);
       a.layer.width=Math.max(1,Math.round(l.w*d));
       a.layer.height=Math.max(1,Math.round(l.h*d));
       Object.assign(a.layer.style,{left:l.x+'px',top:l.y+'px',width:l.w+'px',height:l.h+'px'});
@@ -87,7 +81,7 @@
     const w=a.layer.width,h=a.layer.height,f=h/H,c=a.ctx,g=SETTINGS[a.id];
     const t=now-a.start, calm=(1-Math.cos((now+a.seed)*.00145))/2;
     const [lean,press,hop]=poses[a.mood]?key(poses[a.mood],t):[0,0,0];
-    c.clearRect(0,0,w,h);
+    c.clearRect(0,0,w,h);c.imageSmoothingQuality="high";
     let previous=null;
     for(let y=0;y<=H;y+=STEP){
       const upper=Math.max(0,1-y/g.feet);
@@ -97,7 +91,8 @@
       if(previous!==null&&out>previous){
         const shift=(lean*g.style*(.32*upper+.68*head)+1.8*calm*upper)*w/W;
         const swell=(3*calm*torso-Math.min(0,press)*.12*torso)*w/W;
-        c.drawImage(a.texture,0,y-STEP,W,STEP,shift-swell/2,previous,w+swell,out-previous);
+        const m=a.texture.naturalHeight/H;
+        c.drawImage(a.texture,0,(y-STEP)*m,a.texture.naturalWidth,STEP*m,shift-swell/2,previous,w+swell,out-previous);
       }
       previous=out;
     }
@@ -136,7 +131,7 @@
     }
   }
   function load(a){
-    texture(a.src,a.id).then(tex=>{if(actors.get(a.img)===a){a.texture=tex;wake();}});
+    texture(a.src).then(tex=>{if(actors.get(a.img)===a){a.texture=tex;wake();}});
   }
   function queueScan(){if(!scanQueued){scanQueued=true;requestAnimationFrame(scan);}}
   new MutationObserver(changes=>{

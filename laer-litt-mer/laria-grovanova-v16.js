@@ -279,9 +279,11 @@ async function activate(host,{portrait,isCurrent}){
  if(desktop){
   // Troll is a separate live DOM actor. Anchor it to the visible scene
   // above the illustrated footer, not to the desktop browser window.
-  const portraitTroll=[.77,.65,.12,.17];
-  const landscapeTroll=[.79,.59,.11,.20];
-  place(troll,box,portrait?portraitTroll:landscapeTroll);
+  const [x,ground]=portrait?[.745,.82]:[.765,.79];
+  const anchorX=box.left+box.width*x;
+  const anchorY=box.top+box.height*ground;
+  troll.style.setProperty('left',anchorX+'px','important');
+  troll.style.setProperty('top','calc('+anchorY+'px - var(--laria-front-troll-height))','important');
  }
  if(old&&old!==activeUrl)URL.revokeObjectURL(old);
  return true;

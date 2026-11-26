@@ -88,8 +88,8 @@
  /* Only the existing chosen TrollActor is drawn above the unmodified art. */
  .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll{
   display:flex!important;position:absolute!important;z-index:28!important;
-  right:8.5%!important;bottom:14%!important;
-  width:clamp(90px,14vw,164px)!important;height:clamp(154px,18vh,246px)!important;
+  right:6.8%!important;bottom:14%!important;
+  width:var(--laria-front-troll-width)!important;height:var(--laria-front-troll-height)!important;
   align-items:flex-end!important;justify-content:center!important;
   padding:0!important;margin:0!important;border:0!important;
   background:transparent!important;box-shadow:none!important;
@@ -110,8 +110,8 @@
   filter:drop-shadow(0 6px 5px rgba(24,40,34,.32))!important;
  }
  .grade-band-young .bc12.bc15-v16-locked[data-bc15-v16-orientation="landscape"] .bc15-v16-troll{
-  right:5.5%!important;bottom:21%!important;
-  width:clamp(84px,10.4vw,132px)!important;height:clamp(122px,23vh,172px)!important;
+  right:4.8%!important;bottom:21%!important;
+  width:var(--laria-front-troll-width)!important;height:var(--laria-front-troll-height)!important;
  }
  .grade-band-young .bc12.bc15-v16-locked .bc15-v16-troll:focus-visible{
   outline:3px solid #fff1ae!important;outline-offset:3px!important;border-radius:16px!important;
@@ -215,4 +215,36 @@
 
 .grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting[data-long-greeting] strong{
   font-size:clamp(13px,4.8cqw,25px)!important;
+}
+
+
+/* Scene fronts only: one visible character scale shared by Hjem and the
+   four subject entrances. Each scene retains its own terrain anchor.
+   The original 1:2 artwork fills the identical width and height on each front. */
+:root{
+ --laria-front-troll-height:clamp(184px,31vh,258px);
+ --laria-front-troll-width:calc(var(--laria-front-troll-height) / 2);
+}
+@media(orientation:portrait){
+ :root{--laria-front-troll-height:clamp(222px,24vh,318px)}
+}
+@media(max-width:700px) and (orientation:portrait){
+ :root{--laria-front-troll-height:clamp(155px,24vh,208px)}
+}
+@media(orientation:landscape) and (max-height:600px){
+ :root{--laria-front-troll-height:clamp(105px,31vh,160px)}
+}
+:is(#eggenipa-world .eg-hero .eg-companion-actor[data-eg="troll"],
+    #tallvika-world .tv-scene .tv-actor[data-troll-id],
+    #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage .ki-companion-actor[data-ki="troll"],
+    #laria-geography-world .gv-scene .gv-troll[data-gv="troll"]){
+ width:var(--laria-front-troll-width)!important;
+ height:var(--laria-front-troll-height)!important;
+ min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+}
+/* Both geography signs are grouped along the left bank; the companion
+   stands on the opposite foreground so the entire sign targets are clear. */
+#laria-geography-world .gv-scene.laria-reference-layout-v1 .gv-troll[data-gv="troll"],
+#laria-geography-world .gv-scene .gv-troll[data-gv="troll"]{
+ left:auto!important;right:clamp(12px,10vw,144px)!important;bottom:4%!important;
 }

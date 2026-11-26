@@ -1120,7 +1120,7 @@ async function checkAlternateTroll(browser,url){
    const troll=page.locator('.gm-fox-art img[data-troll="lillebror"]');
    await troll.waitFor({state:'visible'});
    const source=await troll.getAttribute('src');
-   assert.match(source,/^\.\/assets\/gangemagi-troll\/lillebror\.webp$/,
+   assert.match(source,/^\.\/assets\/troll-b\/gangemagi-troll\/lillebror\.webp$/,
      'Gangemagi must use the real selected Lillebror art');
    assert.equal(await page.locator('.gm-fox-art img[data-troll="lillesoster"]').count(),0,
      'the wrong selected troll must not be present');

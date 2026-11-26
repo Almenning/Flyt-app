@@ -133,7 +133,7 @@ async function verifyOnboarding(browser,url,out,engineName,name,width,height){
     const img=card.locator('img[data-profile-troll-img]');
     await img.waitFor({state:'visible',timeout:4000});
     const src=await img.getAttribute('src');
-    assert.match(src,new RegExp('assets/gangemagi-troll/'+id+'\\.webp'),label+' wrong onboarding art for '+id);
+    assert.match(src,new RegExp('assets/troll-b/gangemagi-troll/'+id+'\\.webp'),label+' wrong onboarding art for '+id);
   }
 
   await noHorizontalOverflow(page,label+' onboarding');
@@ -200,7 +200,7 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
     assert.equal(await actor.count(),1,label+' must show exactly one live troll');
     assert.equal(await actor.getAttribute('data-troll'),'lillesoster',
       label+' must honor the saved selected troll');
-    assert.match(await img.getAttribute('src'),/assets\/gangemagi-troll\/lillesoster\.webp$/,
+    assert.match(await img.getAttribute('src'),/assets\/troll-b\/gangemagi-troll\/lillesoster\.webp$/,
       label+' wrong troll artwork on the owner-approved v16 Home');
     assert.equal(await page.locator('#home-screen.active .bc12-fox:visible').count(),0,
       label+' legacy fox slot is still visible behind the new actor');
@@ -238,7 +238,7 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
       isTroll:img?.classList.contains('laria-premium-troll-art'),
       hasFoxSvg:fixture.querySelector('svg')!==null};
   });
-  assert.equal(marker.src,'./assets/gangemagi-troll/lillesoster.webp',
+  assert.equal(marker.src,'./assets/troll-b/gangemagi-troll/lillesoster.webp',
     label+' journey marker does not respect the saved selected troll');
   assert.equal(marker.isTroll,true,label+' journey marker is not TrollActor art');
   assert.equal(marker.hasFoxSvg,false,label+' journey marker still paints a fox');
@@ -258,7 +258,7 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
   await actor.evaluate(img=>img.decode?.());
   const m=await metrics(page,selector);
   inside(m,width,height,label+' task TrollActor');
-  assert.match(m.src,/assets\/gangemagi-troll\/lillesoster\.webp/,label+' wrong troll art');
+  assert.match(m.src,/assets\/troll-b\/gangemagi-troll\/lillesoster\.webp/,label+' wrong troll art');
 
   await noHorizontalOverflow(page,label+' task');
 
@@ -319,7 +319,7 @@ async function verifyLegacyHome(browser,url,out,engineName,name,width,height){
   await actor.waitFor({state:'visible',timeout:12000});
   const m=await metrics(page,selector);
   inside(m,width,height,label+' legacy Home TrollActor');
-  assert.match(m.src,/assets\/gangemagi-troll\/lillesoster\.webp/,label+' legacy Home still renders fox art');
+  assert.match(m.src,/assets\/troll-b\/gangemagi-troll\/lillesoster\.webp/,label+' legacy Home still renders fox art');
 
   const visibleFoxImages=await page.locator('#home-screen.active img[src*="fox"]:visible,#home-screen.active img[src*="rev"]:visible').count();
   assert.equal(visibleFoxImages,0,label+' visible fox image survived on legacy Home');

@@ -349,14 +349,6 @@ html[data-laria-character-system="troll"] #world-screen .premium-globe-guide:not
  outline:3px solid #fff1b2;outline-offset:4px;border-radius:15px;
 }
 
-/* Trim only the old paper/stone base; the approved painted characters stay byte-locked. */
-img[src*="/gangemagi-troll/"]{
-  -webkit-mask: var(--laria-troll-contour) center bottom / contain no-repeat content-box;
-  mask: var(--laria-troll-contour) center bottom / contain no-repeat content-box;
-}
-img[src*="/gangemagi-troll/storesoster.webp"]{--laria-troll-contour:url("./assets/troll-contours/storesoster.svg?v=contour1")}
-img[src*="/gangemagi-troll/lillesoster.webp"]{--laria-troll-contour:url("./assets/troll-contours/lillesoster.svg?v=contour1")}
-img[src*="/gangemagi-troll/lillebror.webp"]{--laria-troll-contour:url("./assets/troll-contours/lillebror.svg?v=contour1")}
 /* Cancel the legacy whole-figure float. Motion paints a separate, modelled pose. */
 img:is(.laria-premium-troll-art,.ki-troll)[src*="/gangemagi-troll/"]{
   animation:none!important;will-change:auto!important;

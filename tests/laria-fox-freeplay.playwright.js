@@ -30,7 +30,7 @@ async function expectTroll(page,selector,troll,label){
    const r=el.getBoundingClientRect();
    return {src:el.getAttribute('src')||'',w:r.width,h:r.height,visibility:getComputedStyle(el).visibility};
  });
- assert.match(info.src,new RegExp('assets/gangemagi-troll/'+troll+'\\.webp$'),label+' wrong troll source');
+ assert.match(info.src,new RegExp('assets/troll-b/gangemagi-troll/'+troll+'\\.webp$'),label+' wrong troll source');
  assert.ok(info.w>0&&info.h>0,label+' has no geometry');
  assert.equal(info.visibility,'visible',label+' hidden');
 }

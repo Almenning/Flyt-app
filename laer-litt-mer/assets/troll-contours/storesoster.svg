@@ -1,4 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -700 512 1024" width="512" height="1024">
-<!-- The original alpha owns hair and clothes. This vector holdout removes only the former scene at ankle level. -->
-<path fill="white" fill-rule="evenodd" d="M0-700H512V-15H427L394 62 402 116 428 147Q455 164 452 202L457 218Q448 232 368 230Q320 228 307 213L264 218 244 239Q171 248 130 239L112 225 91 198V-15H0Z M255-8Q268 25 293 19L291 52 282 67 282 96 277 117 276 151 273 174 264 198 249 213 245 205 243 187 237 173 222 155 220 139 218 113 220 92 223 76 221 68 228 55 241 31Z"/>
-</svg>

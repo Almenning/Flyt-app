@@ -120,7 +120,7 @@ async function run(browser,engine,device,width,height,url){
       const host=document.querySelector('.task-prompt-fox-stage > .task-fox-companion');
       const img=host?.querySelector('img.laria-premium-troll-art');
       return host?.dataset.troll==='lillesoster'&&!!img&&
-        img.src.includes('gangemagi-troll/lillesoster.webp')&&img.complete&&img.naturalWidth>0;
+        img.src.includes('troll-b/gangemagi-troll/lillesoster.webp')&&img.complete&&img.naturalWidth>0;
     });
     assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,'changing troll must not add another companion');
     assert.equal(await page.locator('.young-math-option').count(),3,'switching troll must retain all answer choices');

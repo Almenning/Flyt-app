@@ -1,0 +1,11 @@
+{
+  "revision": "B-2026-11-26",
+  "status": "approved",
+  "width": 887,
+  "height": 1774,
+  "characters": {
+    "storesoster": {"source":"gangemagi-troll/storesoster.webp","sha256":"b7c8b61f7c91abcd274863b81d01f95e9a002e5c483f7206b4845e27797c3f22"},
+    "lillesoster": {"source":"gangemagi-troll/lillesoster.webp","sha256":"808489912bb9cba12904315592f1ff8c3e14466032d99b9a123d13ba1919c4da"},
+    "lillebror": {"source":"gangemagi-troll/lillebror.webp","sha256":"7deb538ed60d90fef779e2c8771fc9a5916bff1fc25ea29b2d2dc1eb10fddd4e"}
+  }
+}

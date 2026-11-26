@@ -8,9 +8,9 @@
   if(!doc)return;
 
   const TROLLS=Object.freeze({
-    storesoster:Object.freeze({id:'storesoster',label:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'}),
-    lillesoster:Object.freeze({id:'lillesoster',label:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp'}),
-    lillebror:Object.freeze({id:'lillebror',label:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'})
+    storesoster:Object.freeze({id:'storesoster',label:'Storesøster',src:'./assets/troll-b/gangemagi-troll/storesoster.webp'}),
+    lillesoster:Object.freeze({id:'lillesoster',label:'Lillesøster',src:'./assets/troll-b/gangemagi-troll/lillesoster.webp'}),
+    lillebror:Object.freeze({id:'lillebror',label:'Lillebror',src:'./assets/troll-b/gangemagi-troll/lillebror.webp'})
   });
   const DEFAULT='storesoster';
   const MOODS=new Set(['idle','wave','walking','think','hint','celebrate','support','curious']);
@@ -49,6 +49,13 @@
     '.journey-player-v5 > img'
   ].join(',');
 
+  const LEGACY_ART='img[src^="./assets/gangemagi-troll/"]';
+  // Older modules still choose the character and own their slots. Adapt their
+  // art source centrally so static portraits, onboarding and reduced motion use B too.
+  function upgradeArt(img){
+    const id=img.getAttribute('src')?.match(/^\.\/assets\/gangemagi-troll\/([a-z]+)\.webp$/)?.[1];
+    if(TROLLS[id])img.setAttribute('src',TROLLS[id].src);
+  }
   const timers=new WeakMap();
   const greeted=new WeakSet();
   let queued=false;
@@ -249,6 +256,7 @@
   function sync(){
     queued=false;
     doc.querySelectorAll(IMAGE_SELECTORS).forEach(syncImage);
+    doc.querySelectorAll(LEGACY_ART).forEach(upgradeArt);
     syncLabels();
     if(doc.documentElement.dataset.lariaTroll!==choice())doc.documentElement.dataset.lariaTroll=choice();
     const artUrl='url("'+selected().src+'")';
@@ -318,9 +326,9 @@
     bindInteractions();
     new MutationObserver(changes=>{
       if(changes.some(change=>{
-        if(change.type==='attributes')return change.target?.matches?.(IMAGE_SELECTORS);
+        if(change.type==='attributes')return change.target?.matches?.(IMAGE_SELECTORS+','+LEGACY_ART);
         return Array.from(change.addedNodes||[]).some(node=>
-          node.nodeType===1&&(node.matches?.(IMAGE_SELECTORS)||node.querySelector?.(IMAGE_SELECTORS))
+          node.nodeType===1&&(node.matches?.(IMAGE_SELECTORS+','+LEGACY_ART)||node.querySelector?.(IMAGE_SELECTORS+','+LEGACY_ART))
         );
       }))refresh();
     }).observe(doc.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src','class']});

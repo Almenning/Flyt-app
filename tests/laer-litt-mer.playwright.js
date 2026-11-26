@@ -241,7 +241,7 @@ async function finishSession(page){
           const globeTroll=p.locator('.premium-globe-header .laria-premium-troll-art');
           await globeTroll.waitFor({state:'visible',timeout:12000});
           assert.equal(await globeHeader.getAttribute('data-troll'),cfg.troll,'Kloden lost selected TrollActor');
-          assert.match(await globeTroll.getAttribute('src'),new RegExp('assets/gangemagi-troll/'+cfg.troll+'\\.webp$'),
+          assert.match(await globeTroll.getAttribute('src'),new RegExp('assets/troll-b/gangemagi-troll/'+cfg.troll+'\\.webp$'),
             'Kloden rendered wrong TrollActor art');
 
           await p.evaluate(()=>setTab('home'));
