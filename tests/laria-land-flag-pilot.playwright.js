@@ -15,11 +15,40 @@ async function verify(browser,kind,w,h,touch){
     await page.goto(base,{waitUntil:'domcontentloaded'});
     const greeting=page.locator('.bc15-v16-greeting:visible');
     await greeting.waitFor({timeout:28000});
-    const style=await greeting.evaluate(el=>({background:getComputedStyle(el).backgroundImage,border:getComputedStyle(el).borderTopWidth,mask:getComputedStyle(el,'::before').maskImage,text:el.innerText}));
+    const style=await greeting.evaluate(el=>({background:getComputedStyle(el).backgroundImage,border:getComputedStyle(el).borderTopWidth,position:getComputedStyle(el).position,mask:getComputedStyle(el,'::before').maskImage,text:el.innerText}));
+    assert.equal(style.position,'absolute','greeting must own the containing block for its parchment');
     assert.equal(style.background,'none');
     assert.equal(style.border,'0px');
     assert.match(style.mask,/linear-gradient/);
     assert.match(style.text,/Hei, Eventyrer!/);
+    const bounds=await greeting.boundingBox();
+    assert.ok(bounds.x>=0&&bounds.y>h*.08&&bounds.y<h*.30&&bounds.width>w*.22&&bounds.width<w*.62&&bounds.height<h*.18,'greeting must stay over the painted frame: '+JSON.stringify(bounds));
+    // Freeze the independent actor so the pixel diff isolates only the greeting.
+    const frozen=await page.addStyleTag({content:'.bc15-v16-troll{visibility:hidden!important;opacity:0!important}'});
+    const shown=await page.screenshot({animations:'disabled'});
+    const hiddenRule=await page.addStyleTag({content:'.bc15-v16-greeting{visibility:hidden!important}'});
+    const hidden=await page.screenshot({animations:'disabled'});
+    await hiddenRule.evaluate(el=>el.remove());
+    await frozen.evaluate(el=>el.remove());
+    const diff=await page.evaluate(async({visible,invisible,bounds})=>{
+      async function pixels(png){
+        const img=new Image();
+        img.src='data:image/png;base64,'+png;
+        await img.decode();
+        const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;
+        const c=canvas.getContext('2d');c.drawImage(img,0,0);
+        return c.getImageData(0,0,img.width,img.height);
+      }
+      const [a,b]=await Promise.all([pixels(visible),pixels(invisible)]);
+      let inside=0,outside=0;
+      for(let y=0;y<a.height;y++)for(let x=0;x<a.width;x++){
+        const i=(y*a.width+x)*4;
+        if(Math.max(...[0,1,2].map(j=>Math.abs(a.data[i+j]-b.data[i+j])))<30)continue;
+        if(x>=bounds.x-2&&x<=bounds.x+bounds.width+2&&y>=bounds.y-2&&y<=bounds.y+bounds.height+2)inside++;else outside++;
+      }
+      return {inside,outside};
+    },{visible:shown.toString('base64'),invisible:hidden.toString('base64'),bounds});
+    assert.ok(diff.inside>80&&diff.outside<25,'personalized greeting must change pixels only inside the painted frame: '+JSON.stringify(diff));
     await photo('home');
     await openSubject(page,'geography');
     const geo=page.locator('#laria-geography-world:visible');

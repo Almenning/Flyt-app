@@ -178,6 +178,10 @@
 /* Grovanova v16: retain the one illustrated frame and its tail. Mask the old
    placeholder lettering inside the parchment; never touch the locked art. */
 .grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting{
+  position:absolute!important;display:flex!important;flex-direction:column!important;
+  align-items:flex-start!important;justify-content:center!important;
+  box-sizing:border-box!important;z-index:26!important;transform:none!important;
+  overflow:hidden!important;pointer-events:none!important;
   background:none!important;border:0!important;border-radius:0!important;
   box-shadow:none!important;color:#4e3324!important;
   container-type:inline-size;isolation:isolate;
@@ -197,14 +201,16 @@
 }
 .grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting strong,
 .grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting span{
-  position:relative;z-index:1;margin-left:8.7%;max-width:82%;text-overflow:ellipsis;
+  display:block!important;position:relative;z-index:1;margin-left:8.7%;max-width:82%;text-overflow:ellipsis;
   white-space:nowrap;overflow:hidden;
 }
 .grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting strong{
-  font-size:clamp(15px,6.3cqw,34px)!important;
+  font:800 clamp(15px,6.3cqw,34px)/1.08 system-ui,sans-serif!important;
+  letter-spacing:-.015em!important;color:#4c3020!important;
 }
 .grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting span{
-  font-size:clamp(11px,4.45cqw,23px)!important;
+  font:500 clamp(11px,4.45cqw,23px)/1.17 system-ui,sans-serif!important;
+  color:#563823!important;
 }
 
 .grade-band-young #home-screen .bc12.bc15-v16-locked .bc15-v16-greeting[data-long-greeting] strong{
