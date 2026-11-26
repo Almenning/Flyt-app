@@ -1,0 +1,78 @@
+/* Shared subject identity. Only real reference-layout scenes: no art, activity
+   routing or child state is modified. Size and align the two header elements
+   from the same row metrics instead of each scene's legacy logo rules. */
+@media(min-width:768px) and (min-height:650px){
+ .laria-reference-layout-v1{
+  --subject-logo-top:max(14px,env(safe-area-inset-top,0px));
+  --subject-logo-width:clamp(220px,23vw,292px);
+  --subject-logo-height:clamp(82px,8.25vw,107px);
+  --subject-heading-gap:clamp(12px,2svh,24px);
+ }
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,
+     #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage,
+     #laria-geography-world .gv-scene).laria-reference-layout-v1
+ > :is(.laria-scene-brand,.ki-world-brand){
+  position:absolute!important;top:var(--subject-logo-top)!important;
+  left:50%!important;right:auto!important;bottom:auto!important;
+  transform:translateX(-50%)!important;box-sizing:border-box!important;
+  display:grid!important;place-items:center!important;
+  width:var(--subject-logo-width)!important;max-width:none!important;
+  min-width:0!important;height:var(--subject-logo-height)!important;
+  min-height:0!important;margin:0!important;padding:0!important;
+ }
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,
+     #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage,
+     #laria-geography-world .gv-scene).laria-reference-layout-v1
+ > :is(.laria-scene-brand,.ki-world-brand) > strong{
+  box-sizing:border-box!important;display:block!important;
+  width:100%!important;height:100%!important;min-height:0!important;
+ }
+ :is(#eggenipa-world .eg-hero,#tallvika-world .tv-scene,
+     #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage,
+     #laria-geography-world .gv-scene).laria-reference-layout-v1
+ > button.laria-reference-heading{
+  top:calc(var(--subject-logo-top) + var(--subject-logo-height) + var(--subject-heading-gap))!important;
+ }
+ @media(orientation:portrait){
+  .laria-reference-layout-v1{--subject-logo-top:max(22px,env(safe-area-inset-top,0px))}
+ }
+}
+
+/* Keep the same hierarchy in compact English: no oversized gap between
+   wordmark and title, and two shared posts resting in the near meadow. */
+@media(min-width:320px) and (max-width:767px) and (min-height:600px) and (orientation:portrait){
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1{
+  --ref-left:14%;--ref-menu-width:clamp(148px,47%,218px);
+  --phone-english-post-tail:clamp(16px,3.4svh,32px);
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > .ki-world-brand{
+  top:max(10px,env(safe-area-inset-top,0px))!important;
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > .ki-world-brand strong{
+  width:clamp(120px,38vw,166px)!important;height:clamp(48px,14vw,64px)!important;
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1 > button.laria-reference-heading{
+  top:calc(max(10px,env(safe-area-inset-top,0px)) + clamp(48px,14vw,64px) + 14px)!important;
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1
+ > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]{
+  top:auto!important;bottom:calc(100% - 63% + var(--phone-english-post-tail))!important;gap:6px!important;
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1
+ > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]::before{
+  top:-9px!important;height:calc(100% + 9px + var(--phone-english-post-tail))!important;
+  background:var(--laria-premium-posts) center top/100% 100% no-repeat!important;
+ }
+ #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1
+ > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"] > .laria-premium-sign{
+  height:auto!important;min-height:44px!important;aspect-ratio:315 / 90;
+  padding:0!important;background:none!important;color:transparent!important;text-shadow:none!important;
+ }
+}
+
+/* English's old decorative title ignored touch. It is now the same real
+   subject switch as the other three, but never before art verification. */
+#kinnaklova-world[data-ki-premium-art="approved"][data-ki-art="ready"]
+ .ki-stage.laria-reference-layout-v1 > button.laria-reference-heading{
+ pointer-events:auto!important;
+}
