@@ -210,8 +210,20 @@ async function testEngine(engine,name,device,viewport){
       world.id+' signs are not naturally anchored to the approved terrain: '+
       JSON.stringify({device,expected,observed}));
    }
-   assert.ok(actorBox.width>=240&&actorBox.height>=420,
-     world.id+' original TrollActor is too small for the locked reference: '+JSON.stringify(actorBox));
+   // The approved B artwork uses a 1:2 slot shared with Home. The old 240×420
+   // minimum targeted a different shape; enforce the enlarged scale and aspect.
+   const frontScale=await scene.evaluate(el=>{
+    const probe=document.createElement('div');
+    probe.style.cssText='position:absolute;visibility:hidden;height:var(--laria-front-troll-height)';
+    el.append(probe);
+    const height=probe.getBoundingClientRect().height;
+    probe.remove();
+    return height;
+   });
+   const minHeight=viewport.height>viewport.width?380:310;
+   assert.ok(actorBox.height>=minHeight&&Math.abs(actorBox.width*2-actorBox.height)<=1
+     &&Math.abs(actorBox.height-frontScale)<=1,
+     world.id+' companion is below the shared storybook scale: '+JSON.stringify(actorBox));
    assert.ok(actorBox.x>menuBox.x+menuBox.width+8,
      world.id+' original TrollActor overlaps the left navigation');
    const overlap2D=(a,b)=>Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x))*
