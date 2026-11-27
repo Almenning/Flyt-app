@@ -62,3 +62,10 @@ test('approved v16 image does not bake living troll character, and never changes
  assert.match(render,/querySelector\('\.bc15-boats'\)\?\.remove\(\)/);
  assert.match(css,/\.bc12\.bc15-v16-locked/);
 });
+test('approved desktop side artwork is pinned separately from the unchanged Grovanova center',()=>{
+ const dir='laer-litt-mer/assets/home-v16/mac-wide/';
+ assert.equal(digest(dir+'grovanova-left.webp'),'a01cde5fe0c17d066535f2aade20b7c5fca2844f65a2ae8c18f3ddb3bea6f740');
+ assert.equal(digest(dir+'grovanova-right.webp'),'8ffcfbbf91551de35e4bd17d3331b3ca580491613adb040974b7e894a5a3c4ea');
+ assert.match(render,/desktop&&!portrait&&ratio>4\/3&&ratio<=2/);
+ assert.match(render,/get\('lariaMacWide'\)!=='0'/);
+});

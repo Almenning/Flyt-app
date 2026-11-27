@@ -13,7 +13,7 @@ const seed={version:7,progressSchemaVersion:3,
  masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},
  recentCountryWin:null,lastMilestone:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},
  answerLog:[],sessionLog:[],activeSession:null};
-async function run(engine,name,viewport,corrupt=false,desktop=false){
+async function run(engine,name,viewport,corrupt=false,desktop=false,wideOptOut=false){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
   const context=await browser.newContext({viewport,hasTouch:!desktop,serviceWorkers:'block'});
@@ -33,7 +33,7 @@ async function run(engine,name,viewport,corrupt=false,desktop=false){
     await route.fulfill({contentType:'application/json',body:JSON.stringify(body)});
    });
   }
-  await page.goto(url+'&v16-review='+name,{waitUntil:'domcontentloaded'}); // assert default approved Home, no hidden preview flag
+  await page.goto(url+'&v16-review='+name+(wideOptOut?'&lariaMacWide=0':''),{waitUntil:'domcontentloaded'}); // assert default approved Home, no hidden preview flag
   const deviceProfile=await page.evaluate(()=>({
    touchPoints:navigator.maxTouchPoints||0,
    touchEvent:'ontouchstart' in window,
@@ -57,6 +57,21 @@ async function run(engine,name,viewport,corrupt=false,desktop=false){
    assert.equal(await home.getAttribute('data-bc15-card-art'),'owner-approved-v16-painted');
    assert.equal(await home.getAttribute('data-bc15-fit'),desktop?'approved-contain':'approved-cover');
    assert.equal(await home.getAttribute('data-bc15-v16-device'),desktop?'desktop':'ipad');
+   const wide=desktop&&!wideOptOut&&viewport.width/viewport.height>4/3&&viewport.width/viewport.height<=2;
+   assert.equal(await home.evaluate(el=>el.hasAttribute('data-bc15-v16-mac-wide')),wide);
+   if(wide){
+    const layout=await home.evaluate(el=>({
+      frame:el.getBoundingClientRect().width,
+      height:el.getBoundingClientRect().height,
+      center:parseFloat(el.style.getPropertyValue('--bc15-art-width')),
+      x:parseFloat(el.style.getPropertyValue('--bc15-art-left')),
+      wings:getComputedStyle(el,'::before').backgroundImage
+    }));
+    assert.equal(layout.frame,viewport.width,'wide Mac artwork must cover the browser, not a capped square');
+    assert.ok(Math.abs(layout.center-layout.height*4/3)<1,'unchanged original picture stays in its exact 4:3 proportions');
+    assert.ok(layout.x>0&&Math.abs(layout.center+2*layout.x-layout.frame)<1,'locked artwork stays centered');
+    assert.match(layout.wings,/grovanova-left\.webp.*grovanova-right\.webp/);
+   }
    assert.equal(await home.locator('.bc15-v16-sign').count(),4,'exactly four live subject hitboxes');
    assert.deepEqual(await home.locator('.bc15-v16-sign').evaluateAll(items=>items.map(x=>x.dataset.bc15Subject)),
     ['norwegian','math','english','geography']);
@@ -172,6 +187,8 @@ async function run(engine,name,viewport,corrupt=false,desktop=false){
    ['1440x900',{width:1440,height:900}],
    ['1728x1117',{width:1728,height:1117}]
   ])await run(engine,engineName+'-mac-'+size,viewport,false,true);
+  await run(engine,engineName+'-mac-wide',{width:1920,height:1080},false,true);
+  await run(engine,engineName+'-mac-wide-optout',{width:1440,height:900},false,true,true);
   await run(engine,engineName+'-mac-invalidsha',{width:1440,height:900},true,true);
  }
 })().catch(e=>{console.error(e);process.exitCode=1});

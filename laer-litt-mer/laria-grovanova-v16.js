@@ -197,6 +197,7 @@ function reset(host){
  host?.classList.remove('bc15-v16-locked');
  host?.removeAttribute('data-bc15-v16-orientation');
  host?.removeAttribute('data-bc15-v16-device');
+ host?.removeAttribute('data-bc15-v16-mac-wide');
  host?.querySelectorAll('.bc15-v16-signs,.bc15-v16-reisen,.bc15-v16-greeting,.bc15-v16-troll')
   .forEach(node=>node.remove());
  const dialog=document.getElementById('bc15-v16-journey-dialog');
@@ -241,6 +242,12 @@ async function activate(host,{portrait,isCurrent}){
  host.querySelector('.bc15-subject-signs')?.setAttribute('hidden','');
  host.querySelector('.bc15-approved-logo')?.remove();
  host.querySelector('.bc15-boats')?.remove();
+ // Approved side art changes only the surrounding stage. The center and
+ // every painted hitbox remain in the original coordinate space.
+ const frame=host.closest('#home-screen')?.getBoundingClientRect();
+ const ratio=frame?frame.width/frame.height:0;
+ host.toggleAttribute('data-bc15-v16-mac-wide',desktop&&!portrait&&ratio>4/3&&ratio<=2&&
+  new URLSearchParams(location.search).get('lariaMacWide')!=='0');
  const box=artBox(host,image.width,image.height,desktop);
  host.style.setProperty('--bc15-art-left',box.left+'px');
  host.style.setProperty('--bc15-art-top',box.top+'px');
