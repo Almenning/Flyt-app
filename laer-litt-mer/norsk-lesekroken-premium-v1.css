@@ -97,6 +97,47 @@
    width:clamp(155px,25vw,215px);padding:7px 10px;font-size:12px
  }
 }
+/* Put the existing companion and hint beside the text, not between the
+   passage and its answers. Longer text still scrolls naturally. */
+@media (orientation:landscape) and (min-width:701px) and (max-width:950px) and (max-height:520px){
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)){
+   display:grid!important;
+   grid-template-columns:minmax(0,1fr) 74px;
+   grid-template-rows:auto auto auto;
+   align-items:start;
+   column-gap:12px;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > :is(.task-card-head,.task-interaction,.feedback,.next){
+   grid-column:1/-1;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-card-head{grid-row:1}
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > :is(.learning-passage,.question){
+   grid-column:1;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .learning-passage{
+   min-height:0!important;
+   margin:3px 0!important;
+   padding:8px 12px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-troll-companion{
+   grid-column:2;grid-row:2;
+   position:relative!important;inset:auto!important;
+   justify-self:center;align-self:center;
+   width:62px!important;height:72px!important;
+   min-height:0!important;margin:0!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-norsk-helper{
+   grid-column:2;grid-row:3;
+   margin:0!important;
+ }
+}
 @media(prefers-reduced-motion:reduce){
  #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide{transition:none}
 }

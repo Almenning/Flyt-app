@@ -217,6 +217,20 @@ async function run(engine,browserType,view,viewport){
     assert.equal(choices.length,3,label+' Lesekroken must offer three real touch choices');
     assert.ok(choices.every(a=>a.w>=44&&a.h>=44&&a.y>=0&&a.bottom<=a.viewport+1&&a.hit),
       label+' short landscape Lesekroken obscures answers: '+JSON.stringify({choices,cardLayout}));
+    const hintButton=page.locator('#session-screen.active .task-norsk-guide');
+    const hintTap=await hintButton.evaluate(button=>{
+      const r=button.getBoundingClientRect();
+      return r.width>=44&&r.height>=44&&r.bottom<=innerHeight+1&&
+        button.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
+    });
+    assert.ok(hintTap,label+' Lesekroken hint must stay reachable beside the passage');
+    await hintButton.tap();
+    await page.locator('#task-norsk-hint:not([hidden])').waitFor({state:'visible'});
+    assert.equal(await hintButton.getAttribute('aria-expanded'),'true');
+    assert.ok(await page.locator('#session-screen.active .answer').evaluateAll(items=>items.every(item=>{
+      const r=item.getBoundingClientRect();
+      return item.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
+    })),label+' an open hint must not interrupt the answer targets');
   }
   await shot(page,label+'-lesekroken');
   await page.locator('#close-session').tap();
