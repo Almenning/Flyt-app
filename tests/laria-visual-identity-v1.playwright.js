@@ -167,14 +167,15 @@ async function run(engine,name,layout,viewport){
    assert.match(button.image,/laria-home-round\.svg/,spec.id+' has a different Home control');
    assert.match(button.role,/Hjem/,spec.id+' Home accessibility text missing');
    const signs=world.locator(spec.sign+':visible');
-   assert.equal(await signs.count(),spec.id==='geography'?2:3,spec.id+' has unexpected navigable scene signs');
+   const signCount=spec.id==='geography'?2:spec.id==='math'?4:3;
+   assert.equal(await signs.count(),signCount,spec.id+' has unexpected navigable scene signs');
    if(spec.id!=='english'){
      // Real rendered positions, not string matches on stylesheet source.
      const railBoxes=await signs.evaluateAll(elements=>elements.map(el=>{
        const r=el.getBoundingClientRect();
        return {x:r.left,y:r.top,w:r.width,h:r.height,right:r.right,bottom:r.bottom};
      }));
-     assert.equal(railBoxes.length,spec.id==='geography'?2:3,spec.id+' has unexpected signs on the rail');
+     assert.equal(railBoxes.length,signCount,spec.id+' has unexpected signs on the rail');
      const xSpread=Math.max(...railBoxes.map(b=>b.x))-Math.min(...railBoxes.map(b=>b.x));
      const widthSpread=Math.max(...railBoxes.map(b=>b.w))-Math.min(...railBoxes.map(b=>b.w));
      assert.ok(xSpread<=3,spec.id+' sign rail is scattered horizontally: '+JSON.stringify(railBoxes));

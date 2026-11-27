@@ -2406,6 +2406,7 @@
   <link rel="stylesheet" href="./multiplication-pick-material-v5.css?v=20261009-premium-art5c" />
   <link rel="stylesheet" href="./multiplication-pick-vessels-v6.css?v=20261009-world-vessels6a" />
   <link rel="stylesheet" href="./multiplication-pick-closeup-v7.css?v=20261009-closeup-parity7a" />
+  <link rel="stylesheet" href="./trollbutikken-v1.css?v=20261127-trollbutikk-messing2" />
   <link rel="stylesheet" href="./multiplication-gangemagi-v1.css?v=20261122-free-tallvika3" />
   <link rel="stylesheet" href="./gangemagi-dagens-oppdrag-v1.css?v=20261023-gangemagi-release37" />
   <link rel="stylesheet" href="./gangemagi-markedsbok-approved-v2.css?v=20261017-approved2" />
@@ -2724,6 +2725,7 @@
       <div id="fraction-lab-root"></div>
     </section>
 
+    <section class="screen" id="trollbutikken-screen" aria-label="Trollbutikken i Tallvika"></section>
     <section class="screen" id="multiplication-lab-screen" aria-label="Gangemagi i Tallvika">
       <div id="multiplication-lab-root"></div>
     </section>
@@ -3570,7 +3572,7 @@ function showScreen(name){
     if(s===el)s.style.removeProperty('display');
     else s.style.setProperty('display','none','important');
   });
-  const special=['session','complete','detail','adult','parent-info','feedback','world','continent','geography','subject','fraction-lab','multiplication-lab'].includes(name);
+  const special=['session','complete','detail','adult','parent-info','feedback','world','continent','geography','subject','fraction-lab','multiplication-lab','trollbutikken'].includes(name);
   document.getElementById('bottom-nav').style.display=special?'none':'grid';
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
@@ -3720,7 +3722,7 @@ document.getElementById('young-words').onclick=()=>setTab('progress');
 document.getElementById('young-math').onclick=()=>setTab('progress');
 
 // Native-feeling left-edge swipe. Narrow edge avoids stealing map and exercise gestures.
-const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete','fraction-lab','multiplication-lab']);
+const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete','fraction-lab','multiplication-lab','trollbutikken']);
 const swipeBackEdge=document.getElementById('swipe-back-edge');
 const swipeBackIndicator=document.getElementById('swipe-back-indicator');
 let swipeBackGesture=null;
@@ -3767,6 +3769,7 @@ function appBack(){
   const visibleBack={
     subject:'subject-back',geography:'geography-back',world:'world-back',
     'fraction-lab':'fraction-lab-back','multiplication-lab':'multiplication-lab-back',
+    'trollbutikken':'trollbutikken-back',
     session:'close-session',complete:'complete-home'
   }[current];
   if(visibleBack){
@@ -7277,13 +7280,15 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./globe-v25-renderer.js?v=20261015-discoveries1" defer></script>
 <script src="./laria-country-detail-premium-v1.js?v=20261015-discoveries1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
-<script src="./laria-premium-sign-art-v1.js?v=20261126-subject-header1" defer></script>
+<script src="./laria-premium-sign-art-v1.js?v=20261127-trollbutikk-grade2-release2" defer></script>
 <!-- One shared scene/navigation component for subject facades. No learning data changes. -->
-<script src="./laria-scene-ui-v1.js?v=20261126-geography-two1" defer></script>
-<script defer src="./laria-reference-layout-v1.js?v=20261126-subject-header1"></script>
+<script src="./laria-scene-ui-v1.js?v=20261127-trollbutikk-grade2-release2" defer></script>
+<script defer src="./laria-reference-layout-v1.js?v=20261127-trollbutikk-grade2-release2"></script>
 <!-- Tallvika: locked landscape and direct-play layer. It owns no learning data. -->
 <link rel="stylesheet" href="./tallvika.css?v=20261107-ipad-landscape-fill1">
-<script src="./tallvika.js?v=20261107-light-arrow1" defer></script>
+<script src="./trollbutikken-engine-v1.js?v=20261127-trollbutikk-grade2-release2" defer></script>
+<script src="./trollbutikken-ui-v1.js?v=20261127-trollbutikk-messing2" defer></script>
+<script src="./tallvika.js?v=20261127-trollbutikk-grade2-release2" defer></script>
 <!-- Norsk: locked Eggenipa painting, direct-play subject screen. No new learning state. -->
 <link rel="stylesheet" href="./eggenipa.css?v=20261107-premium-signrail-ipad2">
 <script src="./eggenipa.js?v=20261107-light-arrow1" defer></script>
@@ -7307,7 +7312,7 @@ window.LARIA_TALLVIKA_BRIDGE={
 <!-- Shared left-aligned three-sign layout on the actual subject facades. -->
 <link rel="stylesheet" href="./laria-sign-rail-v2.css?v=20261108-rail-connected1">
 <link rel="stylesheet" href="./laria-reference-layout-v1.css?v=20261122-matte-grade-clearance4">
-<link rel="stylesheet" href="./laria-premium-sign-art-v1.css?v=20261124-source-art1">
+<link rel="stylesheet" href="./laria-premium-sign-art-v1.css?v=20261127-trollbutikk-grade2-release2">
 <link rel="stylesheet" href="./laria-kinnaklova-unified-v1.css?v=20261115-locked-kinn-sha-safe-live4">
 <link rel="stylesheet" href="./laria-home-ipad-rail-v1.css?v=20261115-journey-clean1">
 <link rel="stylesheet" href="./laria-viewport-premium-v1.css?v=20261116-viewport-ipad-portrait1">

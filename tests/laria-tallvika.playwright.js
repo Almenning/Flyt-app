@@ -11,14 +11,14 @@ async function enter(page){
   await openHomeSubject(page,'math');
   await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:18000});
 }
-async function assertScene(page,label){
+async function assertScene(page,label,withShop){
   const scene=page.locator('#tallvika-world .tv-scene');
   assert.equal(await scene.count(),1,label+' renders one world scene');
   assert.equal(await page.locator('#tallvika-world .tv-dock, #tallvika-world .tv-mobile-actions, #tallvika-world .tv-portal-card').count(),0,label+' retains parallel navigation');
   const hotspots=await page.locator('#tallvika-world .tv-sign').evaluateAll(nodes=>nodes.map(node=>{
     const r=node.getBoundingClientRect();return {id:node.dataset.tv,w:r.width,h:r.height,aria:node.getAttribute('aria-label')};
   }));
-  assert.deepEqual(hotspots.map(x=>x.id).sort(),['fraction','multiply','table'],label+' needs exactly the three sign destinations');
+  assert.deepEqual(hotspots.map(x=>x.id).sort(),withShop?['fraction','multiply','shop','table']:['fraction','multiply','table'],label+' exact activity signs for the selected grade');
   assert.ok(hotspots.every(x=>x.w>=44&&x.h>=44&&x.aria?.startsWith('Åpne ')),label+' has an inaccessible sign destination '+JSON.stringify(hotspots));
   const audit=await scene.evaluate(el=>{const r=el.getBoundingClientRect();return {w:r.width,h:r.height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth,bg:getComputedStyle(el).backgroundImage};});
   assert.ok(audit.w>250&&audit.h>140,label+' has no substantial illustration');
@@ -41,7 +41,7 @@ async function run(browserType,label,viewport){
     await context.addInitScript(value=>{if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(value));},seed);
     const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
     await page.route('https://raw.githubusercontent.com/**',route=>route.abort());await page.route('https://api.worldbank.org/**',route=>route.abort());
-    await enter(page);await assertScene(page,label);await screenshot(page,label);
+    await enter(page);await assertScene(page,label,true);await screenshot(page,label);
     const bubble=page.locator('#tallvika-world .tv-actor-speech');
     const beforeSpeech=await bubble.innerText();
     await page.locator('#tallvika-world .tv-actor-touch').click();
@@ -73,7 +73,7 @@ async function run(browserType,label,viewport){
     assert.equal(await page.locator('.mp-times-grid button.mp-grid-cell').count(),100,label+' Gangetabellen lost its 10x10 explorer');
     assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),'Tilbake til Tallvika',label+' Gangetabellen lost Tallvika return');
     await page.locator('#multiplication-lab-back').click();await page.locator('#tallvika-world').waitFor({state:'visible',timeout:14000});
-    await assertScene(page,label+' return');
+    await assertScene(page,label+' return',false);
     assert.deepEqual(errors,[],label+' console errors: '+errors.join('; '));
     await context.close();
   } finally {await browser.close();}

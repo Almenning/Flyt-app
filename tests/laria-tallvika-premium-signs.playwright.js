@@ -2,7 +2,7 @@
 const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /*
  * Visual QA for Kinnaklova-style separate wooden activity signs inside Tallvika.
- * Three navigable destinations, one selected troll and an unchanged approved landscape.
+ * All 2nd-grade destinations, one selected troll and an unchanged approved landscape.
  * The original image is read-only; this test never changes saved progress.
  */
 const assert=require('node:assert/strict');
@@ -41,7 +41,7 @@ async function collect(page){
         clipPath:cs.clipPath,borderRadius:cs.borderRadius,
         ariaLabel:el.getAttribute('aria-label')};
     };
-    const keys=['multiply','fraction','table'];
+    const keys=[...scene.querySelectorAll('.tv-sign')].map(el=>el.dataset.tv);
     const actions=keys.map(key=>{
       const matches=[...document.querySelectorAll('#tallvika-world button[data-tv="'+key+'"]')];
       const el=matches[0],base=summary(el)||{};
@@ -83,8 +83,7 @@ async function collect(page){
 
 function assertPremium(a,label){
   assert.ok(!a.error,label+' '+a.error);
-  assert.equal(a.actions.length,3,label+' must show Gangemagi, Brøklab and Gangetabellen');
-  assert.deepEqual(a.actions.map(x=>x.key),['multiply','fraction','table'],label+' activity order');
+  assert.deepEqual(a.actions.map(x=>x.key),['multiply','fraction','table','shop'],label+' second-grade activity order');
   for(const x of a.actions){
     assert.equal(x.count,1,label+' duplicate/missing '+x.key);
     assert.ok(x.width>=44&&x.height>=44,label+' inaccessible '+x.key);

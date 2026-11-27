@@ -53,7 +53,8 @@ async function run(engine,label,viewport){
      // directly and the old map remains intentionally hidden.
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-sign').count(),3,label+' missing math activity signs');
+     assert.deepEqual(await tv.locator('.tv-sign').evaluateAll(signs=>signs.map(s=>s.dataset.tv)),
+       ['multiply','fraction','table','shop'],label+' second-grade Tallvika activity signs');
      const next=tv.locator('[data-tv="next"]');
      assert.equal(await next.isEnabled(),true,label+' next math mission must remain reachable');
      await next.click();

@@ -72,7 +72,8 @@ async function check(engine,label,viewport){
      // and eight-viewport WebKit/Chromium raster checks.
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-sign').count(),3,label+' missing Math activity signs');
+     assert.deepEqual(await tv.locator('.tv-sign').evaluateAll(signs=>signs.map(s=>s.dataset.tv)),
+       ['multiply','fraction','table','shop'],label+' second-grade Tallvika activity signs');
      // Tallvika's real approved landscape has separate portrait/wide masters.
      // The retired October art must never silently replace either version.
      const expected=viewport.width<viewport.height
