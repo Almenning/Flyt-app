@@ -71,8 +71,11 @@ async function verify(browser,kind,w,h,touch){
     assert.match(await game.evaluate(e=>getComputedStyle(e).getPropertyValue('--task-world')),new RegExp('nordlysleiren-bluehour-'+(h>w?'portrait':'landscape')));
     assert.match(await page.locator('#session-count').innerText(),/Oppdrag 1 av 5/);
     await game.locator('.land-flag-hint summary').click();
-    assert.match(await game.locator('.land-flag-hint p').innerText(),/flagget/);
+    const hint=await game.locator('.land-flag-hint p').innerText();
+    assert.equal(hint,'Dette landet er kjent for fjordene sine og har en lang kyst.');
+    assert.doesNotMatch(hint,/Norge|flagg|fargene|mønsteret/i);
     assert.equal(await page.evaluate(()=>currentAnswered),null,'help must not count an answer');
+    await photo('country-hint');
     await game.locator('.land-flag-hint summary').click();
     if(compact)await onScreen('#session-screen.active .task-interaction > .answers .answer');
     await photo('flag');

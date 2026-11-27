@@ -345,7 +345,23 @@
     });
   });
   function landFlagHint(q){
-    if(q.type==='flag')return 'Se på fargene og mønsteret i flagget.';
+    if(q.type==='flag'){
+      const country=countries[q.k];
+      if(!country)return 'Tenk på hvor i verden landet ligger.';
+      if(q.k==='no')return 'Dette landet er kjent for fjordene sine og har en lang kyst.';
+      const normalize=value=>String(value??'').trim().toLocaleLowerCase('nb')
+        .replace(/[^\p{L}\p{N}]+/gu,' ');
+      const capital=String(country.capitalDisplay||country.capital||'').trim();
+      const answer=normalize(country.name);
+      // A capital can itself contain the country's name (e.g. Luxembourg).
+      // Never give that clue before the child has answered.
+      if(capital&&normalize(capital)&&answer&&
+        !(' '+normalize(capital)+' ').includes(' '+answer+' ')){
+        return 'Hovedstaden i dette landet heter '+capital+'.';
+      }
+      return country.continent?'Dette landet ligger i '+country.continent+'.':
+        'Tenk på hvor i verden landet ligger.';
+    }
     if(q.type==='map')return 'Se på formen på landene og hva som ligger rundt dem.';
     if(q.type==='continent')return 'Tenk på hvor i verden landet ligger.';
     return 'Les spørsmålet én gang til og se på svarene.';
