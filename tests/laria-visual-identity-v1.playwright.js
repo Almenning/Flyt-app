@@ -151,7 +151,7 @@ async function run(engine,name,layout,viewport){
    assert.equal(await shell.count(),1,spec.id+' must mount the common scene component');
    const sharedNav=shell.locator('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
    assert.equal(await sharedNav.count(),1,spec.id+' needs exactly one semantic activity rail');
-   assert.equal(await sharedNav.locator('.laria-wayfinder[data-laria-component="sign"]').count(),spec.id==='geography'?2:3,
+   assert.equal(await sharedNav.locator('.laria-wayfinder[data-laria-component="sign"]').count(),spec.id==='geography'?2:spec.id==='math'?4:3,
      spec.id+' must not clone or lose activity actions during common-shell enhancement');
    const title=({norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'})[spec.id];
    const adapted=await shell.getAttribute('data-laria-reference-layout')==='v1';

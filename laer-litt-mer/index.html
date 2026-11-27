@@ -5377,7 +5377,7 @@ function journeyTrollMarkup(){
   // The selected, original troll is used before any async runtime update.
   const saved=typeof state!=='undefined'&&state?.profile?.tallvikaTroll;
   const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
-  return '<img class="laria-premium-troll-art" data-troll="'+id+'" src="./assets/gangemagi-troll/'+id+'.webp" alt="" aria-hidden="true" decoding="async">';
+  return '<img class="laria-premium-troll-art" data-troll="'+id+'" src="./assets/troll-b/gangemagi-troll/'+id+'.webp" alt="" aria-hidden="true" decoding="async">';
 }
 function journeySpecialSvg(kind){
   if(kind==='checkpoint')return '<svg viewBox="0 0 48 48"><path d="M24 4l6 12 13 2-9 9 2 13-12-6-12 6 2-13-9-9 13-2z" fill="#E1AA33" stroke="#785614" stroke-width="2.4" stroke-linejoin="round"/></svg>';
