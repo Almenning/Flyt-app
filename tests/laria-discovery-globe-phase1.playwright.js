@@ -490,9 +490,24 @@ async function runDevice(engine,label,viewport,urls){
        await discovery.page.evaluate(()=>{globeLon=8;globeLat=62;setGlobeZoom(1.72);selectGlobeCountry('no')});
        await discovery.page.waitForFunction(()=>document.querySelectorAll('#globe-status .discovery-country-companion').length===1);
        assert.equal(await discovery.page.locator('#globe-status').evaluate(el=>el.classList.contains('discovery-continent-intro')),false,label+' invitation layout leaked into country card');
-       assert.ok(await discovery.page.locator('#globe-status').evaluate(el=>el.getBoundingClientRect().height)<viewport.height*.4,label+' country card covers the globe');
+       const card=await discovery.page.locator('#globe-status').boundingBox();
+       assert.ok(card&&card.width>0&&card.height>0,label+' selected country card is not visible');
+       if(viewport.width>viewport.height&&viewport.height<=500){
+         // Short landscape puts the globe and card in separate columns.
+         // Test the real overlap instead of applying the stacked height cap.
+         const globe=await discovery.page.locator('#globe-canvas').boundingBox();
+         assert.ok(globe&&globe.width>0&&globe.height>0,label+' globe is not visible next to the card');
+         assert.ok(card.x>=globe.x+globe.width,label+' country card overlaps the globe '+JSON.stringify({card,globe}));
+         assert.ok(card.x+card.width<=viewport.width+1&&card.y>=0&&card.y+card.height<=viewport.height+1,
+           label+' country card extends beyond the viewport '+JSON.stringify(card));
+         assert.ok(await discovery.page.locator('#globe-view-toggle button').evaluateAll(buttons=>buttons.length===2&&buttons.every(button=>{
+           const r=button.getBoundingClientRect();
+           return button.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
+         })),label+' country card blocks the globe view controls');
+       }else{
+         assert.ok(card.height<viewport.height*.4,label+' country card covers the globe');
+       }
        if(viewport.height>viewport.width){
-         const card=await discovery.page.locator('#globe-status').boundingBox();
          const toggle=await discovery.page.locator('#globe-view-toggle').boundingBox();
          assert.ok(toggle.y+toggle.height<=card.y,label+' country card overlaps the view selector');
        }

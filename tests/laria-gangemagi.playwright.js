@@ -531,7 +531,15 @@ async function check(engine,label,viewport,url){
     '.gm-pick.gm-drop-target');
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' dragging a fruit back to source removes one');
-  await dragBerry(page,'[data-gm-action="source"]','.gm-brand',null);
+  // The brand is intentionally hidden on compact phones. The visible quest
+  // panel is a real non-target; verify that its centre is not a drop control.
+  const outside='.gm-story.gm-quest';
+  assert.ok(await page.locator(outside).evaluate(panel=>{
+    const r=panel.getBoundingClientRect();
+    const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+    return !!hit&&panel.contains(hit)&&!hit.closest('[data-gm-action="basket"],[data-gm-action="source"]');
+  }),label+' visible quest panel must provide a real non-drop surface');
+  await dragBerry(page,'[data-gm-action="source"]',outside,null);
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' dropping a fruit outside all baskets cannot change the maths');
   assert.equal(await page.locator('.gm-source-berry').count(),5,
