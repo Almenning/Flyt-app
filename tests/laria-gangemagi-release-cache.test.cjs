@@ -19,6 +19,7 @@ const suffix = '-gangemagi-premium-20261023-release37';
 const releases = Object.freeze({
   'multiplication-gangemagi-v1.css': version,
   'gangemagi-dagens-oppdrag-v1.css': approvedVisualVersion,
+  'gangemagi-compact-v1.css': '20261126-fold1',
   'multiplication-gangemagi-v1.js': '20261122-tallvika-direct-back1'
 });
 const assets = Object.keys(releases);

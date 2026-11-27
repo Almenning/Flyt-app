@@ -334,6 +334,9 @@
     }).observe(doc.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src','class']});
     root.addEventListener('resize',refresh,{passive:true});
     doc.addEventListener('laria:troll-changed',refresh);
+    if(new URLSearchParams(root.location.search).get('lariaTrollVoiceTest')==='1'){
+      import('./laria-troll-voice-audition-v1.mjs?v=1').then(module=>module.mount(root)).catch(()=>{});
+    }
   }
 
   root.LARIA_TROLL_ACTOR=Object.freeze({

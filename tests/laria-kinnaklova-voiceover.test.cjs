@@ -25,12 +25,13 @@ const englishPool=new Function('choiceQuestion','makeEnglishBuild','shuffle','CU
 );
 const renderPrompt=new Function('prompt','q','directKinnaklova','readingStory',
  'passage','visualWithFox','inlineFox','fox','text',
+ sourceBetween(scene,'    const authoredLang=','    const passage=')+
  sourceBetween(scene,'    const norwegianPrompt=','\n    wrap.innerHTML=')+
  '\nreturn {promptLanguage,answerLanguage,questionScene};'
 );
 const render=(question,direct=true,reading=false)=>renderPrompt(
  question.prompt,question,direct,reading,
- reading?'<section class="learning-passage ki-reading-story" lang="en">Story</section>':'',
+ reading?'<section class="learning-passage ki-reading-story" lang="en">Story</section>':(question.passage||''),
  '',false,'',String
 );
 
@@ -83,9 +84,19 @@ test('Norwegian vocabulary choices carry explicit source-language metadata',()=>
 });
 
 test('VoiceOver language is inherited by the actual answer and word-bank controls',()=>{
- assert.match(scene,/class="task-interaction"'\+\(directKinnaklova\?' lang="'\+answerLanguage\+'"'\:''\)/);
+ assert.match(scene,/class="task-interaction"'\+\(answerLanguage\?' lang="'\+answerLanguage\+'"'\:''\)/);
  assert.match(scene,/class="word-bank"/);
  assert.match(scene,/class="letter-bank"/);
  assert.match(scene,/class="answers"/);
  assert.match(scene,/const promptLanguage=directKinnaklova/);
+});
+
+
+test('Authored Nynorsk prompts and answer controls inherit Nynorsk in Lesekroken',()=>{
+ const story=render({subject:'norwegian',passageLang:'nn',passage:'Frosken hoppar fram.',
+   prompt:'Kva gjer frosken?'},false);
+ assert.equal(story.promptLanguage,'nn');
+ assert.equal(story.answerLanguage,'nn');
+ assert.ok(story.questionScene.indexOf('Frosken hoppar fram.')<story.questionScene.indexOf('Kva gjer frosken?'));
+ assert.match(story.questionScene,/class="question" lang="nn"/);
 });

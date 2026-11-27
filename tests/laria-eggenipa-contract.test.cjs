@@ -34,7 +34,7 @@ test('Three independent Norsk activities, no journey map in the child UI',()=>{
   for(const [key,pattern] of Object.entries({
     find:/window\.openFindTheWords\?\.\(\{preferPremium:true\}\)/,
     words:/window\.openWordHunt\?\.\(\)/,
-    reading:/startLearningSession\?\.\('norwegian','reading','Lesekroken'\)/
+    reading:/startLearningSession\?\.\('norwegian','reading','Lesekroken',true\)/
   }))assert.match(js,pattern,key+' must use an established engine');
   for(const id of ['words','find','reading'])
     assert.match(js,new RegExp("id:'"+id+"'"));

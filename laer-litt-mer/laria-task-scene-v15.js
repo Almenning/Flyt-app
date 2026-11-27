@@ -103,7 +103,7 @@
       const first=Array.from(q.answer.trim())[0]||'';
       if(/^[a-zæøå]$/i.test(first))return 'Lytt etter første lyd. Ordet starter med '+first.toUpperCase()+'.';
     }
-    if(q?.passage)return 'Finn setningen i teksten som forteller mest om svaret.';
+    if(q?.passage)return q.learningFeedback?.retry||'Finn setningen i teksten som forteller mest om svaret.';
     if(q?.type==='build-word')return 'Prøv én bokstav om gangen. Du kan endre valget ditt.';
     return 'Se på svarene igjen. Kan du finne et som ikke passer?';
   }
@@ -327,6 +327,23 @@
       wrap.querySelectorAll('[data-land-flag-map]').forEach(b=>b.onclick=()=>answerMap(b.dataset.landFlagMap));
     }else wrap.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerText(b.dataset.answer));
   }
+  // A short phone may put the feedback/Next just beyond the visible scene.
+  // Scroll only the task, only after a real answer, and never move focus.
+  screen.addEventListener('click',event=>{
+    if(!screen.matches('.active[data-land-flag]')||
+      !event.target.closest?.('.task-interaction .answer,.task-interaction #quiz-map-canvas'))return;
+    const next=screen.querySelector('#next-question');
+    const host=screen.querySelector('.session');
+    if(!host||!next?.offsetHeight)return;
+    requestAnimationFrame(()=>{
+      if(!screen.matches('.active[data-land-flag]')||!next.isConnected||!next.offsetHeight)return;
+      const viewport=window.visualViewport;
+      const visibleBottom=Math.min(host.getBoundingClientRect().bottom,
+        viewport?viewport.offsetTop+viewport.height:window.innerHeight);
+      const hiddenBy=next.getBoundingClientRect().bottom-visibleBottom;
+      if(hiddenBy>0)host.scrollTop+=Math.ceil(hiddenBy+8);
+    });
+  });
   function landFlagHint(q){
     if(q.type==='flag')return 'Se på fargene og mønsteret i flagget.';
     if(q.type==='map')return 'Se på formen på landene og hva som ligger rundt dem.';
@@ -418,9 +435,11 @@
       ['words','sentences','reading'].includes(sessionScope?.module);
     const readingStory=directKinnaklova&&q.skill==='reading'&&
       typeof q.passage==='string'&&q.passage.trim().length>0;
+    const authoredLang=['nb','nn','en'].includes(q.passageLang)?q.passageLang:'';
+    const authoredPassage=Boolean(q.passage&&authoredLang);
     const passage=q.passage?(readingStory
       ?'<section class="learning-passage ki-reading-story" lang="en" aria-label="Engelsk historie">'+text(q.passage)+'</section>'
-      :'<div class="learning-passage">'+text(q.passage)+'</div>'):'';
+      :'<div class="learning-passage"'+(authoredLang?' lang="'+authoredLang+'"':'')+'>'+text(q.passage)+'</div>'):'';
     const readButton=readAloudButton(q);
     const finalQuestion=position===total;
     // Premium beta: one selected TrollActor follows the child through every
@@ -438,15 +457,16 @@
     const inlineFox=taskBand()==='young'&&!visual&&!passage;
     const visualWithFox=visual?'<div class="task-visual-companion-stage">'+visual+fox+'</div>':fox;
     const norwegianPrompt=/^(?:Hva|Hvilket|Hvilken|Velg|Finn|Hvor)\b/i.test(prompt);
-    const promptLanguage=directKinnaklova?(norwegianPrompt?'nb':'en'):'';
+    const promptLanguage=directKinnaklova?(norwegianPrompt?'nb':'en'):authoredLang;
     const answerLanguage=directKinnaklova?(
       q.answerLanguage==='nb'||/på norsk\??\s*$/i.test(prompt)?'nb':'en'
-    ):'';
+    ):authoredLang;
+    const question='<div class="question"'+(promptLanguage?' lang="'+promptLanguage+'"':'')+'>'+text(prompt)+'</div>';
     const questionScene=inlineFox?
-      '<div class="task-prompt-fox-stage"><div class="question"'+(directKinnaklova?' lang="'+promptLanguage+'"':'')+'>'+text(prompt)+'</div>'+fox+'</div>':
+      '<div class="task-prompt-fox-stage">'+question+fox+'</div>':
       readingStory
         ?passage+'<div class="question ki-reading-question" lang="en">'+text(prompt)+'</div>'+visualWithFox
-        :'<div class="question"'+(directKinnaklova?' lang="'+promptLanguage+'"':'')+'>'+text(prompt)+'</div>'+passage+visualWithFox;
+        :authoredPassage?passage+question+visualWithFox:question+passage+visualWithFox;
 
     wrap.innerHTML=
       '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+(subject==='norwegian'?'task-norsk-storybook ':'')+taskTypeClass(q)+'">'+
@@ -454,7 +474,7 @@
         '<div class="task-world-chip">'+text(directKinnaklova?'Kinnaklova':sceneName(subject))+'</div>'+
         '<div class="task-card-head"><div class="qtype">'+(pilot?'LAND OG FLAGG':subjectName(subject))+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         questionScene+norskHelper+(pilot?'<details class="land-flag-hint"><summary>Hint</summary><p>'+text(landFlagHint(q))+'</p></details>':'')+
-        '<div class="task-interaction"'+(directKinnaklova?' lang="'+answerLanguage+'"':'')+'>'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
+        '<div class="task-interaction"'+(answerLanguage?' lang="'+answerLanguage+'"':'')+'>'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
         '<div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p>'+(subject==='english'?'<button class="task-hear-word" id="task-hear-word" type="button" hidden aria-label="Hør engelsk uttale">🔊 Hør engelsk</button>':'')+'</div>'+
         '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button>'+
       '</article>';

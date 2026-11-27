@@ -10,14 +10,17 @@ on:
       - laer-litt-mer/laria-kinnaklova-unified-v1.css
       - laer-litt-mer/assets/kinnaklova/**
       - tests/laria-kinnaklova-left-rail.playwright.js
+      - tests/laria-kinnaklova-compact-landscape.playwright.js
   pull_request:
     branches: [main]
     paths:
       - .github/workflows/laria-kinn-isolated-live.yml
       - laer-litt-mer/kinnaklova.js
       - laer-litt-mer/kinnaklova-standalone-v1.*
+      - laer-litt-mer/laria-kinnaklova-unified-v1.css
       - laer-litt-mer/assets/kinnaklova/**
       - tests/laria-kinnaklova-left-rail.playwright.js
+      - tests/laria-kinnaklova-compact-landscape.playwright.js
 permissions:
   contents: read
 jobs:
@@ -35,13 +38,16 @@ jobs:
           node --check laer-litt-mer/kinnaklova.js
           node --check laer-litt-mer/kinnaklova-standalone-v1.js
           node --check tests/laria-kinnaklova-left-rail.playwright.js
+          node --check tests/laria-kinnaklova-compact-landscape.playwright.js
       - name: Start preview
         run: python3 -m http.server 8765 --directory . >/tmp/laria-http.log 2>&1 &
       - name: Test Kinnaklova real activity and locked visual system on iPad / iPhone
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_KINNAKLOVA_SCREENSHOTS: /tmp/laria-kinn-isolated
-        run: node tests/laria-kinnaklova-left-rail.playwright.js
+        run: |
+          node tests/laria-kinnaklova-left-rail.playwright.js
+          node tests/laria-kinnaklova-compact-landscape.playwright.js
       - name: Upload real device screenshots
         if: always()
         uses: actions/upload-artifact@v4

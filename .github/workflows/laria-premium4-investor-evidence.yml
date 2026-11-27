@@ -1,0 +1,48 @@
+name: Læria Premium 4 – actual demo evidence
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/laria-premium4-investor-demo.playwright.js'
+      - '.github/workflows/laria-premium4-investor-evidence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: laria-premium4-evidence-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+        viewport: [820x1180, 1180x820, 390x844, 1440x900]
+    env:
+      QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+      LARIA_DEMO_ENGINE: ${{ matrix.engine }}
+      LARIA_DEMO_VIEWPORT: ${{ matrix.viewport }}
+      LARIA_DEMO_SHOTS: /tmp/laria-investor
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Start exact candidate
+        run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-investor-http.log 2>&1 &
+      - name: Play the real grade-2 investor route
+        run: node tests/laria-premium4-investor-demo.playwright.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demo-${{ matrix.engine }}-${{ matrix.viewport }}
+          path: |
+            /tmp/laria-investor
+            /tmp/laria-investor-http.log
+          retention-days: 14
