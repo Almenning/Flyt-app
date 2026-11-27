@@ -1,0 +1,59 @@
+name: Læria Trollbutikken QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/trollbutikken-*.js'
+      - 'laer-litt-mer/trollbutikken-v1.css'
+      - 'laer-litt-mer/tallvika.js'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/sw.js'
+      - 'laer-litt-mer/assets/trollbutikken/**'
+      - 'tests/laria-trollbutikken*'
+      - '.github/workflows/laria-trollbutikken.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: laria-trollbutikken-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  play:
+    name: Trollbutikken / ${{ matrix.engine }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - run: node --test tests/laria-trollbutikken-engine.test.cjs
+      - name: Serve exact revision
+        run: python3 -m http.server 8793 --bind 127.0.0.1 >/tmp/trollbutikken-http.log 2>&1 &
+      - name: Play all four modes on five device formats
+        env:
+          QA_URL: http://127.0.0.1:8793/laer-litt-mer/?app=laria
+          TB_ENGINE: ${{ matrix.engine }}
+          TROLLBUTIKKEN_SCREENSHOTS: /tmp/trollbutikken-shots
+        run: node tests/laria-trollbutikken.playwright.js
+      - name: Check the remaining viewport sizes and real controls
+        env:
+          QA_URL: http://127.0.0.1:8793/laer-litt-mer/?app=laria
+          TB_ENGINE: ${{ matrix.engine }}
+          TB_LAYOUT_ONLY: '1'
+        run: node tests/laria-trollbutikken.playwright.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trollbutikken-${{ matrix.engine }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            /tmp/trollbutikken-shots
+            /tmp/trollbutikken-http.log
+          retention-days: 14

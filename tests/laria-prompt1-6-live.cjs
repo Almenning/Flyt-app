@@ -192,7 +192,12 @@ async function existing(engine,name){
  await p.locator('#world-screen.active').waitFor();
  await p.locator('#globe-mode [data-globe-mode="classic"]').waitFor();
  for(const m of ['explore','mine','classic']){await p.locator('#globe-mode [data-globe-mode="'+m+'"]').click();await p.waitForFunction(x=>document.getElementById('world-screen')?.dataset.premiumGlobeMode===x,m)}
- await p.locator('#random-country').click();await p.locator('.premium-country-learn').waitFor({state:'visible'});const country=(await p.locator('#globe-status strong').first().textContent()).trim();
+ const atlasMore=p.locator('#world-screen.active .laria-atlas-more');
+ const randomCountry=atlasMore.locator('#random-country');
+ assert.equal(await randomCountry.isVisible(),false,name+' random country must begin inside the closed menu');
+ await atlasMore.locator('summary').click();await randomCountry.click();
+ assert.equal(await atlasMore.evaluate(details=>details.open),false,name+' menu must close after choosing a country');
+ await p.locator('.premium-country-learn').waitFor({state:'visible'});const country=(await p.locator('#globe-status strong').first().textContent()).trim();
  await p.locator('.premium-country-learn').click();await p.locator('#detail-screen.active').waitFor();await p.locator('#detail-back').click();await p.locator('#world-screen.active').waitFor();
  assert.equal(await p.locator('#world-screen').getAttribute('data-premium-globe-mode'),'classic');assert.equal((await p.locator('#globe-status strong').first().textContent()).trim(),country);
  assert.deepEqual(errs,[],name+' existing profile errors');await c.close();await b.close()

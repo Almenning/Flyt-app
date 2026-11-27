@@ -18,6 +18,7 @@
   'tv:multiply':enamel('<path d="M9 23 22 10l3 3-13 13-5 2z" fill="#df9663"/><path d="m23 4 1.5 4.5L29 10l-4.5 1.5L23 16l-1.5-4.5L17 10l4.5-1.5z" fill="#f8cb70"/><path d="M7 8v8m-4-4h8m13 10v4m-2-2h4" fill="none"/>'),
   'tv:fraction':enamel('<path d="M17 6a11 11 0 1 0 11 11H17z" fill="#eaa262"/><path d="M20 3a11 11 0 0 1 9 10h-9z" fill="#e27d77"/><g fill="#a34c44" stroke="none"><circle cx="12" cy="13" r="2"/><circle cx="10" cy="21" r="2"/><circle cx="19" cy="23" r="2"/></g>'),
   'tv:table':enamel('<rect x="4" y="4" width="24" height="24" rx="4" fill="#679991"/><path d="M5 8a3 3 0 0 1 3-3h16a3 3 0 0 1 3 3v4H5z" fill="#e6a362" stroke="none"/><path d="M12 6v20m8-20v20M6 12h20M6 20h20" fill="none"/><path d="M8 8h1m7 7h1m7 8h1" stroke-width="2.2"/>'),
+  'tv:shop':enamel('<path d="M4 13h24l-3 14H7z" fill="#bc754d"/><path d="m9 13 4-8m10 8-4-8M11 18v5m5-5v5m5-5v5" fill="none"/>'+sparkle),
   'ki:words':enamel('<rect x="4" y="5" width="14" height="14" rx="3" transform="rotate(-8 11 12)" fill="#8fac7a"/><rect x="14" y="14" width="14" height="14" rx="3" transform="rotate(8 21 21)" fill="#d78070"/><path d="m7 15 3-7 3 7m-5-2h4m6 11v-7h3q4 1 1 3 4 2 0 4z" fill="none"/>'),
   'ki:sentences':enamel('<path d="M13 14h12q4 0 4 4v6l-4-2H13q-3 0-3-3v-2q0-3 3-3z" fill="#e9a464"/><path d="M6 5h15q4 0 4 4v4q0 4-4 4H11l-7 5v-5q-2-1-2-4V9q0-4 4-4z" fill="#82afbd"/><path d="M8 11h1m4 0h1m4 0h1" fill="none" stroke-width="2.2"/>'),
   'ki:reading':enamel('<path d="M3 9q8-2 13 3 5-5 13-3v16q-8-2-13 2-5-4-13-2z" fill="#e3a769"/><path d="M16 12v14M7 15l5 1m-5 3 5 1m9-11v12l3-2 3 1V9" fill="none"/><path d="m22 4 1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#ffc963"/>'),
@@ -27,7 +28,7 @@
  };
  const labels={
   eg:{words:'Ordjakt',find:'Finn ordene',reading:'Lesekroken'},
-  tv:{multiply:'Gangemagi',fraction:'Brøklab',table:'Gangetabellen'},
+  tv:{multiply:'Gangemagi',fraction:'Brøklab',table:'Gangetabellen',shop:'Trollbutikken'},
   ki:{words:'Ord',sentences:'Setninger',reading:'Lesing'},
   gv:{globe:'Kloden',country:'Land og flagg'}
  };
@@ -136,7 +137,9 @@
   const items=buttons.map(descriptor);
   if(items.some(item=>!item))return false;
   const geography=!!nav.closest('#laria-geography-world');
-  if(geography ? items.map(item=>item.world+':'+item.id).join(',')!=='gv:globe,gv:country' : items.length!==3)return false;
+  const tallvika=nav.closest('#tallvika-world')&&nav.closest('.tv-scene');
+  if(geography ? items.map(item=>item.world+':'+item.id).join(',')!=='gv:globe,gv:country'
+    : tallvika?!window.LARIA_SCENE_UI?.validTallvikaRail?.(tallvika,buttons):items.length!==3)return false;
   const token=Symbol();
   pending.set(nav,token);
   nav.dataset.lariaPremiumSignArt='loading';

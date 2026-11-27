@@ -66,7 +66,7 @@ async function testEngine(engine,name,device,viewport){
    // Approved scene opens with the real activity signs, not an extra back sign.
    const entryTitle=scene.locator('button.laria-reference-heading');
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
-   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),world.id==='geography'?2:3);
+   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),world.id==='geography'?2:world.id==='math'?4:3);
    assert.equal(await scene.locator('nav.laria-reference-subject-nav').isVisible(),false);
    assert.equal(await scene.locator('button.laria-reference-place').count(),0);
    assert.equal(await scene.locator('.laria-reference-activities-back').count(),0);
@@ -145,7 +145,7 @@ async function testEngine(engine,name,device,viewport){
       hiddenActions:[...el.querySelectorAll('.laria-scene-navigation > .laria-wayfinder')].length
     };
    });
-   assert.equal(boxes.hiddenActions,world.id==='geography'?2:3,world.id+' did not retain real original learning buttons');
+   assert.equal(boxes.hiddenActions,world.id==='geography'?2:world.id==='math'?4:3,world.id+' did not retain real original learning buttons');
    for(const box of boxes.menu){
     assert.ok(box.l>=0&&box.t>=0&&box.r<=viewport.width+3&&box.b<=viewport.height+3,
       world.id+' left sign clipped: '+JSON.stringify(box));
@@ -285,10 +285,10 @@ async function testEngine(engine,name,device,viewport){
    assert.match(sameArrow,/laria-light-arrow-sign\.svg/,
      world.id+' activity menu uses a different arrow board');
    assert.equal(await plaque.getAttribute('aria-expanded'),'false');
-   assert.equal(await activities.locator('.laria-wayfinder').count(),world.id==='geography'?2:3,
+   assert.equal(await activities.locator('.laria-wayfinder').count(),world.id==='geography'?2:world.id==='math'?4:3,
      world.id+' must preserve its live activity controls');
    const allVisibleActions=scene.locator('.laria-wayfinder:visible, .tv-next-sign:visible');
-   assert.equal(await allVisibleActions.count(),world.id==='math'?4:world.id==='geography'?2:3,
+   assert.equal(await allVisibleActions.count(),world.id==='math'?4:world.id==='geography'?2:world.id==='math'?4:3,
      world.id+' has duplicated or missing visible activity signs');
    const visibleXs=await allVisibleActions.evaluateAll(nodes=>nodes.map(n=>{
      const r=n.getBoundingClientRect();return {left:r.left,right:r.right};
@@ -296,6 +296,8 @@ async function testEngine(engine,name,device,viewport){
    assert.ok(visibleXs.every(b=>b.left>=0&&b.right<viewport.width*.40),
      world.id+' has an extra activity sign outside the single left rail: '+JSON.stringify(visibleXs));
    if(world.id==='math'){
+    assert.deepEqual(await activities.locator('.laria-wayfinder').evaluateAll(nodes=>nodes.map(x=>x.dataset.tv)),
+      ['multiply','fraction','table','shop'],'Grade 2 Tallvika destinations changed');
     const next=activities.locator('button.tv-next-sign.laria-reference-next');
     assert.equal(await next.count(),1,'original Next adventure route was not moved');
     assert.equal(await next.isVisible(),true,'Next adventure not shown in the sole rail');
@@ -317,7 +319,7 @@ async function testEngine(engine,name,device,viewport){
    assert.ok(activityBoxes.every(r=>Math.abs(r.h-boxes.menu[0].h)<=3),
      world.id+' activity planks differ in height from Home-style subject planks: '+
      JSON.stringify({subject:boxes.menu[0],activities:activityBoxes}));
-   assert.equal(await activities.locator('.laria-reference-activity-icon').count(),world.id==='geography'?2:3,
+   assert.equal(await activities.locator('.laria-reference-activity-icon').count(),world.id==='geography'?2:world.id==='math'?4:3,
      world.id+' learning buttons lack matching subject-style pictograms');
    const icons=await activities.locator('.laria-reference-activity-icon').evaluateAll(nodes=>nodes.map(node=>{
      const style=getComputedStyle(node),r=node.getBoundingClientRect();

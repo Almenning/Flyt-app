@@ -54,7 +54,7 @@
  font:900 clamp(13px,8cqw,22px)/1 Georgia,"Times New Roman",serif;
  letter-spacing:-.035em;
 }
-.laria-premium-sign:is([data-tv="table"],[data-tv="multiply"],[data-gv="journey"],[data-gv="country"]) .laria-premium-sign-label{
+.laria-premium-sign:is([data-tv="table"],[data-tv="multiply"],[data-tv="shop"],[data-gv="journey"],[data-gv="country"]) .laria-premium-sign-label{
  font-size:clamp(12px,6.6cqw,19px);
 }
 .laria-premium-sign:focus-visible{outline:4px solid #fff6b4!important;outline-offset:3px!important}

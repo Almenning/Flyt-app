@@ -1,7 +1,7 @@
 'use strict';
 const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 /* iPad-first interface gate: four real PR-head subjects, identical companion
-   chooser, three usable scene destinations and immutable progression. */
+   chooser, exact grade-appropriate scene destinations and immutable progression. */
 const assert=require('node:assert/strict');
 const path=require('node:path'),fs=require('node:fs');
 const {chromium,webkit}=require('playwright');
@@ -96,7 +96,12 @@ async function run(engine,engineName,label,viewport){
    assert.ok(controls.width>=44&&controls.height>=44&&controls.x>=-2&&
        controls.right<=viewport.width+2&&controls.bottom<=viewport.height+2,
        label+' '+spec.id+' Mine troll not reachable: '+JSON.stringify(controls));
-   assert.equal(await world.locator(spec.signs+':visible').count(),spec.id==='geography'?2:3,label+' '+spec.id+' has unexpected destinations');
+   const visibleSigns=world.locator(spec.signs+':visible');
+   if(spec.id==='math'){
+    assert.equal(await world.locator('.tv-scene-grade').innerText(),'2. klasse');
+    assert.deepEqual(await visibleSigns.evaluateAll(items=>items.map(x=>x.dataset.tv)),
+     ['multiply','fraction','table','shop'],label+' Grade 2 Tallvika must expose the four approved destinations in order');
+   }else assert.equal(await visibleSigns.count(),spec.id==='geography'?2:3,label+' '+spec.id+' has unexpected destinations');
    const actor=world.locator(spec.actor);
    await actor.waitFor({state:'visible',timeout:14000});
    if(spec.id==='english'){

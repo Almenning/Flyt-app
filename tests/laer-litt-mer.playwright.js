@@ -385,7 +385,9 @@ async function finishSession(page){
       await migrationContext.close();
     }
 
-    const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    // Keep the two remote geography fixtures below on the page route; an
+    // installed service worker would otherwise bypass those response mocks.
+    const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
     const page=await context.newPage();
     page.__base=url;
     // Kinnaklova's locked CLEAN master is intentionally absent in this
@@ -829,7 +831,9 @@ async function finishSession(page){
     await page.evaluate(()=>document.getElementById('open-math').click());
     const tallvika=page.locator('#subject-screen.active #tallvika-world');
     await tallvika.waitFor({state:'visible',timeout:16000});
-    assert.equal(await tallvika.locator('.tv-sign').count(),3,'Tallvika must show all three direct-play wooden signs');
+    const tallvikaViewGrade=await page.evaluate(()=>journeyViewGrade('math'));
+    assert.deepEqual(await tallvika.locator('.tv-sign').evaluateAll(signs=>signs.map(s=>s.dataset.tv)),
+      tallvikaViewGrade===2?['multiply','fraction','table','shop']:['multiply','fraction','table'],'Tallvika direct-play signs for the selected grade');
     assert.equal(await page.locator('#journey-map').isVisible(),false,'the retired Math journey artwork must stay hidden');
     const mathNextId=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
     assert.ok(mathNextId,'Tallvika must preserve the existing recommended Math mission');
@@ -1179,8 +1183,15 @@ async function finishSession(page){
     assert.ok(sphere&&sphere.width>=300&&Math.abs(sphere.width-sphere.height)<3,
       'separate Kloden mode must preserve a large nonstretched globe');
     await page.locator('[data-globe-mode="explore"]').click();
-    await page.locator('#random-country').click();
-    assert.doesNotMatch(await page.locator('#globe-status').innerText(),/Finn et land/);
+    // The optional atlas actions are now tucked under Flere valg.
+    const atlasMore=page.locator('#world-screen.active .laria-atlas-more');
+    const randomCountry=atlasMore.locator('#random-country');
+    assert.equal(await randomCountry.isVisible(),false);
+    await atlasMore.locator('summary').click();
+    await randomCountry.click();
+    await page.locator('#globe-status .premium-country-learn').waitFor({state:'visible'});
+    assert.equal(await atlasMore.evaluate(details=>details.open),false);
+    assert.ok(await page.evaluate(()=>Boolean(countries[globeSelected])),'random country did not select a real country');
 
     // Min verden must explain every progress symbol, and a selected country must show explicit status.
     await page.locator('[data-globe-mode="mine"]').click();

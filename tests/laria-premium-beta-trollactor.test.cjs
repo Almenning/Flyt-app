@@ -51,6 +51,9 @@ assert.ok(index.includes('function journeyTrollMarkup()'),
   'Journey markers must use an original forest troll');
 assert.ok(index.includes("['storesoster','lillesoster','lillebror'].includes(saved)"),
   'Journey marker must validate saved character on first paint');
+const journeyMarkerSource=index.match(/function journeyTrollMarkup\(\)\{([\s\S]*?)\n\}/)?.[1];
+assert.match(journeyMarkerSource,/assets\/troll-b\/gangemagi-troll\//,
+  'Journey first paint must use the approved Troll B package, not the retired art');
 for(const variant of ['v4','v5']){
   assert.ok(index.includes('journey-player-'+variant+' laria-troll-host laria-troll-actor'),
     variant+' must be a separate living TrollActor');

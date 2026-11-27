@@ -68,7 +68,8 @@ async function verify(engine,label,viewport){
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
-     assert.equal(await tv.locator('.tv-sign').count(),3,label+' Tallvika activity signs');
+     assert.deepEqual(await tv.locator('.tv-sign').evaluateAll(signs=>signs.map(s=>s.dataset.tv)),
+       ['multiply','fraction','table','shop'],label+' second-grade Tallvika activity signs');
      const old=await page.evaluate(id=>({
        checkpoint:state.journey.nodes[journeyNodeKey('math',2,id)],
        progress:journeyProgress('math',2),
