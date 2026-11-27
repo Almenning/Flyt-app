@@ -477,13 +477,13 @@ async function activate(){
  }
  const portrait=isPortrait();
  // New art and 4+1 navigation were explicitly approved by the product owner.
- // Try the exact SHA-locked illustrated scene first on iPad only. Failure
+ // Try the exact SHA-locked illustrated scene on supported viewports. Failure
  // falls back to the existing v15/PR255 image gates without touching progress.
  const v16=window.LARIA_HOME_V16;
  const current=()=>epoch===activationEpoch && host.isConnected &&
    host===document.querySelector('#home-screen .bc12') &&
    !!host.closest('#home-screen.active') && portrait===isPortrait();
- if((isIpadHome()||v16?.supportsDesktop?.())&&v16?.activate){
+ if((isIpadHome()||v16?.supportsDesktop?.()||v16?.supportsPhone?.())&&v16?.activate){
   try{
    if(await v16.activate(host,{portrait,isCurrent:current}))return true;
   }catch(error){console.warn('[Læria Home v16] Using safe fallback',error);}

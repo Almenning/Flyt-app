@@ -113,7 +113,7 @@
       button.focus({preventScroll:true});
       window.openFindTheWords?.({preferPremium:true});
     }else if(action==='reading'){
-      bridge()?.startLearningSession?.('norwegian','reading','Lesekroken');
+      bridge()?.startLearningSession?.('norwegian','reading','Lesekroken',true);
     }else if(action==='resume'){
       bridge()?.resumeSession?.();
     }

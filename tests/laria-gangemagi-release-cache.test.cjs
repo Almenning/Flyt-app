@@ -19,6 +19,7 @@ const suffix = '-gangemagi-premium-20261023-release37';
 const releases = Object.freeze({
   'multiplication-gangemagi-v1.css': version,
   'gangemagi-dagens-oppdrag-v1.css': approvedVisualVersion,
+  'gangemagi-compact-v1.css': '20261126-fold1',
   'multiplication-gangemagi-v1.js': '20261122-tallvika-direct-back1'
 });
 const assets = Object.keys(releases);
@@ -163,4 +164,43 @@ test('navigation refreshes online and restores the last good page offline',async
   offline=true;
   events.get('fetch')({request,respondWith:p=>{res=p;}});
   assert.equal(await res,last,'Installed Læria should reopen after connection loss');
+});
+
+
+test('ES modules revalidate exactly like classic scripts, including unchanged URLs',async()=>{
+  const url='https://example.test/laer-litt-mer/learning-engine.mjs?v=unchanged';
+  const old={ok:true,id:'stale'};
+  const fresh={ok:true,id:'current',clone(){return this}};
+  let online=true,stored=old;
+  const events=workerHarness({
+    match:async()=>stored,
+    open:async()=>({put:async(_,response)=>{stored=response}})
+  },async(_,opts)=>{
+    assert.equal(opts?.cache,'no-store');
+    if(!online)throw Error('offline');
+    return fresh;
+  });
+  const request={url,method:'GET',mode:'cors'};
+  let result;
+  events.get('fetch')({request,respondWith:p=>{result=p}});
+  assert.equal(await result,fresh);
+  online=false;
+  events.get('fetch')({request,respondWith:p=>{result=p}});
+  assert.equal(await result,fresh);
+});
+
+test('full or unavailable CacheStorage never masks a good network response',async()=>{
+  const fresh={ok:true,id:'current',clone(){return this}};
+  for(const failing of ['open','put']){
+    const events=workerHarness({
+      match:async req=>{if(req.url.endsWith('.js'))return {id:'stale'};throw Error('cache locked');},
+      open:async()=>{if(failing==='open')throw Error('cache locked');return {put:async()=>{throw Error('quota')}}}
+    },async()=>fresh);
+    for(const file of ['view.js','locked.webp']){
+      const request={url:'https://example.test/laer-litt-mer/'+file,method:'GET',mode:'cors'};
+      let result;
+      events.get('fetch')({request,respondWith:p=>{result=p}});
+      assert.equal(await result,fresh,failing+' failure on '+file);
+    }
+  }
 });

@@ -263,6 +263,8 @@ async function check(engine,label,viewport,url){
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(sceneBackground,/gangemagi-tallenga-market-v1\.svg/,
     label+' Gangemagi must use its calm authored market scene, not the generic busy maths background');
+  assert.doesNotMatch(sceneBackground,/tallvika-fjord-no-buildings-(?:wide|portrait)-20261107\.webp/,
+    label+' approved strawberry-market mission must never inherit the new Tallvika free-play background');
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
@@ -366,6 +368,15 @@ async function check(engine,label,viewport,url){
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
   assert.ok(first.read.height>=44,label+' read aloud target too small');
+  if(viewport.width<=360&&viewport.height<=650){
+    assert.ok(first.math.bottom<=first.height&&first.source.height>=44,
+      label+' must show the entire equation and a usable Plukk action on the first fold '+JSON.stringify(first));
+    const title=await page.locator('.gm-top-title h1').evaluate(el=>({
+      width:el.clientWidth,scrollWidth:el.scrollWidth
+    }));
+    assert.ok(title.width>0&&title.scrollWidth<=title.width+1,
+      label+' entire Gangemagi title must fit the compact header '+JSON.stringify(title));
+  }
   // The painted SVG, not just its wrapper, must remain clear of the equation.
   // A replaced SVG's intrinsic grid min-size previously painted 345px inside
   // the nominal 227px fox slot. Keep the real personal character contained.
@@ -599,6 +610,10 @@ async function check(engine,label,viewport,url){
   assert.ok(liveMathBridge.labelDisplay!=='none'&&liveMathBridge.goal==='3 × 3 = ?'&&
     liveMathBridge.equation==='1 + 0 + 0 = 1',
     label+' child must see the multiplication goal and the live addition together '+JSON.stringify(liveMathBridge));
+  if(viewport.width<=360&&viewport.height<=650){
+    assert.ok(await page.locator('.gm-math').evaluate(el=>el.getBoundingClientRect().bottom<=innerHeight),
+      label+' first real strawberry must keep the changed equation in view without scrolling');
+  }
   await shot(page,label+'-02-one-berry');
   await page.locator('[data-gm-action="source"]').click();
   await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
@@ -851,6 +866,21 @@ async function check(engine,label,viewport,url){
   await page.keyboard.press('Escape');
   await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mode,'free');
+  // 22 Nov CSS extends ONLY free play on larger screens. Validate the actual
+  // background and resource on portrait/landscape iPads; do not mistake this
+  // mechanical check for visual owner approval.
+  const freePaint=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
+  if(viewport.width>=701&&viewport.height>=650){
+    const orientation=viewport.height>viewport.width?'portrait':'wide';
+    const art='tallvika-fjord-no-buildings-'+orientation+'-20261107.webp';
+    assert.ok(freePaint.includes(art),
+      label+' free play must show original Tallvika '+orientation+' art: '+freePaint);
+    const response=await page.request.get(new URL('assets/tallvika/'+art,url).href);
+    assert.equal(response.status(),200,label+' expected Tallvika art must load: '+art);
+  }else{
+    assert.doesNotMatch(freePaint,/tallvika-fjord-no-buildings-(?:wide|portrait)-20261107\.webp/,
+      label+' small-screen free play must retain its prior responsive background');
+  }
   assert.deepEqual(await page.locator('.gm-secondary-nav button strong').allInnerTexts(),
     ['Oppdrag','Markedsbok','Gangetabellen'],
     label+' free play must offer an obvious way back plus book and classic table');
@@ -1147,7 +1177,7 @@ async function checkAlternateTroll(browser,url){
  const {srv,url}=await serve();
  try{
   for(const [type,browserType,devices] of [
-   ['chrome',chromium,[['iphone390',{width:390,height:844}],['ipad-landscape',{width:1180,height:820}]]],
+   ['chrome',chromium,[['iphone-small',{width:320,height:568}],['iphone390',{width:390,height:844}],['ipad-landscape',{width:1180,height:820}]]],
    ['webkit',webkit,[['iphone-small',{width:320,height:568}],['iphone390',{width:390,height:844}],['ipad-portrait',{width:820,height:1180}],['ipad-landscape',{width:1180,height:820}]]]
   ]){
    const browser=await browserType.launch({headless:true});

@@ -3,9 +3,10 @@
 
   const CURRICULUM={norwegian:'NOR01-08',math:'MAT01-06',english:'ENG01-06'};
 
-  function choice(subject,skill,prompt,answer,options,extra={}){
+  function choice(subject,skill,prompt,answer,options,extra={},answerSlot=0){
     const answerText=String(answer);
-    const opts=[answerText,...(options||[]).map(String)].filter((v,i,a)=>a.indexOf(v)===i);
+    const opts=[...new Set((options||[]).map(String))].filter(value=>value!==answerText);
+    opts.splice(answerSlot,0,answerText);
     return Object.assign({subject,skill,type:'learning-choice',prompt,answer:answerText,options:opts,curriculum:CURRICULUM[subject]},extra);
   }
   function canonicalMathAnswer(value){
@@ -30,7 +31,7 @@
 
   function norwegian(grade,module){
     const buckets={reading:[],spelling:[],language:[]};
-    const addReading=(skill,passage,prompt,answer,options)=>buckets.reading.push(choice('norwegian',skill,prompt,answer,options,{passage}));
+    const addReading=(skill,passage,prompt,answer,options,extra={},answerSlot=0)=>buckets.reading.push(choice('norwegian',skill,prompt,answer,options,{passage,...extra},answerSlot));
 
     if(grade<=2){
       [
@@ -70,6 +71,26 @@
         ['To kilder beskriver samme hendelse ulikt. Den ene var til stede, mens den andre bygger på en anonym kommentar flere dager senere.','Hva er hovedideen?','Kilder bør vurderes etter hvor direkte og etterprøvbare de er',['Anonyme kommentarer er alltid best','Alle kilder er like sterke']],
         ['Teksten hevder at ungdom bruker mer tid på skjerm, men skiller mellom skolearbeid, kommunikasjon og underholdning.','Hva er hovedideen?','Skjermtid bør forstås ut fra hva tiden brukes til',['All skjermtid er identisk','Skolearbeid er ikke skjermtid']]
       ].forEach(([p,q,a,o])=>addReading('reading-main-idea',p,q,a,o));
+    }
+    if(grade===2){
+      // Original micro-stories for reading together or independently after the first decoding work.
+      [
+        ['nb','Liv og Amir finner en lapp i Bokskogen: «Se under den røde benken.» Under benken ligger en liten trebåt.',
+          'Hvor finner de båten?','Under den røde benken',['Ved siden av benken','Oppå benken'],
+          'Lappen sier «under», og det er der de finner båten.','Se på lappen igjen. Hvilket ord forteller hvor de skal lete?'],
+        ['nb','Maja legger et eple på bordet og går ut. Da hun kommer inn, er eplet borte. Ved bordet leker hunden med et eple.',
+          'Hva tror du har skjedd?','Hunden har tatt eplet.',['Maja har spist eplet.','Eplet ligger fortsatt på bordet.'],
+          'Eplet er borte, og hunden leker med et eple. Det er to spor som passer sammen.','Les siste setning. Hvem har et eple nå?'],
+        ['nn','Iben ser noko som rører seg ved bekken. Ho set seg heilt stille. Så hoppar ein liten frosk fram frå ein stein.',
+          'Kva gjer Iben før frosken hoppar fram?','Ho set seg heilt stille.',['Ho går over bekken.','Ho hoppar opp på steinen.'],
+          'Ordet «så» viser at frosken hoppar etter at Iben har sett seg.','Sjå på setninga før ordet «så». Kva gjer Iben der?'],
+        ['nn','Det byrjar å regne. Amina held lua over hovudet. I enden av stien står eit ope skur. Amina spring inn dit.',
+          'Kvifor spring Amina inn i skuret?','Ho vil kome inn frå regnet.',['Ho vil finne lua si.','Ho vil springe ut i regnet.'],
+          'Regnet og lua over hovudet er spor. I skuret slepp Amina å bli våt.','Tenk på kvifor Amina held lua over hovudet. Kva kan eit tak hjelpe med?']
+      ].forEach(([passageLang,p,q,a,o,correct,retry],index)=>addReading(
+        index%2===0?'reading-comprehension':'reading-inference',p,q,a,o,
+        {passageLang,learningFeedback:{correct,retry}},(index+1)%3
+      ));
     }
     return bucketed(module,buckets);
   }
@@ -225,7 +246,7 @@
 
   function english(grade,module){
     const buckets={words:[],sentences:[],reading:[],grammar:[]};
-    const add=(bucket,skill,prompt,answer,options,extra={})=>buckets[bucket].push(choice('english',skill,prompt,answer,options,extra));
+    const add=(bucket,skill,prompt,answer,options,extra={},answerSlot=0)=>buckets[bucket].push(choice('english',skill,prompt,answer,options,extra,answerSlot));
     const read=(prompt,answer,options,passage)=>add('reading','reading',prompt,answer,options,{passage});
 
     if(grade<=2){
@@ -445,6 +466,21 @@
       set.grammar.forEach(x=>add('grammar','grammar',...x));
       set.sentence.forEach(x=>add('sentences','sentence',...x));
       set.reading.forEach(([q,a,o,p])=>read(q,a,o,p));
+    }
+    if(grade===2){
+      // A child uses the other turn as a clue, instead of translating a word out of context.
+      [
+        ['Lisa asks: “Can I sit here, please?”','What can Ben say if the seat is free?','Yes, you can.',['I can swim.','No, I am not cold.'],
+          '«Can I …?» er et spørsmål om lov. «Yes, you can» gir Lisa lov til å sette seg.','Lisa vil vite om hun kan sette seg. Lytt etter et svar som gir henne lov.'],
+        ['Mia asks: “What is in the box?”','What can Tom say if he sees a hat?','There is a hat.',['It is on the table.','Yes, it is.'],
+          '«What» spør hva noe er. Tom sier at det er en lue.','Mia spør hva som er i esken, ikke hvor esken står.'],
+        ['Ada asks: “Where is my bag?”','What can Sam say if it is under the bench?','It is under the bench.',['It is my bag.','It is blue.'],
+          '«Where» spør hvor noe er. «Under the bench» betyr «under benken».','Ada trenger å vite hvor sekken ligger. Hvilket svar forteller hvor?'],
+        ['Eva says: “I am cold.”','What can Leo say to help Eva get warm?','Here is my coat.',['Here is a cold drink.','Let’s go swimming.'],
+          '«Cold» betyr kald. Leo tilbyr jakken sin for å hjelpe Eva å bli varm.','Eva fryser. Velg noe Leo kan si som hjelper henne å bli varm.']
+      ].forEach(([p,q,a,o,correct,retry],index)=>add('sentences','phrases',q,a,o,
+        {passage:p,passageLang:'en',learningFeedback:{correct,retry}},(index+1)%3
+      ));
     }
     return bucketed(module,buckets);
   }

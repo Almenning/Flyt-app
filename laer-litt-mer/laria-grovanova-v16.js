@@ -6,10 +6,17 @@
 (function(){
 'use strict';
 const MANIFEST='./assets/home-v16/laria-grovanova-v16-approved.json';
+const MAC_WINGS=[
+ {source:'./assets/home-v16/mac-wide/grovanova-left.webp',width:290,height:887,
+  sha256:'a01cde5fe0c17d066535f2aade20b7c5fca2844f65a2ae8c18f3ddb3bea6f740'},
+ {source:'./assets/home-v16/mac-wide/grovanova-right.webp',width:284,height:887,
+  sha256:'8ffcfbbf91551de35e4bd17d3331b3ca580491613adb040974b7e894a5a3c4ea'}
+];
 const SUBJECTS=[['norwegian','Norsk','Bokskogen'],['math','Matte','Tallvika'],['english','Engelsk','Ordlandsbyen'],['geography','Geografi','Nordlysleiren']];
 let activeUrl='';
 let cachedManifest=null;
 let manifestPromise=null;
+let macWingsPromise=null;
 
 // A Mac/desktop browser has no touch digitizer. This discriminates it from
 // iPads with large viewports (and iPads connected to a trackpad), preserving
@@ -19,6 +26,51 @@ function supportsDesktop(){
    (navigator.maxTouchPoints||0)===0 &&
    !('ontouchstart' in window) &&
    matchMedia('(hover:hover) and (pointer:fine)').matches;
+}
+function supportsPhone(){
+ return matchMedia(
+  '(max-width:600px) and (orientation:portrait), (min-width:540px) and (max-width:1050px) and (max-height:580px) and (orientation:landscape)'
+ ).matches;
+}
+function phoneBox(host,image,portrait){
+ const r=host.getBoundingClientRect();
+ if(!portrait)return artBox(host,image.width,image.height,true);
+ // Enlarge only by a single linear scale. Keep all four illustrated boards
+ // and both journey buttons in frame; the footer is reframed separately.
+ const width=Math.min(r.width*1.27,r.height*.75);
+ const height=width*image.height/image.width;
+ return {left:0,top:0,width,height,viewW:r.width,viewH:r.height};
+}
+function phoneTarget(el,box,part,railTop){
+ if(!el)return;
+ const [x,y,w,h]=part;
+ const cx=box.left+box.width*(x+w/2),cy=box.top+box.height*(y+h/2);
+ let width=Math.max(44,box.width*w),height=Math.max(44,box.height*h);
+ let top=cy-height/2;
+ // Disjoint vertical partition in the shortest view, while retaining every
+ // painted button's center and giving each sign a 44px tap area.
+ if(Number.isFinite(railTop)){top=railTop;height=44;}
+ const left=Math.min(box.viewW-width,Math.max(0,cx-width/2));
+ place(el,{left,top:Math.max(0,Math.min(box.viewH-height,top)),width,height},[0,0,1,1]);
+}
+function phoneFooter(host,box,ui){
+ const nav=host.querySelector('.bc12-nav');
+ if(!nav)return;
+ const [x,y,w,h]=ui.nav;
+ const width=Math.min(box.viewW-12,480),height=Math.max(48,Math.min(62,width*.135));
+ const scaledW=width/w,scaledH=height/h;
+ const top=box.viewH-height-10;
+ place(nav,{left:(box.viewW-width)/2,top,width,height},[0,0,1,1]);
+ host.style.setProperty('--bc15-phone-nav-size',scaledW+'px '+scaledH+'px');
+ host.style.setProperty('--bc15-phone-nav-position',(-x*scaledW)+'px '+(-y*scaledH)+'px');
+ const end=box.top+box.height*.861;
+ host.style.setProperty('--bc15-phone-art-end',end+'px');
+ // Sample an unpainted piece of the locked foreground garden. The scene
+ // and its non-stretched core are not re-rendered or edited.
+ const fillW=box.viewW/.216,fillH=fillW*2732/2048;
+ host.style.setProperty('--bc15-phone-fill-top',(end-34)+'px');
+ host.style.setProperty('--bc15-phone-fill-size',fillW+'px '+fillH+'px');
+ host.style.setProperty('--bc15-phone-fill-position',(-.784*fillW)+'px '+(-.744*fillH)+'px');
 }
 function unitRect(r){
  return Array.isArray(r)&&r.length===4&&r.every(Number.isFinite)&&
@@ -41,9 +93,9 @@ async function metadata(){
  cachedManifest=m;
  return m;
 }
-async function verifiedImage(v){
+async function verifiedImage(v,signal){
  if(!crypto?.subtle)return null;
- const response=await fetch(v.source,{cache:'no-store'});
+ const response=await fetch(v.source,{cache:'no-store',signal});
  if(!response.ok)throw Error('v16 image missing');
  const bytes=await response.arrayBuffer();
  const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),
@@ -58,6 +110,42 @@ async function verifiedImage(v){
    throw Error('v16 pixel dimensions mismatch');
   return {url,width:image.naturalWidth,height:image.naturalHeight};
  }catch(e){URL.revokeObjectURL(url);throw e;}
+}
+function verifiedMacWings(){
+ if(!macWingsPromise){
+  // Verify both images before enabling the overlay. A slow or missing wing
+  // must not keep the approved center from opening.
+  const controller=new AbortController();
+  let timer;
+  const timeout=new Promise(resolve=>{
+   timer=setTimeout(()=>{controller.abort();resolve(null);},1800);
+  });
+  const decode=Promise.allSettled(MAC_WINGS.map(v=>verifiedImage(v,controller.signal)))
+   .then(results=>{
+    const verified=results.map(r=>r.status==='fulfilled'?r.value:null);
+    if(!controller.signal.aborted&&verified.every(Boolean))return verified.map(image=>image.url);
+    verified.forEach(image=>{if(image)URL.revokeObjectURL(image.url);});
+    return null;
+   });
+  macWingsPromise=Promise.race([decode,timeout]).then(urls=>{
+   clearTimeout(timer);
+   if(!urls)macWingsPromise=null;
+   return urls;
+  });
+ }
+ return macWingsPromise;
+}
+function wantsMacWide(host,desktop,portrait,params){
+ const frame=host.closest('#home-screen')?.getBoundingClientRect();
+ const ratio=frame?frame.width/frame.height:0;
+ return desktop&&!portrait&&ratio>4/3&&ratio<=2&&params.get('lariaMacWide')!=='0';
+}
+function setMacWide(host,urls){
+ for(const [i,side] of ['left','right'].entries()){
+  if(urls)host.style.setProperty('--bc15-mac-wing-'+side,'url("'+urls[i]+'")');
+  else host.style.removeProperty('--bc15-mac-wing-'+side);
+ }
+ host.toggleAttribute('data-bc15-v16-mac-wide',!!urls);
 }
 function artBox(host,imgW,imgH,desktop){
  const r=host.getBoundingClientRect();
@@ -197,6 +285,7 @@ function reset(host){
  host?.classList.remove('bc15-v16-locked');
  host?.removeAttribute('data-bc15-v16-orientation');
  host?.removeAttribute('data-bc15-v16-device');
+ if(host)setMacWide(host,null);
  host?.querySelectorAll('.bc15-v16-signs,.bc15-v16-reisen,.bc15-v16-greeting,.bc15-v16-troll')
   .forEach(node=>node.remove());
  const dialog=document.getElementById('bc15-v16-journey-dialog');
@@ -211,17 +300,23 @@ async function activate(host,{portrait,isCurrent}){
  // ?lariaV16=0 is an opt-out for legacy-regression QA, not a requirement
  // children must discover to see their approved Home. Failure still falls back
  // to the unmodified SHA-locked v15 master.
- if(new URLSearchParams(location.search).get('lariaV16')==='0')return false;
+ const params=new URLSearchParams(location.search);
+ if(params.get('lariaV16')==='0')return false;
  const desktop=supportsDesktop();
+ const phone=supportsPhone();
  const ipad=window.matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches;
- if(!host||!(ipad||desktop))return false;
- const device=desktop?'desktop':'ipad';
+ if(!host||!(ipad||desktop||phone))return false;
+ const device=desktop?'desktop':phone?'phone':'ipad';
  const orientation=portrait?'portrait':'landscape';
  const m=await metadata();
  const v=m?.variants?.[orientation];
  if(!approved(v,orientation)||!isCurrent())return false;
+ const phoneWide=phone&&!portrait;
+ const wideRequest=phoneWide||wantsMacWide(host,desktop,portrait,params)?verifiedMacWings():null;
  let image;
  try{image=await verifiedImage(v);}catch(error){console.warn('[Læria Home v16] Approved art failed integrity; retaining locked fallback.',error);return false;}
+ const wings=wideRequest?await wideRequest:null;
+ if(!image)return false;
  if(!isCurrent()){URL.revokeObjectURL(image.url);return false;}
  // Every replacement and its layout changes together, after verified decode.
  const old=activeUrl;
@@ -241,19 +336,28 @@ async function activate(host,{portrait,isCurrent}){
  host.querySelector('.bc15-subject-signs')?.setAttribute('hidden','');
  host.querySelector('.bc15-approved-logo')?.remove();
  host.querySelector('.bc15-boats')?.remove();
- const box=artBox(host,image.width,image.height,desktop);
+ // Approved side art changes only the surrounding stage. The center and
+ // every painted hitbox remain in the original coordinate space.
+ setMacWide(host,wings&&(phoneWide||wantsMacWide(host,desktop,portrait,params))?wings:null);
+ const box=phone?phoneBox(host,image,portrait):artBox(host,image.width,image.height,desktop);
+ if(phoneWide)host.style.setProperty('--bc15-phone-wing-width',Math.max(0,box.left)+'px');
  host.style.setProperty('--bc15-art-left',box.left+'px');
  host.style.setProperty('--bc15-art-top',box.top+'px');
  host.style.setProperty('--bc15-art-width',box.width+'px');
  host.style.setProperty('--bc15-art-height',box.height+'px');
  const viewport={width:box.viewW,height:box.viewH};
  const signs=ensureSigns(host);
- [...signs.querySelectorAll('button')].forEach((b,index)=>place(b,box,v.ui.signBoards[index]));
- place(ensureReisen(host),box,v.ui.reisen);
+ const first=v.ui.signBoards[0],last=v.ui.signBoards[3];
+ const roomBetween=box.height*(last[1]+last[3]/2-first[1]-first[3]/2);
+ const stride=Math.max(44,roomBetween/3);
+ const railTop=Math.max(4,box.top+box.height*(first[1]+first[3]/2)-22-(stride*3-roomBetween)/2);
+ [...signs.querySelectorAll('button')].forEach((b,index)=>phone?phoneTarget(b,box,v.ui.signBoards[index],railTop+index*stride):place(b,box,v.ui.signBoards[index]));
+ const reisen=ensureReisen(host);
+ if(phone)phoneTarget(reisen,box,v.ui.reisen);else place(reisen,box,v.ui.reisen);
  const journey=host.querySelector('.bc12-journey');
- place(journey,box,v.ui.journey);
+ if(phone)phoneTarget(journey,box,v.ui.journey);else place(journey,box,v.ui.journey);
  const nav=host.querySelector('.bc12-nav');
- place(nav,box,v.ui.nav);
+ if(phone&&portrait)phoneFooter(host,box,v.ui);else place(nav,box,v.ui.nav);
  const adult=host.querySelector('.bc12-adult-entry');
  // The adult hold entry is not painted. Keep it genuinely circular and
  // at least 44px, completely inside EVERY iPad crop including 820x1180.
@@ -276,10 +380,10 @@ async function activate(host,{portrait,isCurrent}){
  place(greeting,box,v.ui.greeting);
  syncGreeting(host);
  const troll=ensureTroll(host);
- if(desktop){
+ if(desktop||phone){
   // Troll is a separate live DOM actor. Anchor it to the visible scene
   // above the illustrated footer, not to the desktop browser window.
-  const [x,ground]=portrait?[.745,.82]:[.765,.79];
+  const [x,ground]=phone&&portrait?[.574,.628]:portrait?[.745,.82]:[.765,.79];
   const anchorX=box.left+box.width*x;
   const anchorY=box.top+box.height*ground;
   troll.style.setProperty('left',anchorX+'px','important');
@@ -292,5 +396,5 @@ document.addEventListener('laria:troll-changed',()=>{
  const home=document.querySelector('#home-screen .bc12.bc15-v16-locked');
  if(home)syncTroll(home);
 });
-window.LARIA_HOME_V16={activate,deactivate:reset,supportsDesktop,syncGreeting,readOnlyManifest:()=>cachedManifest};
+window.LARIA_HOME_V16={activate,deactivate:reset,supportsDesktop,supportsPhone,syncGreeting,readOnlyManifest:()=>cachedManifest};
 })();
