@@ -385,7 +385,9 @@ async function finishSession(page){
       await migrationContext.close();
     }
 
-    const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    // Keep the two remote geography fixtures below on the page route; an
+    // installed service worker would otherwise bypass those response mocks.
+    const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
     const page=await context.newPage();
     page.__base=url;
     // Kinnaklova's locked CLEAN master is intentionally absent in this
@@ -1181,8 +1183,15 @@ async function finishSession(page){
     assert.ok(sphere&&sphere.width>=300&&Math.abs(sphere.width-sphere.height)<3,
       'separate Kloden mode must preserve a large nonstretched globe');
     await page.locator('[data-globe-mode="explore"]').click();
-    await page.locator('#random-country').click();
-    assert.doesNotMatch(await page.locator('#globe-status').innerText(),/Finn et land/);
+    // The optional atlas actions are now tucked under Flere valg.
+    const atlasMore=page.locator('#world-screen.active .laria-atlas-more');
+    const randomCountry=atlasMore.locator('#random-country');
+    assert.equal(await randomCountry.isVisible(),false);
+    await atlasMore.locator('summary').click();
+    await randomCountry.click();
+    await page.locator('#globe-status .premium-country-learn').waitFor({state:'visible'});
+    assert.equal(await atlasMore.evaluate(details=>details.open),false);
+    assert.ok(await page.evaluate(()=>Boolean(countries[globeSelected])),'random country did not select a real country');
 
     // Min verden must explain every progress symbol, and a selected country must show explicit status.
     await page.locator('[data-globe-mode="mine"]').click();
