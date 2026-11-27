@@ -287,8 +287,7 @@
  .grade-band-young .bc12.bc15-v16-locked[data-bc15-v16-mac-wide]::before{
   --bc15-wing-width:calc(var(--bc15-art-height) / 3);
   display:block!important;content:""!important;position:absolute!important;inset:0!important;
-  background-image:url("./assets/home-v16/mac-wide/grovanova-left.webp"),
-                   url("./assets/home-v16/mac-wide/grovanova-right.webp")!important;
+  background-image:var(--bc15-mac-wing-left),var(--bc15-mac-wing-right)!important;
   background-repeat:no-repeat!important;
   background-size:var(--bc15-wing-width) 100%,var(--bc15-wing-width) 100%!important;
   background-position:calc(var(--bc15-art-left) - var(--bc15-wing-width)) top,
