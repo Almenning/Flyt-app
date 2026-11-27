@@ -6,6 +6,7 @@ on:
       - 'laer-litt-mer/country-discoveries-*'
       - 'laer-litt-mer/laria-country-*'
       - 'laer-litt-mer/globe-v25-renderer.js'
+      - 'laer-litt-mer/laria-learning-identity-v1.css'
       - 'tests/laria-country*'
   pull_request:
     branches: [main]
@@ -13,6 +14,7 @@ on:
       - 'laer-litt-mer/country-discoveries-*'
       - 'laer-litt-mer/laria-country-*'
       - 'laer-litt-mer/globe-v25-renderer.js'
+      - 'laer-litt-mer/laria-learning-identity-v1.css'
       - 'tests/laria-country*'
 permissions:
   contents: read
@@ -25,6 +27,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -38,6 +42,10 @@ jobs:
           node --test tests/laria-country-discoveries*.cjs
       - run: npm ci
       - run: npx playwright install --with-deps chromium webkit
+      - name: Selected country card in all map modes on iPhone, iPad and desktop
+        env:
+          LARIA_COUNTRY_CARD_SHOTS: /tmp/laria-country-card
+        run: node tests/laria-country-card.playwright.js
       - name: Country discoveries, speech and six responsive configurations
         env:
           COUNTRY_DISCOVERY_SCREENSHOTS: /tmp/laria-country-discoveries
@@ -52,6 +60,7 @@ jobs:
         with:
           name: country-discoveries-${{ github.sha }}
           path: |
+            /tmp/laria-country-card
             /tmp/laria-country-discoveries
             /tmp/laria-country-story
           retention-days: 7

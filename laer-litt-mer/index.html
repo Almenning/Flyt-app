@@ -3088,7 +3088,8 @@
         <div class="card privacy-note">
           <h3>2. Personvern og lagring</h3>
           <p>Profilnavn, valgt figur, klassetrinn, svar og fremgang lagres lokalt på enheten. Læria krever ikke konto, e-post, fødselsdato eller posisjon for den lokale læringsopplevelsen. Appen har ingen annonser eller adferdsbasert sporing.</p>
-          <p>Nullstilling i foreldreområdet sletter den lokale profilen og læringsdataene på denne enheten.</p>
+          <p>Fremgangen synkroniseres ikke mellom enheter. Nullstilling i foreldreområdet eller sletting av nettleserens nettstedsdata fjerner den lokale profilen og fremgangen. Hvis nettleseren sperrer lokal lagring, kan ny fremgang forsvinne når appen lukkes.</p>
+          <p>Når Kloden eller en kartoppgave trenger mer detaljerte kart eller befolkningstall, henter appen offentlige data fra Natural Earth via GitHub og fra Verdensbanken. Forespørslene inneholder ikke barnets profil eller svar, men tjenestene mottar vanlig nettverksinformasjon, som IP-adressen. Reservekart og grunnleggende landfakta er innebygd.</p>
         </div>
 
         <div class="card">
@@ -3211,7 +3212,7 @@
 <script src="./laria-fox-identity.js?v=20261011-livefoxart1" data-boot-sync></script>
 <script src="./laria-collection-core.js?v=20261011-collectionbook2" data-boot-sync></script>
 <script src="./laria-fox-wardrobe.js?v=20261014-phase4d-fox-only1" data-boot-sync></script>
-<script src="./commercial-content-v18.js?v=20261014-bilingual-qa1" data-boot-sync></script>
+<script src="./commercial-content-v18.js?v=20261126-p4-language" data-boot-sync></script>
 <script src="./commerce-v18.js?v=20261023-store-failsafe1" data-boot-sync></script>
 <script src="./norwegian-content.js?v=20261006-assets1" defer></script>
 <script>
@@ -5114,10 +5115,12 @@ function validLearningQuestion(q){
 
 function buildLearningQuestions(subject,module,allowCooldown=false,strictModule=false){
   const getPool=(m)=>subjectPoolForGrade(subject,currentGrade(),m);
-  const focused=module?getPool(module).filter(validLearningQuestion):[];
-  // Kinnaklova's painted activity signs describe real learning categories.
-  // Preserve that promise when a module has enough questions. Allow the
-  // existing mixed fallback for an unavailable/too-small module (grade 1 Reading).
+  const lesekroken=strictModule&&subject==='norwegian'&&module==='reading'&&currentGrade()===2;
+  const focused=module?getPool(module).filter(q=>validLearningQuestion(q)&&(!lesekroken||q.passage?.trim())):[];
+  // Direct activity signs describe real learning categories. When the module
+  // has enough material, keep its promise. Lesekroken on grade 2 reads stories;
+  // word identification still belongs to the wider reading skill pool.
+  strictModule=strictModule&&(subject!=='norwegian'||lesekroken);
   const mixed=(strictModule&&focused.length>=5?[]:getPool(null).filter(validLearningQuestion)),seen=new Set(),pool=[];
   for(const q of [...focused,...mixed]){
     const sig=questionIdentity(q),cooling=questionOnCooldown(q);if(seen.has(sig)||(cooling&&!allowCooldown))continue;
@@ -6013,6 +6016,8 @@ function celebrateCorrect(){
   requestAnimationFrame(()=>{const box=document.getElementById('feedback');if(!box)return;box.classList.remove('success-pop');void box.offsetWidth;box.classList.add('success-pop')});
 }
 function learningFeedbackText(q,correct){
+  const authored=q.learningFeedback?.[correct?'correct':'retry'];
+  if(typeof authored==='string'&&authored.trim())return authored;
   if(correct){
     if(q.subject==='english'&&q.englishWord&&q.norwegianMeaning)
       return q.englishWord+' betyr '+q.norwegianMeaning+'.';
@@ -6060,14 +6065,17 @@ function showLearningFeedback(q,correct,options={}){
   box.classList.toggle('success-pop',!!correct);
   box.classList.toggle('retry',!!options.retry);
   document.getElementById('feedback-title').textContent=correct?'Riktig!':'Nesten!';
+  const nynorsk=q.subject==='norwegian'&&q.passageLang==='nn';
   let copy=correct&&currentAnswered?.corrected
-    ?'Du fant det etter et nytt forsøk! '+learningFeedbackText(q,true)
+    ?(nynorsk?'Du fann det etter eit nytt forsøk! ':'Du fant det etter et nytt forsøk! ')+learningFeedbackText(q,true)
     :learningFeedbackText(q,correct);
-  if(options.retry)copy+=' Prøv en gang til.';
+  if(options.retry)copy+=nynorsk?' Prøv ein gong til.':' Prøv en gang til.';
   const last=state.answerLog[state.answerLog.length-1];
   if(correct&&!currentAnswered?.corrected&&last?.correct===true&&currentGrade()<=2&&last.strengthened)
     copy+=' ⭐ Dette ble sterkere i samlingen din.';
-  document.getElementById('feedback-copy').textContent=copy;
+  const feedbackCopy=document.getElementById('feedback-copy');
+  if(nynorsk)feedbackCopy.lang='nn';
+  feedbackCopy.textContent=copy;
   updateAnswerPronunciation(q,correct&&!options.retry);
   document.getElementById('next-question').style.display=options.retry?'none':'block';
 }
@@ -6352,6 +6360,10 @@ function renderLearningQuestion(){
   if(kiReading){
     html+='<section class="learning-passage ki-reading-story" lang="en" aria-label="Engelsk historie">'+escapeAttr(q.passage)+'</section>';
     html+='<div class="question ki-reading-question" lang="en">'+escapeAttr(q.prompt)+'</div>';
+  }else if(q.passage&&['nb','nn','en'].includes(q.passageLang)){
+    const lang=q.passageLang;
+    html+='<div class="learning-passage" lang="'+lang+'">'+escapeAttr(q.passage)+'</div>';
+    html+='<div class="question" lang="'+lang+'">'+escapeAttr(q.prompt)+'</div>';
   }else{
     html+='<div class="question">'+q.prompt+'</div>';
     if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';
@@ -6366,7 +6378,8 @@ function renderLearningQuestion(){
   }else if(q.type==='sequence-order'){
     html+='<div class="sequence-target" id="sequence-target"></div><div class="sequence-bank" id="sequence-bank">'+q.items.map((x,i)=>'<button type="button" class="sequence-tile" data-idx="'+i+'">'+x+'</button>').join('')+'</div><button class="secondary" id="check-sequence" type="button">Sjekk rekkefølgen</button>';
   }else{
-    html+='<div class="answers">'+q.options.map(o=>'<button class="answer" data-answer="'+escapeAttr(o)+'">'+o+'</button>').join('')+'</div>';
+    const answerLang=['nb','nn','en'].includes(q.passageLang)?' lang="'+q.passageLang+'"':'';
+    html+='<div class="answers"'+answerLang+'>'+q.options.map(o=>'<button class="answer" data-answer="'+escapeAttr(o)+'">'+o+'</button>').join('')+'</div>';
   }
   html+='<div class="feedback" id="feedback"><strong id="feedback-title"></strong><p id="feedback-copy"></p></div><button class="primary next" id="next-question">Neste</button>';
   wrap.innerHTML=html;
@@ -6672,6 +6685,7 @@ function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElem
 function canSpeak(){return typeof window!=='undefined'&&'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined'}
 let lariaSpeechRun=0;
 function stopSpeech(){
+  window.LARIA_TROLL_VOICE_AUDITION?.release?.();
   lariaSpeechRun++;
   window.LARIA_COUNTRY_DISCOVERY_UI?.stopReading?.();
   try{if(canSpeak())window.speechSynthesis.cancel()}catch(_){}
@@ -7264,9 +7278,9 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261026-norsk-no-map1" defer></script>
 <script src="./norsk-object-extras-v1.js?v=20261026-all-early-norsk1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261126-kinnaklova-reading2-land-flag1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261126-kinnaklova-reading2-land-flag1-p4-language-country-hint1" defer></script>
 <script src="./laria-fox-presence.js?v=20261027-nordlys-troll1" defer></script>
-<script src="./laria-troll-runtime-v1.js?v=20261126-troll-b1" defer></script>
+<script src="./laria-troll-runtime-v1.js?v=20261126-troll-audition1" defer></script>
 <script src="./laria-troll-pose-v1.js?v=20261126-troll-b1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
@@ -7286,7 +7300,7 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./tallvika.js?v=20261107-light-arrow1" defer></script>
 <!-- Norsk: locked Eggenipa painting, direct-play subject screen. No new learning state. -->
 <link rel="stylesheet" href="./eggenipa.css?v=20261107-premium-signrail-ipad2">
-<script src="./eggenipa.js?v=20261107-light-arrow1" defer></script>
+<script src="./eggenipa.js?v=20261126-p4-language" defer></script>
 <!-- Engelsk Kinnaklova: private standalone direct-play preview. Does not alter learning state. -->
 <link rel="stylesheet" href="./kinnaklova.css?v=20261107-premium-signrail-reading2">
 <link rel="stylesheet" href="./kinnaklova-standalone-v1.css?v=20261115-main-live-integration2">
@@ -7308,12 +7322,13 @@ window.LARIA_TALLVIKA_BRIDGE={
 <link rel="stylesheet" href="./laria-sign-rail-v2.css?v=20261108-rail-connected1">
 <link rel="stylesheet" href="./laria-reference-layout-v1.css?v=20261122-matte-grade-clearance4">
 <link rel="stylesheet" href="./laria-premium-sign-art-v1.css?v=20261124-source-art1">
-<link rel="stylesheet" href="./laria-kinnaklova-unified-v1.css?v=20261115-locked-kinn-sha-safe-live4">
+<link rel="stylesheet" href="./laria-kinnaklova-unified-v1.css?v=20261126-compact-landscape1">
 <link rel="stylesheet" href="./laria-home-ipad-rail-v1.css?v=20261115-journey-clean1">
 <link rel="stylesheet" href="./laria-viewport-premium-v1.css?v=20261116-viewport-ipad-portrait1">
 <link rel="stylesheet" href="./laria-grovanova-v16.css?v=20261126-troll-size2">
 <link rel="stylesheet" href="./laria-subject-identity-v1.css?v=20261126-header1">
 <link rel="stylesheet" href="./laria-learning-identity-v1.css?v=20261126-world2">
+<link rel="stylesheet" href="./gangemagi-compact-v1.css?v=20261126-fold1">
 <script defer src="./laria-learning-identity-v1.js?v=20261126-world1"></script>
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>
