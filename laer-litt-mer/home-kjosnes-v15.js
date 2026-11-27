@@ -637,3 +637,78 @@ portraitMq.addEventListener?.('change',activate);
 let resizeTimer=0;
 addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(activate,80)},{passive:true});
 })();
+
+
+/* Temporary, opt-in Home voice audition. Remove this block after approval. */
+(function installTrollVoiceTest(){
+ if(new URLSearchParams(location.search).get('lariaTrollVoiceTest')!=='1')return;
+ const profiles=[
+  ['storesoster','Storesøster','Bra jobbet! Du klarte det.',0.9,0.85,'#8B5E3C'],
+  ['lillesoster','Lillesøster','Wow, se på deg! Dette var flott!',1.25,1.0,'#98532D'],
+  ['lillebror','Lillebror','Hehe, jeg heier på deg!',1.15,1.05,'#765536']
+ ];
+ let current=null;
+ function mount(){
+  if(document.getElementById('laria-troll-voice-test'))return;
+  const screen=document.getElementById('home-screen');
+  if(!screen)return;
+  const onboarding=document.getElementById('onboarding');
+  const panel=document.createElement('aside');
+  panel.id='laria-troll-voice-test';
+  panel.setAttribute('aria-label','Midlertidig test av trollstemmer');
+  panel.style.cssText='position:fixed;z-index:1000;right:12px;top:calc(env(safe-area-inset-top, 0px) + 76px);width:min(360px,calc(100vw - 24px));max-height:calc(100dvh - 100px);overflow:auto;box-sizing:border-box;padding:12px;background:#f5f0e6;color:#452f29;border:1px solid #8b5e3c;border-radius:16px;font:16px system-ui,sans-serif;box-shadow:0 6px 20px #0003;';
+  const title=document.createElement('strong');
+  title.textContent='Test trollstemmer';
+  const status=document.createElement('p');
+  status.style.cssText='margin:8px 0;font:14px system-ui,sans-serif;';
+  status.setAttribute('role','status');
+  status.textContent='Trykk for å høre de tre trollene.';
+  panel.append(title,status);
+  const buttons=document.createElement('div');
+  buttons.style.cssText='display:flex;flex-wrap:wrap;gap:6px;';
+  for(const [id,label,phrase,pitch,rate,color] of profiles){
+   const button=document.createElement('button');
+   button.type='button';button.dataset.trollVoiceTest=id;
+   button.textContent=label;
+   button.style.cssText='min-height:44px;padding:10px 12px;border:0;border-radius:12px;font:600 16px system-ui,sans-serif;color:white;background:'+color;
+   button.addEventListener('click',()=>{
+    const synth=window.speechSynthesis;
+    if(!synth||typeof window.SpeechSynthesisUtterance!=='function'){
+     status.textContent='Talesyntese er ikke tilgjengelig på denne enheten.';return;
+    }
+    try{
+     if(current){current=null;synth.cancel();}
+     else if(synth.speaking||synth.pending){status.textContent='Vent til annen opplesning er ferdig.';return;}
+     const u=new window.SpeechSynthesisUtterance(phrase);
+     u.lang='nb-NO';u.pitch=pitch;u.rate=rate;
+     const voices=synth.getVoices();
+     const nb=voices.filter(v=>/^nb(?:-|$)/i.test(v.lang.replace(/_/g,'-')));
+     const voice=nb.find(v=>v.localService)||nb[0]||voices.find(v=>/^no(?:-|$)/i.test(v.lang.replace(/_/g,'-')));
+     if(voice)u.voice=voice;
+     current=u;
+     status.textContent='Spiller '+label+' …';
+     u.onend=()=>{if(current===u){current=null;status.textContent='Trykk for å høre igjen.';}};
+     u.onerror=()=>{if(current===u){current=null;status.textContent='Kunne ikke spille av stemmen. Sjekk lyd og norske stemmer.';}};
+     synth.speak(u);
+    }catch(_){current=null;status.textContent='Kunne ikke spille av stemmen.';}
+   });
+   buttons.append(button);
+  }
+  panel.append(buttons);
+  screen.append(panel);
+  function sync(){
+   const host=screen.querySelector('.bc12');
+   const visible=screen.classList.contains('active')&&
+     !onboarding?.classList.contains('show')&&
+     (!host||((!host.dataset.mode||host.dataset.mode==='home')&&
+       (!host.dataset.bc13View||host.dataset.bc13View==='home')));
+   panel.style.display=visible?'block':'none';
+   if(!visible&&current){current=null;window.speechSynthesis?.cancel();}
+  }
+  const observer=new MutationObserver(sync);
+  observer.observe(screen,{subtree:true,childList:true,attributes:true,attributeFilter:['class','data-mode','data-bc13-view']});
+  if(onboarding)observer.observe(onboarding,{attributes:true,attributeFilter:['class']});
+  sync();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
