@@ -6,10 +6,17 @@
 (function(){
 'use strict';
 const MANIFEST='./assets/home-v16/laria-grovanova-v16-approved.json';
+const MAC_WINGS=[
+ {source:'./assets/home-v16/mac-wide/grovanova-left.webp',width:290,height:887,
+  sha256:'a01cde5fe0c17d066535f2aade20b7c5fca2844f65a2ae8c18f3ddb3bea6f740'},
+ {source:'./assets/home-v16/mac-wide/grovanova-right.webp',width:284,height:887,
+  sha256:'8ffcfbbf91551de35e4bd17d3331b3ca580491613adb040974b7e894a5a3c4ea'}
+];
 const SUBJECTS=[['norwegian','Norsk','Bokskogen'],['math','Matte','Tallvika'],['english','Engelsk','Ordlandsbyen'],['geography','Geografi','Nordlysleiren']];
 let activeUrl='';
 let cachedManifest=null;
 let manifestPromise=null;
+let macWingsPromise=null;
 
 // A Mac/desktop browser has no touch digitizer. This discriminates it from
 // iPads with large viewports (and iPads connected to a trackpad), preserving
@@ -41,9 +48,9 @@ async function metadata(){
  cachedManifest=m;
  return m;
 }
-async function verifiedImage(v){
+async function verifiedImage(v,signal){
  if(!crypto?.subtle)return null;
- const response=await fetch(v.source,{cache:'no-store'});
+ const response=await fetch(v.source,{cache:'no-store',signal});
  if(!response.ok)throw Error('v16 image missing');
  const bytes=await response.arrayBuffer();
  const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),
@@ -58,6 +65,42 @@ async function verifiedImage(v){
    throw Error('v16 pixel dimensions mismatch');
   return {url,width:image.naturalWidth,height:image.naturalHeight};
  }catch(e){URL.revokeObjectURL(url);throw e;}
+}
+function verifiedMacWings(){
+ if(!macWingsPromise){
+  // Verify both images before enabling the overlay. A slow or missing wing
+  // must not keep the approved center from opening.
+  const controller=new AbortController();
+  let timer;
+  const timeout=new Promise(resolve=>{
+   timer=setTimeout(()=>{controller.abort();resolve(null);},1800);
+  });
+  const decode=Promise.allSettled(MAC_WINGS.map(v=>verifiedImage(v,controller.signal)))
+   .then(results=>{
+    const verified=results.map(r=>r.status==='fulfilled'?r.value:null);
+    if(!controller.signal.aborted&&verified.every(Boolean))return verified.map(image=>image.url);
+    verified.forEach(image=>{if(image)URL.revokeObjectURL(image.url);});
+    return null;
+   });
+  macWingsPromise=Promise.race([decode,timeout]).then(urls=>{
+   clearTimeout(timer);
+   if(!urls)macWingsPromise=null;
+   return urls;
+  });
+ }
+ return macWingsPromise;
+}
+function wantsMacWide(host,desktop,portrait,params){
+ const frame=host.closest('#home-screen')?.getBoundingClientRect();
+ const ratio=frame?frame.width/frame.height:0;
+ return desktop&&!portrait&&ratio>4/3&&ratio<=2&&params.get('lariaMacWide')!=='0';
+}
+function setMacWide(host,urls){
+ for(const [i,side] of ['left','right'].entries()){
+  if(urls)host.style.setProperty('--bc15-mac-wing-'+side,'url("'+urls[i]+'")');
+  else host.style.removeProperty('--bc15-mac-wing-'+side);
+ }
+ host.toggleAttribute('data-bc15-v16-mac-wide',!!urls);
 }
 function artBox(host,imgW,imgH,desktop){
  const r=host.getBoundingClientRect();
@@ -197,6 +240,7 @@ function reset(host){
  host?.classList.remove('bc15-v16-locked');
  host?.removeAttribute('data-bc15-v16-orientation');
  host?.removeAttribute('data-bc15-v16-device');
+ if(host)setMacWide(host,null);
  host?.querySelectorAll('.bc15-v16-signs,.bc15-v16-reisen,.bc15-v16-greeting,.bc15-v16-troll')
   .forEach(node=>node.remove());
  const dialog=document.getElementById('bc15-v16-journey-dialog');
@@ -211,7 +255,8 @@ async function activate(host,{portrait,isCurrent}){
  // ?lariaV16=0 is an opt-out for legacy-regression QA, not a requirement
  // children must discover to see their approved Home. Failure still falls back
  // to the unmodified SHA-locked v15 master.
- if(new URLSearchParams(location.search).get('lariaV16')==='0')return false;
+ const params=new URLSearchParams(location.search);
+ if(params.get('lariaV16')==='0')return false;
  const desktop=supportsDesktop();
  const ipad=window.matchMedia('(min-width:768px) and (max-width:1366px) and (min-height:650px)').matches;
  if(!host||!(ipad||desktop))return false;
@@ -220,8 +265,11 @@ async function activate(host,{portrait,isCurrent}){
  const m=await metadata();
  const v=m?.variants?.[orientation];
  if(!approved(v,orientation)||!isCurrent())return false;
+ const wideRequest=wantsMacWide(host,desktop,portrait,params)?verifiedMacWings():null;
  let image;
  try{image=await verifiedImage(v);}catch(error){console.warn('[Læria Home v16] Approved art failed integrity; retaining locked fallback.',error);return false;}
+ const wings=wideRequest?await wideRequest:null;
+ if(!image)return false;
  if(!isCurrent()){URL.revokeObjectURL(image.url);return false;}
  // Every replacement and its layout changes together, after verified decode.
  const old=activeUrl;
@@ -241,6 +289,9 @@ async function activate(host,{portrait,isCurrent}){
  host.querySelector('.bc15-subject-signs')?.setAttribute('hidden','');
  host.querySelector('.bc15-approved-logo')?.remove();
  host.querySelector('.bc15-boats')?.remove();
+ // Approved side art changes only the surrounding stage. The center and
+ // every painted hitbox remain in the original coordinate space.
+ setMacWide(host,wings&&wantsMacWide(host,desktop,portrait,params)?wings:null);
  const box=artBox(host,image.width,image.height,desktop);
  host.style.setProperty('--bc15-art-left',box.left+'px');
  host.style.setProperty('--bc15-art-top',box.top+'px');

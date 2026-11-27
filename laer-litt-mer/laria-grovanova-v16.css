@@ -277,3 +277,22 @@
   left:48%!important;right:auto!important;
  }
 }
+
+/* Owner-approved desktop side art. The foreground ::after always paints the verified
+   original over the side art, with unchanged center geometry and live UI. */
+@media(min-width:1024px) and (min-height:650px){
+ .grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-mac-wide]{
+  max-width:none!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked[data-bc15-v16-mac-wide]::before{
+  --bc15-wing-width:calc(var(--bc15-art-height) / 3);
+  display:block!important;content:""!important;position:absolute!important;inset:0!important;
+  background-image:var(--bc15-mac-wing-left),var(--bc15-mac-wing-right)!important;
+  background-repeat:no-repeat!important;
+  background-size:var(--bc15-wing-width) 100%,var(--bc15-wing-width) 100%!important;
+  background-position:calc(var(--bc15-art-left) - var(--bc15-wing-width)) top,
+                      calc(var(--bc15-art-left) + var(--bc15-art-width)) top!important;
+  opacity:1!important;filter:none!important;transform:none!important;
+  pointer-events:none!important;z-index:-2!important;
+ }
+}
