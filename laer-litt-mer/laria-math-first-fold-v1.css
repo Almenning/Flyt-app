@@ -579,6 +579,14 @@
  }
 }
 
+/* At iPad landscape heights the dense free-play bed may be only 56px.
+   Two 26px rows plus the 2px gap must fit above the existing basket front. */
+@media (min-width:900px) and (max-height:850px) and (orientation:landscape){
+ #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"]:is([data-gm-each="6"],[data-gm-each="7"],[data-gm-each="8"],[data-gm-each="9"],[data-gm-each="10"]) .gm-crate .gm-fruit-bed > :is(.gm-fruit,.gm-fruit-empty){
+  height:26px;margin-block:0;
+ }
+}
+
 /* 667px-class phones don't enter the existing >=700px landscape layout.
    Give the locked quest, selected troll and the actual market room together. */
 @media (min-width:560px) and (max-width:699px) and (max-height:420px) and (orientation:landscape){
