@@ -1,0 +1,49 @@
+name: Læria Grovanova v16 – låst UI-fri kunstport
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/laria_art/grovanova_v16_clean_gate.py"
+      - "docs/laria-premium-3/GROVANOVA-V16-UI-FREE-ART-GATE.md"
+      - ".github/workflows/laria-grovanova-v16-ui-free-gate.yml"
+      - "laer-litt-mer/assets/home-v16/**"
+permissions:
+  contents: read
+jobs:
+  masked-art-guides:
+    name: Verify original SHA / generate review masks
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install image inspection dependency
+        run: python -m pip install --disable-pip-version-check Pillow==11.2.1
+      - name: Syntax and source-fidelity unit checks
+        run: |
+          python -m py_compile tools/laria_art/grovanova_v16_clean_gate.py
+          python tools/laria_art/grovanova_v16_clean_gate.py --self-test
+      - name: Verify BOTH exact approved v16 originals and write UI edit maps
+        run: |
+          python tools/laria_art/grovanova_v16_clean_gate.py \
+            --output-dir /tmp/laria-grovanova-v16-art-gate
+      - name: Copy verified native PNG sources for retouch review
+        run: |
+          cp laer-litt-mer/assets/home-v16/laria-grovanova-v16-portrait-original.png \
+            /tmp/laria-grovanova-v16-art-gate/v16-portrait-LOCKED-ORIGINAL.png
+          cp laer-litt-mer/assets/home-v16/laria-grovanova-v16-landscape-original.png \
+            /tmp/laria-grovanova-v16-art-gate/v16-landscape-LOCKED-ORIGINAL.png
+          cp laer-litt-mer/assets/home-v16/laria-grovanova-v16-approved.json \
+            /tmp/laria-grovanova-v16-art-gate/APPROVED-PAINTED-SOURCES.json
+      - name: Upload verified source originals and review masks (no candidate yet)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-grovanova-v16-ui-mask-guides-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-grovanova-v16-art-gate
+          retention-days: 21
+          if-no-files-found: warn
