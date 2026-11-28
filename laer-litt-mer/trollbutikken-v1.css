@@ -108,10 +108,14 @@
 #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="shop"]{top:65%!important}
 @media(orientation:portrait) and (max-width:1100px){#tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="shop"]{top:64%!important}}
 @media(orientation:landscape) and (max-height:500px){
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1){
+  /* Preserve a 6px gap with 54px signs, even when the 15% step rounds down. */
+  --tv-landscape-rail-step:max(60px,15%);
+ }
  #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="multiply"]{top:26%!important}
- #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="fraction"]{top:41%!important}
- #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="table"]{top:56%!important}
- #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="shop"]{top:71%!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="fraction"]{top:calc(26% + var(--tv-landscape-rail-step))!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="table"]{top:calc(26% + 2 * var(--tv-landscape-rail-step))!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="shop"]{top:calc(26% + 3 * var(--tv-landscape-rail-step))!important}
 }
 /* With four signs, the separate live actor stands beside the rail instead of
    setting its silhouette and dialogue across the two lower signs. */

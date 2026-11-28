@@ -53,7 +53,7 @@ async function openLab(page,url){
  await page.waitForFunction(()=>window.LARIA_MULT_PREMIUM?.version==='illustrated-v2',null,{timeout:16000});
  // Enter through the real child-facing Basecamp/Utforsk route, so the back
  // path is the same one a child gets rather than the API's Maths fallback.
- await page.locator('.bc14-free:visible').click();
+ await page.locator('#home-screen.active .bc12-nav [data-camp="explore"]:visible').click();
  await page.locator('.bc13-card[data-bc13-action="multiply"]:visible').click();
  await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:12000});
  // Retain independent coverage of the complete classic suite via its explicit entry.
@@ -103,8 +103,8 @@ async function validateHome(page,label,view,large){
   assert(g.app.width>=w-2&&g.screen.width>=w-2&&g.shell.width>=w-2,
    label+' still displaying the old narrow app shell '+JSON.stringify(g));
   assert(g.main.width>=900,label+' workshop not using available iPad/Mac width '+JSON.stringify(g));
-  assert(g.shellBackground.includes('matte-verden.png'),
-   label+' missing warm illustrated landscape atmosphere '+JSON.stringify(g));
+  assert(g.shellBackground.includes('tallvika-fjord-no-buildings-wide-20261107.webp'),
+   label+' must use the currently locked widescreen Tallvika painting '+JSON.stringify(g));
   assert(g.appBottomPadding==='0px',label+' old navigation blank space remained');
  }else if(w===820){
   assert(g.app.width<=780,label+' iPad portrait should keep its approved composition '+JSON.stringify(g));

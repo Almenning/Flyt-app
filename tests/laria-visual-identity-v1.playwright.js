@@ -258,15 +258,12 @@ async function run(engine,name,layout,viewport){
      if(!expectedPlate)expectedPlate=style;
      else assert.deepEqual(style,expectedPlate,'Sign style diverged for '+spec.id);
    }else{
-     // English's SHA-locked scene still includes baked title/sign artwork.
-     // Kinnaklova now has separate real DOM branding only on clean art.
+     // Both the shared layout and the short landscape arrangement use
+     // the same ready image without baked brand lettering.
      const isCleanKinn=(await world.getAttribute('data-ki-premium-art'))==='approved';
-     // Only the iPad reference layout is approved for the live shared
-     // branding. The phone fallback is intentionally not redesigned yet.
-     // In either mode there may never be two competing Læria logos.
-     const expectedLiveBrand=isCleanKinn&&adapted?1:0;
+     const expectedLiveBrand=isCleanKinn?1:0;
      assert.equal(await world.locator('.ki-world-brand:visible').count(),expectedLiveBrand,
-       'English must show one live logo on clean iPad art, no duplicate on the phone fallback');
+       'English must show one live logo when branding is separate and none over legacy art');
      if(expectedLiveBrand){
        const logo=await world.locator('.ki-world-brand').evaluate(el=>{
          const panel=getComputedStyle(el),word=getComputedStyle(el.querySelector('strong'));

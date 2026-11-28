@@ -184,13 +184,15 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
     state:'visible',timeout:18000
   });
   // The owner-approved v16 image intentionally has no painted troll.
-  // ONE live character must appear on iPad; v15 fallback stays untouched.
-  const v16Ipad=width>=768&&width<=1366&&height>=650;
-  if(v16Ipad){
-    await page.waitForFunction(()=>{
+  // ONE live character on the approved iPad and phone layouts; the
+  // older v15 fallback must still not acquire a second live character.
+  const layoutDevice=height>=650&&width>=768&&width<=1366?'ipad':
+    width<=430||height<=580?'phone':null;
+  if(layoutDevice){
+    await page.waitForFunction(device=>{
       const h=document.querySelector('#home-screen.active .bc12');
-      return h?.dataset.bc15Asset?.startsWith('ipad-v16-');
-    },null,{timeout:30000});
+      return h?.dataset.bc15Asset?.startsWith(device+'-v16-');
+    },layoutDevice,{timeout:30000});
     const actor=page.locator('#home-screen.active .bc15-v16-troll');
     await actor.waitFor({state:'visible',timeout:10000});
     const img=actor.locator('img.laria-premium-troll-art');
@@ -256,7 +258,19 @@ async function verifyTaskActor(browser,url,out,engineName,name,width,height){
   const actor=page.locator(selector);
   await actor.waitFor({state:'visible',timeout:12000});
   await actor.evaluate(img=>img.decode?.());
-  const m=await metrics(page,selector);
+  const m=await actor.evaluate(img=>{
+    // The posed canvas replaces the original image only while its rig has
+    // painted actual pixels. Zero-opacity fallback art alone still fails.
+    const canvas=img.hasAttribute('data-laria-troll-posed')&&img.parentElement.querySelector('canvas.laria-troll-pose');
+    let shown=img;
+    if(canvas){
+      const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+      if(pixels.some((value,i)=>i%4===3&&value>127))shown=canvas;
+    }
+    const r=shown.getBoundingClientRect(),css=getComputedStyle(shown);
+    return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height,
+      visibility:css.visibility,opacity:css.opacity,src:img.getAttribute('src')};
+  });
   inside(m,width,height,label+' task TrollActor');
   assert.match(m.src,/assets\/troll-b\/gangemagi-troll\/lillesoster\.webp/,label+' wrong troll art');
 
