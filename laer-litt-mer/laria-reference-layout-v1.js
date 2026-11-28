@@ -106,7 +106,8 @@
   const activitySigns=[...rail.querySelectorAll('.laria-wayfinder')];
   if(subject==='geography'
     ? activitySigns.map(sign=>sign.dataset.gv).join(',')!=='globe,country'
-    : subject==='math'?!root.LARIA_SCENE_UI?.validTallvikaRail?.(scene,activitySigns):activitySigns.length!==3)return false;
+    : subject==='math'?!root.LARIA_SCENE_UI?.validTallvikaRail?.(scene,activitySigns)
+    : subject==='english'?!root.LARIA_SCENE_UI?.validKinnaklovaRail?.(scene,activitySigns):activitySigns.length!==3)return false;
   // Preserve the real round Home action and its original click handler.
   // It is not a second wooden sign rail.
   const nav=root.document.createElement('nav');
@@ -143,7 +144,7 @@
   const activitiesByWorld={
    norwegian:{words:'words',find:'find',reading:'reading'},
    math:{multiply:'multiply',fraction:'fraction',table:'table',shop:'shop'},
-   english:{words:'words',sentences:'sentences',reading:'reading'},
+   english:{words:'words',sentences:'sentences',reading:'reading','word-games':'words'},
    geography:{journey:'journey',globe:'globe',country:'country'}
   };
   for(const button of rail.querySelectorAll('.laria-wayfinder')){

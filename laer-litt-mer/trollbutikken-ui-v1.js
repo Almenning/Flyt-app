@@ -55,7 +55,7 @@
         'data-tb-id="'+p.id+'" aria-label="'+p.label+', '+money(p.price)+' per stykk. '+(left?'Legg én i kurven.':'Tom hylle.')+'" '+(!left?'disabled':''),'tb-product');
     }).join('')+'</div>').join('');
     return '<section class="tb-wood tb-shelf" aria-label="Varehyller"><header class="tb-shelfHeader"><h2>Velg fra hylla</h2>'+
-      '<p>Trykk på en vare, eller dra den til kurven.</p></header><div class="tb-product-grid">'+rows+'</div></section>';
+      '<p><span class="tb-shelf-instruction-full">Trykk på en vare, eller dra den til kurven.</span><span class="tb-shelf-instruction-short">Trykk eller dra varen.</span></p></header><div class="tb-product-grid">'+rows+'</div></section>';
   }
   function basket(){
     const current=activeBasket(),units=E.units(current);
@@ -135,10 +135,14 @@
   const coinFace=n=>'<span class="tb-coin tb-coin-'+n+'">'+n/100+'<small>kr</small></span>';
   function coinTray(coins,customer,recipient){
     const label=recipient?'Veksel til '+roles[recipient]:customer?'Mynter du har lagt fram':'Mynter på disken';
+    const groups=customer?[...new Set(coins)].sort((a,b)=>a-b).map(n=>({
+      n,index:coins.indexOf(n),count:coins.filter(value=>value===n).length
+    })):coins.map((n,index)=>({n,index,count:1}));
     return '<div class="tb-cashtray" data-tb-drop="cash" role="group" aria-label="'+label+'">'+
       '<b class="tb-trayLabel" aria-hidden="true">'+(recipient?'Til '+roles[recipient]:'På disken')+'</b>'+
-      '<div class="tb-trayCoins">'+(coins.length?coins.map((n,i)=>
-        button('uncoin',coinFace(n),'data-tb-index="'+i+'" aria-label="'+(customer?'Ta tilbake ':'Ta bort ')+money(n)+'"','tb-coinButton')).join(''):'<span>Legg mynter her</span>')+'</div></div>';
+      '<div class="tb-trayCoins">'+(groups.length?groups.map(({n,index,count})=>
+        button('uncoin',coinFace(n)+(count>1?'<small class="tb-coinCount" aria-hidden="true">×'+count+'</small>':''),
+          'data-tb-index="'+index+'"'+(customer?' data-tb-coin="'+n+'"':'')+' aria-label="'+(customer?'Ta tilbake ':'Ta bort ')+money(n)+(count>1?'. '+count+' mynter på disken.':'')+'"','tb-coinButton')).join(''):'<span>Legg mynter her</span>')+'</div></div>';
   }
   function receipt(c,id){
     return '<section class="tb-paper tb-register tb-receipt"><p class="tb-eyebrow">TROLLBUTIKKEN · KVITTERING</p><h2>Takk for handelen, sier '+roles[id]+'!</h2>'+
@@ -280,9 +284,12 @@
       button('back','‹ Tallvika','id="trollbutikken-back" aria-label="Tilbake til Tallvika"','tb-back'))+
       '<div class="tb-brand">Trollbutikken<small>LANDHANDELEN I TALLVIKA</small></div><span class="tb-marker">LEKEPENGER</span></header>'+core+'</div>';
     if(restore){
-      const current=[...screen.querySelectorAll('button[data-tb-action]')].find(btn=>
-        btn.dataset.tbAction===restore.action&&btn.dataset.tbId===restore.id&&btn.dataset.tbCoin===restore.coin&&btn.dataset.tbIndex===restore.index&&!btn.disabled);
-      (current||screen.querySelector('[data-tb-action="hint"]')||screen.querySelector('[data-tb-focus]'))?.focus({preventScroll:true});
+      const controls=[...screen.querySelectorAll('button[data-tb-action]')];
+      const group=restore.action==='uncoin'&&restore.coin;
+      const current=controls.find(btn=>btn.dataset.tbAction===restore.action&&btn.dataset.tbId===restore.id&&
+        btn.dataset.tbCoin===restore.coin&&(group||btn.dataset.tbIndex===restore.index)&&!btn.disabled);
+      const returned=group&&controls.find(btn=>btn.dataset.tbAction==='coin'&&btn.dataset.tbCoin===group&&!btn.disabled);
+      (current||returned||screen.querySelector('[data-tb-action="hint"]')||screen.querySelector('[data-tb-focus]'))?.focus({preventScroll:true});
     }
   }
   function mood(kind,who='helper'){

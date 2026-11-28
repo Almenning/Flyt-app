@@ -29,7 +29,7 @@ async function check(browser,engine,width,height,touch,action){
     const page=await ctx.newPage(), errors=[];
     page.on('pageerror',e=>errors.push(e.message));
     await page.goto(url,{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>/^((phone|tablet)-ready|(ipad|desktop)-v16-(portrait|landscape))$/.test(
+    await page.waitForFunction(()=>/^((phone|tablet)-ready|(ipad|desktop|phone)-v16-(portrait|landscape))$/.test(
       document.querySelector('#home-screen.active .bc12.bc15-locked-home:not(.bc15-pending)')?.dataset.bc15Asset||''
     ));
     await pressAtCenter(page,page.locator('#home-screen.active :is(.bc15-v16-signs,.bc15-subject-signs) [data-bc15-subject="english"]:visible'),touch);
@@ -54,7 +54,7 @@ async function check(browser,engine,width,height,touch,action){
       const {x,y,width,height}=el.getBoundingClientRect();
       return {action:el.dataset.ki,x,y,width,height,hit:el.contains(document.elementFromPoint(x+width/2,y+height/2))};
     }));
-    assert.deepEqual(buttonData.map(el=>el.action),['words','sentences','reading']);
+    assert.deepEqual(buttonData.map(el=>el.action),['words','sentences','reading','word-games']);
     assert.ok(buttonData.every((b,i)=>b.x===buttonData[0].x&&b.x<width*.25&&b.y>=0&&b.y+b.height<=height&&
       b.width>=44&&b.height>=44&&b.hit&&(i===0||b.y>=buttonData[i-1].y+buttonData[i-1].height)));
     const target=rail.locator('[data-ki="'+action+'"]');

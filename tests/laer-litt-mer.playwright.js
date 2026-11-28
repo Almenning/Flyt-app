@@ -232,8 +232,13 @@ async function finishSession(page){
           await p.locator('.bc12').waitFor();
           assert.equal(await p.evaluate(()=>window.LARIA_TROLL_ACTOR?.choice()),cfg.troll,
             'selected TrollActor identity drifted on Home');
-          assert.equal(await p.locator('#home-screen .bc15-locked-home .laria-premium-troll-art:visible').count(),0,
-            'locked Grovanova must not receive a second injected TrollActor');
+          const homeArt=p.locator('#home-screen.active .bc15-v16-locked');
+          await homeArt.waitFor({state:'visible'});
+          assert.equal(await homeArt.getAttribute('data-bc15-v16-device'),'phone');
+          const shownTrolls=homeArt.locator('.laria-premium-troll-art:visible');
+          assert.equal(await shownTrolls.count(),1,'approved phone artwork must have exactly one separate TrollActor');
+          assert.equal(await shownTrolls.getAttribute('data-troll'),cfg.troll);
+          assert.equal(await homeArt.locator('button.bc15-v16-troll').count(),1);
 
           await p.evaluate(()=>openGlobe('explore'));
           await p.locator('#world-screen.active').waitFor();
@@ -1080,7 +1085,7 @@ async function finishSession(page){
     assert.match(await page.locator('.mp-table-inspector').innerText(),/3 × 8/);
     assert.match(await page.locator('.mp-table-inspector').innerText(),/8 × 3/);
     assert.ok(await page.locator('.mp-grid-cell.same').count()>=3);
-    const multTouchHeights=await page.locator('.mp-pair,.mp-grid-cell,.mp-factor-adjust button').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    const multTouchHeights=await page.locator('.mp-pair:visible,.mp-grid-cell:visible,.mp-factor-adjust button:visible').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
     assert.ok(multTouchHeights.every(h=>h>=44),'small multiplication touch target: '+multTouchHeights.join(','));
     await page.locator('.mp-nav-link[data-page="home"]').click();
     await page.locator('#multiplication-lab-back').click();

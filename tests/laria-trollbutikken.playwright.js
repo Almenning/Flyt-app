@@ -13,6 +13,7 @@ const matrix=process.env.TB_LAYOUT_ONLY==='1'?[
 ]:[
  ['ipad-wide',1180,820,true,'storesoster'],['ipad-tall',820,1180,true,'lillesoster'],
  ['phone-tall',390,844,true,'lillebror'],['phone-wide',844,390,true,'storesoster'],
+ ['phone-compact-wide',667,375,true,'storesoster'],['phone-micro-wide',568,320,true,'storesoster'],
  ['desktop',1440,900,false,'storesoster']
 ];
 async function run(type,browser,[name,width,height,hasTouch,troll]){
@@ -28,7 +29,25 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
  page.on('pageerror',e=>errors.push(e.message));
  const shop=page.locator('#trollbutikken-screen.active');
  const button=(id,attr='')=>shop.locator('[data-tb-action="'+id+'"]'+attr);
- const tap=async(id,attr='')=>button(id,attr).click();
+ const directTouch=type==='webkit'&&width<=667&&width>height;
+ const tapControl=async(control,id)=>{
+  if(directTouch||name==='phone-micro-wide'||width>height&&height<=460&&['add','remove','basket','trip-check','stock-add','stock-remove','stock-check','stock-next','next','hint'].includes(id)){
+   const point=await control.evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    const hit=el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
+    return {x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,hit,viewport:innerHeight,
+      scrolled:document.getElementById('trollbutikken-screen').scrollTop,
+      panels:[...document.querySelectorAll('#trollbutikken-screen :is(.tb-order,.tb-shelf,.tb-basket,.tb-helper)')].map(panel=>{
+       const q=panel.getBoundingClientRect();return [panel.className,Math.round(q.top),Math.round(q.height)];
+      })};
+   });
+   assert.ok(point.w>=44&&point.h>=44&&point.y>=0&&point.bottom<=point.viewport+1&&point.hit&&point.scrolled===0,
+    name+' '+id+' must work before scrolling: '+JSON.stringify(point));
+   if(directTouch){await page.touchscreen.tap(point.x+point.w/2,point.y+point.h/2);return}
+  }
+  await control.click();
+ };
+ const tap=(id,attr='')=>tapControl(button(id,attr),id);
  const moveCoin=async(n,valid=true,withTouch=false)=>{
    const source=button('coin','[data-tb-coin="'+n+'"]');
    const target=valid?shop.locator('[data-tb-drop="cash"]'):shop.locator('.tb-wallet');
@@ -58,7 +77,9 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
    await page.screenshot({path:path.join(root,type+'-'+name+'-'+sequence+'.png'),animations:'disabled'});
  };
  const enter=async()=>{
-   await openHomeSubject(page,'math');
+   // Keep keyboard coverage for entering from the narrow WebKit Home. Other
+   // shapes still use the actual pointer entry; game controls remain hit-tested.
+   await openHomeSubject(page,'math',{keyboard:type==='webkit'&&width<=667&&width>height});
    const nav=page.locator('#tallvika-world .tv-sign-nav');
    await nav.locator('[data-tv="shop"]').waitFor();
    if(width>=768&&width<=1366&&height>=650)
@@ -68,7 +89,14 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
    assert.deepEqual(rects.filter(r=>r.id!=='next').map(r=>r.id),['multiply','fraction','table','shop']);
    assert.ok(rects.every((r,i)=>r.width>=44&&r.height>=44&&(!i||r.y>=rects[i-1].y+rects[i-1].height-1)),JSON.stringify(rects));
    await shot('00-tallvika');
-   await nav.locator('[data-tv="shop"]').click();
+   const shopSign=nav.locator('[data-tv="shop"]');
+   if(type==='webkit'&&width<=667&&width>height){
+    assert.ok(await shopSign.evaluate(el=>{
+     const r=el.getBoundingClientRect();
+     return r.height>=44&&el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
+    }),'the compact Tallvika sign must be visibly reachable');
+    await shopSign.press('Enter');
+   }else await shopSign.click();
    await shop.waitFor();
  };
  const runTrip=async()=>{
@@ -80,7 +108,7 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
   for(const [id,n] of Object.entries(shopping))for(let i=0;i<n;i++)await tap('add','[data-tb-id="'+id+'"]');
   assert.match(await shop.locator('.tb-tripLedger').innerText(),/28 kr/);
   await tap('add','[data-tb-id="apple"]');await tap('trip-check');
-  assert.match(await shop.locator('#tb-helper-copy').innerText(),/mer enn du har/);
+  assert.match(await shop.locator('#tb-helper-copy').innerText(),/mer enn du har/);await shot('10b-trip-budget-retry');
   await tap('hint');assert.equal(await shop.locator('[data-tb-actor="helper"]').getAttribute('data-laria-troll-mood'),'hint');
   assert.match(await shop.locator('.tb-tripOver').innerText(),/3 kr/);await shot('11-trip-over-budget');
   await tap('remove','[data-tb-id="apple"]');
@@ -88,12 +116,19 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
   assert.match(await shop.locator('#tb-helper-copy').innerText(),/akkurat/);
   await tap('add','[data-tb-id="milk"]');await tap('trip-check');await phase('Betal for varene');
   assert.notEqual(await shop.locator('[data-tb-actor="seller"]').getAttribute('data-troll'),troll);
+  if((name==='phone-micro-wide'||name==='phone-compact-wide'))await tap('hint');
   if(name==='ipad-wide')await moveCoin(2000,true,type==='chromium');
   else await tap('coin','[data-tb-coin="2000"]');
   assert.equal(await button('coin','[data-tb-coin="2000"]').isDisabled(),true);
   assert.equal(await shop.locator('.tb-trayCoins button').count(),1);
   await tap('coin','[data-tb-coin="500"]');await tap('trip-pay');
   assert.match(await shop.locator('#tb-helper-copy').innerText(),/dekker ikke/);
+  if((name==='phone-micro-wide'||name==='phone-compact-wide')){
+   const hintBeforeFold=await shop.locator('#tb-helper-copy').evaluate(el=>{
+    const {top,bottom}=el.getBoundingClientRect();return top>=0&&bottom<=innerHeight;
+   });
+   assert.equal(hintBeforeFold,true,'payment correction must be readable without scrolling');
+  }
   if(name==='ipad-wide'){
    await page.setViewportSize({width:height,height:width});
    assert.match(await shop.locator('.tb-sum').innerText(),/25 kr/);
@@ -109,6 +144,20 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
   assert.match(await shop.locator('.tb-sum').innerText(),/25 kr/);
   for(let i=0;i<5;i++)await tap('coin','[data-tb-coin="100"]');
   assert.equal(await button('coin','[data-tb-coin="100"]').isDisabled(),true);
+  assert.match(await shop.locator('.tb-sum').innerText(),/30 kr/);
+  const singles=button('uncoin').filter({hasText:'×5'});
+  await tapControl(singles,'uncoin');
+  assert.match(await shop.locator('.tb-sum').innerText(),/29 kr/);
+  assert.equal(await button('coin','[data-tb-coin="100"]').isEnabled(),true);
+  await tap('coin','[data-tb-coin="100"]');
+  if((name==='phone-micro-wide'||name==='phone-compact-wide')){
+   const v=await shop.locator('.tb-sum').evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    return {top:r.top,bottom:r.bottom,height:innerHeight,
+      scrolled:document.getElementById('trollbutikken-screen').scrollTop};
+   });
+   assert.ok(v.top>=0&&v.bottom<=v.height&&v.scrolled===0,'payment total must remain before scrolling: '+JSON.stringify(v));
+  }
   await shot('12-trip-wallet');await tap('trip-pay');await phase('Handleturen er ferdig');
   assert.match(await shop.locator('.tb-receipt').innerText(),/30 kr − 28 kr = 2 kr igjen/);
   assert.match(await shop.locator('.tb-receipt .tb-ledger').innerText(),/Du fikk tilbake\s+2 kr/);
@@ -117,7 +166,20 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
   assert.match(await shop.locator('.tb-tripCard').innerText(),/tre forskjellige/);
   for(const id of ['apple','bread','berry'])await tap('add','[data-tb-id="'+id+'"]');
   await tap('trip-check');await phase('Betal for varene');
-  await tap('coin','[data-tb-coin="2000"]');await tap('trip-pay');await phase('Handleturen er ferdig');
+  for(const denomination of [100,500,1000,2000])await tap('coin','[data-tb-coin="'+denomination+'"]');
+  assert.match(await shop.locator('.tb-sum').innerText(),/36 kr/);
+  await shot('14-trip-all-denominations');
+  assert.equal(await button('uncoin').count(),4);
+  await tapControl(button('uncoin').last(),'uncoin');
+  assert.match(await shop.locator('.tb-sum').innerText(),/16 kr/);
+  await tap('coin','[data-tb-coin="2000"]');
+  const penny=button('uncoin','[data-tb-coin="100"]');
+  await penny.press('Enter');
+  assert.equal(await button('coin','[data-tb-coin="100"]').evaluate(el=>el===document.activeElement),true);
+  await tap('coin','[data-tb-coin="100"]');
+  for(let i=0;i<3;i++)await tapControl(button('uncoin').first(),'uncoin');
+  assert.match(await shop.locator('.tb-sum').innerText(),/20 kr/);
+  await tap('trip-pay');await phase('Handleturen er ferdig');
   assert.match(await shop.locator('.tb-receipt').innerText(),/40 kr − 18 kr = 22 kr igjen/);
   assert.match(await shop.locator('.tb-receipt .tb-ledger').innerText(),/Du fikk tilbake\s+2 kr/);
   const savedTrip=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-trollbutikken-customer-v1')));
@@ -215,7 +277,18 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
    console.log(type,name,width+'×'+height,'handletur, stock, budget, payment, receipt and separate resume passed');
    return;
   }
-  await phase('Velkommen til Trollbutikken');await shot('01-entry');await tap('start');
+  await phase('Velkommen til Trollbutikken');
+  if(name==='phone-micro-wide'||name==='phone-compact-wide'){
+   const welcome=await shop.locator('.tb-start button').evaluateAll(items=>items.map(el=>{
+    const r=el.getBoundingClientRect();
+    return {action:el.dataset.tbAction,w:r.width,h:r.height,top:r.top,bottom:r.bottom,
+      viewport:innerHeight,hit:el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))};
+   }));
+   assert.deepEqual(welcome.map(x=>x.action),['start','trip','warehouse','free']);
+   assert.ok(welcome.every(x=>x.w>=44&&x.h>=44&&x.top>=0&&x.bottom<=x.viewport&&x.hit),
+    name+' welcome modes must work without scrolling: '+JSON.stringify(welcome));
+  }
+  await shot('01-entry');await tap('start');
   await phase('Plukk varer');
   await page.waitForFunction(()=>[...document.querySelectorAll('#trollbutikken-screen.active .tb-product img')].every(img=>img.complete&&img.naturalWidth>0));
   assert.deepEqual(await shop.locator('.tb-shelfRow').evaluateAll(rows=>rows.map(row=>row.querySelectorAll('button').length)),[3,3]);
@@ -260,7 +333,7 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
   await tap('scan','[data-tb-id="apple"]');await tap('scan','[data-tb-id="bread"]');
   assert.equal(await price.inputValue(),'');
   assert.doesNotMatch(await shop.locator('.tb-sceneTill').innerText(),/35 kr/);
-  await confirmPrice.click();assert.match(await shop.locator('#tb-helper-copy').innerText(),/hele kroner/);
+  await tapControl(confirmPrice,'confirmPrice');assert.match(await shop.locator('#tb-helper-copy').innerText(),/hele kroner/);
   await price.fill('3,5');assert.equal(await price.inputValue(),'');
   assert.equal(await shop.locator('.tb-counterWorld [data-tb-actor="customer"]').count(),1);
   const firstKey=button('keypad','[data-tb-key="3"]');
@@ -277,7 +350,7 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
     await page.touchscreen.tap(zero.x+zero.width/2,zero.y+zero.height/2);
   }else await tap('keypad','[data-tb-key="0"]');
   assert.equal(await price.inputValue(),'30');
-  await confirmPrice.click();
+  await tapControl(confirmPrice,'confirmPrice');
   assert.match(await shop.locator('#tb-helper-copy').innerText(),/for lav/);
   assert.equal(await price.inputValue(),'30');
   assert.equal(await shop.locator('.tb-scan[aria-pressed="true"]').count(),2);
@@ -331,7 +404,7 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
    for(const [id,n] of Object.entries(orders))for(let i=0;i<n;i++)await tap('add','[data-tb-id="'+id+'"]');
    await tap('basket');
    for(const id of Object.keys(orders))await tap('scan','[data-tb-id="'+id+'"]');
-   await price.fill(String(quote));await confirmPrice.click();for(const n of coins)await tap('coin','[data-tb-coin="'+n+'"]');
+   await price.fill(String(quote));await tapControl(confirmPrice,'confirmPrice');for(const n of coins)await tap('coin','[data-tb-coin="'+n+'"]');
    await tap('settle');await phase('Kvittering');await tap('next');
   }
   await phase('Butikkdagen er ferdig');await shot('08-closing');
@@ -352,7 +425,7 @@ async function run(type,browser,[name,width,height,hasTouch,troll]){
   assert.deepEqual(errors,[]);
   if(recordVideo){const video=page.video();await page.close();await video.saveAs(path.join(recordVideo.dir,type+'-'+name+'-gameplay.webm'));}
   console.log(type,name,width+'×'+height,'complete day, handletur, warehouse, correction, payment, separate resume, Tallvika and Home passed');
- }finally{await context.close();}
+ }catch(error){await shot('needs-layout-review').catch(()=>{});throw error}finally{await context.close();}
 }
 (async()=>{
  for(const [type,engine] of [['chromium',chromium],['webkit',webkit]]){

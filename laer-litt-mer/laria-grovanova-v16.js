@@ -386,7 +386,11 @@ async function activate(host,{portrait,isCurrent}){
   const [x,ground]=phone&&portrait?[.574,.628]:portrait?[.745,.82]:[.765,.79];
   const anchorX=box.left+box.width*x;
   const anchorY=box.top+box.height*ground;
-  troll.style.setProperty('left',anchorX+'px','important');
+  // The minimum live touch width can extend the art-derived anchor past
+  // the right edge on 320px phones. Contain it without moving the approved
+  // 390px composition or changing any illustrated pixels.
+  const trollLeft=phone&&portrait?'min('+anchorX+'px, calc(100% - var(--laria-front-troll-width)))':anchorX+'px';
+  troll.style.setProperty('left',trollLeft,'important');
   troll.style.setProperty('top','calc('+anchorY+'px - var(--laria-front-troll-height))','important');
  }
  if(old&&old!==activeUrl)URL.revokeObjectURL(old);

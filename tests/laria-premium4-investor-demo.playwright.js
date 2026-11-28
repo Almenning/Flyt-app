@@ -133,7 +133,7 @@ async function verify(browser,kind,width,height,touch){
   await fr.locator('#fraction-lab-back').click();
   await navMath('table').click();
   const mp=loc('#multiplication-lab-screen.active .mp-shell');
-  await mp.locator('.mp-grid-cell').first().click();
+  await mp.locator('.mp-grid-cell:visible').first().click();
   assert.equal(await mp.locator('.mp-grid-cell').count(),100);
   await shot('12-gangetabellen','#multiplication-lab-screen.active .mp-shell');
   await mp.locator('#multiplication-lab-back').click();

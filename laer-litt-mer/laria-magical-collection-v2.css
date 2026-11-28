@@ -412,3 +412,8 @@
  #bc12-dialog .lmc-footer button{padding:5px 7px;font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){#bc12-dialog .lmc-fox,#bc12-dialog .lmc-place-fox{animation:none}#bc12-dialog .lmc-shell *{transition:none!important}}
+/* Page changes and the troll shortcut belong with the book navigation. Keep
+   the content below it readable when more treasures require extra space. */
+#bc12-dialog .lmc-page-toolbar{
+ margin:0 auto 12px;max-width:1110px;padding:0 10px 2px;
+}

@@ -41,7 +41,7 @@ async function verify(browser,engine,width,height){
   const mp=page.locator('#multiplication-lab-screen.active .mp-shell');
   await mp.waitFor();await artVisible(mp,'tallvika-fjord-no-buildings-'+art);
   assert.equal(await mp.locator('.mp-grid-cell').count(),100);
-  await mp.locator('.mp-grid-cell').first().tap();await shot('gangetabell');
+  await mp.locator('.mp-grid-cell:visible').first().tap();await shot('gangetabell');
   await mp.locator('.mp-explore-tab[data-mode="pick"]').tap();await mp.locator('.mp-pick-screen').waitFor();
   await mp.locator('#multiplication-lab-back').tap();
   await math.locator('[data-tv="next"]').tap();

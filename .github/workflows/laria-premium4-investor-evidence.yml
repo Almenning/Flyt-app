@@ -5,6 +5,7 @@ on:
     paths:
       - 'laer-litt-mer/**'
       - 'tests/laria-premium4-investor-demo.playwright.js'
+      - 'tests/laria-first-fold-audit.playwright.js'
       - '.github/workflows/laria-premium4-investor-evidence.yml'
   workflow_dispatch:
 permissions:
@@ -66,6 +67,12 @@ jobs:
               raise SystemExit("Investor app did not start on the configured loopback URL")
           PYTHON
           node tests/laria-premium4-investor-demo.playwright.js
+          fold_formats="$LARIA_DEMO_VIEWPORT"
+          if [ "$fold_formats" = 1440x900 ]; then fold_formats=1440x900,1280x720; fi
+          if [ "$fold_formats" = 390x844 ]; then fold_formats=320x568,375x667,390x844,393x852,430x932,568x320,667x375,844x390; fi
+          LARIA_FOLD_ENGINE="$LARIA_DEMO_ENGINE" LARIA_FOLD_FORMATS="$fold_formats" \
+            LARIA_FOLD_OUTPUT=/tmp/laria-first-fold LARIA_FOLD_ENFORCE=1 \
+            node tests/laria-first-fold-audit.playwright.js
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -73,4 +80,5 @@ jobs:
           path: |
             /tmp/laria-investor
             /tmp/laria-investor-http.log
+            /tmp/laria-first-fold
           retention-days: 14

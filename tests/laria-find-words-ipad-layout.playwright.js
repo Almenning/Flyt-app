@@ -97,6 +97,8 @@ async function inspect(page, name) {
   fs.mkdirSync(output, { recursive: true });
   fs.writeFileSync(path.join(output, name + '.json'), JSON.stringify(layout, null, 2));
   await page.screenshot({ path: path.join(output, name + '.png'), fullPage: false, animations: 'disabled' });
+  assert.equal(await page.locator('#find-the-words-overlay').evaluate(e=>e.scrollHeight<=e.clientHeight+1),true,
+    name + ': iPad/desktop must not scroll this activity');
   for (const key of ['title', 'picture', 'fox', 'speech', 'next']) {
     const r = layout[key];
     assert.ok(r && r.y >= -1 && r.x >= -1 && r.right <= layout.width + 1 && r.bottom <= layout.height - 6,
@@ -115,15 +117,11 @@ async function inspect(page, name) {
    assert.ok(layout.guideHit&&layout.fox.w>=44&&layout.fox.h>=44,
      name+': magical hint control has blocked or undersized touch: '+JSON.stringify(layout));
   if (layout.height > layout.width) {
-    const gap = layout.companion.y - layout.sceneBottom.bottom;
-    assert.ok(gap >= 0 && gap <= 32,
-      name + ': unnecessary empty space separates the fox from the scene: ' + gap);
-    const emptyPanelTail = layout.shell.bottom - layout.footer.bottom;
-    assert.ok(emptyPanelTail >= 0 && emptyPanelTail <= 28,
-      name + ': oversized blank panel remains below the companion: ' + emptyPanelTail);
+    assert.ok(layout.companion.y>=layout.sceneBottom.bottom,
+      name + ': portrait companion should follow the map and word tray.');
     assert.ok(layout.picture.w >= layout.width * 0.83, name + ': portrait picture shrank');
-    assert.ok(layout.shell.bottom <= layout.height - 8,
-      name + ': the panel border is still outside the portrait screen: ' + JSON.stringify(layout.shell));
+    assert.ok(layout.shell.bottom <= layout.height + 1,
+      name + ': the app shell is still outside the portrait screen: ' + JSON.stringify(layout.shell));
     assert.ok(layout.words.every(word => word.h >= 54 && word.font >= 20),
       name + ': portrait fit was achieved by shrinking the learning words');
     assert.ok(layout.fox.h >= 44,
@@ -133,7 +131,8 @@ async function inspect(page, name) {
 }
 
 async function run(engine, name, size, url) {
-  const browser = await engine.launch({ headless: true });
+  const executablePath=engine===chromium?process.env.LARIA_CHROMIUM_PATH:undefined;
+  const browser = await engine.launch({ headless: true, executablePath });
   try {
     const context = await browser.newContext({
       viewport: size, hasTouch: true, reducedMotion: 'reduce', serviceWorkers: 'block'
@@ -148,24 +147,25 @@ async function run(engine, name, size, url) {
     await page.goto(url, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => window.LARIA_FOX && typeof window.openFindTheWords === 'function');
     await page.evaluate(() => window.openFindTheWords());
-    await inspect(page, name + '-forest');
-    await page.locator('.fw-word[data-fw-read="sol"]').click();
-    assert.equal(await page.locator('.fw-hint').count(), 0,
-      name + ': duplicate hint control has returned');
-    await page.locator('.fw-fox-button').click();
-    await page.locator('.fw-fox-button').click();
-    await inspect(page, name + '-forest-hint');
-    await page.locator('.fw-next').click();
+    assert.equal(await page.locator('#find-the-words-overlay h1').count(),1);
+    assert.equal(await page.locator('.fw-word-icon').count(),0,
+      name + ': pictorial word answers defeat the need to read');
+    assert.equal(await page.locator('.fw-next').isEnabled(),false);
     const garden = await inspect(page, name + '-garden');
     assert.match(garden.svg, /find-the-words-garden-premium\.webp/, name + ': premium garden scene did not load');
-    await page.locator('.fw-word[data-fw-read="sommerfugl"]').click();
+    const word=page.locator('.fw-word[data-fw-read="sommerfugl"]');
+    await word.focus();
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('ArrowDown');
+    assert.ok(await page.evaluate(()=>document.activeElement.matches('.fw-object')),
+      name + ': keyboard players cannot move from a word into the scene');
     assert.equal(await page.locator('.fw-hint').count(), 0,
       name + ': duplicate hint control has returned');
     await page.locator('.fw-fox-button').click();
     await page.locator('.fw-fox-button').click();
     await inspect(page, name + '-garden-hint');
-    await page.setViewportSize({ width: size.height, height: size.width });
-    await inspect(page, name + '-garden-rotated');
+    if(!name.startsWith('desktop'))await page.setViewportSize({ width: size.height, height: size.width });
+    if(!name.startsWith('desktop'))await inspect(page, name + '-garden-rotated');
     assert.equal(await page.locator('.fw-word[data-fw-read="sommerfugl"]').getAttribute('aria-pressed'), 'true',
       name + ': orientation change lost the chosen word');
     await page.locator('.fw-object[data-fw-object="sommerfugl"]').click();
@@ -187,9 +187,15 @@ async function run(engine, name, size, url) {
 (async () => {
   const { server, url } = await serve();
   try {
+    if(process.env.FIND_WORDS_BROWSER!=='chromium'){
     await run(webkit, 'tablet-webkit-820', { width: 820, height: 1180 }, url);
     await run(webkit, 'tablet-webkit-768', { width: 768, height: 1024 }, url);
     await run(webkit, 'tablet-webkit-810', { width: 810, height: 1080 }, url);
+    }
+    if(process.env.FIND_WORDS_BROWSER!=='webkit'){
     await run(chromium, 'tablet-chromium-1180', { width: 1180, height: 820 }, url);
+    await run(chromium, 'tablet-chromium-820', { width: 820, height: 1180 }, url);
+    await run(chromium, 'desktop-chromium-1440', { width: 1440, height: 900 }, url);
+    }
   } finally { await new Promise(resolve => server.close(resolve)); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

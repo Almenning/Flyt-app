@@ -12,6 +12,7 @@ on:
       - 'laer-litt-mer/word-hunt-themes.js'
       - 'laer-litt-mer/word-hunt.css'
       - 'tests/laria-word-hunt-themes.playwright.js'
+      - 'tests/laria-word-hunt-firstfold.playwright.js'
       - 'laer-litt-mer/find-the-words.js'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-eggenipa*'
@@ -28,6 +29,7 @@ on:
       - 'laer-litt-mer/word-hunt-themes.js'
       - 'laer-litt-mer/word-hunt.css'
       - 'tests/laria-word-hunt-themes.playwright.js'
+      - 'tests/laria-word-hunt-firstfold.playwright.js'
       - 'laer-litt-mer/find-the-words.js'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-eggenipa*'
@@ -56,6 +58,13 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_EGGENIPA_SCREENSHOTS: /tmp/laria-eggenipa
         run: node tests/laria-eggenipa.playwright.js
+      - name: Verify Ordjakt play and completion without scrolling
+        env:
+          WORD_HUNT_QA_SCREENSHOTS: /tmp/laria-eggenipa-wordhunt-firstfold
+          WORD_HUNT_HOME_INDICATOR: '1'
+        run: |
+          node tests/laria-word-hunt-firstfold.playwright.js
+          WORD_HUNT_BROWSER=webkit node tests/laria-word-hunt-firstfold.playwright.js
       - name: Verify Ordjakt topic illustrations and word progress in Chromium and WebKit
         env:
           WORD_HUNT_THEMES_SCREENSHOTS: /tmp/laria-eggenipa-wordhunt-themes
@@ -67,7 +76,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: laria-eggenipa-wordhunt-themes-${{ github.sha }}
-          path: /tmp/laria-eggenipa-wordhunt-themes
+          path: |
+            /tmp/laria-eggenipa-wordhunt-themes
+            /tmp/laria-eggenipa-wordhunt-firstfold
           if-no-files-found: warn
           retention-days: 14
       - name: Upload visual evidence

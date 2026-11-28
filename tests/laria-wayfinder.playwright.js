@@ -179,7 +179,7 @@ async function run(browserType,engine,name,viewport){
      assert.equal(frame.paintedArtReady,'ready',engine+' '+name+' English art integrity must remain ready');
      assert.equal(await stage.locator('.laria-reference-heading:visible').count(),1,
        engine+' '+name+' English needs the shared live heading');
-     assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
+     assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),4,
        engine+' '+name+' all English wooden activities must remain available');
      // A phone can rotate mid-journey: clear the portrait-only menu in
      // landscape, then restore the one live left rail on returning.
@@ -194,8 +194,8 @@ async function run(browserType,engine,name,viewport){
        engine+' English left its portrait controls mounted in landscape');
      await page.setViewportSize(viewport);
      await stage.waitFor({state:'visible',timeout:16000});
-     assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
-       engine+' English failed to restore all three activities');
+     assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),4,
+       engine+' English failed to restore all four activities');
      assert.equal(await stage.locator('nav.laria-reference-subject-nav').count(),1,
        engine+' English duplicated or lost its subject rail on rotate-back');
      assert.equal(await page.evaluate(()=>localStorage.getItem('laerlittmer-v2')),learningBefore,
@@ -208,7 +208,7 @@ async function run(browserType,engine,name,viewport){
      const learningBefore=await page.evaluate(()=>localStorage.getItem('laerlittmer-v2'));
      await page.setViewportSize({width:390,height:844});
      await scene.locator('nav.laria-reference-subject-nav').waitFor({state:'attached',timeout:16000});
-     assert.equal(await scene.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),3,
+     assert.equal(await scene.locator('nav.laria-scene-navigation .ki-painted-hit:visible').count(),4,
        engine+' landscape-first English failed to mount portrait navigation');
      await page.setViewportSize(viewport);
      await page.waitForFunction(()=>{
@@ -221,10 +221,17 @@ async function run(browserType,engine,name,viewport){
    }
    const sign=root.locator(spec.sign);
    const nativeTablet=viewport.width>=768&&viewport.width<=1366&&viewport.height>=650;
-   const board=nativeTablet?sign.locator('.laria-premium-sign-face'):root.locator(spec.paint);
+   // English portrait is also approved for the source-derived Home plank,
+   // not the legacy SVG. Short landscape uses the visible shared SVG fallback.
+   const compactEnglish=spec.id==='english'&&portrait&&viewport.width<=767&&viewport.height>=600;
+   const sourceDerived=nativeTablet||compactEnglish;
+   if(sourceDerived){
+    await root.locator('nav.laria-scene-navigation[data-laria-premium-sign-art="ready"]').waitFor({timeout:25000});
+   }
+   const board=sourceDerived?sign.locator('.laria-premium-sign-face'):root.locator(spec.paint);
    if(spec.id==='english')
      assert.equal(await root.locator('.ki-actions:visible').count(),0,
-       engine+' '+name+' English must not duplicate its three painted signs');
+       engine+' '+name+' English must not duplicate its navigation signs');
    await sign.waitFor({state:'visible',timeout:13000});
    await board.waitFor({state:'visible',timeout:25000});
    const b=await board.evaluate(el=>{
@@ -236,21 +243,24 @@ async function run(browserType,engine,name,viewport){
    // Kinn now uses the certified UI-free image and the SAME left-hand
    // live sign family as the other subjects. Do not regress to invisible
    // hotspots over the original painted Words/Sentences/Reading labels.
-   if(spec.id==='english'&&viewport.width>=701&&viewport.height>=600){
+   if(spec.id==='english'){
      assert.equal(await root.getAttribute('data-ki-premium-art'),'approved',
        engine+' '+name+' English clean art adapter not enabled');
-     assert.match(b.background,nativeTablet?/data:image\/png;base64,/:/laria-light-arrow-sign\.svg/,
+     assert.match(b.background,sourceDerived?/data:image\/png;base64,/:/laria-light-arrow-sign\.svg/,
        engine+' '+name+' English missing shared oak board');
      assert.equal(await root.locator('.ki-world-brand:visible').count(),1,
        engine+' '+name+' English must show one live brand on clean art');
      const leftRail=root.locator('.ki-stage > nav.laria-scene-navigation');
-     const boxes=await leftRail.locator('.ki-painted-hit:visible').evaluateAll(nodes=>
-       nodes.map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom}}));
-     assert.equal(boxes.length,3,engine+' '+name+' requires three English activities');
-     assert.ok(boxes.every(x=>x.left>=0&&x.right<viewport.width*.40),
-       engine+' '+name+' English activity signs escaped left rail: '+JSON.stringify(boxes));
+     assert.equal(await leftRail.count(),1,engine+' '+name+' requires a single English rail');
+     const boxes=await leftRail.locator('.ki-painted-hit.laria-wayfinder:visible').evaluateAll(nodes=>
+       nodes.map(el=>{const r=el.getBoundingClientRect();return {id:el.dataset.ki,left:r.left,right:r.right,top:r.top,bottom:r.bottom}}));
+     assert.deepEqual(boxes.map(x=>x.id),['words','sentences','reading','word-games'],
+       engine+' '+name+' requires all four approved English activities, including Ordlek');
+     assert.ok(boxes.every((x,i)=>x.left>=0&&x.right<viewport.width*(compactEnglish?.65:.40)&&
+       x.top>=0&&x.bottom<=viewport.height&&Math.abs(x.left-boxes[0].left)<3&&(!i||x.top>=boxes[i-1].bottom-1)),
+       engine+' '+name+' English activity signs escaped or overlapped in the left rail: '+JSON.stringify(boxes));
    }else{
-     assert.match(b.background,nativeTablet?/data:image\/png;base64,/:/laria-light-arrow-sign\.svg/,
+     assert.match(b.background,sourceDerived?/data:image\/png;base64,/:/laria-light-arrow-sign\.svg/,
        engine+' '+name+' '+spec.id+' did not render the matching Grovanova arrow');
    }
    await page.screenshot({path:path.join(out,engine+'-'+name+'-'+spec.id+'.png'),animations:'disabled',fullPage:false});
@@ -265,6 +275,94 @@ async function run(browserType,engine,name,viewport){
   await context.close();
  }finally{await browser.close();}
 }
+// Exercise the default v16 route on the first-generation SE, not the
+// explicitly forced v15 fixtures above. Check the stage and document, rather
+// than just proving that controls happen to fit on a scrollable background.
+async function shortPortrait(engine,browserType){
+ const phone={width:320,height:568};
+ const browser=await browserType.launch({headless:true,args:engine==='chromium'?['--no-sandbox']:[]});
+ try{
+  const context=await browser.newContext({viewport:phone,isMobile:true,hasTouch:true,
+   deviceScaleFactor:1,serviceWorkers:'block',reducedMotion:'reduce'});
+  await context.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  await page.goto(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria',
+   {waitUntil:'domcontentloaded',timeout:60000});
+  const home=page.locator('#home-screen.active .bc12');
+  await fs.promises.mkdir(out,{recursive:true});
+  for(const spec of [
+   {id:'norwegian',scene:'#eggenipa-world .eg-hero',image:'.eg-master',
+    data:'eg',routes:['words','find','reading'],art:/eggenipa-master-laast-20261025[.]png$/,
+    target:'#session-screen.active'},
+   {id:'geography',scene:'#laria-geography-world .gv-scene',image:'.gv-landscape',
+    data:'gv',routes:['globe','country'],art:/nordlysleiren-bluehour-portrait-v1[.]webp$/,
+    target:'#session-screen.active'}
+  ]){
+   await openHomeSubject(page,spec.id);
+   const scene=page.locator(spec.scene+':visible');
+   const activity=scene.locator('nav.laria-scene-navigation button.laria-wayfinder:visible');
+   const inspect=async viewport=>{
+    const lockedArt=spec.id==='geography'&&viewport.width>viewport.height
+     ?/nordlysleiren-bluehour-landscape-v1[.]webp$/:spec.art;
+    await page.waitForFunction(({selector,source})=>{
+     const img=document.querySelector(selector);
+     return img?.complete&&img.naturalWidth>0&&new RegExp(source).test(img.currentSrc);
+    },{selector:spec.scene+' '+spec.image,source:lockedArt.source},{timeout:14000});
+    const geometry=await scene.evaluate((el,spec)=>{
+     const img=el.querySelector(spec.image);
+     const box=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
+     const buttons=[...el.querySelectorAll('nav.laria-scene-navigation button.laria-wayfinder')]
+       .filter(e=>e.getBoundingClientRect().height>0).map(e=>{
+       const r=box(e);
+       return {...r,id:e.dataset[spec.data],hit:e.contains(document.elementFromPoint(r.x+r.w/2,r.y+r.h/2))};
+     });
+     return {stage:box(el),art:img.currentSrc,fit:getComputedStyle(img).objectFit,
+      scroll:[document.documentElement.scrollWidth,document.documentElement.scrollHeight],buttons};
+    },{image:spec.image,data:spec.data});
+    const tag=engine+' '+spec.id+' '+viewport.width+'x'+viewport.height;
+    assert.deepEqual(geometry.stage,{x:0,y:0,w:viewport.width,h:viewport.height},tag+' scene must exactly fill the first fold');
+    assert.deepEqual(geometry.scroll,[viewport.width,viewport.height],tag+' facade should not scroll');
+    assert.equal(geometry.fit,'cover',tag+' scene artwork must remain undistorted');
+    assert.match(geometry.art,lockedArt,tag+' unexpected locked scene source');
+    assert.deepEqual(geometry.buttons.map(x=>x.id),spec.routes,tag+' child routes missing or duplicated');
+    for(const b of geometry.buttons)
+     assert.ok(b.hit&&b.w>=44&&b.h>=44&&b.x>=0&&b.y>=0&&b.x+b.w<=viewport.width+.5&&b.y+b.h<=viewport.height+.5,
+      tag+' blocked or clipped button: '+JSON.stringify(b));
+    await page.screenshot({path:path.join(out,tag.replaceAll(' ','-')+'-first-fold.png'),animations:'disabled'});
+   };
+   await inspect(phone);
+   const previous=await page.evaluate(()=>localStorage.getItem('laerlittmer-v2'));
+   const wide={width:568,height:320};
+   await page.setViewportSize(wide);
+   await inspect(wide);
+   await page.setViewportSize(phone);
+   await inspect(phone);
+   assert.equal(await page.evaluate(()=>localStorage.getItem('laerlittmer-v2')),previous,
+    engine+' rotating a facade must not rewrite progress');
+   if(spec.id==='norwegian'){
+    const first=activity.first();
+    await page.keyboard.press('Tab');
+    await first.focus();
+    assert.ok(await first.evaluate(e=>e.matches(':focus-visible')&&getComputedStyle(e).outlineStyle!=='none'),
+      engine+' Norsk first sign should show keyboard focus');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(()=>document.activeElement?.dataset.eg),'find',
+      engine+' Norsk must let children tab directly between activity signs');
+    await activity.last().press('Enter');
+   }else{
+    const r=await activity.last().boundingBox();
+    await page.touchscreen.tap(r.x+r.width/2,r.y+r.height/2);
+   }
+   await page.locator(spec.target).waitFor({state:'visible',timeout:18000});
+   await page.evaluate(()=>showScreen('home'));
+   await home.waitFor({state:'visible',timeout:18000});
+  }
+  assert.deepEqual(errors,[],engine+' small-phone facade exceptions');
+ }finally{await browser.close();}
+}
 (async()=>{
  for(const [name,view] of [
    ['ipad-landscape',{width:1180,height:820}],
@@ -275,5 +373,10 @@ async function run(browserType,engine,name,viewport){
  for(const [engine,browser] of [['chromium',chromium],['webkit',webkit]]){
   await run(browser,engine,name,view);
   console.log('PASS wooden arrow '+engine+' '+name);
+ }
+ if(process.env.LARIA_IPAD_ONLY!=='1')
+ for(const [engine,browser] of [['chromium',chromium],['webkit',webkit]]){
+  await shortPortrait(engine,browser);
+  console.log('PASS first fold and rotate-back '+engine+' iPhone SE Norsk and Geografi');
  }
 })().catch(e=>{console.error(e);process.exitCode=1;});

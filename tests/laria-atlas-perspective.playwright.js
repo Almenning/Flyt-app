@@ -26,6 +26,21 @@ async function startServer(){
  await new Promise((resolve,reject)=>{s.once('error',reject);s.listen(0,'127.0.0.1',resolve)});
  return {server:s,url:'http://127.0.0.1:'+s.address().port+'/'};
 }
+// An element may have a measurable box even under closed <details> in WebKit.
+// Require a physically visible, correctly hit-tested target, not just its box.
+async function visibleControls(page,selector){
+ return page.locator(selector).evaluateAll(nodes=>nodes.map(el=>{
+  const r=el.getBoundingClientRect(),range=document.createRange();
+  range.selectNodeContents(el);
+  const text=range.getBoundingClientRect();
+  const x=Math.round((r.left+r.right)/2),y=Math.round((r.top+r.bottom)/2);
+  const hit=document.elementFromPoint(x,y);
+  return {label:el.textContent.trim(),x,y,w:r.width,h:r.height,top:r.top,bottom:r.bottom,
+   inViewport:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,
+   reachable:hit===el||el.contains(hit),fits:text.width>0&&text.left>=r.left+4&&text.right<=r.right-4&&
+    text.top>=r.top&&text.bottom<=r.bottom};
+ }));
+}
 async function run(engine,label,viewport){
  const browser=await engine.launch({headless:true});
  try{
@@ -87,7 +102,6 @@ async function run(engine,label,viewport){
     };
     return {toolbar:box('.globe-zoom'),regions:box('.atlas-region-nav'),atlas:box('#atlas-canvas'),
      country:box('#globe-status'),actions:box('.globe-actions'),
-     buttons:[...document.querySelectorAll('.globe-actions button')].map(b=>({x:b.getBoundingClientRect().x,y:b.getBoundingClientRect().y,w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height,text:b.textContent.trim(),contentWidth:(()=>{const range=document.createRange();range.selectNodeContents(b);return range.getBoundingClientRect().width})()})),
      cta:overflow('.premium-country-learn'),ctaVisible:getComputedStyle(document.querySelector('.premium-country-learn span')).display!=='none'};
    });
    assert.ok(arrangement.toolbar.y>arrangement.regions.bottom+10,label+' zoom toolbar covers atlas region choices '+JSON.stringify(arrangement));
@@ -95,8 +109,30 @@ async function run(engine,label,viewport){
    assert.ok(arrangement.country.bottom+8<=arrangement.actions.y,label+' country card intersects action buttons');
    assert.equal(arrangement.ctaVisible,true,label+' iPad landscape Learn More text must not be hidden');
    assert.ok(arrangement.cta.text.includes('Lær mer'),label+' country action must have a readable label');
-   assert.ok(arrangement.buttons.length===2&&arrangement.buttons.every(b=>b.h>=44&&b.contentWidth<=b.w-10),label+' landscape action labels are clipped '+JSON.stringify(arrangement.buttons));
-   assert.ok(arrangement.buttons[1].y>=arrangement.buttons[0].y+arrangement.buttons[0].h+4,label+' landscape actions must have independent full-width rows');
+   const summaries=await visibleControls(page,'.globe-actions > details > summary');
+   assert.deepEqual(summaries.map(b=>b.label),['Søk etter land','Flere valg']);
+   const usable=b=>b.w>=44&&b.h>=44&&b.inViewport&&b.reachable&&b.fits;
+   assert.ok(summaries.every(usable),label+' primary controls must be legible and tappable on first fold: '+JSON.stringify(summaries));
+   const more=page.locator('.laria-atlas-more');
+   const search=page.locator('.laria-atlas-find');
+   assert.equal(await page.locator('#random-country').isVisible(),false,label+' secondary actions must stay behind Flere valg');
+   assert.equal(await page.locator('#world-search').isVisible(),false,label+' search field must stay behind Søk etter land');
+   await page.touchscreen.tap(summaries[0].x,summaries[0].y);
+   await search.locator('#world-search').waitFor({state:'visible'});
+   const openSearch=await search.evaluate(el=>el.open);
+   assert.equal(openSearch,true,label+' real touch did not open Søk etter land');
+   await page.screenshot({path:path.join(out,label+'-search-menu.png'),animations:'disabled'});
+   await page.touchscreen.tap(summaries[1].x,summaries[1].y);
+   await more.locator('#reset-globe').waitFor({state:'visible'});
+   assert.equal(await search.evaluate(el=>el.open),false,label+' menus should not cover each other');
+   const secondary=await visibleControls(page,'.laria-atlas-more[open] .laria-atlas-panel button');
+   assert.deepEqual(secondary.map(b=>b.label),['Tilfeldig land','Startposisjon','Start 5 spørsmål']);
+   assert.ok(secondary.every(usable),label+' revealed menu labels and touch targets: '+JSON.stringify(secondary));
+   assert.ok(secondary.every((b,i)=>i===0||b.top>=secondary[i-1].bottom+4&&Math.abs(b.w-secondary[i-1].w)<=1),
+    label+' revealed actions must have separate full-width rows: '+JSON.stringify(secondary));
+   await page.screenshot({path:path.join(out,label+'-more-menu.png'),animations:'disabled'});
+   await page.touchscreen.tap(summaries[1].x,summaries[1].y);
+   assert.equal(await more.evaluate(el=>el.open),false,label+' repeat touch did not close Flere valg');
   }
   if(viewport.width<=430){
    assert.equal(await page.locator('#globe-status .premium-country-learn span').isVisible(),true,label+' Lær mer text must be visible beside the Norwegian country card on iPhone');
@@ -155,7 +191,9 @@ async function run(engine,label,viewport){
   await page.waitForTimeout(90);
   const legendBox=await page.locator('#globe-legend').boundingBox();
   const mineMapBox=await page.locator('#atlas-canvas').boundingBox();
-  assert.ok(legendBox&&mineMapBox&&legendBox.y+legendBox.height<=mineMapBox.y-5,label+' progress legend overlaps atlas: '+JSON.stringify({legendBox,mineMapBox}));
+  const legendAbove=legendBox&&mineMapBox&&legendBox.y+legendBox.height<=mineMapBox.y-5;
+  const legendBeside=separateColumns&&legendBox&&mineMapBox&&legendBox.x>=mineMapBox.x+mineMapBox.width;
+  assert.ok(legendAbove||legendBeside,label+' progress legend overlaps atlas: '+JSON.stringify({legendBox,mineMapBox}));
   assert.equal(await page.locator('#atlas-canvas').isVisible(),true,label+' Min verden must stay an atlas with progress');
   await page.screenshot({path:path.join(out,label+'-atlas-mine.png'),fullPage:true});
   await page.locator('[data-globe-mode="classic"]').click();

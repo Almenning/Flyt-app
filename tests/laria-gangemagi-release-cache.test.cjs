@@ -80,7 +80,7 @@ function workerHarness(caches, fetch) {
   const events = new Map();
   const self = {location:{origin:'https://example.test'}, clients:{claim:async()=>{}}, skipWaiting:async()=>{},
     addEventListener:(name, handler)=>events.set(name, handler)};
-  vm.runInNewContext(worker, {self,caches,fetch,URL}, {filename:'sw.js',timeout:1000});
+  vm.runInNewContext(worker, {self,caches,fetch,URL,Response}, {filename:'sw.js',timeout:1000});
   return events;
 }
 test('all changed Gangemagi entry assets have distinct release URLs', () => {
@@ -164,6 +164,21 @@ test('navigation refreshes online and restores the last good page offline',async
   offline=true;
   events.get('fetch')({request,respondWith:p=>{res=p;}});
   assert.equal(await res,last,'Installed Læria should reopen after connection loss');
+});
+
+test('missing offline art returns a normal non-cacheable response without swallowing missing code',async()=>{
+  const events=workerHarness({match:async()=>undefined,open:async()=>{throw Error('Offline miss must not write');}},
+    async()=>{throw Error('offline');});
+  const load=(file,destination)=>{
+    let received;
+    events.get('fetch')({request:{url:'https://example.test/laer-litt-mer/'+file,method:'GET',mode:'cors',destination},
+      respondWith:p=>{received=p;}});
+    return received;
+  };
+  const picture=await load('unvisited.webp','image');
+  assert.equal(picture.status,503);
+  assert.equal(picture.ok,false);
+  await assert.rejects(load('required.js','script'),/offline/);
 });
 
 

@@ -58,9 +58,9 @@ function btn(action,text,classes='',extra=''){return '<button type="button" clas
 function symbolArt(){
  return '<svg class="mp-island" viewBox="0 0 240 140" fill="none" aria-hidden="true"><defs><linearGradient id="mpIslandLand" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#B9D387"/><stop offset="1" stop-color="#548C68"/></linearGradient><linearGradient id="mpIslandWater" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#A0E3EA"/><stop offset="1" stop-color="#579DBD"/></linearGradient></defs><ellipse cx="118" cy="119" rx="106" ry="19" fill="#5c8796" opacity=".17"/><path d="M14 94Q60 115 109 93Q176 70 222 92L209 121Q147 146 29 116Z" fill="url(#mpIslandWater)"/><path d="M22 91Q51 50 106 55Q164 37 222 90Q175 123 96 113Q49 118 22 91Z" fill="url(#mpIslandLand)" stroke="#55865D" stroke-width="3"/><path d="M53 89Q110 66 171 86" stroke="#F5E2A5" stroke-width="9" stroke-linecap="round" stroke-dasharray="11 10"/><path d="M114 57V21" stroke="#8B5A35" stroke-width="4"/><path d="M118 20L150 31L118 39Z" fill="#E77853"/><path d="M48 83L61 38L74 83Z" fill="#4B9764"/><path d="M41 70L61 29L80 70Z" fill="#65A46D"/><path d="M178 96L191 43L205 96Z" fill="#4F8D60"/><path d="M170 78L191 30L214 78Z" fill="#6CA878"/><rect x="89" y="72" width="31" height="26" rx="4" fill="#AB7448" stroke="#70462D" stroke-width="3"/><rect x="94" y="64" width="27" height="18" rx="2" fill="#DCA56B" stroke="#8D5937" stroke-width="3"/><path d="M93 82H116" stroke="#79502F" stroke-width="4"/><circle cx="106" cy="78" r="5" fill="#F7C85D"/></svg>';
 }
-function mascot(message,small=false){return '<div class="mp-mascot '+(small?'mp-mascot-small':'')+'"><img src="'+foxSrc()+'" alt="" loading="lazy"><div class="mp-bubble">'+message+'<span class="mp-heart" aria-hidden="true">♥</span></div></div>'}
+function mascot(message,small=false,loading='lazy'){return '<div class="mp-mascot '+(small?'mp-mascot-small':'')+'"><img src="'+foxSrc()+'" alt="" loading="'+loading+'"><div class="mp-bubble">'+message+'<span class="mp-heart" aria-hidden="true">♥</span></div></div>'}
 function top(){const fromTallvika=document.getElementById('multiplication-lab-screen')?.dataset.tvOrigin==='table';
- return '<header class="mp-top"><div class="mp-top-left">'+btn('back','‹','mp-back','id="multiplication-lab-back" aria-label="'+(fromTallvika?'Tilbake til Tallvika':'Tilbake')+'"')+'<span class="mp-brand">Læria<span class="mp-brand-star">✦</span>'+(fromTallvika?'<span class="tv-origin-breadcrumb">TALLVIKA / GANGETABELLEN</span>':'')+'</span></div><div class="mp-top-right"><span class="mp-avatar" aria-hidden="true"><img src="'+foxSrc()+'" alt=""></span><span class="mp-star-count" aria-label="'+saved.stars+' stjerner">★ <b>'+saved.stars+'</b></span></div></header>'}
+ return '<header class="mp-top"><div class="mp-top-left">'+btn('back','‹','mp-back','id="multiplication-lab-back" aria-label="'+(fromTallvika?'Tilbake til Tallvika':'Tilbake')+'"')+'<span class="mp-brand">Læria<span class="mp-brand-star">✦</span>'+(fromTallvika?'<span class="tv-origin-breadcrumb">TALLVIKA / GANGETABELLEN</span>':'')+'</span></div>'+(stateBox.page==='explore'&&stateBox.active==='table'?'<span class="mp-table-top-title" aria-hidden="true">Gangetabellen</span>':'')+'<div class="mp-top-right"><span class="mp-avatar" aria-hidden="true"><img src="'+foxSrc()+'" alt=""></span><span class="mp-star-count" aria-label="'+saved.stars+' stjerner">★ <b>'+saved.stars+'</b></span></div></header>'}
 function heading(t,s){return '<div class="mp-heading"><h1>'+t+'</h1><p>'+s+'</p></div>'}
 function travel(progressCount=0,total=8){let circles='';for(let i=0;i<total;i++)circles+='<span class="mp-travel-node '+(i<progressCount?'done':'')+'">'+(i<progressCount?'★':'')+'</span>';return '<div class="mp-travel"><div class="mp-travel-scene" aria-hidden="true">🌲 ⛰️</div><div class="mp-travel-main"><span>'+(stateBox.page==='practice'?'Oppgave '+(stateBox.idx+1)+' av 8':'Din læringsreise')+'</span><div class="mp-travel-nodes">'+circles+'</div></div><div class="mp-travel-treasure" aria-hidden="true">🗝️</div></div>'}
 function menuCard(page,titleText,subtitle,art){return btn('go','<span class="mp-menu-copy"><strong>'+titleText+'</strong><small>'+subtitle+'</small></span><span class="mp-menu-art mp-art-'+page+'">'+art+'</span><span class="mp-arrow" aria-hidden="true">›</span>','mp-menu-card mp-menu-'+page,'data-page="'+page+'"')}
@@ -103,9 +103,11 @@ function practice(){
  +(solved?btn('next',stateBox.idx===7?'Se resultatet ›':'Neste oppgave ›','mp-next'):'')
  +mascot(solved?'Bra! Du fant svaret.':stateBox.feedback?'Prøv igjen. Du kan bruke forklaringen.':'Vi finner svaret sammen!',true)+'</div></div></section>';
 }
+const EXPLORE_MODES=[['table','▦','Tabellen'],['pick','✋','Plukk og tell'],['groups','🍓','Grupper'],['array','▥','Rutenett'],['line','↝','Tallinje'],['swap','⇄','Bytt plass'],['patterns','✳','Mønstre']];
 function exploreTabs(){
- const modes=[['table','▦','Tabellen'],['pick','✋','Plukk og tell'],['groups','🍓','Grupper'],['array','▥','Rutenett'],['line','↝','Tallinje'],['swap','⇄','Bytt plass'],['patterns','✳','Mønstre']];
- return '<div class="mp-explore-tabs" role="group" aria-label="Velg hvordan du vil utforske gange">'+modes.map(([id,icon,label])=>btn('mode','<span aria-hidden="true">'+icon+'</span><strong>'+label+'</strong>','mp-explore-tab '+(stateBox.active===id?'selected':''),'data-mode="'+id+'" aria-pressed="'+(stateBox.active===id)+'"')).join('')+'</div>';
+ const modes=EXPLORE_MODES;
+ const compact=stateBox.active==='table'?'<label class="mp-explore-mode-picker"><span>Utforsk</span><select data-mp-mode-select aria-label="Velg aktivitet">'+modes.map(([id,,label])=>'<option value="'+id+'" '+(stateBox.active===id?'selected':'')+'>'+label+'</option>').join('')+'</select></label>':'';
+ return compact+'<div class="mp-explore-tabs" role="group" aria-label="Velg hvordan du vil utforske gange">'+modes.map(([id,icon,label])=>btn('mode','<span aria-hidden="true">'+icon+'</span><strong>'+label+'</strong>','mp-explore-tab '+(stateBox.active===id?'selected':''),'data-mode="'+id+'" aria-pressed="'+(stateBox.active===id)+'"')).join('')+'</div>';
 }
 function smallArray(a,b){return '<div class="mp-mini-array" style="--mp-cols:'+b+'">'+Array.from({length:a*b},()=>'<i></i>').join('')+'</div>'}
 function numberLine(a,b){
@@ -117,13 +119,50 @@ function patterns(a){
  return '<div class="mp-pattern-grid">'+Array.from({length:MAX},(_,i)=>'<div><small>'+a+' × '+(i+1)+'</small><strong>'+(a*(i+1))+'</strong></div>').join('')+'</div>';
 }
 function factorPairs(v){const pairs=[];for(let a=1;a<=MAX;a++){let b=v/a;if(Number.isInteger(b)&&b<=MAX)pairs.push([a,b])}return pairs}
+function tablePlan(){
+ const width=document.documentElement.clientWidth||innerWidth;
+ const height=innerHeight, landscape=width>height;
+ const compact=width<768||(landscape&&height<=600);
+ if(!compact)return {rows:MAX,cols:MAX,layout:'full'};
+ return {
+   rows:landscape?(height<=355?3:4):(height<=610?3:height<=710?4:5),
+   cols:landscape&&width>=790?MAX:5,
+   layout:landscape?'wide':'tall'
+ };
+}
+function tablePage(value,length){return Math.floor((value-1)/length)*length+1}
+function tableSelect(axis,title,first,size){
+ if(size>=MAX)return '';
+ const choices=Array.from({length:Math.ceil(MAX/size)},(_,i)=>1+i*size).map(start=>
+   '<option value="'+start+'" '+(start===first?'selected':'')+'>'+start+'–'+Math.min(MAX,start+size-1)+'</option>'
+ ).join('');
+ return '<label class="mp-table-page"><span>'+title+'</span><select data-mp-table-axis="'+axis+'" aria-label="Velg '+title.toLowerCase()+' i gangetabellen">'+choices+'</select></label>';
+}
 function exploreTable(){
- const a=stateBox.row,b=stateBox.col,product=a*b;
- let html='<div class="mp-table-instruction">Trykk på et tall. Sveip sidelengs for å se flere kolonner.</div><div class="mp-table-viewport" role="region" aria-label="Interaktiv 10 ganger 10-tabell" tabindex="0"><table class="mp-times-grid"><thead><tr><th class="corner">×</th>';
- for(let c=1;c<=MAX;c++)html+='<th class="'+(c===b?'axis':'')+'">'+c+'</th>';
+ const a=stateBox.row,b=stateBox.col,product=a*b,plan=tablePlan();
+ const firstRow=tablePage(a,plan.rows),lastRow=Math.min(MAX,firstRow+plan.rows-1);
+ const firstCol=tablePage(b,plan.cols),lastCol=Math.min(MAX,firstCol+plan.cols-1);
+ const outsideCol=c=>c<firstCol||c>lastCol?' hidden':'';
+ const outsideRow=r=>r<firstRow||r>lastRow?' hidden':'';
+ const rowControls=tableSelect('row','Rader',firstRow,plan.rows);
+ const colControls=tableSelect('col','Kolonner',firstCol,plan.cols);
+ let html='<div class="mp-table-board" data-mp-table-layout="'+plan.layout+'" data-mp-table-plan="'+plan.rows+','+plan.cols+'">'+
+  (rowControls||colControls?'<div class="mp-table-pager" role="group" aria-label="Velg utsnitt">'+rowControls+colControls+'</div>':
+   '<p class="mp-table-instruction">Velg et felt. Se på rad og kolonne.</p>')+
+  '<div class="mp-table-viewport" role="region" aria-label="Interaktiv 10 ganger 10-tabell"><table class="mp-times-grid"><thead><tr><th class="corner" scope="col">×</th>';
+ for(let c=1;c<=MAX;c++)html+='<th scope="col" class="'+(c===b?'axis':'')+'"'+outsideCol(c)+'>'+c+'</th>';
  html+='</tr></thead><tbody>';
- for(let r=1;r<=MAX;r++){html+='<tr><th scope="row" class="'+(r===a?'axis':'')+'">'+r+'</th>';for(let c=1;c<=MAX;c++)html+='<td>'+btn('cell',String(r*c),'mp-grid-cell '+(r===a&&c===b?'selected':r===a?'row':c===b?'col':r*c===product?'same':''),'data-row="'+r+'" data-col="'+c+'" aria-label="'+r+' ganger '+c+' er '+(r*c)+'"')+'</td>';html+='</tr>';}
- html+='</tbody></table></div><div class="mp-table-inspector"><div class="mp-inspector-equation"><b>'+a+' × '+b+' = '+product+'</b><strong>'+b+' × '+a+' = '+product+'</strong><p>Samme svar når vi bytter plass på tallene.</p></div><div class="mp-factor-title">Andre måter å lage '+product+' på</div><div class="mp-pair-buttons">'+factorPairs(product).map(([x,y])=>btn('pair',x+' × '+y,'mp-pair '+(x===a&&y===b?'selected':''),'data-row="'+x+'" data-col="'+y+'"')).join('')+'</div></div>';
+ for(let r=1;r<=MAX;r++){
+  html+='<tr'+outsideRow(r)+'><th scope="row" class="'+(r===a?'axis':'')+'">'+r+'</th>';
+  for(let c=1;c<=MAX;c++){
+   const selected=r===a&&c===b;
+   html+='<td'+outsideCol(c)+'>'+btn('cell',String(r*c),'mp-grid-cell '+(selected?'selected':r===a?'row':c===b?'col':r*c===product?'same':''),
+     'data-row="'+r+'" data-col="'+c+'" aria-label="'+r+' ganger '+c+' er '+(r*c)+'" aria-pressed="'+selected+'" tabindex="'+(selected?0:-1)+'"')+'</td>';
+  }
+  html+='</tr>';
+ }
+ html+='</tbody></table></div></div><div class="mp-table-inspector"><div class="mp-inspector-equation" role="status" aria-live="polite" aria-atomic="true"><b>'+a+' × '+b+' = '+product+'</b><strong>'+b+' × '+a+' = '+product+'</strong><p>Bytt plass på tallene. Svaret blir likt.</p></div><div class="mp-factor-title">Måter å lage '+product+' på</div><div class="mp-pair-buttons">'+factorPairs(product).map(([x,y])=>btn('pair',x+' × '+y,'mp-pair '+(x===a&&y===b?'selected':''),'data-row="'+x+'" data-col="'+y+'" aria-pressed="'+(x===a&&y===b)+'"')).join('')+'</div>'+
+  mascot(a===b?'Her er rad og kolonne like.':'Prøv '+b+' × '+a+' også!',true,'eager')+'</div>';
  return html;
 }
 function explorer(){
@@ -136,10 +175,10 @@ function explorer(){
  if(mode==='swap'){stage='<div class="mp-wood-sign">Samme antall, snudd!</div><div class="mp-swap-pair">'+smallArray(a,b)+smallArray(b,a)+'</div><strong class="mp-swap-label">'+a+' × '+b+' = '+b+' × '+a+'</strong>'}
  if(mode==='patterns'){stage='<div class="mp-wood-sign">Oppdag '+a+'-gangen</div>'+patterns(a)}
  if(mode==='table'){stage=exploreTable()}
- return '<section class="mp-explore-screen">'+heading('Utforsk og lek',mode==='table'?'Gangetabellen fra 1 til 10. Trykk på et tall og utforsk!':mode==='pick'?'Trykk på en ting og se tallet endre seg.':'Prøv deg fram og oppdag hvordan gange virker.')+exploreTabs()
+ return '<section class="mp-explore-screen">'+heading(mode==='table'?'Gangetabellen':'Utforsk og lek',mode==='table'?'Velg et tall og se hvordan faktorene henger sammen.':mode==='pick'?'Trykk på en ting og se tallet endre seg.':'Prøv deg fram og oppdag hvordan gange virker.')+exploreTabs()
  +'<div class="mp-explore-world '+(mode==='table'?'table-mode':mode==='pick'?'pick-mode':'')+'">'+stage+'</div>'
  +((mode==='table'||mode==='pick')?'':'<div class="mp-factor-controls"><div><label>Antall grupper</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="a" data-step="-1" aria-label="Færre grupper"')+'<strong>'+a+'</strong>'+btn('factor','+','','data-factor="a" data-step="1" aria-label="Flere grupper"')+'</div></div><div><label>I hver gruppe</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="b" data-step="-1" aria-label="Færre i hver gruppe"')+'<strong>'+b+'</strong>'+btn('factor','+','','data-factor="b" data-step="1" aria-label="Flere i hver gruppe"')+'</div></div></div><div class="mp-math-result"><span>'+a+' × '+b+'</span><span> = </span><b>'+(a*b)+'</b></div>')
- +(mode==='pick'?'':mascot(mode==='table'?'Trykk på et felt. Se hva som skjer når tallene bytter plass.':'Når vi samler like grupper, ser vi lettere hva gange betyr.',true))+'</section>';
+ +(mode==='pick'||mode==='table'?'':mascot('Når vi samler like grupper, ser vi lettere hva gange betyr.',true))+'</section>';
 }
 function completed(){return '<span class="mp-medal">★</span>'}
 function mastery(){
@@ -168,10 +207,18 @@ function render(){
  const scroll=region?{left:region.scrollLeft,top:region.scrollTop}:null;
  const pickScroll=root.querySelector('.mp-pick-world-strip')?.scrollLeft||0;
  const focused=root.contains(document.activeElement)?document.activeElement:null;
+ const tableFocus=focused?.dataset?.mpTableAxis?{axis:focused.dataset.mpTableAxis}:
+   ['cell','pair'].includes(focused?.dataset?.mpAction)?{action:focused.dataset.mpAction,row:focused.dataset.row,col:focused.dataset.col}:null;
  const pickFocus=focused?.dataset?.pickAction?{action:focused.dataset.pickAction,group:focused.dataset.group,world:focused.dataset.world,id:focused.dataset.id}:null;
  let screen=stateBox.page==='home'?home():stateBox.page==='choose'?choose():stateBox.page==='practice'?practice():stateBox.page==='explore'?explorer():stateBox.page==='mastery'?mastery():complete();
  root.innerHTML='<main class="mp-shell '+(grade()<=2?'mp-young':grade()<=4?'mp-middle':grade()<=7?'mp-older':'mp-teen')+'"><div class="mp-scenery" aria-hidden="true"></div><div class="mp-main">'+top()+screen+navigation()+'</div></main>';
  if(scroll){const current=root.querySelector('.mp-table-viewport');if(current){current.scrollLeft=scroll.left;current.scrollTop=scroll.top}}
+ if(tableFocus){
+   const target=tableFocus.axis?root.querySelector('[data-mp-table-axis="'+tableFocus.axis+'"]'):
+      root.querySelector('[data-mp-action="'+tableFocus.action+'"][data-row="'+tableFocus.row+'"][data-col="'+tableFocus.col+'"]');
+   if(target?.getClientRects().length)target.focus({preventScroll:true});
+   else root.querySelector('.mp-grid-cell.selected')?.focus({preventScroll:true});
+ }
  const worldStrip=root.querySelector('.mp-pick-world-strip');if(worldStrip)worldStrip.scrollLeft=pickScroll;
  if(pickFocus){const buttons=root.querySelectorAll('button[data-pick-action]');const match=Array.from(buttons).find(b=>b.dataset.pickAction===pickFocus.action&&(b.dataset.group||'')===(pickFocus.group||'')&&(b.dataset.world||'')===(pickFocus.world||'')&&(b.dataset.id||'')===(pickFocus.id||''));if(match&&!match.disabled)try{match.focus({preventScroll:true})}catch(_){}}
 
@@ -216,7 +263,56 @@ function onClick(event){
  if(action==='factor'){const key=target.dataset.factor;stateBox[key]=d(stateBox[key]+Number(target.dataset.step));render();return}
  if(action==='cell'||action==='pair'){stateBox.row=Number(target.dataset.row);stateBox.col=Number(target.dataset.col);render();return}
 }
-const root=document.getElementById(ROOT);if(root&&!root.dataset.mpV2Bound){root.addEventListener('click',onClick);root.dataset.mpV2Bound='true'}
+function onTablePage(event){
+ const select=event.target;
+ if(select.hasAttribute?.('data-mp-mode-select')){
+  if(EXPLORE_MODES.some(([key])=>key===select.value)){
+   stateBox.active=select.value;
+   render();
+   document.getElementById(ROOT)?.querySelector('.mp-explore-tab.selected')?.focus({preventScroll:true});
+  }
+  return;
+ }
+ const axis=select.dataset?.mpTableAxis;
+ if(axis!=='row'&&axis!=='col')return;
+ const plan=tablePlan(),count=axis==='row'?plan.rows:plan.cols;
+ const start=Number(select.value);
+ // Keep the child's position inside the new page, including a short last page.
+ if(!Number.isInteger(start)||start<1||start>MAX||tablePage(start,count)!==start)return;
+ stateBox[axis]=Math.min(MAX,start+(stateBox[axis]-1)%count);
+ render();
+}
+function onTableKey(event){
+ if(event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||
+    !event.target.matches?.('button[data-mp-action="cell"]'))return;
+ const steps={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]};
+ const step=steps[event.key];
+ if(!step)return;
+ event.preventDefault();
+ stateBox.row=d(Number(event.target.dataset.row)+step[0]);
+ stateBox.col=d(Number(event.target.dataset.col)+step[1]);
+ render();
+ document.getElementById(ROOT)?.querySelector('.mp-grid-cell.selected')?.focus({preventScroll:true});
+}
+const root=document.getElementById(ROOT);
+if(root&&!root.dataset.mpV2Bound){
+ root.addEventListener('click',onClick);
+ root.addEventListener('change',onTablePage);
+ root.addEventListener('keydown',onTableKey);
+ root.dataset.mpV2Bound='true';
+ let pending=null;
+ window.addEventListener('resize',()=>{
+   if(!root.closest('.screen.active'))return;
+   if(pending!==null)cancelAnimationFrame(pending);
+   pending=requestAnimationFrame(()=>{
+     pending=null;
+     const current=root.querySelector('[data-mp-table-plan]');
+     if(!current||!root.closest('.screen.active'))return;
+     const {rows,cols}=tablePlan();
+     if(current.dataset.mpTablePlan!==rows+','+cols)render();
+   });
+ });
+}
 window.LARIA_MULT_PICK_PLAY?.mount(root,render);
 window.openMultiplicationLab=function(){
  const screen=document.getElementById('multiplication-lab-screen');

@@ -109,8 +109,8 @@ assert.match(kinnaklova,/PREMIUM_CLEAN_ART_APPROVED\?UI_FREE_ART:LOCKED_ART/,
  'Unapproved English must keep its original landscape');
 assert.match(refLayout,/english:'Kinnaklova'/,
  'Engelsk must share the same reference heading as Norsk and Matte');
-assert.match(refLayout,/english:\{words:'words',sentences:'sentences',reading:'reading'\}/,
- 'Engelsk must keep all three actual learning destinations');
+assert.match(refLayout,/english:\{words:'words',sentences:'sentences',reading:'reading','word-games':'words'\}/,
+ 'Engelsk must keep original destinations and add the live Word Games route');
 assert.match(refLayout,/scene\.closest\('#kinnaklova-world'\)\?\.dataset\.kiPremiumArt!=='approved'/,
  'Kinnaklova cannot gain duplicate signs while its painting contains signs');
 assert.match(kinnStyle,/--ref-menu-width:/,

@@ -55,18 +55,17 @@
   top:calc(max(10px,env(safe-area-inset-top,0px)) + clamp(48px,14vw,64px) + 14px)!important;
  }
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1
- > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]{
+ > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art]{
   top:auto!important;bottom:calc(100% - 63% + var(--phone-english-post-tail))!important;gap:6px!important;
  }
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1
- > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"]::before{
+ > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art]::before{
   top:-9px!important;height:calc(100% + 9px + var(--phone-english-post-tail))!important;
-  background:var(--laria-premium-posts) center top/100% 100% no-repeat!important;
+  background:var(--laria-premium-posts,url("./assets/ui/laria-grovanova-signposts.svg")) center top/100% 100% no-repeat!important;
  }
  #kinnaklova-world[data-ki-premium-art="approved"] .ki-stage.laria-reference-layout-v1
- > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art="ready"] > .laria-premium-sign{
+ > nav.laria-scene-navigation.laria-premium-sign-rail[data-laria-premium-sign-art] > .laria-wayfinder{
   height:auto!important;min-height:44px!important;aspect-ratio:315 / 90;
-  padding:0!important;background:none!important;color:transparent!important;text-shadow:none!important;
  }
 }
 

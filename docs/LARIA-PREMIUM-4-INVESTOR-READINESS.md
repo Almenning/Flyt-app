@@ -2,6 +2,8 @@
 
 **Status: testkandidat, ikke produksjonsgodkjent.** Baseline er faktisk `main` `834d3208074e315b01fdc959b0a5924c0b1196cc`. Samlet [draft #289](https://github.com/Almenning/Flyt-app/pull/289). Se PR-hodet og testartefaktene for bygg-ID; en rapport kan ikke inneholde sin egen commit-hash. [Demoskript](LARIA-PREMIUM-4-INVESTOR-DEMO.md). HverdagsOss, produksjonsdata, priser og låste bilder er ikke endret.
 
+**Nyere status:** [Nattarbeidet 28. november](LARIA-NATTARBEID-2026-11-28.md) dokumenterer Ordlek, den nye norske Finn ordene-opplevelsen, flere spillvisninger uten rulling og oppdatert verifikasjonsscope. [Draft #292](https://github.com/Almenning/Flyt-app/pull/292) erstatter #289 som mål for samlingen; kontrollér PR-hodet før du bruker lokalt bevis som GitHub- eller produksjonsstatus. Poengkortet nedenfor gjelder den tidligere investorkandidaten og er ikke en ny brukermåling.
+
 ## Faktiske forbedringer
 
 - **P0, oppdatering:** Ved full eller sperret diskcache returneres den ferske nettresponsen fortsatt. ES-moduler følger samme nett-først-regel som vanlig JavaScript. Tidligere verifiserte Gangemagi-cachekrav beholdt. Det er ikke dokumentert at alle aktiviteter fungerer offline ved kald start.

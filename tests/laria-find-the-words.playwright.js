@@ -71,6 +71,8 @@ async function geometry(page,label,view){
   const el=document.querySelector('.fw-art');
   const img=document.querySelector('.fw-scene-image');
   return {screen:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,
+   overlayScroll:document.querySelector(".fw-overlay").scrollTop,
+   overlayHeight:document.querySelector(".fw-overlay").scrollHeight,
    art:bounds('.fw-art'),picture:bounds('.fw-picture'),paint:bounds('.fw-scene-image'),list:bounds('.fw-list'),back:bounds('.fw-back'),hint:bounds('.fw-fox-button'),next:bounds('.fw-next'),
    scene:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
    words:[...document.querySelectorAll('.fw-word')].map(x=>x.getBoundingClientRect().height),
@@ -80,7 +82,7 @@ async function geometry(page,label,view){
      const word=document.querySelector('.fw-word[data-fw-read="sommerfugl"] strong');
      if(!word)return null;
      const r=word.getBoundingClientRect(),marker=word.closest('button').querySelector('.fw-word-check').getBoundingClientRect();
-     return {height:r.height,lineHeight:parseFloat(getComputedStyle(word).lineHeight),right:r.right,checkLeft:marker.left};
+     return {height:r.height,lineHeight:parseFloat(getComputedStyle(word).lineHeight),right:r.right,checkLeft:marker.bottom<=r.top?Infinity:marker.left};
    })(),
    paintedPoints:(()=>{
       // Coordinates of the pictured objects at the original 1200×720 artwork ratio.
@@ -111,6 +113,11 @@ async function geometry(page,label,view){
    'Norwegian word sommerfugl wrapped into fragments '+label+': '+JSON.stringify(box.longWord));
   assert.ok(box.longWord.right<=box.longWord.checkLeft+1,
    'The complete written word overlaps the tick control '+label+': '+JSON.stringify(box.longWord));
+ }
+ if(view.width>view.height&&view.height<=350){
+  assert.ok(box.overlayScroll===0&&box.overlayHeight<=box.height+1,'compact adventure must not scroll '+label+': '+JSON.stringify(box));
+  assert.ok([box.back,box.hint,box.next,box.list].every(control=>control.y>=0&&control.b<=box.height+1),
+   'compact adventure controls are clipped '+label+': '+JSON.stringify(box));
  }
  if(view.width>=1001&&view.height>=700&&view.height<=900){
   assert.ok(box.next&&box.next.b<=box.height+2&&box.hint.b<=box.height+2,
@@ -156,10 +163,16 @@ async function dragWord(page,word,targetSelector){
  await page.mouse.up();
 }
 async function run(engine,label,viewport,url,avatar){
- const browser=await engine.launch({headless:true,args:label.startsWith('chromium')?['--no-sandbox']:[]});
+ const chromiumPath=process.env.LARIA_CHROMIUM_PATH;
+ const browser=await engine.launch({headless:true,...(engine===chromium&&chromiumPath?{executablePath:chromiumPath}:{}),args:engine===chromium?['--no-sandbox']:[]});
  try{
   const context=await browser.newContext({viewport,hasTouch:true,isMobile:viewport.width<701,serviceWorkers:'block',reducedMotion:'reduce'});
-  await context.addInitScript(p=>localStorage.setItem('laerlittmer-v2',JSON.stringify(p)),seed(avatar));
+  await context.addInitScript(p=>{
+   if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(p));
+   // This regression intentionally tests finishing a pre-upgrade SVG round.
+   if(!localStorage.getItem('laria-find-words-active-v1'))localStorage.setItem('laria-find-words-active-v1',
+     JSON.stringify({version:1,round:0,found:[],completed:false}));
+  },seed(avatar));
   const page=await context.newPage(),errors=[];
   page.on('pageerror',err=>errors.push(String(err)));
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
@@ -183,8 +196,9 @@ async function run(engine,label,viewport,url,avatar){
      'Finn ordene must have one, not two, child-facing hint controls');
    const hint=page.locator('.fw-fox-button');
    assert.equal(await hint.count(),1,'One usable magical hint control must remain');
-   assert.match(await page.locator('.fw-next').innerText(),/Nye ord/,
-     'Next round must not be confused with the separate Ordjakt activity');
+   assert.match(await page.locator('.fw-next').innerText(),/Neste oppdrag/);
+   assert.equal(await page.locator('.fw-next').isEnabled(),false,
+     'An in-flight round must not be discarded by pressing Next');
    await hint.click();
    assert.match(await page.locator('.fw-speech').innerText(),/Velg først ordet/,
      'Hints must target the selected word, not an automatic answer');
@@ -258,6 +272,9 @@ async function run(engine,label,viewport,url,avatar){
     assert.equal(await page.locator('.fw-word.is-found').count(),targetWords.indexOf(word)+1,
       'Correct chosen word-object pair did not mark progress: '+word);
     if(word==='sol'){
+     assert.equal(await page.locator('.fw-find-mark').textContent(),'sol',
+       'A find must briefly connect the written word to the picture');
+     assert.equal(await page.locator('.fw-find-mark').evaluate(el=>getComputedStyle(el).pointerEvents),'none');
      assert.equal(await page.locator('.fw-fx .fw-success-burst[data-fx-object="sol"]').count(),1,
       'Successful match must celebrate at the found item in the picture');
      await shot(page,label+'-object-discovery');
@@ -346,10 +363,10 @@ async function run(engine,label,viewport,url,avatar){
      'Completing two separate adventures must record two rounds');
    await shot(page,label+'-secret-garden-complete');
    await page.locator('.fw-next').click();
-   assert.match(await page.locator('.fw-scene-image').getAttribute('src'),/find-the-words-scene\.svg/,
-     'Adventure sequence did not alternate back to Bokskogen');
-   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"]').count(),1,
-     'Original second forest word list changed after the new garden');
+   assert.match(await page.locator('.fw-scene-image').getAttribute('src'),/find-the-words-garden-premium\.webp/,
+     'A completed garden chapter must not return to the old SVG scene');
+   assert.equal(await page.locator('.fw-word[data-fw-read="pinnsvin"]').count(),1,
+     'The next garden chapter does not supply its own word set');
 
    // Legacy v1 save compatibility: keep the child's exact old forest round.
    await page.locator('.fw-back').click();
@@ -377,7 +394,13 @@ async function run(engine,label,viewport,url,avatar){
 (async()=>{
  const {server,url}=await serve();
  try{
-  await run(chromium,'chromium-ipad-landscape',{width:1180,height:820},url,'girl');
+  if(process.env.FIND_WORDS_VIEW==='micro-landscape'){
+   if(process.env.FIND_WORDS_BROWSER!=='webkit')await run(chromium,'chromium-micro-landscape',{width:568,height:320},url,'girl');
+   if(process.env.FIND_WORDS_BROWSER!=='chromium')await run(webkit,'webkit-micro-landscape',{width:568,height:320},url,'boy');
+   return;
+  }
+  if(process.env.FIND_WORDS_BROWSER!=='webkit')await run(chromium,'chromium-ipad-landscape',{width:1180,height:820},url,'girl');
+  if(process.env.FIND_WORDS_BROWSER==='chromium')return;
   await run(webkit,'webkit-ipad',{width:820,height:1180},url,'girl');
   await run(webkit,'webkit-iphone',{width:390,height:844},url,'boy');
   await run(webkit,'webkit-small-iphone',{width:320,height:568},url,'girl');

@@ -115,6 +115,11 @@ body:has(#geography-screen.gv-visible){background:#e8eadc!important}
   #laria-geography-world .gv-sign-country{left:40%;right:auto;top:79%}
   #laria-geography-world .gv-troll{width:88px;height:19%;bottom:2%}
 }
+/* Short narrow phones fit the two signs without a scrollable landscape.
+ * Keep Nordlysleiren's existing portrait fit and art unchanged. */
+@media(max-width:359px) and (max-height:589px) and (orientation:portrait){
+  #laria-geography-world .gv-scene{min-height:0}
+}
 @media(orientation:landscape) and (max-height:500px){
   #laria-geography-world .gv-scene{min-height:0;height:100dvh}
   #laria-geography-world .gv-brand{top:2%;min-width:170px;padding:5px 12px}

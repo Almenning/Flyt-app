@@ -46,6 +46,7 @@ jobs:
           node --check laer-litt-mer/find-the-words.js
           node --check tests/laria-find-the-words.playwright.js
           node tests/laria-find-the-words.playwright.js
+          FIND_WORDS_VIEW=micro-landscape node tests/laria-find-the-words.playwright.js
       - name: Verify iPad companion layout and orientation changes
         env:
           FIND_WORDS_SCREENSHOTS: /tmp/laria-find-words
@@ -99,6 +100,7 @@ jobs:
             if curl -fsSL --max-time 15 -H "Cache-Control: no-cache" "$base/find-the-words.js?revision=$GITHUB_SHA" -o /tmp/find-words-live.js &&
                curl -fsSL --max-time 15 "$base/find-the-words.css?revision=$GITHUB_SHA" -o /tmp/find-words-live.css &&
                curl -fsSL --max-time 15 "$base/find-the-words-scene.svg?revision=$GITHUB_SHA" -o /tmp/find-words-live.svg &&
+               curl -fsSL --max-time 15 "$base/find-the-words-garden-premium.webp?revision=$GITHUB_SHA" -o /tmp/find-words-live-garden.webp &&
                curl -fsSL --max-time 15 "$base/?app=laria&revision=$GITHUB_SHA" -o /tmp/find-words-live.html &&
                curl -fsSL --max-time 15 "$base/laria-navigation-v13.js?revision=$GITHUB_SHA" -o /tmp/find-words-live-navigation.js &&
                curl -fsSL --max-time 15 "$base/laria-navigation-v13.css?revision=$GITHUB_SHA" -o /tmp/find-words-live-navigation.css &&
@@ -107,6 +109,7 @@ jobs:
                cmp -s /tmp/find-words-live.js laer-litt-mer/find-the-words.js &&
                cmp -s /tmp/find-words-live.css laer-litt-mer/find-the-words.css &&
                cmp -s /tmp/find-words-live.svg laer-litt-mer/find-the-words-scene.svg &&
+               cmp -s /tmp/find-words-live-garden.webp laer-litt-mer/find-the-words-garden-premium.webp &&
                cmp -s /tmp/find-words-live.html laer-litt-mer/index.html &&
                cmp -s /tmp/find-words-live-navigation.js laer-litt-mer/laria-navigation-v13.js &&
                cmp -s /tmp/find-words-live-navigation.css laer-litt-mer/laria-navigation-v13.css &&

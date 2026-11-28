@@ -13,7 +13,16 @@ async function verify(browser,kind,w,h,touch){
     await ctx.addInitScript(value=>{if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(value))},seed);
     const photo=tag=>page.screenshot({path:out+'/'+kind+'-'+w+'x'+h+'-'+tag+'.png',animations:'disabled'});
     const compact=w<=430&&h<=740&&h>w;
-    const activate=locator=>compact?locator.tap():locator.click();
+    const shortLandscape=touch&&h<w&&h<=500;
+    const uprightNoScroll=touch&&w>=360&&w<=430&&h>w&&h<=880;
+    const activate=locator=>(compact||shortLandscape||uprightNoScroll)?locator.tap():locator.click();
+    const uprightStage=async suffix=>{
+      if(!uprightNoScroll)return;
+      await onScreen('#session-screen.active :is(#close-session,'+suffix+')');
+      assert.deepEqual(await page.evaluate(()=>[
+        document.querySelector('#session-screen.active .session').scrollTop,scrollY
+      ]),[0,0],'upright phone must not scroll to reach '+suffix);
+    };
     const onScreen=async selector=>page.waitForFunction(q=>{
       const nodes=[...document.querySelectorAll(q)];
       return nodes.length>0&&nodes.every(node=>{
@@ -70,48 +79,70 @@ async function verify(browser,kind,w,h,touch){
     await game.waitFor({timeout:14000});
     assert.match(await game.evaluate(e=>getComputedStyle(e).getPropertyValue('--task-world')),new RegExp('nordlysleiren-bluehour-'+(h>w?'portrait':'landscape')));
     assert.match(await page.locator('#session-count').innerText(),/Oppdrag 1 av 5/);
-    await game.locator('.land-flag-hint summary').click();
+    await uprightStage('.land-flag-hint summary');
+    await activate(game.locator('.land-flag-hint summary'));
     const hint=await game.locator('.land-flag-hint p').innerText();
     assert.equal(hint,'Dette landet er kjent for fjordene sine og har en lang kyst.');
     assert.doesNotMatch(hint,/Norge|flagg|fargene|mønsteret/i);
     assert.equal(await page.evaluate(()=>currentAnswered),null,'help must not count an answer');
+    await uprightStage('.land-flag-hint summary');
     await photo('country-hint');
-    await game.locator('.land-flag-hint summary').click();
-    if(compact)await onScreen('#session-screen.active .task-interaction > .answers .answer');
+    await activate(game.locator('.land-flag-hint summary'));
+    if(compact||shortLandscape)await onScreen('#session-screen.active .task-interaction > .answers .answer');
+    if(shortLandscape)await onScreen('#session-screen.active :is(#close-session,.land-flag-hint summary)');
+    await uprightStage('.task-interaction > .answers .answer');
     await photo('flag');
     // Use a real generated Nordic map question if this random session lacks one next.
-    await page.evaluate(()=>{if(sessionQuestions[1].type!=='map'){sessionQuestions[1]=makeQuestion('no','map',NORDIC_IDS);persistActiveSession();}});
+    await page.evaluate(({shortLandscape,uprightNoScroll})=>{
+      if(sessionQuestions[1].type!=='map')sessionQuestions[1]=makeQuestion('no','map',NORDIC_IDS);
+      if(shortLandscape)sessionQuestions[4]=makeQuestion('is','map',NORDIC_IDS);
+      if(uprightNoScroll)sessionQuestions[4]=makeQuestion('fr','map',[...NORDIC_IDS,...CORE_EUROPE_2]);
+      persistActiveSession();
+    },{shortLandscape,uprightNoScroll});
     const read=await game.locator('#read-aloud').count();
     if(read)assert.match(await game.locator('#read-aloud').getAttribute('aria-label'),/Les opp/);
     const flagWrong=await page.evaluate(()=>sessionQuestions[qIndex].options.find(o=>o!==sessionQuestions[qIndex].answer));
     await activate(game.getByRole('button',{name:flagWrong,exact:true}));
     await game.getByText('Nesten!',{exact:true}).waitFor({timeout:6500});
     if(h<850)await onScreen('#session-screen.active #next-question');
+    if(shortLandscape)await onScreen('#session-screen.active #close-session');
+    await uprightStage('#next-question');
     await photo('feedback');
-    await game.locator('#next-question').click();
+    await activate(game.locator('#next-question'));
     const alternatives=game.locator('#land-flag-map-choices');
     await alternatives.waitFor();
-    if(compact){
+    if(compact||shortLandscape){
       assert.equal(await game.locator('.session').evaluate(el=>el.scrollTop),0,'new question starts at the top');
       await onScreen('#session-screen.active #land-flag-map-choices summary');
     }
     await photo('map-fold');
-    await alternatives.locator('summary').click();
+    await uprightStage('#land-flag-map-choices summary');
+    await activate(alternatives.locator('summary'));
+    await uprightStage('#land-flag-map-choices .answer');
     const map=await page.evaluate(()=>sessionQuestions[qIndex].answer);
     const right=alternatives.locator('[data-land-flag-map="'+map+'"]');
     assert.match(await right.innerText(),/^Område \d+$/);
     await photo('map');
     await right.focus();await page.keyboard.press('Enter');
     assert.equal(await page.evaluate(()=>currentAnswered.correct),true,'keyboard map answer uses the real answer engine');
-    if(compact)await onScreen('#session-screen.active #next-question');
-    await game.locator('#next-question').click();
+    if(compact||shortLandscape)await onScreen('#session-screen.active #next-question');
+    await uprightStage('#next-question');
+    await activate(game.locator('#next-question'));
     while(await game.isVisible()){
       const q=await page.evaluate(()=>({type:sessionQuestions[qIndex].type,answer:sessionQuestions[qIndex].answer}));
       if(q.type==='map'){
-        await game.locator('#land-flag-map-choices summary').click();
-        await game.locator('[data-land-flag-map="'+q.answer+'"]').click();
-      }else await game.getByRole('button',{name:q.answer,exact:true}).click();
-      await game.locator('#next-question').click();
+        await uprightStage('#land-flag-map-choices summary');
+        await activate(game.locator('#land-flag-map-choices summary'));
+        await uprightStage('#land-flag-map-choices .answer');
+        await activate(game.locator('[data-land-flag-map="'+q.answer+'"]'));
+      }else{
+        await uprightStage('.task-interaction > .answers .answer');
+        await activate(game.getByRole('button',{name:q.answer,exact:true}));
+      }
+      if(shortLandscape&&q.type==='map')await onScreen('#session-screen.active :is(#close-session,#next-question)');
+      await uprightStage('#next-question');
+      if(uprightNoScroll&&await game.locator('#next-question').getAttribute('aria-label')==='Fullfør oppdraget')await photo('final-map-feedback');
+      await activate(game.locator('#next-question'));
     }
     const complete=page.locator('#complete-screen.active[data-land-flag]');
     await complete.waitFor({timeout:14000});
@@ -120,6 +151,7 @@ async function verify(browser,kind,w,h,touch){
     assert.equal(await page.evaluate(()=>state.activeSession),null);
     assert.equal(await page.evaluate(()=>state.sessionLog.at(-1).correct),4);
     await photo('complete');
+    if(shortLandscape||uprightNoScroll)await onScreen('#complete-screen.active :is(#complete-home,#complete-progress,#complete-repeat)');
     await complete.locator('#complete-home').click();
     await geo.waitFor({timeout:14000});
     assert.equal(await geo.locator('[data-gv="journey"]').count(),0);
@@ -136,7 +168,7 @@ async function verifyPilot(){
     const exe=kind==='chromium'&&process.env.LARIA_CHROMIUM_PATH;
     const browser=await engine.launch(exe?{executablePath:exe,args:['--no-sandbox']}:{});
     try{
-      for(const [w,h,touch] of [[1180,820,true],[820,1180,true],[390,844,true],[320,568,true],[844,390,true],[1440,900,false]]){
+      for(const [w,h,touch] of [[1180,820,true],[820,1180,true],[375,667,true],[390,844,true],[320,568,true],[844,390,true],[667,375,true],[568,320,true],[1440,900,false]]){
         if(!process.env.LARIA_PILOT_DEVICE||process.env.LARIA_PILOT_DEVICE===w+'x'+h)await verify(browser,kind,w,h,touch);
       }
     }

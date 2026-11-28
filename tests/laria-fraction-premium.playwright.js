@@ -7,6 +7,22 @@ const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; ch
 const profile={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Elev',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 function server(){return new Promise((resolve,reject)=>{const srv=http.createServer((req,res)=>{let name=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(name.endsWith('/'))name+='index.html';const f=path.resolve(base,'.'+name);if(!f.startsWith(base+path.sep)){res.writeHead(403);res.end('Forbidden');return}fs.readFile(f,(err,buf)=>{if(err){res.writeHead(404);res.end('Not found');return}res.setHeader('Content-Type',mime[path.extname(f)]||'application/octet-stream');res.setHeader('Cache-Control','no-store');res.end(buf)})});srv.once('error',reject);srv.listen(0,'127.0.0.1',()=>resolve({srv,url:'http://127.0.0.1:'+srv.address().port+'/laer-litt-mer/?app=laria'}))})}
 async function photo(page,label){await fs.promises.mkdir(out,{recursive:true});await page.screenshot({path:path.join(out,label+'.png'),fullPage:true,animations:'disabled'})}
+async function tapWorkshopSector(page,index){
+ const sector=page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="'+index+'"]');
+ await sector.waitFor({state:'visible'});
+ // WebKit's generic locator stability check may stall on an SVG path.
+ // Find a real painted pixel and use a pointer tap without scrolling.
+ const point=await sector.evaluate(el=>{
+   const r=el.getBoundingClientRect();
+   for(const yf of [.5,.35,.65,.2,.8])for(const xf of [.5,.35,.65,.2,.8]){
+     const x=r.left+r.width*xf,y=r.top+r.height*yf;
+     if(x>=0&&x<innerWidth&&y>=0&&y<innerHeight&&document.elementFromPoint(x,y)===el)return {x,y};
+   }
+   return null;
+ });
+ assert.ok(point,'The visible painted cake sector '+index+' cannot be touched before scrolling');
+ await page.touchscreen.tap(point.x,point.y);
+}
 async function run(browser,engine,label,viewport,url){
  const ctx=await browser.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:viewport.width<700,hasTouch:true});
  const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));
@@ -103,7 +119,7 @@ async function run(browser,engine,label,viewport,url){
   await page.keyboard.press('Enter');
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4');
   assert.ok(await down.evaluate(el=>document.activeElement===el),label+' lost focus after teller decrease');
-  await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
+  await tapWorkshopSector(page,2);
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0,2],'tap adds the touched sector, not the next one');
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
   assert.deepEqual(await page.locator((tablet?'.fr7-tablet-equivalents':'#fr7-mobile-values')+' .fr7-equivalent-tile strong').allTextContents(),['0,5','50 %'],
@@ -113,7 +129,7 @@ async function run(browser,engine,label,viewport,url){
     assert.equal(await page.locator('#fr7-mobile-values').isVisible(),false);
   }
   assert.deepEqual(await page.locator('.fr6-piece-tray .fr2-spare').evaluateAll(xs=>xs.map(x=>Number(x.dataset.pieceIndex))),[1,3],'placed piece must vanish from tray');
-  await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
+  await tapWorkshopSector(page,2);
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0],'same sector removes exactly that sector');
   await page.locator('.fr5-fox-mentor').click();
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4','fox hint may not change the cake');
@@ -161,13 +177,33 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.fr2-sign-decoration .fr2-illustration').count(),1);
   const scenery=await page.evaluate(async()=>({
     bg:getComputedStyle(document.querySelector('.fr2-world-art')).backgroundImage,
+    visibleScene:getComputedStyle(document.querySelector('.fr2-shell')).backgroundImage,
+    portrait:matchMedia('(max-aspect-ratio: 1/1)').matches,
     workshop:(await fetch('./fraction-workshop-scene.svg')).status,
     foreground:(await fetch('./fraction-bakery-foreground-v4.svg')).status,
     painted:getComputedStyle(document.querySelector('.fr4-home-foreground')).backgroundImage
   }));
   assert.equal(scenery.workshop,200);
   assert.equal(scenery.foreground,200);
-  assert.ok(scenery.bg.includes('fraction-workshop-scene.svg'));
+  // The merged Tallvika learning identity (#284) uses the same approved
+  // landscape as the other math modules, not a second workshop backdrop.
+  const artFile='tallvika-fjord-no-buildings-'+(scenery.portrait?'portrait':'wide')+'-20261107.webp';
+  assert.ok(scenery.visibleScene.includes('/assets/tallvika/'+artFile),
+    label+' must render the approved Tallvika frame: '+JSON.stringify(scenery));
+  assert.equal(scenery.bg,'none',label+' must not stack the old background under the Tallvika frame');
+  const loaded=await page.evaluate(async file=>{
+    const image=new Image();
+    image.src='./assets/tallvika/'+file;
+    await image.decode();
+    return [image.naturalWidth,image.naturalHeight];
+  },artFile);
+  assert.ok(loaded[0]>0&&loaded[1]>0,label+' approved backdrop did not decode');
+  assert.equal(require('node:crypto').createHash('sha256').update(
+    fs.readFileSync(path.join(base,'laer-litt-mer','assets','tallvika',artFile))
+  ).digest('hex'),scenery.portrait
+    ?'193720ecf606509676b47c2e8d52f3bdc2f5bbbad07ab12b0b1f563ec0dd7f14'
+    :'422f6489c3c3328db65b84d9850adf61a33ff9b664d1855325ffd4658af73203',
+    label+' locked Tallvika artwork differs');
   assert.ok(scenery.painted.includes('fraction-bakery-foreground-v4.svg'));
   assert.equal(await page.locator('.fr4-top .fr4-earned').count(),1);
   await photo(page,label+'-01-more');
@@ -330,7 +366,7 @@ async function runLandscape(browser,engine,url){
   assert.ok(metric.scrollWidth<=metric.width+3,engine+' phone landscape horizontal overflow: '+JSON.stringify(metric));
   assert.ok([metric.cake,metric.fraction,metric.controls].every(r=>r.top>=0&&r.bottom<=metric.height),
    engine+' iPhone landscape cake, 1/4 and controls must fit without scrolling: '+JSON.stringify(metric));
-  await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
+  await tapWorkshopSector(page,2);
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
   await photo(page,engine+'-iphone-landscape-02-response');
   assert.deepEqual(errors,[],engine+' landscape page errors');

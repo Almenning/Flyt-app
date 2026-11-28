@@ -743,7 +743,7 @@
    previously overrode the earlier Norsk styles and pushed all choices below
    390px in Chromium/iPhone. This narrow exception updates that source of
    truth without changing the other three subjects or the saved question. */
-@media (orientation:landscape) and (min-width:701px) and (max-width:950px) and (max-height:520px){
+@media (orientation:landscape) and (min-width:560px) and (max-width:950px) and (max-height:520px){
  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] #question-wrap{
   width:min(calc(100vw - 28px),800px)!important;margin-top:4px!important;
  }

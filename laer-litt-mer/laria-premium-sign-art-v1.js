@@ -21,6 +21,7 @@
   'tv:shop':enamel('<path d="M4 13h24l-3 14H7z" fill="#bc754d"/><path d="m9 13 4-8m10 8-4-8M11 18v5m5-5v5m5-5v5" fill="none"/>'+sparkle),
   'ki:words':enamel('<rect x="4" y="5" width="14" height="14" rx="3" transform="rotate(-8 11 12)" fill="#8fac7a"/><rect x="14" y="14" width="14" height="14" rx="3" transform="rotate(8 21 21)" fill="#d78070"/><path d="m7 15 3-7 3 7m-5-2h4m6 11v-7h3q4 1 1 3 4 2 0 4z" fill="none"/>'),
   'ki:sentences':enamel('<path d="M13 14h12q4 0 4 4v6l-4-2H13q-3 0-3-3v-2q0-3 3-3z" fill="#e9a464"/><path d="M6 5h15q4 0 4 4v4q0 4-4 4H11l-7 5v-5q-2-1-2-4V9q0-4 4-4z" fill="#82afbd"/><path d="M8 11h1m4 0h1m4 0h1" fill="none" stroke-width="2.2"/>'),
+  'ki:word-games':enamel('<rect x="11" y="9" width="17" height="17" rx="4" fill="#d9a86c"/><path d="M16 10v15m6-15v15M12 15h15m-15 6h15" fill="none"/><circle cx="9" cy="9" r="5" fill="#add5a1"/><path d="m5 13-3 3" fill="none" stroke-width="2.5"/>'),
   'ki:reading':enamel('<path d="M3 9q8-2 13 3 5-5 13-3v16q-8-2-13 2-5-4-13-2z" fill="#e3a769"/><path d="M16 12v14M7 15l5 1m-5 3 5 1m9-11v12l3-2 3 1V9" fill="none"/><path d="m22 4 1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#ffc963"/>'),
   'gv:journey':enamel('<path d="M3 26 16 8l13 18z" fill="#e49564"/><path d="m13 26 4-10 4 10" fill="#724110"/><path d="M2 26h28" fill="none"/>'+sparkle),
   'gv:globe':enamel('<circle cx="16" cy="16" r="12" fill="#70a8bc"/><path d="m6 10 7-4 5 3-3 3 3 4-4 3-2 5-4-4v-5zm17 5 4 1-2 6-4-1z" fill="#7bae78" stroke-width="1.2"/>'),
@@ -29,7 +30,7 @@
  const labels={
   eg:{words:'Ordjakt',find:'Finn ordene',reading:'Lesekroken'},
   tv:{multiply:'Gangemagi',fraction:'Brøklab',table:'Gangetabellen',shop:'Trollbutikken'},
-  ki:{words:'Ord',sentences:'Setninger',reading:'Lesing'},
+  ki:{words:'Ord',sentences:'Setninger',reading:'Lesing','word-games':'Ordlek'},
   gv:{globe:'Kloden',country:'Land og flagg'}
  };
  const clamp=(n,a=0,b=1)=>Math.min(b,Math.max(a,n));
@@ -138,10 +139,16 @@
   if(items.some(item=>!item))return false;
   const geography=!!nav.closest('#laria-geography-world');
   const tallvika=nav.closest('#tallvika-world')&&nav.closest('.tv-scene');
+  const kinnaklova=nav.closest('#kinnaklova-world')&&nav.closest('.ki-stage');
   if(geography ? items.map(item=>item.world+':'+item.id).join(',')!=='gv:globe,gv:country'
-    : tallvika?!window.LARIA_SCENE_UI?.validTallvikaRail?.(tallvika,buttons):items.length!==3)return false;
+    : tallvika?!window.LARIA_SCENE_UI?.validTallvikaRail?.(tallvika,buttons)
+    : kinnaklova?!window.LARIA_SCENE_UI?.validKinnaklovaRail?.(kinnaklova,buttons):items.length!==3)return false;
   const token=Symbol();
   pending.set(nav,token);
+  // Lock navigation at its final position before the bitmap is fetched.
+  // Loading or integrity failure repaints the existing SVG buttons in
+  // place instead of moving the controls away from an intended tap.
+  nav.classList.add('laria-premium-sign-rail');
   nav.dataset.lariaPremiumSignArt='loading';
   try{
    const art=await source();
@@ -162,7 +169,6 @@
     text.className='laria-premium-sign-label';text.textContent=label;
     face.append(badge,text);button.append(face);button.classList.add('laria-premium-sign');
    });
-   nav.classList.add('laria-premium-sign-rail');
    nav.dataset.lariaPremiumSignArt='ready';return true;
   }catch(error){
    if(pending.get(nav)!==token)return false;

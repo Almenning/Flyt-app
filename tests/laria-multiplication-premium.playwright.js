@@ -72,7 +72,7 @@ async function compactFirstFold(browser,engine,label,viewport,url){
    await page.evaluate(()=>showScreen('home'));
    await openHomeSubject(page,'math');
    await page.locator('#tallvika-world [data-tv="table"]').tap();
-   await page.locator('.mp-explore-tab[data-mode="pick"]').tap();
+   await page.getByRole('combobox',{name:'Velg aktivitet'}).selectOption('pick');
    const fruit=page.locator('.mp-pick-object').first();
    const rect=await fruit.boundingBox();
    const hit=rect&&await fruit.evaluate((button,p)=>

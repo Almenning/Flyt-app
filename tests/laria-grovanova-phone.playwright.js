@@ -5,7 +5,7 @@ const root=process.env.LARIA_PHONE_SHOTS||'/tmp/laria-grovanova-phone';
 fs.mkdirSync(root,{recursive:true});
 (async()=>{const kind=process.env.LARIA_PHONE_ENGINE||"webkit";
 for(const [w,h] of [[390,844],[844,390],[375,667],[320,568],[820,1180],[1180,820]]){
-const b=await p[kind].launch(kind==="chromium"?{...(process.env.LARIA_CHROMIUM_PATH?{executablePath:process.env.LARIA_CHROMIUM_PATH}:{}),args:["--no-sandbox","--no-zygote","--single-process"]}:{}); const c=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:w<700,serviceWorkers:'block',reducedMotion:'reduce'}); 
+const b=await p[kind].launch(kind==="chromium"?{...(process.env.LARIA_CHROMIUM_PATH?{executablePath:process.env.LARIA_CHROMIUM_PATH}:{}),args:["--no-sandbox","--no-zygote","--single-process"]}:{}); const c=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:w<700,serviceWorkers:'block',reducedMotion:'reduce'});
 await c.addInitScript(()=>localStorage.setItem('laerlittmer-v2',JSON.stringify({version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Demo Læria',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null})));
 const page=await c.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria',{waitUntil:'domcontentloaded'});

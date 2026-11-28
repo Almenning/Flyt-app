@@ -43,6 +43,12 @@ jobs:
           TB_ENGINE: ${{ matrix.engine }}
           TROLLBUTIKKEN_SCREENSHOTS: /tmp/trollbutikken-shots
         run: node tests/laria-trollbutikken.playwright.js
+      - name: Require no scrolling for the full portrait-phone flows
+        env:
+          QA_URL: http://127.0.0.1:8793/laria/
+          TB_PORTRAIT_ENGINE: ${{ matrix.engine }}
+          TB_PORTRAIT_SHOTS: /tmp/trollbutikken-shots/no-scroll-portrait
+        run: node tests/laria-trollbutikken-portrait-first-fold.playwright.js
       - name: Check the remaining viewport sizes and real controls
         env:
           QA_URL: http://127.0.0.1:8793/laer-litt-mer/?app=laria

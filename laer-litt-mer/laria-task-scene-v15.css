@@ -1626,7 +1626,7 @@ body.laria-task-scene-open .app:after{
    hid every answer below the initial fold. Keep the *whole* question and
    three real 44px touch choices in the first viewport, without changing
    question data or affecting other subjects. Longer passages can scroll. */
-@media (min-width:701px) and (max-width:950px) and (max-height:520px) and (orientation:landscape){
+@media (min-width:560px) and (max-width:950px) and (max-height:520px) and (orientation:landscape){
  #session-screen.task-scene[data-task-subject="norwegian"]{
   height:100dvh;min-height:100dvh;overflow-x:hidden;overflow-y:auto;
   overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;
@@ -1798,9 +1798,9 @@ body:has(#complete-screen.active[data-land-flag]) .app{
 
 /* Short portrait iPhone: spend the first fold on the flag/map and choices,
    not on vertical staging. Keep the same live companion and 44px targets. */
-@media (orientation:portrait) and (max-width:430px) and (max-height:740px){
+@media (orientation:portrait) and (max-width:430px) and (max-height:880px){
   #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .session{
-    padding-top:max(8px,env(safe-area-inset-top));
+    padding-top:max(8px,env(safe-area-inset-top))!important;
   }
   #session-screen.task-scene[data-task-subject="geography"][data-land-flag] #question-wrap{
     margin-top:4px!important;
@@ -1860,4 +1860,222 @@ body:has(#complete-screen.active[data-land-flag]) .app{
   #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .next{
     min-height:48px!important;
   }
+}
+
+/* Upright phones: keep the result in the same viewport as the question.
+   The map is full size until the child opens its equivalent button choices. */
+@media (orientation:portrait) and (min-width:360px) and (max-width:430px) and (max-height:880px){
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .feedback{
+    margin-top:6px!important;padding:7px 11px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .feedback p{
+    margin-top:2px!important;line-height:1.24!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .next{
+    margin-top:7px!important;padding:7px 10px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .laria-task-card:has(.answer:disabled) :is(.task-visual-row,.task-object-stage){
+    min-height:84px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .laria-task-card:has(.answer:disabled) .task-emoji-sticker{
+    width:74px!important;height:74px!important;font-size:64px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .laria-task-card:has(.answer:disabled) .task-visual-companion-stage > .task-fox-companion{
+    height:76px!important;bottom:2px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .task-inline-fox:has(.answer:disabled) .task-prompt-fox-stage{
+    min-height:62px!important;margin-block:3px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .task-inline-fox:has(.answer:disabled) .task-prompt-fox-stage > .task-fox-companion{
+    height:64px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] #land-flag-map-choices .answers{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:6px!important;margin-top:5px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] #land-flag-map-choices .answer{
+    padding:4px!important;font-size:clamp(13px,4vw,17px)!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] #land-flag-map-choices .answers:has(.answer:nth-child(7)){
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] #land-flag-map-choices .answers:has(.answer:nth-child(7)) .answer{
+    font-size:13px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .task-interaction:has(#land-flag-map-choices[open]){
+    --expanded-map-height:clamp(115px,18dvh,151px);
+    position:relative;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .task-interaction:has(#land-flag-map-choices[open] .answer:disabled){
+    --expanded-map-height:clamp(100px,16dvh,135px);
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .task-interaction:has(#land-flag-map-choices[open]) .map-region{
+    position:absolute;inset:calc(var(--expanded-map-height) + 10px) auto auto 0;
+    z-index:2;margin:0!important;padding:6px 8px;pointer-events:none;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] .task-interaction:has(#land-flag-map-choices[open]) .quiz-real-map{
+    height:var(--expanded-map-height);margin-block:0 4px!important;
+  }
+  #session-screen.task-scene[data-task-subject="geography"][data-land-flag] #land-flag-map-choices[open] summary{
+    margin-right:0;max-width:calc(100% - 91px);padding-inline:10px;font-size:15px;
+  }
+}
+@media (orientation:portrait) and (min-width:360px) and (max-width:430px) and (max-height:740px){
+  #complete-screen.active[data-land-flag] .medal{
+    font-size:76px!important;line-height:1!important;
+  }
+}
+
+/* On a rotated phone, spend width rather than height on the prompt and flag.
+   Keep the same order for touch, keyboard and reading; only the grid changes. */
+@media (orientation:landscape) and (max-width:950px) and (max-height:500px){
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .session{
+    padding-block:max(4px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-bottom))!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .session-top{
+    position:sticky!important;top:env(safe-area-inset-top);z-index:5;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] #question-wrap{
+    margin-top:5px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .laria-task-card{
+    display:grid!important;
+    grid-template-columns:minmax(0,3fr) minmax(140px,2fr);
+    align-items:center;gap:6px 14px;
+    padding:8px 14px 12px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .laria-task-card > .task-card-head{
+    grid-column:1;grid-row:1;display:flex!important;flex-direction:row!important;
+    justify-content:flex-start!important;gap:12px!important;
+    min-height:44px!important;margin:0!important;padding:0!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .land-flag-hint{
+    grid-column:2;grid-row:1;justify-self:end;
+    margin:0!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .land-flag-hint[open]{
+    grid-column:1/-1;grid-row:2;justify-self:stretch;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .laria-task-card > .question{
+    grid-column:1;margin:0!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-visual-companion-stage{
+    grid-column:2;min-width:0;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] :is(.task-visual-row,.task-object-stage,.task-prompt-fox-stage){
+    min-height:90px!important;margin-block:0!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-emoji-sticker{
+    width:84px!important;height:84px!important;font-size:68px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-visual-companion-stage > .task-fox-companion{
+    height:86px!important;top:auto!important;bottom:0!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-prompt-fox-stage{
+    grid-column:1/-1;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion{
+    height:72px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .question{
+    font-size:clamp(24px,4vw,34px)!important;line-height:1.08!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-interaction{
+    grid-column:1/-1;width:100%!important;max-width:none!important;margin:0!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-type-map .task-interaction{
+    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(205px,34%);
+    grid-template-rows:auto auto;align-items:start;gap:5px 12px;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .map-region{
+    grid-column:2;grid-row:1;justify-self:center;margin:0!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] #land-flag-map-choices{
+    grid-column:2;grid-row:2;margin:0!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] #land-flag-map-choices summary{
+    width:100%;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] :is(.answer,.next){
+    min-height:48px!important;padding-block:6px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-type-map .task-prompt-fox-stage{
+    min-height:62px!important;margin:0 auto!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .quiz-real-map{
+    grid-column:1;grid-row:1/span 2;margin:0!important;
+    height:clamp(124px,33dvh,164px);
+  }
+  /* Keep the real outline and disabled choices visible after a map answer.
+     Reduce the already-answered grid rather than collapsing the field the child focused. */
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] #land-flag-map-choices .answers:has(:disabled){
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] #land-flag-map-choices .answer:disabled{
+    min-height:44px!important;padding:4px!important;font-size:13px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-type-map:has(#land-flag-map-choices[open] .answer:disabled) .task-prompt-fox-stage{
+    min-height:52px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .task-type-map:has(#land-flag-map-choices[open] .answer:disabled) .task-prompt-fox-stage > .task-fox-companion{
+    height:52px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] :is(.feedback,.next){
+    width:100%!important;margin:0!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .feedback{
+    grid-column:1;padding:6px 12px!important;
+  }
+  #session-screen.task-scene[data-land-flag][data-task-subject="geography"] .next{
+    grid-column:2;
+  }
+  #complete-screen.active[data-land-flag]{
+    padding:max(8px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right))
+      max(12px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+  }
+  #complete-screen.active[data-land-flag] .complete{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px 10px;padding:10px 16px 14px!important;
+  }
+  #complete-screen.active[data-land-flag] .complete > *{
+    grid-column:1/-1;margin-block:0!important;
+  }
+  #complete-screen.active[data-land-flag] .medal{
+    font-size:48px!important;line-height:1!important;
+  }
+  #complete-screen.active[data-land-flag] .complete h1{font-size:26px!important}
+  #complete-screen.active[data-land-flag] .young-reward{padding:6px 8px!important}
+  #complete-screen.active[data-land-flag] .young-reward-icon{
+    width:42px!important;height:42px!important;font-size:22px!important;
+  }
+  #complete-screen.active[data-land-flag] .summary{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;padding:0 8px!important;
+  }
+  #complete-screen.active[data-land-flag] .summary-row{
+    border:0!important;align-items:center;gap:5px;padding:4px 0!important;
+  }
+  #complete-screen.active[data-land-flag] #complete-next{padding:5px 8px!important}
+  #complete-screen.active[data-land-flag] .complete > button{
+    grid-column:auto;min-height:46px!important;padding:5px 9px!important;
+  }
+}
+
+/* Small landscape needs room for finishing actions as well as the quiz.
+   Keep the title and medal together, with all results below. */
+@media (orientation:landscape) and (max-width:620px) and (max-height:350px){
+  #complete-screen.active[data-land-flag]{padding:6px max(9px,env(safe-area-inset-right)) 8px max(9px,env(safe-area-inset-left))}
+  #complete-screen.active[data-land-flag] .complete{gap:3px 6px;padding:7px 9px!important}
+  #complete-screen.active[data-land-flag] .complete > .medal{
+    grid-column:1;grid-row:1/3;align-self:center;justify-self:end;font-size:37px!important;
+  }
+  #complete-screen.active[data-land-flag] .complete > :is(.eyebrow,h1){grid-column:2/-1;text-align:left}
+  #complete-screen.active[data-land-flag] .complete h1{font-size:22px!important;line-height:1.1}
+  #complete-screen.active[data-land-flag] .complete > .eyebrow{min-height:0;padding-block:2px}
+  #complete-screen.active[data-land-flag] .complete #complete-copy{font-size:13px;line-height:1.2}
+  #complete-screen.active[data-land-flag] .complete .young-reward{padding:3px 6px!important}
+  #complete-screen.active[data-land-flag] .complete #young-reward-icon{width:33px!important;height:33px!important;font-size:19px!important}
+  #complete-screen.active[data-land-flag] .complete > button{min-height:44px!important;font-size:12px}
 }

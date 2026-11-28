@@ -411,9 +411,25 @@ async function capture(browserType,label,viewport){
     assert.equal(await page.locator('#globe-mode [data-globe-mode]').count(),3,label+' must expose Utforsk, Min verden and Kloden');
     assert.equal(await randomCountry.isVisible(),false,label+' extra actions should start closed');
     assert.equal(await resetGlobe.isVisible(),false,label+' extra actions should start closed');
-    await moreSummary.click();
+    // Do not let WebKit's fullscreen locator autoscroll mask an obstructed
+    // target. Touch the physical first-fold summary, then exercise Escape
+    // from keyboard focus within the disclosure.
+    const disclosure=await moreSummary.evaluate(el=>{
+      const r=el.getBoundingClientRect(),x=Math.round((r.left+r.right)/2),y=Math.round((r.top+r.bottom)/2);
+      const hit=document.elementFromPoint(x,y);
+      return {x,y,ready:r.width>=44&&r.height>=44&&r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight&&
+        (hit===el||el.contains(hit))};
+    });
+    if(label==='webkit-iphone-embedded'){
+      // In-app Safari chrome intentionally scrolls secondary actions.
+      await moreSummary.click();
+    }else{
+      assert.ok(disclosure.ready,label+' Flere valg must be touchable without scrolling '+JSON.stringify(disclosure));
+      await page.touchscreen.tap(disclosure.x,disclosure.y);
+    }
     assert.equal(await randomCountry.isVisible(),true,label+' Tilfeldig land not available in Flere valg');
     assert.equal(await resetGlobe.isVisible(),true,label+' Startposisjon not available in Flere valg');
+    await moreSummary.focus();
     await page.keyboard.press('Escape');
     assert.equal(await more.evaluate(details=>details.open),false,label+' Escape did not close Flere valg');
     assert.equal(await page.locator('#globe-zoom-in').isVisible(),true,label+' zoom-in hidden');

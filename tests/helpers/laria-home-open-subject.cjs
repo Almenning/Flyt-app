@@ -3,7 +3,7 @@
  * deprecated card hotspots. Clean artwork is loaded asynchronously; waiting
  * for the final asset state avoids a hidden-card click during rail handoff.
  */
-module.exports=async function openHomeSubject(page,id){
+module.exports=async function openHomeSubject(page,id,{keyboard=false}={}){
  if(!['norwegian','math','english','geography'].includes(id))
    throw Error('Unsupported Læria subject: '+id);
  const home=page.locator('#home-screen.active .bc12.bc15-locked-home');
@@ -46,5 +46,7 @@ module.exports=async function openHomeSubject(page,id){
    ', .bc12:not(.bc15-v16-locked):not(:has(.bc15-subject-signs:not([hidden]))) '+
    '.bc14-subjects:not([inert]) .bc14-subject[data-camp="subject-'+id+'"]'+
    '):visible');
- await activeRail.click({timeout:26000});
+ if(keyboard){
+   await activeRail.press('Enter',{timeout:26000});
+ }else await activeRail.click({timeout:26000});
 };

@@ -11,6 +11,7 @@ on:
       - 'tests/laria-kinnaklova.playwright.js'
       - 'tests/laria-wayfinder.playwright.js'
       - 'tests/laria-tallvika-premium-signs.playwright.js'
+      - 'tests/laria-premium-sign-first-paint.playwright.js'
       - 'tests/laria-premium-ipad-contract.test.cjs'
       - '.github/workflows/laria-ipad-premium-gate.yml'
   pull_request:
@@ -22,6 +23,7 @@ on:
       - 'tests/laria-kinnaklova.playwright.js'
       - 'tests/laria-wayfinder.playwright.js'
       - 'tests/laria-tallvika-premium-signs.playwright.js'
+      - 'tests/laria-premium-sign-first-paint.playwright.js'
       - '.github/workflows/laria-ipad-premium-gate.yml'
   workflow_dispatch:
 
@@ -47,6 +49,7 @@ jobs:
         with: {node-version: 22, cache: npm}
       - run: npm ci
       - run: python3 -m http.server 8765 --directory . >/tmp/laria-premium-http.log 2>&1 &
+      - run: node tests/laria-premium-sign-first-paint.playwright.js
       - run: node tests/laria-premium-sign-integration.playwright.js
       - uses: actions/upload-artifact@v4
         if: always()

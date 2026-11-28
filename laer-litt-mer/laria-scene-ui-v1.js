@@ -39,6 +39,11 @@
    const expected=scene.hasAttribute('data-tv-shop-enabled')?'multiply,fraction,table,shop':'multiply,fraction,table';
    return signs.map(sign=>sign.dataset.tv).join(',')===expected;
  }
+ function validKinnaklovaRail(scene,signs){
+   const expected=scene?.hasAttribute('data-ki-word-games-enabled')?
+     'words,sentences,reading,word-games':'words,sentences,reading';
+   return signs.map(sign=>sign.dataset.ki).join(',')===expected;
+ }
  function enhance(world,subject){
    const cfg=DEFINITIONS[subject];
    if(!cfg||!world?.querySelector)return false;
@@ -48,7 +53,7 @@
    const signs=[...scene.querySelectorAll(cfg.signs)];
    const valid=subject==='geography'
      ? signs.map(sign=>sign.dataset.gv).join(',')==='globe,country'
-     : subject==='math'?validTallvikaRail(scene,signs):signs.length===3;
+     : subject==='math'?validTallvikaRail(scene,signs):subject==='english'?validKinnaklovaRail(scene,signs):signs.length===3;
    if(!valid){
      console.warn('[Læria] Scene component received unexpected activity signs',subject,signs.length);
      return false;
@@ -100,7 +105,7 @@
    return true;
  }
  window.LARIA_SCENE_UI=Object.freeze({
-   version:'v1',enhance,validTallvikaRail,
+   version:'v1',enhance,validTallvikaRail,validKinnaklovaRail,
    subjects:Object.freeze(Object.keys(DEFINITIONS))
  });
 })();

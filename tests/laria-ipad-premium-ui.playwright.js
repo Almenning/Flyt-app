@@ -66,7 +66,7 @@ async function run(engine,engineName,label,viewport){
          readable:style.visibility==='visible'&&text.width>0&&text.left>=rect.left&&text.right<=rect.right,
          x:rect.x,width:rect.width};
      }));
-     assert.deepEqual(boards.map(x=>x.id),['words','sentences','reading'],
+     assert.deepEqual(boards.map(x=>x.id),['words','sentences','reading','word-games'],
        label+' Kinnaklova activity menu changed its learning destinations');
      assert.ok(boards.every(x=>x.background.startsWith('url("data:image/png;base64,')&&
        x.readable&&x.width>=44),

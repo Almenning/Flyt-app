@@ -55,18 +55,18 @@ async function visit(engine,name,device,viewport){
   assert.match(await art.getAttribute('src'),/kinnaklova-ui-free-approved\.webp/);
   const dimensions=await art.evaluate(img=>[img.naturalWidth,img.naturalHeight]);
   assert.deepEqual(dimensions,[1672,941],'Must use the locked Kinn source edit');
-  assert.equal(await stage.locator('button.ki-painted-hit.laria-wayfinder').count(),3,
-   'Only 3 real activity signs, without old hotspots');
+  assert.equal(await stage.locator('button.ki-painted-hit.laria-wayfinder').count(),4,
+   'Only 4 real activity signs, without old hotspots');
   const rail=stage.locator('nav.laria-scene-navigation');
   assert.equal(await rail.count(),1,'one rail only');
   const signData=await rail.locator('button.ki-painted-hit.laria-wayfinder').evaluateAll(els=>
    els.map(el=>({action:el.dataset.ki,label:el.innerText?.trim(),rect:{
     x:el.getBoundingClientRect().x,width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height
    }})));
-  assert.deepEqual(signData.map(x=>x.action),['words','sentences','reading']);
+  assert.deepEqual(signData.map(x=>x.action),['words','sentences','reading','word-games']);
   assert.ok(signData.every(x=>x.rect.width>=44&&x.rect.height>=44),'All destinations must be accessible');
   assert.ok(Math.max(...signData.map(x=>x.rect.x))-Math.min(...signData.map(x=>x.rect.x))<3,
-   'All three signs must align on the left, not scatter across the landscape');
+   'All four signs must align on the left, not scatter across the landscape');
   assert.ok(signData[0].rect.x<viewport.width*.48,'The activity group must be on the left');
   const nativeTablet=viewport.width>=768&&viewport.width<=1366&&viewport.height>=650;
   if(nativeTablet)await stage.locator('nav[data-laria-premium-sign-art="ready"]').waitFor({timeout:25000});
