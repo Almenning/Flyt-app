@@ -431,23 +431,20 @@ async function finishSession(page){
     assert.ok(homeLayout.scrollWidth<=homeLayout.width,'Basecamp must not scroll horizontally');
     // The clean iPhone Home intentionally has no old illustrated subject cards.
     // Four real oak buttons must replace them, with meaningful touch targets.
-    const homeRail=page.locator('#home-screen.active .bc15-subject-signs[data-bc15-presentation="live"]');
-    await homeRail.waitFor({state:'visible',timeout:18000});
-    assert.equal(await page.locator('#home-screen.active .bc12[data-bc15-card-art="clean-candidate"]').count(),1,
-      'young phone Home must use the approved card-free derivative');
-    assert.equal(await page.locator('#home-screen.active .bc14-subject:visible').count(),0,
+    const phoneHome=page.locator('#home-screen.active .bc12.bc15-v16-locked[data-bc15-asset="phone-v16-portrait"]');
+    await phoneHome.waitFor({state:'visible',timeout:30000});
+    assert.equal(await phoneHome.locator('.bc14-subject:visible').count(),0,
       'retired bottom subject cards reappeared on iPhone');
-    const homeBoards=await homeRail.locator('.bc15-painted-subject:visible').evaluateAll(nodes=>nodes.map(el=>{
+    const homeBoards=await phoneHome.locator('.bc15-v16-signs button.bc15-v16-sign:visible').evaluateAll(nodes=>nodes.map(el=>{
       const b=el.getBoundingClientRect(),s=getComputedStyle(el);
       return {subject:el.dataset.bc15Subject,width:b.width,height:b.height,left:b.left,right:b.right,
-        background:s.backgroundImage,visible:s.visibility};
+        top:b.top,bottom:b.bottom,visible:s.visibility,hit:document.elementFromPoint(b.x+b.width/2,b.y+b.height/2)?.closest('button')===el};
     }));
     assert.deepEqual(homeBoards.map(x=>x.subject),['norwegian','math','english','geography'],
       'four child-visible oak subject signs must be on Home in the approved order');
-    assert.ok(homeBoards.every(x=>x.width>=118&&x.height>=44&&x.left>=-1&&x.right<=390+1),
+    assert.ok(homeBoards.every(x=>x.width>=118&&x.height>=44&&x.left>=-1&&x.right<=391&&
+      x.top>=-1&&x.bottom<=845&&x.hit&&x.visible==='visible'),
       'the four subject boards must be fully tappable inside the phone viewport: '+JSON.stringify(homeBoards));
-    assert.ok(homeBoards.every(x=>/laria-light-arrow-sign/.test(x.background)&&x.visible==='visible'),
-      'the Home boards must render the same visible light-oak sign as iPad');
     await page.locator('.bc12-nav [data-camp="explore"]:visible').click();
     await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor();
     for(const action of ['globe','fraction','words','multiply']){

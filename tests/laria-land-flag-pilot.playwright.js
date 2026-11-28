@@ -23,13 +23,24 @@ async function verify(browser,kind,w,h,touch){
         document.querySelector('#session-screen.active .session').scrollTop,scrollY
       ]),[0,0],'upright phone must not scroll to reach '+suffix);
     };
-    const onScreen=async selector=>page.waitForFunction(q=>{
+    const onScreen=async selector=>{ try { await page.waitForFunction(q=>{
       const nodes=[...document.querySelectorAll(q)];
       return nodes.length>0&&nodes.every(node=>{
         const r=node.getBoundingClientRect();
         return r.height>=44&&r.width>=44&&r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight;
       });
-    },selector,{timeout:7000});
+    },selector,{timeout:7000}); }catch(error){
+      const geometry=await page.evaluate(q=>({
+        question:typeof sessionQuestions!=='undefined'?sessionQuestions[qIndex]?.type:null,
+        viewport:[innerWidth,innerHeight],scroll:[scrollY,document.querySelector('.session')?.scrollTop],
+        nodes:[...document.querySelectorAll(q)].map(node=>{
+          const {x,y,width,height}=node.getBoundingClientRect();
+          return {id:node.id,css:node.className,x,y,width,height};
+        })
+      }),selector);
+      await photo('out-of-frame').catch(()=>{});
+      throw Error(kind+' '+w+'×'+h+' '+selector+' '+JSON.stringify(geometry),{cause:error});
+    }};
     await page.goto(base,{waitUntil:'domcontentloaded'});
     // Locked Home v16 personalization is scoped to tablet and desktop.
     if(w>=768&&h>=650){
