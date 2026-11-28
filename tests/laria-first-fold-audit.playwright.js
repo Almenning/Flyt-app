@@ -58,6 +58,18 @@ async function audit(engine,browserType,width,height){
         renderQuestion();
       });
     }
+    if(width===1280&&height===720){
+      // Exercise the longest authored grade-2 passage, not a random short
+      // passage that can fit even when the feedback stacks above the CTA.
+      await page.evaluate(()=>{
+        const fixture=subjectPoolForGrade('norwegian',2,'reading')
+          .filter(q=>typeof q.passage==='string'&&q.passage.length)
+          .sort((a,b)=>b.passage.length-a.passage.length)[0];
+        if(!fixture)throw new Error('Missing long Lesekroken regression passage');
+        sessionQuestions[qIndex]=fixture;
+        renderQuestion();
+      });
+    }
     await record('lesekroken','#session-screen.active',['#close-session','.read-aloud','.answer','.task-norsk-guide']);
     const correct=await page.evaluate(()=>sessionQuestions[qIndex].answer);
     const answers=page.locator('#session-screen.active .answer');

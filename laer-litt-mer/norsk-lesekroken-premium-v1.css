@@ -154,6 +154,23 @@
    margin-block:8px 0!important;
  }
 }
+/* Wide, low windows: share one row after a correct answer so the
+   feedback and the real next button both stay in view. */
+@media (orientation:landscape) and (min-width:951px) and (max-height:780px){
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop){
+   grid-template-columns:minmax(0,1fr) minmax(154px,22%);
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .feedback{
+   grid-column:1;align-self:center;width:100%!important;margin:5px 0 0!important;padding:5px 10px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .next{
+   grid-column:2;align-self:center;width:100%!important;min-height:44px!important;height:auto!important;
+   margin:5px 0 0!important;padding:9px 8px!important;
+ }
+}
 @media(prefers-reduced-motion:reduce){
  #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide{transition:none}
 }
