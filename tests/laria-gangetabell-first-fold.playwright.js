@@ -98,6 +98,19 @@ async function test(browser,engine,[device,width,height,touch,plan]){
    assert.match(await board.locator('.mp-inspector-equation').innerText(),/10 × 10 = 100/);
    await check(100);
   }
+  if(device==='phone-landscape'||device==='phone-short-landscape'){
+   const picker=page.getByRole('combobox',{name:'Velg aktivitet'});
+   assert.equal(await picker.locator('option').count(),7);
+   await picker.selectOption('swap');
+   await page.locator('.mp-swap-pair').waitFor();
+   assert.equal(await page.evaluate(()=>document.activeElement.dataset.mode),'swap');
+   await tap('#multiplication-lab-screen.active .mp-explore-tab[data-mode="table"]');
+   await board.waitFor();
+   assert.match(await board.locator('.mp-inspector-equation').innerText(),/10 × 10 = 100/);
+   await tap('#multiplication-lab-screen.active .mp-nav-link[data-page="home"]');
+   await tap('#multiplication-lab-screen.active .mp-nav-link[data-page="explore"]');
+   await board.waitFor();
+  }
   if(device==='phone-landscape'){
    await page.setViewportSize({width:390,height:844});
    await page.locator(query+' [data-mp-table-plan="5,5"]').waitFor();

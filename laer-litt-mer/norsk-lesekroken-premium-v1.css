@@ -294,6 +294,18 @@
  .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .task-norsk-guide{
    min-width:44px;width:48px;min-height:44px;height:48px;
  }
+ /* Three authored answers sit in a single row at this height. Keep the
+    full wording and allow multi-line labels instead of shrinking targets. */
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage,.feedback.success-pop))
+ .answers:has(>.answer:nth-child(3):last-child){
+   grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;
+ }
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage,.feedback.success-pop))
+ .answers:has(>.answer:nth-child(3):last-child)>.answer{
+   grid-column:auto!important;min-height:44px!important;padding:4px 6px!important;
+ }
  #session-screen.task-scene[data-task-subject="norwegian"]
  .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .task-interaction{
    grid-column:1;grid-row:4;

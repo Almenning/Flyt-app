@@ -1828,6 +1828,13 @@
   #word-hunt-overlay .word-hunt-side{grid-row:4;gap:5px}
   #word-hunt-overlay .word-hunt-targets{padding:4px 7px}
   #word-hunt-overlay .word-hunt-targets-heading{margin-bottom:2px}
+  /* The completion copy may wrap, especially with a bottom safe area.
+     Keep the existing live message but recover vertical whitespace. */
+  #word-hunt-overlay.word-hunt-complete .word-hunt-side{gap:3px}
+  #word-hunt-overlay.word-hunt-complete .word-hunt-companion-speech{padding-block:2px}
+  #word-hunt-overlay.word-hunt-complete .word-hunt-targets{padding-block:3px}
+  #word-hunt-overlay.word-hunt-complete .word-hunt-words{gap:2px}
+  #word-hunt-overlay.word-hunt-complete .word-hunt-new{min-height:44px;padding-block:3px}
   #word-hunt-overlay .word-hunt-word{padding:3px 5px;font-size:11px}
   #word-hunt-overlay .word-hunt-companion{display:block;padding:2px 3px}
   #word-hunt-overlay .word-hunt-companion-stage{display:none!important}

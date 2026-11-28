@@ -126,3 +126,20 @@ publiseringsporten uendret.
   brettet, også på 568×320. På det minste formatet vises én komprimert
   tilbakemelding i sidekolonnen, slik at «Ny runde» også får plass på
   vanskelig nivå. QA kontrollerer instruksjon og knapp i begge nivåer.
+
+### Feil fra GitHub-kjøringen: liggende telefon
+
+- **Lesekroken (568×320):** Nynorskoppgaven som feilet i CI kjøres nå
+  deterministisk også liggende. Tre svar deler én rad uten å kutte teksten
+  eller redusere trykkflatene under 44 piksler. Tilbake, Hint, opplesing,
+  samtlige svar og Neste er kontrollert i Chromium og WebKit.
+- **Ordjakt (568×320):** Etter fullført runde har tilbakemelding og
+  «Ny runde» plass uten scrolling, også med simulert 21-pikslers sikkerhetssone
+  ved hjemindikatoren. Testet i begge motorer. På kort stående telefon
+  måler testen den hjelpeteksten barnet faktisk ser over brettet.
+- **Gangetabellen (667×375 og 844×390):** Flyttet de fire navigasjonsfanene
+  opp, og gjenbrukt den tilgjengelige velgeren med alle sju aktiviteter for
+  å frigjøre høyde. Testene trykker seg til Oversikt og inn igjen, og
+  kontrollerer også faktorer, tastatur, rotasjon og retur til Tallvika.
+- Disse layoutrettelsene bytter ikke bildekunst eller progresjonsdata,
+  og fjerner ingen dokumentasjons- eller godkjenningskrav ved publisering.

@@ -103,9 +103,10 @@ async function run(browser,size,id,url,withHomeIndicator=false){
   // verify the real game layout with the intended native CSS inset.
   if(withHomeIndicator)await root.evaluate(e=>e.style.setProperty('--wh-safe-bottom','21px'));
   const picker={cards:'.wh-theme-card',close:'.wh-theme-close'};
+  const compactPortrait=size.width<=430&&size.height<=730&&size.width<size.height;
   const game={cells:'.word-hunt-cell',targets:'.word-hunt-targets',next:'.word-hunt-new',
     back:'.word-hunt-back',level:'[data-word-level="hard"]',topic:'.word-hunt-theme-mobile,.word-hunt-theme-open',
-    hint:'.word-hunt-fox-shortcut,.word-hunt-companion-hint',status:'.word-hunt-companion-speech'};
+    hint:'.word-hunt-fox-shortcut,.word-hunt-companion-hint',status:compactPortrait?'.word-hunt-intro':'.word-hunt-companion-speech'};
   const m=await capture(page,id+'-picker',picker);
   if(process.env.WORD_HUNT_AUDIT!=='1'){
    reachable(m,'cards',5); reachable(m,'close',1);
@@ -159,7 +160,7 @@ async function run(browser,size,id,url,withHomeIndicator=false){
    assert.ok(finish.scrollHeight<=size.height+1&&finish.scrollWidth<=size.width+1,'completion pushes game below fold');
    reachable(finish,'next',1);
    reachable(finish,'status',1,false);
-   assert.match(await root.locator('.word-hunt-companion-speech').textContent(),/fant alle ordene/i);
+   assert.match(await root.locator(game.status).textContent(),/fant alle ordene/i);
    await tap(page,root.locator('.word-hunt-new'));
    assert.equal(await root.locator('.word-hunt-word.found').count(),0);
    await tap(page,root.locator('[data-word-level="hard"]'));
