@@ -8,6 +8,7 @@ const {chromium,webkit}=require('playwright');
 const URL=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&lariaPremiumSignArt=0'; // exact legacy paint contract
 const OUT=process.env.LARIA_IDENTITY_SCREENSHOTS||'/tmp/laria-visual-identity';
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Identitet QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+const englishDestinations=['words','sentences','reading','word-games'];
 const worlds=[
  {id:'norwegian',root:'#eggenipa-world',brand:'.eg-world-brand',home:'.eg-scene-home',sign:'.eg-scene-hit.laria-wayfinder',plate:'.eg-scene-hit.laria-wayfinder > span',post:'::before',troll:'.eg-companion-actor[data-eg="troll"]'},
  {id:'math',root:'#tallvika-world',brand:'.tv-world-brand',home:'.tv-scene-home',sign:'.tv-sign.laria-wayfinder',plate:'.tv-sign.laria-wayfinder',post:'::after',troll:'.tv-actor-touch[data-tv="troll"]'},
@@ -151,8 +152,12 @@ async function run(engine,name,layout,viewport){
    assert.equal(await shell.count(),1,spec.id+' must mount the common scene component');
    const sharedNav=shell.locator('nav.laria-scene-navigation[data-laria-component="sign-rail"]');
    assert.equal(await sharedNav.count(),1,spec.id+' needs exactly one semantic activity rail');
-   assert.equal(await sharedNav.locator('.laria-wayfinder[data-laria-component="sign"]').count(),spec.id==='geography'?2:spec.id==='math'?4:3,
+   const signCount=spec.id==='geography'?2:spec.id==='math'?4:spec.id==='english'?englishDestinations.length:3;
+   const sharedSigns=sharedNav.locator('.laria-wayfinder[data-laria-component="sign"]');
+   assert.equal(await sharedSigns.count(),signCount,
      spec.id+' must not clone or lose activity actions during common-shell enhancement');
+   if(spec.id==='english')assert.deepEqual(await sharedSigns.evaluateAll(signs=>signs.map(sign=>sign.dataset.ki)),
+     englishDestinations,'Engelsk must retain each learning destination exactly once');
    const title=({norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'})[spec.id];
    const adapted=await shell.getAttribute('data-laria-reference-layout')==='v1';
    assert.equal(await sharedNav.getAttribute('aria-label'),
@@ -167,7 +172,6 @@ async function run(engine,name,layout,viewport){
    assert.match(button.image,/laria-home-round\.svg/,spec.id+' has a different Home control');
    assert.match(button.role,/Hjem/,spec.id+' Home accessibility text missing');
    const signs=world.locator(spec.sign+':visible');
-   const signCount=spec.id==='geography'?2:spec.id==='math'?4:3;
    assert.equal(await signs.count(),signCount,spec.id+' has unexpected navigable scene signs');
    if(spec.id!=='english'){
      // Real rendered positions, not string matches on stylesheet source.

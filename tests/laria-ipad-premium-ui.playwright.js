@@ -8,6 +8,7 @@ const {chromium,webkit}=require('playwright');
 const URL=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const OUT=process.env.LARIA_IPAD_PREMIUM_SCREENSHOTS||'/tmp/laria-ipad-standard';
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'iPad QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+const englishDestinations=['words','sentences','reading','word-games'];
 const worlds=[
  {id:'math',root:'#tallvika-world',chooser:'.tv-scene-choose',actor:'.tv-actor-touch',home:'[data-tv="back"]',signs:'.tv-sign'},
  {id:'norwegian',root:'#eggenipa-world',chooser:'.eg-scene-choose',actor:'.eg-companion-actor',home:'.eg-scene-home',signs:'.eg-scene-hit'},
@@ -66,11 +67,11 @@ async function run(engine,engineName,label,viewport){
          readable:style.visibility==='visible'&&text.width>0&&text.left>=rect.left&&text.right<=rect.right,
          x:rect.x,width:rect.width};
      }));
-     assert.deepEqual(boards.map(x=>x.id),['words','sentences','reading','word-games'],
+     assert.deepEqual(boards.map(x=>x.id),englishDestinations,
        label+' Kinnaklova activity menu changed its learning destinations');
      assert.ok(boards.every(x=>x.background.startsWith('url("data:image/png;base64,')&&
        x.readable&&x.width>=44),
-       label+' Kinnaklova must use three readable matching oak arrows');
+       label+' Kinnaklova must use four readable matching oak arrows');
      assert.ok(Math.max(...boards.map(x=>x.x))-Math.min(...boards.map(x=>x.x))<4,
        label+' Kinnaklova arrows must stay aligned on the left');
      const sharedPosts=await rail.evaluate(el=>getComputedStyle(el,'::before').backgroundImage);
@@ -81,7 +82,7 @@ async function run(engine,engineName,label,viewport){
        return {id:el.dataset.ki,x:a.x,y:a.y,right:a.right,bottom:a.bottom,
          w:a.width,h:a.height,tappable:hit===el||el.contains(hit)};
      }));
-     assert.equal(signs.length,3,label+' Kinnaklova requires exactly three visible painted destinations');
+     assert.deepEqual(signs.map(x=>x.id),englishDestinations,label+' Kinnaklova must expose each visible activity sign once');
      assert.ok(signs.every(x=>x.w>=44&&x.h>=44&&x.x>=0&&x.y>=0&&
        x.right<=viewport.width+2&&x.bottom<=viewport.height+2&&x.tappable),
        label+' Kinnaklova destinations must be tappable in both orientations '+JSON.stringify(signs));
@@ -101,7 +102,7 @@ async function run(engine,engineName,label,viewport){
     assert.equal(await world.locator('.tv-scene-grade').innerText(),'2. klasse');
     assert.deepEqual(await visibleSigns.evaluateAll(items=>items.map(x=>x.dataset.tv)),
      ['multiply','fraction','table','shop'],label+' Grade 2 Tallvika must expose the four approved destinations in order');
-   }else assert.equal(await visibleSigns.count(),spec.id==='geography'?2:3,label+' '+spec.id+' has unexpected destinations');
+   }else assert.equal(await visibleSigns.count(),spec.id==='geography'?2:spec.id==='english'?englishDestinations.length:3,label+' '+spec.id+' has unexpected destinations');
    const actor=world.locator(spec.actor);
    await actor.waitFor({state:'visible',timeout:14000});
    if(spec.id==='english'){
