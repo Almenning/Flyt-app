@@ -101,6 +101,12 @@ async function geometry(page,label,viewport,firstFold){
    assert.ok(rect&&rect.top>=0&&rect.bottom<=m.height,label+' '+name+' is clipped on first screen: '+JSON.stringify(m));
   }
  }
+ if(viewport.width>=560&&viewport.height<=500&&viewport.width>viewport.height){
+  assert.ok(m.intro.width>=110&&m.intro.height>=20&&m.intro.left>=m.board.right-1&&m.intro.bottom<=m.targets.top,
+    label+' instructions must be readable beside the board: '+JSON.stringify(m.intro));
+  assert.ok(m.newRound.height>=44&&m.newRound.bottom<=m.height,
+    label+' new round falls below the landscape viewport: '+JSON.stringify(m.newRound));
+ }
  if(viewport.width>=1401&&viewport.height>=700&&viewport.height<=1000){
   assert.ok(m.board.width>=Math.min(590,viewport.height-230),label+' desktop puzzle shrank unnecessarily: '+JSON.stringify(m));
   assert.ok(m.board.bottom<=m.height-6,label+' bottom row still clips on Mac first screen: '+JSON.stringify(m));
@@ -109,10 +115,24 @@ async function geometry(page,label,viewport,firstFold){
   assert.ok(m.cells.every(x=>x.width>=44&&x.height>=44),label+' easy cells under 44px: '+JSON.stringify(m));
   if(viewport.height>viewport.width){
    assert.ok(m.board.width>=viewport.width*.90,label+' premium frame shrank the portrait puzzle too much: '+JSON.stringify(m.board));
-   // Active personal fox is now the guide. The duplicate idle status card is gone.
-   assert.ok(m.companion&&m.companion.width>=viewport.width*.90,
-     label+' personal fox helper is not aligned with the puzzle: '+JSON.stringify(m));
-   assert.ok(m.newRound&&m.newRound.width>=viewport.width*.60,label+' new-round action is too small on portrait mobile');
+   if(viewport.width<=430&&viewport.height<=730){
+    // The only visible guide is above the board on short phones. Its
+    // accessible live region must not compete for room with Ny runde.
+    assert.ok(m.intro.width>=m.board.width-2&&m.intro.bottom<=m.board.top,
+      label+' guide message is not aligned above the puzzle: '+JSON.stringify(m.intro));
+    assert.ok(m.companion.width<=2,label+' redundant second guide takes space below the puzzle');
+    assert.ok(m.newRound.width>=m.board.width-2&&m.newRound.height>=44&&
+      m.newRound.top>=m.board.bottom&&m.newRound.bottom<=viewport.height,
+      label+' new-round action is not fully visible beneath the puzzle: '+JSON.stringify(m.newRound));
+    assert.ok(await page.locator('.word-hunt-new').evaluate(el=>{
+      const r=el.getBoundingClientRect(),top=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+      return top===el||el.contains(top);
+    }),label+' new-round button is covered');
+   }else{
+    assert.ok(m.companion&&m.companion.width>=viewport.width*.90,
+      label+' personal fox helper is not aligned with the puzzle: '+JSON.stringify(m));
+    assert.ok(m.newRound&&m.newRound.width>=viewport.width*.60,label+' new-round action is too small on portrait mobile');
+   }
   }
  }
  if(viewport.width<=700 && viewport.height>viewport.width){
@@ -312,6 +332,8 @@ async function testView(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.word-hunt-cell').count(),49,label+' harder puzzle not 7x7');
   assert.equal(await page.locator('.word-hunt-word').count(),5,label+' harder puzzle not 5 words');
   if(viewport.width>=1401)await geometry(page,label+'-hard',viewport,true);
+  if(viewport.width>=560&&viewport.height<=500&&viewport.width>viewport.height)
+   await geometry(page,label+'-hard',viewport,true);
   const hardDirections=await directionProfile(page);
   assert.ok(hardDirections.horizontal&&hardDirections.vertical&&hardDirections.diagonal&&hardDirections.reverse,
    label+' harder round lacks straight/diagonal/reverse variety: '+JSON.stringify(hardDirections));
@@ -357,11 +379,15 @@ async function testView(browser,engine,label,viewport,url){
  const {srv,url}=await serve();
  try{
   for(const [engine,launcher,views] of [
-   ['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-tiny',{width:320,height:568}],['ipad',{width:820,height:1180}],['mac',{width:1525,height:833}]]],
-   ['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-tiny-safari',{width:320,height:568}],['iphone-landscape-safari',{width:844,height:390}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}],['mac-safari',{width:1525,height:833}]]]
+   ['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-tiny',{width:320,height:568}],['iphone-tiny-landscape',{width:568,height:320}],['ipad',{width:820,height:1180}],['mac',{width:1525,height:833}]]],
+   ['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-tiny-safari',{width:320,height:568}],['iphone-landscape-safari',{width:844,height:390}],['iphone-tiny-landscape-safari',{width:568,height:320}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}],['mac-safari',{width:1525,height:833}]]]
   ]){
    const browser=await launcher.launch({headless:true});
-   try{for(const [label,viewport] of views)await testView(browser,engine,label,viewport,url)}
+   try{for(const [label,viewport] of views){
+     if(process.env.WORD_HUNT_QA_PHONE_LANDSCAPE==='1'&&
+        (!label.startsWith('iphone')||viewport.width<=viewport.height))continue;
+     await testView(browser,engine,label,viewport,url);
+   }}
    finally{await browser.close()}
   }
   console.log('PASS complete Læria Word Hunt phase4 Chromium/WebKit matrix');

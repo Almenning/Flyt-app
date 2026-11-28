@@ -105,3 +105,24 @@ Ved nettleserfeil må faktisk mål og reproduksjon verifiseres før endring.
 Krev grønne GitHub-kontroller på eksakt kandidat, visuell dokumentasjon,
 de separate kunstbevisene for full release og brukertest med barn. Hold
 publiseringsporten uendret.
+
+### Supplerende rettelser for den minste stående iPhone-visningen
+
+- **Lesekroken:** Trollet, opplesing og Hint deler én rad i stedet for å ta
+  hver sin del av høyden. Hele leseteksten og alle svar beholdes. QA-skriptet
+  åpner den ekte Lesekroken og velger den eksisterende nynorske Iben-oppgaven
+  deterministisk ved 320×568, slik at feilen ikke skjules av et tilfeldig
+  kortere spørsmål. Svarene, Hint, opplesing, Tilbake og Neste er testet
+  over skjermkanten i Chromium og WebKit-emulering.
+- **Ordjakt:** På korte stående telefoner peker Hint og den synlige
+  hjelpeteksten på samme sted over brettet. Den gamle synlige duplikatboksen
+  under brettet er fjernet fra denne visningen, men beholdes som et
+  tilgjengelig område for statusmeldinger. «Ny runde» har hele bunnraden.
+  Nettlesertesten kontrollerer faktisk plass, 44-pikslers høyde og om knappen
+  kan trykkes uten å rulle, også etter reaksjoner.
+- Ingen endringer i låst kunst, innhold, progresjon eller publiseringskrav.
+  WebKit her er nettleseremulering, ikke test på fysisk iPhone.
+- **Ordjakt liggende:** Instruksjonen er synlig i kolonnen ved siden av
+  brettet, også på 568×320. På det minste formatet vises én komprimert
+  tilbakemelding i sidekolonnen, slik at «Ny runde» også får plass på
+  vanskelig nivå. QA kontrollerer instruksjon og knapp i begge nivåer.

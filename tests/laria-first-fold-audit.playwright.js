@@ -47,6 +47,17 @@ async function audit(engine,browserType,width,height){
     // dialogs. Real button activation allows the world to settle in WebKit.
     await page.locator(home+' .bc15-v16-sign[data-bc15-subject="norwegian"]').click();
     await page.locator('#eggenipa-world :is(.eg-scene-reading,.eg-portal[data-eg="reading"]):visible').first().click();
+    if(width===320&&height===568){
+      // Preserve the real entry route, then select the authored Nynorsk
+      // passage that reproduced the overflow. The adaptive pick is random.
+      await page.evaluate(()=>{
+        const fixture=subjectPoolForGrade('norwegian',2,'reading')
+          .find(q=>q.prompt==='Kva gjer Iben før frosken hoppar fram?');
+        if(!fixture)throw new Error('Missing authored Lesekroken regression passage');
+        sessionQuestions[qIndex]=fixture;
+        renderQuestion();
+      });
+    }
     await record('lesekroken','#session-screen.active',['#close-session','.read-aloud','.answer','.task-norsk-guide']);
     const correct=await page.evaluate(()=>sessionQuestions[qIndex].answer);
     const answers=page.locator('#session-screen.active .answer');
