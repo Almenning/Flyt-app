@@ -39,6 +39,7 @@
     {id:'sentences',name:'Sentences',description:'Lag engelske setninger',module:'sentences',icon:'Hi!'},
     {id:'reading',name:'Reading',description:'Les og forstå små tekster',module:'reading',icon:'📖'}
   ]);
+  const WORD_GAMES=Object.freeze({id:'word-games',name:'Ordlek',description:'Find the Words og Word Hunt',icon:'ABC'});
   const bridge=()=>window.LARIA_TALLVIKA_BRIDGE;
   const isActive=()=>screen.classList.contains('active')&&screen.dataset.subject==='english';
   const escapeText=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -134,12 +135,14 @@
       return;
     }
     renderKey=key;
+    const wordGames=PREMIUM_CLEAN_ART_APPROVED&&!!window.LARIA_ENGLISH_WORD_GAMES;
+    const actions=wordGames?[...ACTIONS,WORD_GAMES]:ACTIONS;
     revokeArt();
     host.innerHTML=
       '<header class="ki-utility"><button type="button" data-ki="home" aria-label="Tilbake til Hjem">‹ Hjem</button>'+
       '<span>ENGELSK · KINNAKLOVA</span><span class="ki-grade">'+grade+'. klasse</span>'+
       '<button type="button" class="ki-utility-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button></header>'+
-      '<div class="ki-stage" role="group" aria-label="Kinnaklova med Words, Sentences og Reading">'+
+      '<div class="ki-stage" role="group" aria-label="Engelske aktiviteter på Kinnaklova"'+(wordGames?' data-ki-word-games-enabled':'')+'>'+
       (PREMIUM_CLEAN_ART_APPROVED?'<div class="ki-world-brand" aria-label="Læria, Engelsk ved Kinnaklova"><strong>Læria</strong><span>Kinnaklova</span></div>':'')+
       '<span class="ki-stage-grade" aria-hidden="true">'+grade+'. klasse</span>'+
       '<button type="button" class="ki-stage-choose" data-ki="choose" aria-label="Mine troll, velg følgesvenn">Mine troll</button>'+
@@ -151,7 +154,7 @@
       '<img class="ki-troll laria-premium-troll-art" data-ki-character="'+selectedId+'" src="'+escapeText(selectedSrc)+'" alt="" aria-hidden="true" draggable="false" loading="eager"></button>'+
       '</div>'+
       '<button type="button" class="ki-painted-hit ki-painted-home" data-ki="home" aria-label="Tilbake til Hjem"><span aria-hidden="true">‹ Hjem</span></button>'+
-      ACTIONS.map(a=>'<button type="button" class="ki-painted-hit ki-painted-'+a.id+' laria-wayfinder'+
+      actions.map(a=>'<button type="button" class="ki-painted-hit ki-painted-'+a.id+' laria-wayfinder'+
         '" data-ki="'+a.id+'" aria-label="Åpne '+a.name+' ved Kinnaklova"><span class="ki-plank-name" aria-hidden="true">'+a.name+'</span></button>').join('')+
       '</div>'+
       '<div class="ki-intro"><div><small>ENGELSK · VELG DET DU LIKER</small><h2>Hva vil du oppdage?</h2></div>'+
@@ -187,6 +190,8 @@
       const actor=root?.querySelector('.ki-companion-actor');
       if(actor&&root?.dataset.kiArt==='ready')
         window.LARIA_TROLL_ACTOR?.mood?.(actor,'curious',{say:'Ready to learn some English?'});
+    }else if(action==='word-games'){
+      window.LARIA_ENGLISH_WORD_GAMES?.open?.(button);
     }else if(action==='resume'){
       bridge()?.resumeSession?.('english');
     }else{

@@ -2396,7 +2396,7 @@
     <link rel="stylesheet" href="./fraction-premium-v2.css?v=20261009-illustrated3" />
     <link rel="stylesheet" href="./fraction-premium-v4.css?v=20261122-ipad-cake-clearance1" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261006-assets1" />
-  <link rel="stylesheet" href="./multiplication-premium-v2.css?v=20261122-tallvika-scenery3" />
+  <link rel="stylesheet" href="./multiplication-premium-v2.css?v=20261128-table-first-fold3" />
   <link rel="stylesheet" href="./multiplication-illustrated-groups-v3.css?v=20261009-mp3a" />
   <link rel="stylesheet" href="./multiplication-premium-parity-v4.css?v=20261013-phase4b-heightfix1" />
   <link rel="stylesheet" href="./multiplication-pick-play-v1.css?v=20261009-pick2" />
@@ -2406,8 +2406,10 @@
   <link rel="stylesheet" href="./multiplication-pick-material-v5.css?v=20261009-premium-art5c" />
   <link rel="stylesheet" href="./multiplication-pick-vessels-v6.css?v=20261009-world-vessels6a" />
   <link rel="stylesheet" href="./multiplication-pick-closeup-v7.css?v=20261009-closeup-parity7a" />
+  <link rel="stylesheet" href="./trollbutikken-v1.css?v=20261128-shop-compact3" />
   <link rel="stylesheet" href="./multiplication-gangemagi-v1.css?v=20261122-free-tallvika3" />
   <link rel="stylesheet" href="./gangemagi-dagens-oppdrag-v1.css?v=20261023-gangemagi-release37" />
+  <link rel="stylesheet" href="./laria-math-first-fold-v1.css?v=20261128-math-phone-small" />
   <link rel="stylesheet" href="./gangemagi-markedsbok-approved-v2.css?v=20261017-approved2" />
   <!-- Journey / Bokskogen -->
   <link rel="stylesheet" href="./bokskogen-world.css?v=20261006-assets1" />
@@ -2416,23 +2418,23 @@
   <!-- Home: one premium Basecamp for all grades; presentation matures by grade band -->
   <link rel="stylesheet" href="./home-premium.css?v=20261007-perf2" />
   <link rel="stylesheet" href="./home-basecamp-v12.css?v=20261016-wordhunt-stickers1" />
-  <link rel="stylesheet" href="./laria-magical-collection-v2.css?v=20261017-diorama2" />
+  <link rel="stylesheet" href="./laria-magical-collection-v2.css?v=20261127-page-toolbar1" />
   <link rel="stylesheet" href="./fortellingsdalen-preview-v1.css?v=20261017-c2foxhint1" />
   <link rel="stylesheet" href="./norwegian-chapter-picker-v1.css?v=20261016-c2chooser1" />
   <!-- Free play -->
-  <link rel="stylesheet" href="./word-hunt.css?v=20261107-eggenipa-foxless1" />
-  <link rel="stylesheet" href="./find-the-words.css?v=20261026-eggenipa-guide1" />
+  <link rel="stylesheet" href="./word-hunt.css?v=20261128-iphone-guide" />
+  <link rel="stylesheet" href="./find-the-words.css?v=20261128-secret-garden-small2" />
   <!-- Shared inner screens and task scene; young task styling intentionally extends the shared scene -->
   <link rel="stylesheet" href="./laria-unified-v13.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-navigation-v13.css?v=20261019-painted-card2" />
   <link rel="stylesheet" href="./home-subjects-v14.css?v=20261013-phase4c-young-explore-visible" />
   <link rel="stylesheet" href="./home-kjosnes-v15.css?v=20261115-journey-clean1" />
   <link rel="stylesheet" href="./home-grades-v16.css?v=20261011-unified-home2" />
-  <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261126-land-flag1" />
+  <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261128-land-flag-phone2" />
   <!-- Kloden: one active scene stylesheet; art + renderer are loaded below in runtime order -->
   <link rel="stylesheet" href="./globe-v24.css?v=20261011-iphone-shortportrait1" />
-  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261026-norsk-readaloud44" />
-<link rel="stylesheet" href="./norsk-lesekroken-premium-v1.css?v=20261026-centered-two-choices1" />
+  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261128-norsk-wide568" />
+<link rel="stylesheet" href="./norsk-lesekroken-premium-v1.css?v=20261128-lesekrok-compact" />
   <link rel="stylesheet" href="./atlas-perspective-v1.css?v=20261009-atlas-story2" />
   <!-- UX phase 2 owns the responsive geography geometry in one place. -->
   <link rel="stylesheet" href="./globe-ux-phase2.css?v=20261013-ipad-controls" />
@@ -2724,6 +2726,7 @@
       <div id="fraction-lab-root"></div>
     </section>
 
+    <section class="screen" id="trollbutikken-screen" aria-label="Trollbutikken i Tallvika"></section>
     <section class="screen" id="multiplication-lab-screen" aria-label="Gangemagi i Tallvika">
       <div id="multiplication-lab-root"></div>
     </section>
@@ -2953,7 +2956,9 @@
       <h1>Foreldreoversikt</h1>
       <p class="hero-copy">Se barnets profil og læringsaktivitet, juster klassetrinn og innstillinger, og les hvordan Læria bruker læreplanen som faglig ramme.</p>
 
-      <div class="card adult-card">
+      <div class="adult-overview-layout">
+      <section class="card adult-card" aria-labelledby="adult-profile-heading">
+        <h2 id="adult-profile-heading">Profil og læring</h2>
         <div class="parent-row"><span>Profilnavn</span><b id="adult-profile-name">–</b></div>
         <div class="parent-row"><span>Valgt figur</span><b id="adult-profile-avatar">–</b></div>
         <div class="parent-row"><span>Klassetrinn</span><select class="adult-grade-select" id="adult-grade" aria-label="Klassetrinn"><option value="1">1. klasse</option><option value="2">2. klasse</option><option value="3">3. klasse</option><option value="4">4. klasse</option><option value="5">5. klasse</option><option value="6">6. klasse</option><option value="7">7. klasse</option><option value="8">8. klasse</option><option value="9">9. klasse</option><option value="10">10. klasse</option></select></div>
@@ -2963,25 +2968,10 @@
         <div class="parent-row"><span>Riktige svar</span><b id="adult-accuracy">–</b></div>
         <div class="parent-row"><span>Sterkest nå</span><b id="adult-strong">Ikke nok data ennå</b></div>
         <div class="parent-row"><span>Bør øve mer på</span><b id="adult-practice">Start en økt</b></div>
-      </div>
+      </section>
 
-      <div class="card test-info">
-        <h3>Slik bruker Læria aktiviteten</h3>
-        <ul>
-          <li>Klassetrinnet setter et naturlig startnivå, men barnet kan utforske andre trinn uten å endre profilen.</li>
-          <li>Feil svar brukes til å gi mer relevant øving. De straffer ikke barnet og låser ikke innhold.</li>
-          <li>Mestring bygges over tid gjennom øving og gjenhenting, ikke av én perfekt runde.</li>
-          <li>Innhold barnet liker og fri utforsking forblir tilgjengelig også når barnet mestrer området.</li>
-        </ul>
-      </div>
-
-      <div class="card privacy-note">
-        <div class="row" style="align-items:flex-start">
-          <div style="font-size:28px">🛡️</div>
-          <div><h3>Personvern</h3><p>Profilnavn, valgt troll, klassetrinn, fremgang og svar lagres lokalt på denne enheten. Læria krever ikke konto, e-post, fødselsdato eller posisjon, og har ingen annonser eller sporing.</p></div>
-        </div>
-      </div>
-
+      <nav class="adult-overview-links" aria-labelledby="adult-links-heading">
+        <h2 id="adult-links-heading">For foreldre</h2>
       <button class="parent-info-entry" id="open-parent-info" type="button">
         <div class="icon" aria-hidden="true">👨‍👩‍👧</div>
         <div class="copy"><strong>Til foreldre</strong><span>Hvorfor appen finnes, skjermbruk og hvordan vi forholder oss til læreplanen.</span></div>
@@ -3001,8 +2991,33 @@
       </button>
 
       <button class="primary" id="open-feedback">Gi tilbakemelding</button>
-      <button class="danger-button" id="reset-progress">Nullstill fremgang på denne enheten</button>
+      </nav>
+      </div>
+
+      <details class="adult-disclosure">
+        <summary>Slik bruker Læria læringsdata</summary>
+        <div class="card test-info">
+        <h3>Slik bruker Læria aktiviteten</h3>
+        <ul>
+          <li>Klassetrinnet setter et naturlig startnivå, men barnet kan utforske andre trinn uten å endre profilen.</li>
+          <li>Feil svar brukes til å gi mer relevant øving. De straffer ikke barnet og låser ikke innhold.</li>
+          <li>Mestring bygges over tid gjennom øving og gjenhenting, ikke av én perfekt runde.</li>
+          <li>Innhold barnet liker og fri utforsking forblir tilgjengelig også når barnet mestrer området.</li>
+        </ul>
+      </div>
+
+      <div class="card privacy-note">
+        <div class="row" style="align-items:flex-start">
+          <div style="font-size:28px">🛡️</div>
+          <div><h3>Personvern</h3><p>Profilnavn, valgt troll, klassetrinn, fremgang og svar lagres lokalt på denne enheten. Læria krever ikke konto, e-post, fødselsdato eller posisjon, og har ingen annonser eller sporing.</p></div>
+        </div>
+      </div>
+      </details>
+      <details class="adult-disclosure">
+        <summary>Administrer data på enheten</summary>
+        <button class="danger-button" id="reset-progress">Nullstill fremgang på denne enheten</button>
       <div class="small-note">Nullstilling sletter klassetrinn, læringsdata og pågående økt fra denne nettleseren.</div>
+      </details>
     </section>
 
     <section class="screen" id="parent-info-screen" data-parent-trust-release="parent-trust-rc1">
@@ -3088,7 +3103,8 @@
         <div class="card privacy-note">
           <h3>2. Personvern og lagring</h3>
           <p>Profilnavn, valgt figur, klassetrinn, svar og fremgang lagres lokalt på enheten. Læria krever ikke konto, e-post, fødselsdato eller posisjon for den lokale læringsopplevelsen. Appen har ingen annonser eller adferdsbasert sporing.</p>
-          <p>Nullstilling i foreldreområdet sletter den lokale profilen og læringsdataene på denne enheten.</p>
+          <p>Fremgangen synkroniseres ikke mellom enheter. Nullstilling i foreldreområdet eller sletting av nettleserens nettstedsdata fjerner den lokale profilen og fremgangen. Hvis nettleseren sperrer lokal lagring, kan ny fremgang forsvinne når appen lukkes.</p>
+          <p>Når Kloden eller en kartoppgave trenger mer detaljerte kart eller befolkningstall, henter appen offentlige data fra Natural Earth via GitHub og fra Verdensbanken. Forespørslene inneholder ikke barnets profil eller svar, men tjenestene mottar vanlig nettverksinformasjon, som IP-adressen. Reservekart og grunnleggende landfakta er innebygd.</p>
         </div>
 
         <div class="card">
@@ -3211,7 +3227,7 @@
 <script src="./laria-fox-identity.js?v=20261011-livefoxart1" data-boot-sync></script>
 <script src="./laria-collection-core.js?v=20261011-collectionbook2" data-boot-sync></script>
 <script src="./laria-fox-wardrobe.js?v=20261014-phase4d-fox-only1" data-boot-sync></script>
-<script src="./commercial-content-v18.js?v=20261014-bilingual-qa1" data-boot-sync></script>
+<script src="./commercial-content-v18.js?v=20261126-p4-language" data-boot-sync></script>
 <script src="./commerce-v18.js?v=20261023-store-failsafe1" data-boot-sync></script>
 <script src="./norwegian-content.js?v=20261006-assets1" defer></script>
 <script>
@@ -3570,7 +3586,7 @@ function showScreen(name){
     if(s===el)s.style.removeProperty('display');
     else s.style.setProperty('display','none','important');
   });
-  const special=['session','complete','detail','adult','parent-info','feedback','world','continent','geography','subject','fraction-lab','multiplication-lab'].includes(name);
+  const special=['session','complete','detail','adult','parent-info','feedback','world','continent','geography','subject','fraction-lab','multiplication-lab','trollbutikken'].includes(name);
   document.getElementById('bottom-nav').style.display=special?'none':'grid';
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
@@ -3720,7 +3736,7 @@ document.getElementById('young-words').onclick=()=>setTab('progress');
 document.getElementById('young-math').onclick=()=>setTab('progress');
 
 // Native-feeling left-edge swipe. Narrow edge avoids stealing map and exercise gestures.
-const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete','fraction-lab','multiplication-lab']);
+const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete','fraction-lab','multiplication-lab','trollbutikken']);
 const swipeBackEdge=document.getElementById('swipe-back-edge');
 const swipeBackIndicator=document.getElementById('swipe-back-indicator');
 let swipeBackGesture=null;
@@ -3767,6 +3783,7 @@ function appBack(){
   const visibleBack={
     subject:'subject-back',geography:'geography-back',world:'world-back',
     'fraction-lab':'fraction-lab-back','multiplication-lab':'multiplication-lab-back',
+    'trollbutikken':'trollbutikken-back',
     session:'close-session',complete:'complete-home'
   }[current];
   if(visibleBack){
@@ -5114,10 +5131,12 @@ function validLearningQuestion(q){
 
 function buildLearningQuestions(subject,module,allowCooldown=false,strictModule=false){
   const getPool=(m)=>subjectPoolForGrade(subject,currentGrade(),m);
-  const focused=module?getPool(module).filter(validLearningQuestion):[];
-  // Kinnaklova's painted activity signs describe real learning categories.
-  // Preserve that promise when a module has enough questions. Allow the
-  // existing mixed fallback for an unavailable/too-small module (grade 1 Reading).
+  const lesekroken=strictModule&&subject==='norwegian'&&module==='reading'&&currentGrade()===2;
+  const focused=module?getPool(module).filter(q=>validLearningQuestion(q)&&(!lesekroken||q.passage?.trim())):[];
+  // Direct activity signs describe real learning categories. When the module
+  // has enough material, keep its promise. Lesekroken on grade 2 reads stories;
+  // word identification still belongs to the wider reading skill pool.
+  strictModule=strictModule&&(subject!=='norwegian'||lesekroken);
   const mixed=(strictModule&&focused.length>=5?[]:getPool(null).filter(validLearningQuestion)),seen=new Set(),pool=[];
   for(const q of [...focused,...mixed]){
     const sig=questionIdentity(q),cooling=questionOnCooldown(q);if(seen.has(sig)||(cooling&&!allowCooldown))continue;
@@ -5374,7 +5393,7 @@ function journeyTrollMarkup(){
   // The selected, original troll is used before any async runtime update.
   const saved=typeof state!=='undefined'&&state?.profile?.tallvikaTroll;
   const id=['storesoster','lillesoster','lillebror'].includes(saved)?saved:'storesoster';
-  return '<img class="laria-premium-troll-art" data-troll="'+id+'" src="./assets/gangemagi-troll/'+id+'.webp" alt="" aria-hidden="true" decoding="async">';
+  return '<img class="laria-premium-troll-art" data-troll="'+id+'" src="./assets/troll-b/gangemagi-troll/'+id+'.webp" alt="" aria-hidden="true" decoding="async">';
 }
 function journeySpecialSvg(kind){
   if(kind==='checkpoint')return '<svg viewBox="0 0 48 48"><path d="M24 4l6 12 13 2-9 9 2 13-12-6-12 6 2-13-9-9 13-2z" fill="#E1AA33" stroke="#785614" stroke-width="2.4" stroke-linejoin="round"/></svg>';
@@ -6013,6 +6032,8 @@ function celebrateCorrect(){
   requestAnimationFrame(()=>{const box=document.getElementById('feedback');if(!box)return;box.classList.remove('success-pop');void box.offsetWidth;box.classList.add('success-pop')});
 }
 function learningFeedbackText(q,correct){
+  const authored=q.learningFeedback?.[correct?'correct':'retry'];
+  if(typeof authored==='string'&&authored.trim())return authored;
   if(correct){
     if(q.subject==='english'&&q.englishWord&&q.norwegianMeaning)
       return q.englishWord+' betyr '+q.norwegianMeaning+'.';
@@ -6060,14 +6081,17 @@ function showLearningFeedback(q,correct,options={}){
   box.classList.toggle('success-pop',!!correct);
   box.classList.toggle('retry',!!options.retry);
   document.getElementById('feedback-title').textContent=correct?'Riktig!':'Nesten!';
+  const nynorsk=q.subject==='norwegian'&&q.passageLang==='nn';
   let copy=correct&&currentAnswered?.corrected
-    ?'Du fant det etter et nytt forsøk! '+learningFeedbackText(q,true)
+    ?(nynorsk?'Du fann det etter eit nytt forsøk! ':'Du fant det etter et nytt forsøk! ')+learningFeedbackText(q,true)
     :learningFeedbackText(q,correct);
-  if(options.retry)copy+=' Prøv en gang til.';
+  if(options.retry)copy+=nynorsk?' Prøv ein gong til.':' Prøv en gang til.';
   const last=state.answerLog[state.answerLog.length-1];
   if(correct&&!currentAnswered?.corrected&&last?.correct===true&&currentGrade()<=2&&last.strengthened)
     copy+=' ⭐ Dette ble sterkere i samlingen din.';
-  document.getElementById('feedback-copy').textContent=copy;
+  const feedbackCopy=document.getElementById('feedback-copy');
+  if(nynorsk)feedbackCopy.lang='nn';
+  feedbackCopy.textContent=copy;
   updateAnswerPronunciation(q,correct&&!options.retry);
   document.getElementById('next-question').style.display=options.retry?'none':'block';
 }
@@ -6352,6 +6376,10 @@ function renderLearningQuestion(){
   if(kiReading){
     html+='<section class="learning-passage ki-reading-story" lang="en" aria-label="Engelsk historie">'+escapeAttr(q.passage)+'</section>';
     html+='<div class="question ki-reading-question" lang="en">'+escapeAttr(q.prompt)+'</div>';
+  }else if(q.passage&&['nb','nn','en'].includes(q.passageLang)){
+    const lang=q.passageLang;
+    html+='<div class="learning-passage" lang="'+lang+'">'+escapeAttr(q.passage)+'</div>';
+    html+='<div class="question" lang="'+lang+'">'+escapeAttr(q.prompt)+'</div>';
   }else{
     html+='<div class="question">'+q.prompt+'</div>';
     if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';
@@ -6366,7 +6394,8 @@ function renderLearningQuestion(){
   }else if(q.type==='sequence-order'){
     html+='<div class="sequence-target" id="sequence-target"></div><div class="sequence-bank" id="sequence-bank">'+q.items.map((x,i)=>'<button type="button" class="sequence-tile" data-idx="'+i+'">'+x+'</button>').join('')+'</div><button class="secondary" id="check-sequence" type="button">Sjekk rekkefølgen</button>';
   }else{
-    html+='<div class="answers">'+q.options.map(o=>'<button class="answer" data-answer="'+escapeAttr(o)+'">'+o+'</button>').join('')+'</div>';
+    const answerLang=['nb','nn','en'].includes(q.passageLang)?' lang="'+q.passageLang+'"':'';
+    html+='<div class="answers"'+answerLang+'>'+q.options.map(o=>'<button class="answer" data-answer="'+escapeAttr(o)+'">'+o+'</button>').join('')+'</div>';
   }
   html+='<div class="feedback" id="feedback"><strong id="feedback-title"></strong><p id="feedback-copy"></p></div><button class="primary next" id="next-question">Neste</button>';
   wrap.innerHTML=html;
@@ -6672,6 +6701,7 @@ function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElem
 function canSpeak(){return typeof window!=='undefined'&&'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined'}
 let lariaSpeechRun=0;
 function stopSpeech(){
+  window.LARIA_TROLL_VOICE_AUDITION?.release?.();
   lariaSpeechRun++;
   window.LARIA_COUNTRY_DISCOVERY_UI?.stopReading?.();
   try{if(canSpeak())window.speechSynthesis.cancel()}catch(_){}
@@ -7229,7 +7259,7 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./multiplication-pick-engine-v1.js?v=20261009-easy1" defer></script>
 <script src="./multiplication-pick-scenery-v2.js?v=20261009-storybook2" defer></script>
 <script src="./multiplication-pick-play-v1.js?v=20261011-personalfox2" defer></script>
-<script src="./multiplication-premium-v2.js?v=20261025-tallvika-one-tap-return1" defer></script>
+<script src="./multiplication-premium-v2.js?v=20261128-table-first-fold3" defer></script>
 <script src="./multiplication-gangemagi-engine-v1.js?v=20261017-markedsbok1" defer></script>
 <script src="./multiplication-gangemagi-v1.js?v=20261122-tallvika-direct-back1" defer></script>
 <!-- Journey / Bokskogen -->
@@ -7254,19 +7284,19 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./locked-journey-renderer.js?v=20261027-nordlys-troll1" defer></script>
 <!-- Free play + Home -->
 <script src="./word-hunt-themes.js?v=20261026-norsk-themes2" defer></script>
-<script src="./word-hunt.js?v=20261107-eager-theme-gallery1" defer></script>
-<script src="./find-the-words.js?v=20261026-norsk-find-steps1" defer></script>
-<script src="./laria-magical-collection-v2.js?v=20261107-no-fox-feature1" defer></script>
+<script src="./word-hunt.js?v=20261128-ordjakt-common1" defer></script>
+<script src="./find-the-words.js?v=20261128-garden-common1" defer></script>
+<script src="./laria-magical-collection-v2.js?v=20261127-page-toolbar1" defer></script>
 <script src="./home-basecamp-v12.js?v=20261126-geography-two1" defer></script>
-<script defer src="./laria-grovanova-v16.js?v=20261126-troll-size2"></script>
-<script defer src="./home-kjosnes-v15.js?v=20261119-grovanova-v16-home1"></script>
+<script defer src="./laria-grovanova-v16.js?v=20261128-phone-troll-contained1"></script>
+<script defer src="./home-kjosnes-v15.js?v=20261127-grovanova-v16-phone1"></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261026-norsk-no-map1" defer></script>
 <script src="./norsk-object-extras-v1.js?v=20261026-all-early-norsk1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261126-kinnaklova-reading2-land-flag1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261126-kinnaklova-reading2-land-flag1-p4-language-country-hint1" defer></script>
 <script src="./laria-fox-presence.js?v=20261027-nordlys-troll1" defer></script>
-<script src="./laria-troll-runtime-v1.js?v=20261126-troll-b1" defer></script>
+<script src="./laria-troll-runtime-v1.js?v=20261126-troll-audition1" defer></script>
 <script src="./laria-troll-pose-v1.js?v=20261126-troll-b1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
@@ -7277,23 +7307,27 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./globe-v25-renderer.js?v=20261015-discoveries1" defer></script>
 <script src="./laria-country-detail-premium-v1.js?v=20261015-discoveries1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
-<script src="./laria-premium-sign-art-v1.js?v=20261126-subject-header1" defer></script>
+<script src="./laria-premium-sign-art-v1.js?v=20261128-stable-first-paint-word-games1" defer></script>
 <!-- One shared scene/navigation component for subject facades. No learning data changes. -->
-<script src="./laria-scene-ui-v1.js?v=20261126-geography-two1" defer></script>
-<script defer src="./laria-reference-layout-v1.js?v=20261126-subject-header1"></script>
+<script src="./laria-scene-ui-v1.js?v=20261127-trollbutikk-grade2-release2-word-games1" defer></script>
+<script defer src="./laria-reference-layout-v1.js?v=20261127-trollbutikk-grade2-release2-word-games1"></script>
 <!-- Tallvika: locked landscape and direct-play layer. It owns no learning data. -->
 <link rel="stylesheet" href="./tallvika.css?v=20261107-ipad-landscape-fill1">
-<script src="./tallvika.js?v=20261107-light-arrow1" defer></script>
+<script src="./trollbutikken-engine-v1.js?v=20261127-trollbutikk-grade2-release2" defer></script>
+<script src="./trollbutikken-ui-v1.js?v=20261128-short-counter3" defer></script>
+<script src="./tallvika.js?v=20261127-trollbutikk-grade2-release2" defer></script>
 <!-- Norsk: locked Eggenipa painting, direct-play subject screen. No new learning state. -->
-<link rel="stylesheet" href="./eggenipa.css?v=20261107-premium-signrail-ipad2">
-<script src="./eggenipa.js?v=20261107-light-arrow1" defer></script>
+<link rel="stylesheet" href="./eggenipa.css?v=20261128-short-portrait-fold1">
+<script src="./eggenipa.js?v=20261126-p4-language" defer></script>
 <!-- Engelsk Kinnaklova: private standalone direct-play preview. Does not alter learning state. -->
 <link rel="stylesheet" href="./kinnaklova.css?v=20261107-premium-signrail-reading2">
 <link rel="stylesheet" href="./kinnaklova-standalone-v1.css?v=20261115-main-live-integration2">
-<script src="./kinnaklova-standalone-v1.js?v=20261115-main-live-integration2" defer></script>
-<script src="./kinnaklova.js?v=20261115-locked-kinn-seamless-live3" defer></script>
+<script src="./kinnaklova-standalone-v1.js?v=20261115-main-live-integration2-word-games1" defer></script>
+<link rel="stylesheet" href="./english-word-games-v1.css?v=20261128-ordlek-common1">
+<script src="./english-word-games-v1.js?v=20261128-english-common1" defer></script>
+<script src="./kinnaklova.js?v=20261128-word-games1" defer></script>
 <!-- Geografi: Kinnaklova-style scene facade; original Nordlysleiren and Kloden remain reachable. -->
-<link rel="stylesheet" href="./geography-kinnaklova-scene.css?v=20261126-geography-two1">
+<link rel="stylesheet" href="./geography-kinnaklova-scene.css?v=20261128-geography-short-portrait-fold1">
 <!-- Tallvika v2 stylesheet loads last so there are no legacy CSS collisions. -->
 <link rel="stylesheet" href="./tallvika-fjord-v2.css?v=20261122-grade-clearance3">
 <script src="./geography-kinnaklova-scene.js?v=20261126-geography-two1" defer></script>
@@ -7307,13 +7341,15 @@ window.LARIA_TALLVIKA_BRIDGE={
 <!-- Shared left-aligned three-sign layout on the actual subject facades. -->
 <link rel="stylesheet" href="./laria-sign-rail-v2.css?v=20261108-rail-connected1">
 <link rel="stylesheet" href="./laria-reference-layout-v1.css?v=20261122-matte-grade-clearance4">
-<link rel="stylesheet" href="./laria-premium-sign-art-v1.css?v=20261124-source-art1">
-<link rel="stylesheet" href="./laria-kinnaklova-unified-v1.css?v=20261115-locked-kinn-sha-safe-live4">
+<link rel="stylesheet" href="./laria-premium-sign-art-v1.css?v=20261128-stable-first-paint1">
+<link rel="stylesheet" href="./laria-kinnaklova-unified-v1.css?v=20261128-short-portrait-kinn1">
 <link rel="stylesheet" href="./laria-home-ipad-rail-v1.css?v=20261115-journey-clean1">
 <link rel="stylesheet" href="./laria-viewport-premium-v1.css?v=20261116-viewport-ipad-portrait1">
-<link rel="stylesheet" href="./laria-grovanova-v16.css?v=20261126-troll-size2">
-<link rel="stylesheet" href="./laria-subject-identity-v1.css?v=20261126-header1">
-<link rel="stylesheet" href="./laria-learning-identity-v1.css?v=20261126-world2">
+<link rel="stylesheet" href="./laria-grovanova-v16.css?v=20261127-macwide-phone1">
+<link rel="stylesheet" href="./laria-subject-identity-v1.css?v=20261128-stable-first-paint1">
+<link rel="stylesheet" href="./laria-learning-identity-v1.css?v=20261128-atlas-tablet-legibility1">
+<link rel="stylesheet" href="./laria-word-play.css?v=20261128-common1">
+<link rel="stylesheet" href="./gangemagi-compact-v1.css?v=20261126-fold1">
 <script defer src="./laria-learning-identity-v1.js?v=20261126-world1"></script>
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>

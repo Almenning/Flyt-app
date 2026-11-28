@@ -85,7 +85,16 @@ async function visit(engine,engineName,viewName,viewport,hasTouch){
     assert.ok(data.footY>=.83&&data.footY<=.97,'Tallvika supports must reach the foreground bank: '+data.footY);
     assert.equal(data.nextFeet,'none','Next adventure duplicated the shared supports');
    }
-   const expected=id==='geography'?2:3;
+   const expected=id==='geography'?2:id==='math'||id==='english'?4:3;
+   if(id==='math'){
+    assert.equal(await scene.locator('.tv-scene-grade').innerText(),'2. klasse');
+    assert.deepEqual(await nav.locator('button.laria-premium-sign').evaluateAll(buttons=>buttons.map(b=>b.dataset.tv)),
+     ['multiply','fraction','table','shop'],'Grade 2 Tallvika signs must preserve all four ordered destinations');
+   }
+   if(id==='english'){
+    assert.deepEqual(await nav.locator('button.laria-premium-sign').evaluateAll(buttons=>buttons.map(b=>b.dataset.ki)),
+     ['words','sentences','reading','word-games'],'Kinnaklova must keep Ordlek beside the three existing activities');
+   }
    assert.equal(data.signs.length,expected,id+' has unexpected primary activity actions');
    if(id==='geography'){
     assert.deepEqual(await nav.locator('button.laria-wayfinder').evaluateAll(buttons=>buttons.map(b=>b.dataset.gv)),['globe','country']);

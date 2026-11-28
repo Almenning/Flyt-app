@@ -230,3 +230,89 @@
   --ref-natural-post-tail:clamp(35px,4.7vh,64px);
  }
 }
+
+/* The compact layout can run without the reference adapter (for example
+ * on a rotated phone or a short portrait phone). The verified clean art has no painted UI, so
+ * use the real activity buttons, never the old scattered hot-spot geometry. */
+@media (orientation:landscape) and (max-height:649px),
+       (orientation:portrait) and (max-height:599px) and (max-width:767px){
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1){
+  width:100%!important;max-width:none!important;height:100dvh!important;
+  aspect-ratio:auto!important;margin:0!important;
+  --ki-compact-left:max(3%, calc(env(safe-area-inset-left, 0px) + 10px));
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-master{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) > nav.laria-scene-navigation{
+  display:grid!important;position:absolute!important;z-index:6;isolation:isolate;
+  inset:auto!important;left:var(--ki-compact-left)!important;
+  bottom:max(49px,13dvh,calc(env(safe-area-inset-bottom, 0px) + 32px))!important;
+  width:clamp(148px,23vw,244px)!important;gap:4px;
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) > nav.laria-scene-navigation::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:-3px 0 -27px;
+  background:url("./assets/ui/laria-grovanova-signposts.svg") center/100% 100% no-repeat;
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-painted-hit.laria-wayfinder{
+  position:relative!important;inset:auto!important;display:block!important;
+  width:100%!important;height:clamp(44px,12dvh,66px)!important;
+  padding:0 15px!important;border-radius:0;background:var(--laria-sign-art) center/100% 100% no-repeat;
+  color:var(--laria-sign-ink);filter:var(--laria-sign-shadow);
+  font:900 clamp(15px,2.3dvh,20px)/1.15 var(--laria-ui-font,system-ui)!important;
+  text-shadow:0 1px 0 #fff2d2;text-align:center;
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-world-brand{
+  display:grid!important;justify-items:center;position:absolute;z-index:5;
+  inset:max(8px,env(safe-area-inset-top, 0px)) auto auto 50%;transform:translateX(-50%);
+  padding:0;background:none;border:0;box-shadow:none;pointer-events:none;
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-world-brand strong{
+  display:block;width:clamp(125px,22vw,205px);height:clamp(48px,13dvh,70px);font-size:0;
+  background:url("./assets/ui/laria-logo-from-grovanova.svg") center/contain no-repeat;
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-world-brand span{
+  color:#402614;text-shadow:0 1px 2px #fff1cb,0 2px 6px #fff1cb;
+  font:900 clamp(14px,3.2dvh,19px)/1.15 var(--laria-ui-font,system-ui);
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-companion-actor{
+  left:48%!important;
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-stage-choose{
+  display:block!important;top:max(12px,env(safe-area-inset-top, 0px));
+  right:max(12px,env(safe-area-inset-right, 0px));
+ }
+}
+
+/* At short portrait sizes Ordlek shares the actual left navigation with the
+ * other three destinations, not the previous zero-origin hot spot. Keep the
+ * logo clear of Mine troll, and preserve the live actor's original size. */
+@media (orientation:portrait) and (max-height:599px) and (max-width:767px){
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) > nav.laria-scene-navigation{
+  bottom:max(48px,15dvh,calc(env(safe-area-inset-bottom,0px) + 28px))!important;
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-painted-hit.laria-wayfinder{
+  height:48px!important;
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-world-brand strong{
+  width:clamp(98px,31vw,118px);
+ }
+ #kinnaklova-world[data-ki-art="ready"][data-ki-premium-art="approved"]
+   .ki-stage[data-laria-artwork-ui="separate"]:not(.laria-reference-layout-v1) .ki-companion-actor[data-ki="troll"]{
+  inset:auto 8% max(14px,env(safe-area-inset-bottom,0px)) auto!important;
+ }
+}

@@ -533,17 +533,6 @@
  #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-nav-link small{font-size:10px}
 }
 @media (min-width:768px) and (max-width:1366px) and (min-height:650px) and (orientation:portrait){
- /* The legacy .app bottom padding creates 140px of empty vertical scroll
-    despite the entire 10x10 table fitting on screen. Scope this to table-mode
-    only so taller exercise modes retain their normal accessible scrolling. */
- .app:has(#multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-explore-world.table-mode){
-  padding-bottom:0!important;min-height:100dvh;height:100dvh;
-  overflow-y:hidden!important;
- }
- #multiplication-lab-screen.active[data-mp-direct-tallvika="true"]:has(.mp-explore-world.table-mode){
-  padding:0!important;margin:0!important;min-height:100dvh;height:100dvh;
-  overflow:hidden!important;
- }
  #multiplication-lab-screen.active[data-mp-direct-tallvika="true"] .mp-shell:has(.mp-explore-screen){
   background:
     linear-gradient(180deg,rgba(255,249,232,.78),rgba(255,249,232,.84)),
@@ -611,4 +600,293 @@
  #multiplication-lab-screen.active .mp-task-apples{
   background-image:linear-gradient(180deg,rgba(255,252,226,.40),rgba(227,240,216,.43)),url('./assets/tallvika/tallvika-fjord-no-buildings-portrait-20261107.webp')!important;
  }
+}
+
+/* One board, two dimensions. Compact views show an explicitly paged portion
+   of the same 10 × 10 table, never smaller active cells or clipped controls. */
+.mp-table-top-title{display:none}
+.app:has(#multiplication-lab-screen.active .mp-explore-world.table-mode){
+ width:100%;max-width:none;margin-inline:0;padding-bottom:0!important;
+}
+#multiplication-lab-screen.active:has(.table-mode){
+ width:100%;max-width:none;margin:0;padding:0;
+}
+#multiplication-lab-screen.active .mp-shell:has(.table-mode){
+ padding:max(5px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));
+}
+#multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-main{
+ max-width:1080px;
+}
+#multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-top{
+ min-height:44px;margin:0 0 3px;padding:2px 7px;
+}
+#multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-top .mp-avatar{display:none}
+#multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-heading{
+ margin:0;padding:5px 2px 4px;
+}
+#multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-heading h1{
+ margin:0;font-size:clamp(24px,3.5vw,37px);
+}
+#multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-heading p{
+ font-size:12px;
+}
+#multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-tabs{
+ display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;
+ margin:3px 0;padding:0;overflow:visible;
+}
+#multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-tab{
+ min-width:44px;min-height:44px;padding:3px 2px;gap:1px;font-size:11px;
+ white-space:normal;line-height:1.08;
+}
+#multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-tab strong{
+ font-size:inherit;white-space:normal;overflow-wrap:normal;
+}
+#multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-tab span{font-size:15px;line-height:1}
+#multiplication-lab-screen.active .mp-explore-screen .mp-explore-world.table-mode{
+ display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto;
+ gap:7px;min-height:0;padding:5px;align-items:start;border-radius:17px;
+}
+#multiplication-lab-screen.active .table-mode .mp-table-board{
+ min-width:0;grid-column:1;grid-row:1;
+}
+#multiplication-lab-screen.active .mp-explore-world.table-mode::before,
+#multiplication-lab-screen.active .mp-explore-world.table-mode::after{
+ content:none;
+}
+#multiplication-lab-screen.active .table-mode .mp-table-instruction{
+ text-align:left;margin:0 3px 4px;line-height:1.25;
+}
+#multiplication-lab-screen.active .table-mode .mp-table-viewport{
+ width:100%;max-height:none;border-radius:12px;overflow:visible;
+}
+#multiplication-lab-screen.active .table-mode .mp-times-grid{
+ width:calc(100% - 4px);table-layout:fixed;border-spacing:1px;margin:2px;
+}
+#multiplication-lab-screen.active .table-mode .mp-times-grid [hidden]{display:none!important}
+#multiplication-lab-screen.active .table-mode .mp-times-grid th{position:static}
+#multiplication-lab-screen.active .table-mode .mp-times-grid thead th{height:26px}
+#multiplication-lab-screen.active .table-mode .mp-grid-cell{
+ display:block;width:100%;min-width:44px;min-height:44px;
+ font-size:14px;line-height:1;outline-offset:-3px;text-align:center;
+}
+#multiplication-lab-screen.active .table-mode .mp-grid-cell[aria-pressed="true"]{font-size:16px}
+#multiplication-lab-screen.active .table-mode .mp-table-pager{
+ display:flex;gap:6px;margin:0 0 3px;justify-content:flex-start;flex-wrap:wrap;
+}
+#multiplication-lab-screen.active .table-mode .mp-table-page{
+ display:flex;align-items:center;gap:5px;color:#69452a;font-size:11px;font-weight:850;
+}
+#multiplication-lab-screen.active .table-mode .mp-table-page select{
+ min-width:68px;min-height:44px;border:1px solid #b78753;border-radius:9px;
+ background:#fff8e3;color:#4f3320;font:850 14px/1.2 system-ui,sans-serif;
+}
+#multiplication-lab-screen.active .table-mode .mp-table-page select:focus-visible{
+ outline:3px solid #2669a9;outline-offset:1px;
+}
+#multiplication-lab-screen.active .mp-explore-screen .mp-explore-world.table-mode .mp-table-inspector{
+ grid-column:1;grid-row:2;min-width:0;margin:0;padding:6px;gap:4px;
+ border:1px solid #e3c9ab;border-radius:13px;
+}
+#multiplication-lab-screen.active .table-mode .mp-inspector-equation{
+ gap:3px;line-height:1.14;
+}
+#multiplication-lab-screen.active .table-mode .mp-inspector-equation b{
+ font-size:clamp(21px,3.5vw,32px);color:#74451f;
+}
+#multiplication-lab-screen.active .table-mode .mp-inspector-equation strong{font-size:clamp(15px,2.3vw,21px)}
+#multiplication-lab-screen.active .table-mode .mp-inspector-equation p{font-size:11px}
+#multiplication-lab-screen.active .table-mode .mp-factor-title{font-size:11px}
+#multiplication-lab-screen.active .table-mode .mp-pair-buttons{gap:3px}
+#multiplication-lab-screen.active .table-mode .mp-pair{
+ min-width:49px;min-height:44px;padding:2px 4px;border-radius:9px;
+}
+#multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-mascot-small{
+ position:relative;width:auto;min-height:0;max-width:none;margin:3px 0 1px;
+ justify-content:flex-start;gap:6px;text-align:left;align-items:center;
+}
+#multiplication-lab-screen.active .table-mode .mp-table-inspector .mp-mascot-small>img{
+ max-height:82px!important;max-width:76px!important;height:82px!important;width:76px!important;
+ min-height:0!important;min-width:0!important;flex:0 0 76px!important;object-fit:contain!important;
+}
+#multiplication-lab-screen.active .table-mode .mp-table-inspector .mp-mascot-small .mp-bubble{
+ min-height:0;padding:6px 8px;font-size:12px;line-height:1.2;text-align:left;
+}
+/* The table already has one task-specific tutor message. A global welcome
+   would overlap the factor chips and repeat the voice of the same troll. */
+#multiplication-lab-screen.active .table-mode .mp-table-inspector :is(.mp-heart,.laria-troll-speech){display:none}
+#multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-nav{
+ position:static;margin:5px auto 0;padding:2px;border-radius:13px;
+}
+#multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-nav-link{
+ min-width:44px;min-height:44px;padding:0;
+}
+#multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-nav-link span{font-size:16px}
+
+@media(orientation:landscape) and (min-width:768px){
+ #multiplication-lab-screen.active .mp-explore-screen .mp-explore-world.table-mode{
+  grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);
+ }
+ #multiplication-lab-screen.active .mp-explore-screen .mp-explore-world.table-mode .mp-table-inspector{
+  grid-column:2;grid-row:1;
+ }
+}
+@media(max-width:767px) and (orientation:portrait){
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-tabs{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+ }
+ #multiplication-lab-screen.active .mp-explore-world.table-mode .mp-inspector-equation{
+  grid-template-columns:1fr 1fr;align-items:center;
+ }
+ #multiplication-lab-screen.active .mp-explore-world.table-mode .mp-inspector-equation p{grid-column:1/-1}
+}
+/* Short formats have a recognisable title in the actual header instead of
+   stacking a second banner above the board. Keep the document scrollable for
+   browser zoom, system overlays, and optional navigation, never game play. */
+@media(max-width:767px), (orientation:landscape) and (max-height:600px){
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-table-top-title{
+  display:block;font-size:clamp(15px,3vw,22px);font-weight:950;color:#604023;
+ }
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .tv-origin-breadcrumb{display:none}
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-heading{
+  position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;
+ }
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-mascot-small{
+  justify-content:flex-start;min-height:44px;max-height:none;gap:6px;
+ }
+ #multiplication-lab-screen.active .table-mode .mp-table-inspector .mp-mascot-small>img{
+  max-height:48px!important;max-width:44px!important;height:48px!important;width:44px!important;
+  min-height:0!important;min-width:0!important;flex:0 0 44px!important;object-fit:contain!important;
+ }
+ #multiplication-lab-screen.active .table-mode .mp-table-inspector .mp-mascot-small .mp-bubble{
+  min-height:0;padding:5px 7px;font-size:11px;
+ }
+}
+@media(orientation:landscape) and (max-height:600px){
+ #multiplication-lab-screen.active .mp-explore-screen .mp-explore-world.table-mode{
+  grid-template-columns:minmax(0,1fr) clamp(160px,22vw,218px);
+ }
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-top{padding-block:0}
+ #multiplication-lab-screen.active .mp-explore-screen .mp-explore-world.table-mode .mp-table-inspector{
+  grid-column:2;grid-row:1;align-self:start;min-height:0;
+ }
+ #multiplication-lab-screen.active .table-mode .mp-inspector-equation p{font-size:10px}
+}
+
+@media(orientation:landscape) and (min-width:535px) and (max-height:600px){
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-main{
+  display:grid;grid-template-columns:minmax(164px,0.24fr) minmax(0,1fr);
+  gap:4px 6px;align-items:start;
+ }
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode){display:contents}
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-top{
+  grid-column:1;grid-row:1;margin:0;min-width:0;gap:3px;padding-inline:2px 5px;
+  justify-content:flex-start;
+ }
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-table-top-title{font-size:clamp(13px,1.8vw,15.5px);white-space:nowrap}
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-top :is(.mp-brand,.mp-top-right){display:none}
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-explore-tabs{
+  grid-column:2;grid-row:1;margin:0;
+ }
+ #multiplication-lab-screen.active .mp-explore-screen .mp-explore-world.table-mode{
+  grid-column:1/-1;grid-row:2;
+ }
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-nav{
+  grid-column:1/-1;grid-row:3;width:min(100%,620px);margin:0 auto;
+ }
+}
+
+.mp-explore-mode-picker{display:none}
+@media(orientation:landscape) and (max-height:600px){
+ #multiplication-lab-screen.active .mp-explore-screen .mp-explore-world.table-mode{
+  grid-template-columns:minmax(0,1fr) clamp(198px,24vw,225px);
+  gap:4px;padding:4px;border-width:1px;
+ }
+ #multiplication-lab-screen.active .table-mode .mp-pair-buttons{gap:2px}
+ #multiplication-lab-screen.active .table-mode .mp-pair{min-width:44px;padding-inline:2px}
+ #multiplication-lab-screen.active .table-mode .mp-table-pager{margin-bottom:1px}
+}
+@media(max-width:767px) and (max-height:710px) and (orientation:portrait){
+ #multiplication-lab-screen.active .mp-explore-screen .mp-explore-world.table-mode{gap:4px;padding:4px}
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-mascot-small{min-height:36px;margin:1px 0}
+ #multiplication-lab-screen.active .table-mode .mp-table-inspector .mp-mascot-small>img{
+  height:36px!important;width:36px!important;flex-basis:36px!important;
+ }
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-nav{margin-top:2px}
+}
+@media(max-width:350px) and (max-height:610px) and (orientation:portrait){
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-tabs{display:none}
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-mode-picker{
+  display:flex;align-items:center;gap:8px;margin:0 0 3px;
+  color:#69452a;font-size:11px;font-weight:850;
+ }
+ #multiplication-lab-screen.active .mp-explore-mode-picker select{
+  min-height:44px;flex:1;padding-inline:6px;border:1px solid #b78753;border-radius:9px;
+  background:#fff8e3;color:#4f3320;font:850 14px/1.2 system-ui,sans-serif;
+ }
+ #multiplication-lab-screen.active .mp-explore-mode-picker select:focus-visible{
+  outline:3px solid #2669a9;outline-offset:1px;
+ }
+}
+@media(orientation:landscape) and (max-height:380px){
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-tab{padding-block:1px}
+ #multiplication-lab-screen.active .table-mode .mp-times-grid thead th{height:20px}
+ #multiplication-lab-screen.active .table-mode .mp-times-grid{margin-block:1px}
+}
+
+/* A short desktop window can fit all ten rows by moving the title into the
+   existing toolbar. Leave the normal iPad and taller desktop layout alone. */
+@media(orientation:landscape) and (min-width:768px) and (min-height:601px) and (max-height:755px){
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-table-top-title{
+  display:block;font-size:clamp(17px,2vw,22px);font-weight:950;color:#604023;
+ }
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .tv-origin-breadcrumb{display:none}
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-heading{
+  position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;
+ }
+}
+
+/* Short landscape uses a single toolbar. Keep all four navigation links
+   and the full board visible; the existing accessible chooser exposes
+   the seven Explore modes without pushing navigation below the game. */
+@media (orientation:landscape) and (min-width:620px) and (max-height:430px){
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-main{
+  grid-template-columns:minmax(150px,.95fr) minmax(142px,1.02fr) minmax(240px,1.6fr);
+ }
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-tabs{display:none}
+ #multiplication-lab-screen.active .mp-explore-screen:has(.table-mode) .mp-explore-mode-picker{
+  grid-column:2;grid-row:1;align-self:center;display:block;min-width:0;margin:0;
+ }
+ #multiplication-lab-screen.active .mp-explore-mode-picker>span{
+  position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap
+ }
+ #multiplication-lab-screen.active .mp-explore-mode-picker select{
+  width:100%;min-height:44px;padding:3px 7px;color:#4f3320;background:#fff8e3;
+  border:1px solid #b78753;border-radius:10px;font:850 13px/1.2 system-ui,sans-serif;
+ }
+ #multiplication-lab-screen.active .mp-explore-mode-picker select:focus-visible{
+  outline:3px solid #2669a9;outline-offset:1px;
+ }
+ #multiplication-lab-screen.active .mp-shell:has(.table-mode) .mp-nav{
+  grid-column:3;grid-row:1;width:100%;margin:0;min-width:0;align-self:center;
+ }
+}
+
+/* Keep the sibling pages' navigation at the same edge of the screen.
+   Leaving the table must not strand the child below a tall menu. */
+@media (orientation:landscape) and (min-width:620px) and (max-height:430px){
+ #multiplication-lab-screen.active .mp-shell:not(:has(.table-mode)) .mp-main{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(245px,45%);gap:4px 6px;align-items:start;
+ }
+ #multiplication-lab-screen.active .mp-shell:not(:has(.table-mode)) .mp-main>.mp-top{
+  grid-area:1/1;margin:0;min-width:0;padding-block:0;
+ }
+ #multiplication-lab-screen.active .mp-shell:not(:has(.table-mode)) .mp-main>section{grid-area:2/1/3/3;min-width:0}
+ #multiplication-lab-screen.active .mp-shell:not(:has(.table-mode)) .mp-main>.mp-nav{
+  grid-area:1/2;position:static;width:100%;margin:0;padding:2px;
+  border-radius:13px;align-self:center;
+ }
+ #multiplication-lab-screen.active .mp-shell:not(:has(.table-mode)) .mp-nav-link{
+  min-width:44px;min-height:44px;padding:0;
+ }
+ #multiplication-lab-screen.active .mp-shell:not(:has(.table-mode)) .mp-nav-link span{font-size:16px}
 }

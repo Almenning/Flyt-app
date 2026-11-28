@@ -874,6 +874,13 @@
  font:850 12px/1.18 var(--laria-ui-font,system-ui)!important;
  border-radius:17px!important;
 }
+#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor-speech{
+ left:auto!important;right:calc(100% - 4px)!important;bottom:54%!important;
+}
+#tallvika-world .tv-scene.laria-reference-layout-v1 .tv-actor-speech::after{
+ left:auto!important;right:-8px!important;top:42%!important;bottom:auto!important;
+ transform:rotate(-45deg)!important;
+}
 :is(#eggenipa-world .eg-hero.laria-reference-layout-v1,
      #tallvika-world .tv-scene.laria-reference-layout-v1,
      #laria-geography-world .gv-scene.laria-reference-layout-v1) :is(.laria-scene-chooser,.laria-reference-settings){

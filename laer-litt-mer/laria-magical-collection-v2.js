@@ -193,8 +193,8 @@
         '<p>Dette er historien om alt du har oppdaget. Jeg blir med deg!</p></div>'+
         '<div class="lmc-cover-counter"><span aria-hidden="true">✦</span><strong>'+found+' / '+data.treasures.length+'</strong><small>fagminner</small></div></header>'+
       '<nav class="lmc-tabs" aria-label="Bla i samleboken">'+PAGES.map((p,i)=>'<button type="button" data-book-page="'+p.id+'" '+(i===0?'aria-current="page"':'')+'><span aria-hidden="true">'+p.icon+'</span>'+p.label+'</button>').join('')+'</nav>'+
+      '<div class="lmc-footer lmc-page-toolbar" role="group" aria-label="Sider og troll"><span class="lmc-footer-copy">✦ Oppdagelser du gjør, blir med videre</span><div class="lmc-page-arrows"><button type="button" data-lmc-action="previous">‹ Forrige</button><span class="lmc-page-number">1 av '+PAGES.length+'</span><button type="button" data-lmc-action="next">Neste ›</button></div><button type="button" data-wardrobe-open>Mine troll ›</button></div>'+
       '<div class="lmc-content" aria-live="off"></div><p class="lmc-live-status" role="status" aria-live="polite" aria-atomic="true"></p>'+
-      '<footer class="lmc-footer"><span class="lmc-footer-copy">✦ Oppdagelser du gjør, blir med videre</span><div class="lmc-page-arrows"><button type="button" data-lmc-action="previous">‹ Forrige</button><span class="lmc-page-number">1 av '+PAGES.length+'</span><button type="button" data-lmc-action="next">Neste ›</button></div><button type="button" data-wardrobe-open>Mine troll ›</button></footer>'+
       '</div>';
   }
   function open(host,raw,actions={}){
@@ -225,7 +225,7 @@
       if(!el||!wrapper.contains(el))return;
       if(el.dataset.bookPage){
         page=PAGES.some(p=>p.id===el.dataset.bookPage)?el.dataset.bookPage:page;
-        render();wrapper.querySelector('.lmc-content')?.scrollIntoView({block:'nearest',behavior:'instant'});
+        render(); // Keep the page tools in view while changing spreads.
         return;
       }
       if(el.dataset.lmcAction==='next'||el.dataset.lmcAction==='previous'){

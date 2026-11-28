@@ -1,0 +1,84 @@
+name: Læria Premium 4 – actual demo evidence
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/laria-premium4-investor-demo.playwright.js'
+      - 'tests/laria-first-fold-audit.playwright.js'
+      - '.github/workflows/laria-premium4-investor-evidence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: laria-premium4-evidence-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+        viewport: [820x1180, 1180x820, 390x844, 1440x900]
+    env:
+      QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+      LARIA_DEMO_ENGINE: ${{ matrix.engine }}
+      LARIA_DEMO_VIEWPORT: ${{ matrix.viewport }}
+      LARIA_DEMO_SHOTS: /tmp/laria-investor
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Play the real grade-2 investor route
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          # The Playwright container may use a different UID than checkout.
+          # Trust this one verified checkout only, for this step.
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: safe.directory
+        run: |
+          export GIT_CONFIG_VALUE_0="$GITHUB_WORKSPACE"
+          actual_sha=$(git rev-parse HEAD)
+          if [ "$actual_sha" != "$EXPECTED_SOURCE_SHA" ]; then
+            echo "::error::Investor candidate commit mismatch: $actual_sha != $EXPECTED_SOURCE_SHA"
+            exit 1
+          fi
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-investor-http.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          python3 - <<'PYTHON'
+          import os, time, urllib.error, urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen(os.environ["QA_URL"], timeout=2) as response:
+                      if response.status == 200:
+                          break
+              except (OSError, urllib.error.URLError):
+                  pass
+              time.sleep(0.25)
+          else:
+              raise SystemExit("Investor app did not start on the configured loopback URL")
+          PYTHON
+          node tests/laria-premium4-investor-demo.playwright.js
+          fold_formats="$LARIA_DEMO_VIEWPORT"
+          if [ "$fold_formats" = 1440x900 ]; then fold_formats=1440x900,1280x720; fi
+          if [ "$fold_formats" = 390x844 ]; then fold_formats=320x568,375x667,390x844,393x852,430x932,568x320,667x375,844x390; fi
+          LARIA_FOLD_ENGINE="$LARIA_DEMO_ENGINE" LARIA_FOLD_FORMATS="$fold_formats" \
+            LARIA_FOLD_OUTPUT=/tmp/laria-first-fold LARIA_FOLD_ENFORCE=1 \
+            node tests/laria-first-fold-audit.playwright.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demo-${{ matrix.engine }}-${{ matrix.viewport }}
+          path: |
+            /tmp/laria-investor
+            /tmp/laria-investor-http.log
+            /tmp/laria-first-fold
+          retention-days: 14

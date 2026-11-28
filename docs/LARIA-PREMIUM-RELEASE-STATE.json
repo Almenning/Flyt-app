@@ -6,6 +6,9 @@
   "principle": "Barn har lyst til å åpne Læria, foreldre har tillit.",
   "art": {
     "grovanova": {
+      "releaseReference": "owner-approved-v16-painted-visuals",
+      "v16OwnerApproved": true,
+      "v16OwnerApproval": "Hjem v16 locked iPad originals 2026-11-19, documented in LARIA-HOME-V16-LOCK-2026-11-19.md. On 2026-11-28 the owner authorized verifying Hjem against the approved v16 instead of requiring an unrelated clean v15 for this release. Historical v15 remains immutable fallback. This is not a new approval of any artwork or other device journeys.",
       "locked": "laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp",
       "lockedSha256": "246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5",
       "clean": "laer-litt-mer/assets/home-v15/kjosnes-home-tablet-no-bottom-cards.webp",
@@ -102,7 +105,6 @@
   },
   "evidenceNote": "Siste teknisk verifiserte iPad-, iPhone- og desktop-skjermer kommer fra samme produktkildetre som PR: faktisk Chromium/WebKit-app ved 7931fce (Actions 43752084754, 43752084784 og 43752084729). Kun tests/ ble endret i 5b7a671 og 3888a88, mens laer-litt-mer/ forble byte-identisk. Alle enhetsgodkjenninger er fortsatt false; de kan bare gis etter visuell vurdering. Full regressjonsgrønnhet avventes på siste testkildetre. Uferdig kunst, barnebeta og publisering er IKKE godkjent. EIERGODKJENNING 2026-11-15: iPad stående/liggende akseptert på eksisterende screenshots; ordinær implementering/merge/publisering er uttrykkelig autorisert. Full Premium-readiness står fortsatt BLOCKED på tekniske bildekontroller, andre enheter og barnebrukertest.",
   "openBlocks": [
-    "Grovanova: krever source-tro ren 4:3-kunst på minst 1366x1024 og visuell godkjenning, uten endring av låst fjellmotiv",
     "Kinnaklova: ren kandidat må bestå pikselintegritet utenfor UI-masken og godkjennes visuelt; bevare fjell og kirke",
     "Full kritisk regresjonskontroll på siste testsuite-HEAD og faktisk barnetest mangler",
     "PR #243 forblir draft; ingen merge/produksjonspublisering før godkjenningsporter er oppfylt",

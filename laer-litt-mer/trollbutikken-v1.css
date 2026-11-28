@@ -1,0 +1,1553 @@
+/* Trollbutikken in Tallvika. A timber window frames the existing locked landscape.
+   New goods and all characters remain separate game objects. */
+#trollbutikken-screen.active{padding:0!important;margin:0!important;max-width:none!important;max-height:none!important;position:fixed;inset:0;z-index:30;display:block;overflow:auto;overscroll-behavior:contain;background:#402c21;color:#392b20;scrollbar-color:#987244 #402c21}
+#trollbutikken-screen *{box-sizing:border-box}
+#trollbutikken-screen .tb-room{
+ min-height:100dvh;width:100%;padding:max(12px,env(safe-area-inset-top)) max(clamp(14px,4vw,72px),env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(clamp(14px,4vw,72px),env(safe-area-inset-left));background:
+ linear-gradient(180deg,#302013aa 0%,transparent 32%,transparent 52%,#40291b 87%),
+ repeating-linear-gradient(3deg,#4c322000 0 37px,#4c322026 37px 40px,#bd8e5d24 40px 42px),
+ url("./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp") center 37%/cover no-repeat;
+ background-color:#402c21;
+}
+#trollbutikken-screen .tb-room> :is(.tb-top,.tb-statusline,.tb-counter,.tb-entry){width:min(100%,1240px);margin-inline:auto}
+#trollbutikken-screen .tb-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-bottom:clamp(15px,3dvh,32px)}
+#trollbutikken-screen .tb-brand{text-align:center;border:1px solid #e2bc83;border-radius:7px 7px 16px 16px;padding:8px clamp(13px,4vw,52px);background:repeating-linear-gradient(2deg,#4c2f1a00 0 3px,#cc9d661e 5px,#41281d24 7px,#4c2f1a00 14px),linear-gradient(#794c30,#4c3020);color:#fff0ce;box-shadow:0 5px #392316,0 10px 24px #301d21a0;font:bold clamp(22px,3.5vw,41px)/1 Georgia,serif}
+#trollbutikken-screen .tb-brand small{display:block;margin-top:6px;font:700 9px/1.1 system-ui,sans-serif;letter-spacing:.21em;color:#f4d8a7}
+#trollbutikken-screen .tb-marker,#trollbutikken-screen .tb-statusline>span{padding:7px 12px;border-radius:40px;background:#34291ce8;color:#fff2cd;border:1px solid #d1a96e;font:800 10px/1.2 system-ui,sans-serif;letter-spacing:.12em;justify-self:end}
+#trollbutikken-screen .tb-statusline{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;color:#fff8e7;text-shadow:0 2px 5px #2a1c14,0 2px 12px #2a1c14}
+#trollbutikken-screen .tb-statusline h1{font:bold clamp(27px,3.6vw,42px)/1.05 Georgia,serif;margin:0}
+#trollbutikken-screen .tb-counter{display:grid;grid-template-columns:minmax(235px,.72fr) minmax(0,1.72fr);gap:14px;align-items:start}
+#trollbutikken-screen .tb-left,#trollbutikken-screen .tb-mainPlay{display:grid;gap:12px}
+#trollbutikken-screen .tb-entry{display:grid;grid-template-columns:minmax(260px,1.3fr) minmax(240px,.7fr);align-items:center;gap:16px;min-height:min(65dvh,540px)}
+#trollbutikken-screen .tb-paper{padding:clamp(13px,2.2vw,25px);border:1px solid #d0b282;border-radius:16px;color:#3c2c20;background:radial-gradient(ellipse at 25% 8%,#fff8e6 12%,#f9ebce 66%,#efddba 100%);box-shadow:0 4px #a7754d,0 9px 22px #28170e52,inset 0 1px #fffcee}
+#trollbutikken-screen .tb-paper h2,#trollbutikken-screen .tb-wood h2{font:bold clamp(22px,2.4vw,33px)/1.13 Georgia,serif;margin:0}
+#trollbutikken-screen .tb-paper p,#trollbutikken-screen .tb-wood p{font:600 clamp(14px,1.4vw,18px)/1.4 system-ui,sans-serif;margin:7px 0}
+#trollbutikken-screen .tb-start h1{font:bold clamp(32px,5vw,60px)/.98 Georgia,serif;max-width:12ch;margin:12px 0}
+#trollbutikken-screen .tb-entry p{max-width:54ch}
+#trollbutikken-screen .tb-button{min-width:44px;min-height:44px;border:1px solid #ba8c59;border-radius:9px;padding:8px 13px;background:#faf0d6;color:#392a20;font:800 14px/1.17 system-ui,sans-serif;cursor:pointer;touch-action:manipulation;box-shadow:0 2px #9c6a48;transition:box-shadow .13s,transform .13s,background-color .13s}
+#trollbutikken-screen .tb-button:disabled{cursor:default;opacity:.66}
+#trollbutikken-screen .tb-button:hover:not(:disabled){background-color:#fff4dc}
+#trollbutikken-screen .tb-button:active:not(:disabled){transform:translateY(2px);box-shadow:none}
+#trollbutikken-screen .tb-button:focus-visible,#trollbutikken-screen [data-tb-focus]:focus-visible{outline:3px solid #1b6a71;outline-offset:3px}
+#trollbutikken-screen .tb-statusline h1:focus-visible{outline-color:#ffe3a2}
+#trollbutikken-screen .tb-back{justify-self:start;background:#f3dfba}
+#trollbutikken-screen .tb-primary{background:#284e3a;color:#fff8df;border-color:#387252;box-shadow:0 3px #193524;font-size:15px;margin-top:8px}
+#trollbutikken-screen .tb-primary:hover:not(:disabled){background:#35664b}
+#trollbutikken-screen .tb-secondary{min-height:44px;padding:7px 10px}
+#trollbutikken-screen .tb-wood{padding:14px;border:1px solid #c49b63;border-radius:14px;background:repeating-linear-gradient(2deg,#4c261900 0 3px,#cc9d661e 5px,#41281d24 7px,#4c2f1a00 14px),linear-gradient(#7a5132,#4c2d1c);color:#fff3d7;box-shadow:0 4px #321c0f,0 9px 20px #2a1b1352}
+#trollbutikken-screen .tb-wood p{margin-top:3px;color:#fae0b3}
+#trollbutikken-screen .tb-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#trollbutikken-screen .tb-product{display:grid;place-items:center;gap:2px;padding:4px;background:#ecd3a4;color:#432b1e;touch-action:none;user-select:none;font-size:clamp(12px,1.5vw,16px);text-align:center}
+#trollbutikken-screen .tb-product small{font-size:12px}
+#trollbutikken-screen :is(.tb-goods svg,.tb-goods img){display:block;width:clamp(42px,6vw,66px);height:clamp(40px,5.7vw,61px);object-fit:contain;filter:drop-shadow(0 3px 2px #5f371750)}
+#trollbutikken-screen .tb-sectionHead{display:flex;align-items:center;gap:8px}
+#trollbutikken-screen .tb-sectionHead>img{width:40px;height:28px;object-fit:contain}
+#trollbutikken-screen :is(.tb-order li img,.tb-order li svg,.tb-scan svg,.tb-scan img){width:25px;height:25px;object-fit:contain;flex-shrink:0}
+#trollbutikken-screen .tb-over{outline:4px solid #b3ca80;outline-offset:3px}
+#trollbutikken-screen .tb-orderTop{display:grid;grid-template-columns:minmax(48px,24%) 1fr;gap:8px;align-items:center}
+#trollbutikken-screen .tb-order small,#trollbutikken-screen .tb-eyebrow{font:800 10px/1.2 system-ui,sans-serif;letter-spacing:.12em;color:#684b2d}
+#trollbutikken-screen .tb-order ul{margin:10px 0 0;padding:6px 9px;background:#fff7df;border:1px dashed #ba905f;border-radius:8px;list-style:none}
+#trollbutikken-screen .tb-order li{display:flex;align-items:center;gap:8px;font-size:15px;padding:1px}
+#trollbutikken-screen .tb-actor{height:clamp(55px,9vw,127px);display:grid;place-items:end center;pointer-events:none;isolation:isolate}
+#trollbutikken-screen .tb-actor img{width:100%;height:100%;min-height:0;min-width:0;object-fit:contain;object-position:bottom;filter:drop-shadow(0 5px 5px #301c2440)}
+#trollbutikken-screen .tb-actor[data-laria-troll-mood="wave"] img{animation:tb-bob .62s ease-out}
+#trollbutikken-screen .tb-actor[data-laria-troll-mood="celebrate"] img{animation:tb-bob .62s ease-out 2}
+#trollbutikken-screen .tb-actor:is([data-laria-troll-mood="hint"],[data-laria-troll-mood="think"],[data-laria-troll-mood="support"]) img{animation:tb-lean .65s ease-out}
+@keyframes tb-bob{0%,100%{transform:none}46%{transform:translateY(-6px) rotate(-3deg)}}
+@keyframes tb-lean{0%,100%{transform:none}40%{transform:rotate(4deg) translateX(2px)}}
+#trollbutikken-screen .tb-helper{display:grid;grid-template-columns:56px 1fr;gap:6px 8px;align-items:center;padding:8px 10px;border:1px solid #c29b64;border-radius:14px;background:#fff4d6;color:#3d3026;box-shadow:0 3px #9e744b,0 7px 14px #38231d47}
+#trollbutikken-screen .tb-helper .tb-actor{height:72px}
+#trollbutikken-screen .tb-helper p{font:650 14px/1.32 system-ui,sans-serif;margin:3px 0}
+#trollbutikken-screen .tb-helper .tb-eyebrow{font:800 10px/1.2 system-ui,sans-serif}
+#trollbutikken-screen .tb-helper-controls{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:7px}
+#trollbutikken-screen .tb-helper-controls:empty{display:none}
+#trollbutikken-screen .tb-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+#trollbutikken-screen .tb-lineItems{display:grid;gap:6px;margin-top:10px}
+#trollbutikken-screen .tb-scan{display:grid;grid-template-columns:1fr auto 52px;align-items:center;gap:8px;text-align:left}
+#trollbutikken-screen .tb-scan span:first-child{display:flex;align-items:center;gap:6px}
+#trollbutikken-screen .tb-scan[aria-pressed="true"]{background:#e6eccd}
+#trollbutikken-screen .tb-sum,#trollbutikken-screen .tb-ledger{margin-top:10px!important;padding:9px;border-top:1px solid #c9a777}
+#trollbutikken-screen .tb-sum strong{font-size:1.3em;margin-left:6px}
+#trollbutikken-screen .tb-ledger{display:flex;gap:6px 18px;flex-wrap:wrap;background:#f1e0bd}
+#trollbutikken-screen .tb-ledger p{margin:0;min-width:120px}
+#trollbutikken-screen .tb-ledger strong{display:block;font-size:1.3em}
+#trollbutikken-screen .tb-wallet,#trollbutikken-screen .tb-cashtray{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+#trollbutikken-screen .tb-cashtray{min-height:61px;margin-top:6px;padding:6px;border-radius:10px;border:1px dashed #94714a;background:#e5c999}
+#trollbutikken-screen .tb-coinButton{padding:2px;border:0;border-radius:50%;background:transparent;box-shadow:none}
+#trollbutikken-screen .tb-coin{display:grid;place-content:center;border:3px double #947446;width:44px;height:44px;border-radius:50%;background:radial-gradient(at 35% 25%,#fff6d4,#c3a769 80%);color:#382717;box-shadow:inset 0 0 0 2px #ecd7a2,0 2px 3px #5630004f;font:bold 15px/.8 Georgia,serif}
+#trollbutikken-screen :is(.tb-coin-100,.tb-coin-500){background:radial-gradient(at 35% 25%,#fffef8,#b7b7a6 80%);border-color:#858779;box-shadow:inset 0 0 0 2px #d9dacc,0 2px 3px #5630004f}
+#trollbutikken-screen .tb-coin small{font-size:9px;text-align:center;margin-top:2px}
+#trollbutikken-screen .tb-receipt li{display:flex;justify-content:space-between;gap:8px;margin:4px 0}
+#trollbutikken-screen .tb-receipt ul{padding:0;margin:12px 0}
+#trollbutikken-screen .tb-ghost{position:fixed;z-index:40;transform:translate(-50%,-50%);width:52px;height:52px;pointer-events:none;filter:drop-shadow(0 4px 4px #321c2580)}
+#trollbutikken-screen .tb-ghost :is(svg,img){width:100%;height:100%;object-fit:contain}
+@media(max-width:680px){
+ #trollbutikken-screen .tb-counter,#trollbutikken-screen .tb-entry{grid-template-columns:1fr}
+ #trollbutikken-screen .tb-left{display:contents}
+ #trollbutikken-screen .tb-order{order:0}
+ #trollbutikken-screen .tb-mainPlay{order:1}
+ #trollbutikken-screen .tb-helper{order:2}
+ #trollbutikken-screen .tb-room{background-position:center 22%}
+ #trollbutikken-screen .tb-top{grid-template-columns:auto 1fr;gap:7px}
+ #trollbutikken-screen .tb-marker{display:none}
+ #trollbutikken-screen .tb-entry{min-height:0;margin-top:8dvh}
+ #trollbutikken-screen .tb-brand small{font-size:8px}
+ #trollbutikken-screen .tb-orderTop .tb-actor{height:54px}
+ #trollbutikken-screen .tb-order ul{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:5px}
+ #trollbutikken-screen .tb-orderTop p{margin:2px 0}
+}
+@media(orientation:landscape) and (max-height:500px){
+ #trollbutikken-screen .tb-room{padding-block:7px 15px}
+ #trollbutikken-screen .tb-top{margin-bottom:9px}
+ #trollbutikken-screen .tb-counter{grid-template-columns:minmax(205px,.8fr) minmax(0,1.5fr)}
+ #trollbutikken-screen .tb-paper,#trollbutikken-screen .tb-wood{padding:10px}
+ #trollbutikken-screen .tb-product .tb-goods :is(svg,img){width:36px;height:32px}
+}
+@media(prefers-reduced-motion:reduce){#trollbutikken-screen *,#trollbutikken-screen *::before,#trollbutikken-screen *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* Expand the Tallvika rail only when the fourth, Trollbutikken sign is shown. */
+#tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="shop"]{top:65%!important}
+@media(orientation:portrait) and (max-width:1100px){#tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="shop"]{top:64%!important}}
+@media(orientation:landscape) and (max-height:500px){
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1){
+  /* Preserve a 6px gap with 54px signs, even when the 15% step rounds down. */
+  --tv-landscape-rail-step:max(60px,15%);
+ }
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="multiply"]{top:26%!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="fraction"]{top:calc(26% + var(--tv-landscape-rail-step))!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="table"]{top:calc(26% + 2 * var(--tv-landscape-rail-step))!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="shop"]{top:calc(26% + 3 * var(--tv-landscape-rail-step))!important}
+}
+/* With four signs, the separate live actor stands beside the rail instead of
+   setting its silhouette and dialogue across the two lower signs. */
+#tallvika-world .tv-scene[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-actor[data-troll-id]{
+ left:30%!important;
+}
+@media(max-width:700px) and (orientation:portrait){
+ #tallvika-world .tv-scene[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-actor[data-troll-id]{left:49%!important}
+ #tallvika-world .tv-scene[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-actor-speech{left:auto!important;right:4px!important;top:-40px!important}
+}
+
+/* On the narrowest phones four minimum-height boards reach farther right
+   than the old percentage-based companion anchor. Reserve separate lanes
+   for tappable signs/Next and the live companion; keep the scene art intact. */
+@media(max-width:360px) and (orientation:portrait){
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1){
+  --tv-compact-rail-start:min(37%,calc(100% - 242px));
+  --tv-compact-rail-step:max(56px,9%);
+ }
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="multiply"]{
+  top:var(--tv-compact-rail-start)!important;
+ }
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="fraction"]{
+  top:calc(var(--tv-compact-rail-start) + var(--tv-compact-rail-step))!important;
+ }
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="table"]{
+  top:calc(var(--tv-compact-rail-start) + 2 * var(--tv-compact-rail-step))!important;
+ }
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="shop"]{
+  top:calc(var(--tv-compact-rail-start) + 3 * var(--tv-compact-rail-step))!important;
+ }
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-actor[data-troll-id]{
+  left:max(49%,calc(var(--rail-left) + var(--rail-width) + 8px))!important;right:auto!important;
+ }
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-actor-speech{
+  left:0!important;right:auto!important;
+ }
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-next-sign{
+  left:var(--rail-left)!important;right:auto!important;
+  width:var(--rail-width)!important;min-width:44px!important;
+ }
+}
+
+/* Handletur: an optional role switch, readable budget labels, and a wallet
+   whose visible stock mirrors the pure engine. */
+#trollbutikken-screen .tb-statusActions{display:flex;align-items:center;justify-content:flex-end;gap:7px}
+#trollbutikken-screen .tb-statusActions>span{font:bold 12px system-ui,sans-serif;white-space:nowrap}
+#trollbutikken-screen .tb-statusActions button{flex:none}
+#trollbutikken-screen .tb-lineActions{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:8px}
+#trollbutikken-screen .tb-lineActions .tb-primary{margin-top:0}
+#trollbutikken-screen .tb-tripLedger{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:10px}
+#trollbutikken-screen .tb-tripLedger p{font-size:11px;margin:0;padding:5px 3px;border-top:1px solid #c9a777}
+#trollbutikken-screen .tb-tripLedger strong{display:block;font-size:16px;white-space:nowrap}
+#trollbutikken-screen .tb-tripLedger .tb-tripOver{color:#7f3526}
+#trollbutikken-screen .tb-trip-check{margin-left:auto;color:#38613f;letter-spacing:0}
+#trollbutikken-screen .tb-shopkeeper{display:grid;grid-template-columns:clamp(48px,12vw,86px) minmax(0,1fr);align-items:center;gap:6px 12px}
+#trollbutikken-screen .tb-shopkeeper .tb-actor{height:clamp(65px,10vw,96px)}
+#trollbutikken-screen .tb-coin-stock{display:block;margin:4px 0;color:#513924;font-size:10px;white-space:nowrap}
+@media(max-width:420px){
+ #trollbutikken-screen .tb-statusActions{gap:3px}
+ #trollbutikken-screen .tb-statusActions>span{font-size:10px}
+ #trollbutikken-screen .tb-statusActions button{padding-inline:6px;font-size:12px}
+ #trollbutikken-screen .tb-tripCard li{flex-wrap:wrap}
+ #trollbutikken-screen .tb-trip-check{margin-left:0}
+}
+
+/* One-to-one objects on the supplier's crate, on the shelf, and in baskets. */
+#trollbutikken-screen .tb-goodsRow{min-height:25px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+#trollbutikken-screen .tb-goodsRow>span{display:block;width:26px;height:26px;filter:drop-shadow(0 2px 2px #5f371750)}
+#trollbutikken-screen .tb-goodsRow>span>:is(svg,img){width:100%;height:100%;object-fit:contain}
+#trollbutikken-screen .tb-already-stock{opacity:.83}
+#trollbutikken-screen .tb-stockBins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#trollbutikken-screen .tb-stockBins[data-tb-width="1"]{grid-template-columns:1fr}
+#trollbutikken-screen .tb-stockBins .tb-paper{padding:9px}
+#trollbutikken-screen .tb-stockBins .tb-sectionHead{gap:6px}
+#trollbutikken-screen .tb-stockBins .tb-sectionHead img{width:32px}
+#trollbutikken-screen .tb-stockBins .tb-sectionHead h2{font-size:19px}
+#trollbutikken-screen .tb-stockBin .tb-lineActions button{padding-inline:6px}
+@media(max-width:475px){
+ #trollbutikken-screen .tb-stockBins{gap:5px}
+ #trollbutikken-screen .tb-stockBins .tb-paper{padding:7px}
+ #trollbutikken-screen .tb-stockBins .tb-sectionHead img{display:none}
+ #trollbutikken-screen .tb-stockBin .tb-lineActions button{font-size:11px}
+ #trollbutikken-screen .tb-stockBin .tb-goodsRow>span{width:18px;height:18px}
+}
+
+/* First-person shop candidate. The generated room is a reversible review layer.
+   Its real alpha window reveals the byte-unchanged Tallvika illustration.
+   Handles, goods, actors, balances and receipts stay real DOM. */
+#trollbutikken-screen .tb-room[data-tb-mode]{
+  background:
+    url("./assets/trollbutikken/shop-interior-review-v1.webp") left top / auto 430px no-repeat,
+    url("./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp") 26% 35px / auto 350px no-repeat,
+    repeating-linear-gradient(1deg,#382017 0 2px,#4a2a1b 2px 5px,#56321c 8px 45px,#6b3d23 46px 48px) #47291c;
+}
+#trollbutikken-screen .tb-brand{
+  background:linear-gradient(#9b6032,#603519 62%,#502812);
+  border:1px solid #bd8851;box-shadow:inset 0 0 0 3px #60391e,0 4px 8px #221008a0;
+  border-radius:6px 6px 14px 14px;letter-spacing:.015em;text-shadow:0 2px #442415;
+}
+#trollbutikken-screen .tb-marker,#trollbutikken-screen .tb-statusline>span{
+  background:#3d2918;color:#ffedbd;border-color:#987042;
+}
+#trollbutikken-screen .tb-statusline :is(h1,span){color:#fff2d2}
+#trollbutikken-screen .tb-back{
+  background:#70451f;color:#fff2c9;border-color:#ae7d46;box-shadow:0 2px #2c180f;
+}
+#trollbutikken-screen .tb-back:hover:not(:disabled){background:#885c30}
+#trollbutikken-screen .tb-start{
+  color:#fff3d3;padding:18px 15px;border:0;border-radius:0;
+  text-shadow:0 2px 4px #2e140b;background:linear-gradient(90deg,#402414e9,#40241480);
+}
+#trollbutikken-screen .tb-start :is(p,.tb-eyebrow){color:#ffebc0}
+#trollbutikken-screen .tb-start .tb-primary{
+  min-height:51px;padding:10px 18px;background:linear-gradient(#567c47,#31543a);
+  border:2px solid #b39754;border-radius:10px;color:#fff8db;box-shadow:0 5px #271d12,inset 0 1px #c2bc7b87;
+}
+#trollbutikken-screen .tb-start .tb-secondary{
+  border:1px solid #c29455;background:linear-gradient(#986230,#653819);color:#ffe4a6;
+  box-shadow:0 3px #352014;
+}
+#trollbutikken-screen .tb-start .tb-secondary:hover{background:#a56e35}
+#trollbutikken-screen .tb-order:not(.tb-tripCard):has([data-tb-actor="customer"]){
+  display:grid;grid-template-columns:minmax(68px,31%) minmax(0,1fr);gap:6px 8px;align-items:end;
+  position:relative;padding:0;border:0;background:none;box-shadow:none;
+}
+#trollbutikken-screen .tb-order:not(.tb-tripCard) .tb-orderTop{display:contents}
+#trollbutikken-screen .tb-order:not(.tb-tripCard) [data-tb-actor="customer"]{
+  grid-column:1;grid-row:1 / 3;height:clamp(130px,34vw,205px);
+}
+#trollbutikken-screen .tb-order:not(.tb-tripCard) .tb-customerWords{
+  grid-column:2;position:relative;padding:8px 11px;background:#fff0ca;
+  border:1px solid #b6935b;border-radius:13px 13px 13px 3px;box-shadow:0 3px 7px #2c170c60;
+}
+#trollbutikken-screen .tb-customerWords:after{
+  content:"";position:absolute;left:-7px;top:56%;width:12px;height:12px;background:#fff0ca;
+  border-left:1px solid #b6935b;border-bottom:1px solid #b6935b;transform:rotate(45deg);
+}
+#trollbutikken-screen .tb-customerWords h2{font-size:clamp(17px,3.4vw,25px)}
+#trollbutikken-screen .tb-customerWords p{margin:4px 0 0;color:#473123;font-size:clamp(12px,2.8vw,15px)}
+#trollbutikken-screen .tb-orderSlip{
+  grid-column:2;position:relative;margin:0;background:linear-gradient(110deg,#f7e5b3,#fff4d2 72%);
+  border:1px solid #b68b46;border-radius:0 0 3px 3px;box-shadow:2px 5px 8px #27130b80;
+  color:#4e321d;padding:7px 9px 6px;isolation:isolate;
+}
+#trollbutikken-screen .tb-orderSlip:before{
+  content:"";position:absolute;left:50%;top:-3px;width:11px;height:6px;border-radius:50%;
+  background:linear-gradient(#cba16b,#6d3d1b);box-shadow:0 1px 2px #41251580;
+}
+#trollbutikken-screen .tb-orderSlip ul{
+  margin:3px 0 0;padding:0;background:none;border:0;
+}
+#trollbutikken-screen .tb-orderSlip li{font-size:14px}
+#trollbutikken-screen .tb-slipTitle{font:bold 16px Georgia,serif}
+#trollbutikken-screen .tb-shelf{
+  border:0;border-radius:0;background:none;box-shadow:none;color:#fff1ca;padding:0;
+}
+#trollbutikken-screen .tb-shelfHeader{
+  color:#fff2cb;margin:0 0 4px;text-shadow:0 2px 5px #2b170c;
+}
+#trollbutikken-screen .tb-shelfHeader h2{font-size:clamp(22px,4vw,32px)}
+#trollbutikken-screen .tb-shelfHeader p{color:#f1d9ad;margin:3px 0;font-size:clamp(12px,2.5vw,16px)}
+#trollbutikken-screen .tb-shelf .tb-product-grid{display:grid;grid-template-columns:1fr;gap:9px}
+#trollbutikken-screen .tb-shelfRow{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:0 5%;gap:7px;
+  align-items:end;position:relative;isolation:isolate;min-height:95px;
+}
+#trollbutikken-screen .tb-shelfRow:before{
+  content:"";position:absolute;inset:auto 0 12px;height:20px;border-radius:8px 6px 3px 3px;
+  background:
+    repeating-linear-gradient(1deg,transparent 0 4px,#44251130 5px,#d68c4933 7px,transparent 10px),
+    linear-gradient(#d6a064 0 15%,#aa6a38 18% 26%,#77411e 30% 79%,#5b321a 82%);
+  border:1px solid #975931;box-shadow:0 6px 5px #2c1408a0,inset 0 1px #e6ba82;
+}
+#trollbutikken-screen .tb-shelfRow:after{
+  content:"";position:absolute;z-index:-1;left:8%;right:8%;bottom:8px;height:8px;
+  clip-path:polygon(0 0,14% 0,13% 100%,1% 100%,0 0,85% 0,100% 0,96% 100%,85% 100%,85% 0);
+  background:#512b18;
+}
+#trollbutikken-screen .tb-shelf .tb-product{
+  position:relative;display:flex;align-items:center;justify-content:end;flex-direction:column;gap:0;
+  z-index:1;min-height:90px;padding:0 1px 2px;
+  border:0;border-radius:6px;background:transparent;color:#542e13;box-shadow:none;
+}
+#trollbutikken-screen .tb-shelf .tb-product:is(:hover,:active):not(:disabled){background:transparent;box-shadow:none}
+#trollbutikken-screen .tb-shelf .tb-product:focus-visible{outline:3px solid #ffdf85;outline-offset:2px}
+#trollbutikken-screen .tb-shelf .tb-product:disabled img,
+#trollbutikken-screen .tb-shelf .tb-product:disabled svg{opacity:.36}
+#trollbutikken-screen .tb-goods{
+  position:relative;isolation:isolate;display:grid;place-items:end center;
+  width:min(100%,140px);height:clamp(54px,12vw,90px);transform-origin:50% 90%;
+}
+#trollbutikken-screen .tb-goods> :is(svg,img){
+  position:relative;z-index:1;width:min(100%,clamp(63px,14vw,108px));
+  height:clamp(59px,14vw,97px);object-fit:contain;transform:translateY(9px);
+  filter:drop-shadow(0 4px 2px #231506b9);
+}
+#trollbutikken-screen .tb-merchPast{
+  display:block;z-index:-1;position:absolute;left:2%;bottom:0;height:75%;width:61%;
+  transform:rotate(-14deg) translateY(5px);opacity:.91;
+}
+#trollbutikken-screen .tb-merchPast> :is(svg,img){width:100%;height:100%}
+#trollbutikken-screen .tb-product:is(:hover,:focus-visible):not(:disabled) .tb-goods{transform:translateY(-4px)}
+#trollbutikken-screen .tb-priceTag{
+  display:flex;align-items:center;justify-content:center;gap:4px;max-width:100%;min-height:22px;
+  font:bold clamp(11px,2.5vw,14px)/1.05 Georgia,serif;white-space:nowrap;
+  color:#492b17;padding:3px 4px;background:#edcd91;
+  border:1px solid #98643b;border-radius:2px;box-shadow:1px 2px 2px #442410a0;
+}
+#trollbutikken-screen .tb-priceTag small{font:bold 11px/1 Georgia,serif;white-space:nowrap}
+#trollbutikken-screen .tb-basket{
+  display:grid;grid-template-columns:clamp(80px,24%,130px) minmax(0,1fr);align-items:center;gap:8px 14px;
+  color:#fff0c8;padding:8px 10px 10px;box-shadow:0 3px 8px #2d130d70;
+  background:repeating-linear-gradient(1deg,transparent 0 4px,#96522740 5px,transparent 9px),linear-gradient(#a36a39,#64401e);
+  border-block:2px solid #c49353;border-radius:3px;
+}
+#trollbutikken-screen .tb-basketVessel{
+  text-align:center;position:relative;align-self:center;display:grid;justify-items:center;align-content:center;
+}
+#trollbutikken-screen .tb-basketVessel img{
+  width:min(100%,124px);height:clamp(53px,12vw,101px);object-fit:fill;
+  filter:drop-shadow(0 6px 4px #28140d90);
+}
+#trollbutikken-screen .tb-basketWork{min-width:0;container-type:inline-size}
+#trollbutikken-screen .tb-basketHead{
+  display:flex;align-items:baseline;justify-content:space-between;gap:7px;
+  padding:0 2px 4px;border-bottom:1px solid #f3d19766;margin:0 0 4px;
+}
+#trollbutikken-screen .tb-basketHead h2{margin:0;font:bold 17px/1.12 Georgia,serif;color:#fff1cb}
+#trollbutikken-screen .tb-basketHead>span{color:#ffe4b0;white-space:nowrap;font:750 12px/1 system-ui,sans-serif}
+#trollbutikken-screen .tb-basketItems{list-style:none;display:grid;grid-template-columns:1fr;gap:3px 8px;margin:0;padding:0}
+#trollbutikken-screen .tb-basketLine{
+  display:grid;grid-template-columns:24px minmax(0,1fr) 44px;align-items:center;gap:5px;
+  min-width:0;margin:0;padding-left:4px;background:#2f1a16b0;border-radius:5px;
+}
+#trollbutikken-screen .tb-basketLine>img{display:block;width:24px;height:26px;object-fit:contain}
+#trollbutikken-screen .tb-basketItemName{color:#fff2ce;font:750 13px/1.14 system-ui,sans-serif;overflow-wrap:anywhere}
+#trollbutikken-screen .tb-basket .tb-remove{
+  min-width:44px;min-height:44px;display:grid;place-items:center;padding:0;border:0;color:#4b281a;
+  background:transparent;box-shadow:none;text-shadow:none;
+}
+#trollbutikken-screen .tb-basket .tb-remove span{
+  display:grid;place-items:center;width:29px;height:29px;border:1px solid #bc8850;border-radius:50%;
+  background:#f3d6a1;box-shadow:0 2px #664522;font:bold 23px/.9 system-ui,sans-serif;
+}
+#trollbutikken-screen .tb-basket .tb-remove:hover span,#trollbutikken-screen .tb-basket .tb-remove:focus-visible span{background:#fff2c9}
+#trollbutikken-screen .tb-basket .tb-remove:focus-visible{outline-color:#ffdf8a;outline-offset:-2px}
+#trollbutikken-screen .tb-basketEmpty{margin:4px 2px;font-size:13px;color:#ffeed0;text-shadow:0 1px #4e2b19}
+#trollbutikken-screen .tb-basketFooter{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;margin-top:5px}
+#trollbutikken-screen .tb-basketFooter:empty{display:none}
+@media(max-width:520px){
+ #trollbutikken-screen .tb-basket{grid-template-columns:minmax(56px,19%) minmax(0,1fr);gap:7px}
+}
+#trollbutikken-screen .tb-basketFooter>.tb-primary{margin:0 0 0 auto}
+#trollbutikken-screen .tb-basket .tb-sum{border:0;margin:4px 0!important;padding:0;color:#fff0ca;font-size:14px}
+@container (min-width:272px){
+ #trollbutikken-screen .tb-basketItems{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@container (min-width:418px){
+ #trollbutikken-screen .tb-basketItems{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+#trollbutikken-screen .tb-over{outline:3px dashed #f6d988;outline-offset:3px}
+#trollbutikken-screen .tb-sceneTill{color:#f8e2b2}
+#trollbutikken-screen .tb-tillHeading{
+  color:#fcdfac;margin:0 0 7px;text-shadow:0 2px 3px #2c160b;
+}
+#trollbutikken-screen .tb-tillHeading h2{margin:0;font:bold clamp(22px,3vw,32px)/1.06 Georgia,serif}
+#trollbutikken-screen .tb-tillHeading p{margin:3px 0;color:#f8deb0;font-size:14px}
+#trollbutikken-screen .tb-tillHeading .tb-eyebrow{font:bold 9px system-ui,sans-serif;letter-spacing:.13em}
+#trollbutikken-screen .tb-tillBody{
+  border:2px solid #b28345;border-radius:17px 17px 11px 11px;padding:10px 11px 8px;
+  box-shadow:0 10px 11px #25100599,inset 0 0 0 2px #b38c4c5e;
+  background:linear-gradient(160deg,#70432b,#44291e 46%,#32221b);color:#fff1c9;
+}
+#trollbutikken-screen .tb-display{
+  color:#ceefb9;background:linear-gradient(120deg,#253a25,#131e14);border:2px solid #947747;
+  border-radius:6px;margin:0!important;padding:9px 12px;
+  box-shadow:inset 0 2px 4px #090b0888,0 1px #d6aa59;font:600 12px system-ui,sans-serif;
+}
+#trollbutikken-screen .tb-display strong{
+  color:#eefbbb;font-family:ui-monospace,SFMono-Regular,monospace;
+  font-size:clamp(20px,2.4vw,31px);text-shadow:0 0 6px #dbe77f70;
+}
+#trollbutikken-screen .tb-display.tb-sum{display:flex;align-items:baseline;justify-content:space-between}
+#trollbutikken-screen .tb-display p{margin:0;font-size:12px;color:#ceefb9}
+#trollbutikken-screen .tb-tillBody .tb-scan{
+  border:1px solid #a97a4b;background:linear-gradient(#f6daa1,#ce9d5f);box-shadow:0 2px #2c1c12;color:#4e3019;
+}
+#trollbutikken-screen .tb-tillBody .tb-scan[aria-pressed=true]{background:linear-gradient(#e7f0bb,#b8bf81)}
+#trollbutikken-screen .tb-drawer{
+  position:relative;display:flex;align-items:center;justify-content:end;gap:7px;flex-wrap:wrap;
+  padding:6px 8px;margin:9px -3px 0;border:1px solid #ab7c47;border-radius:7px;
+  background:linear-gradient(#633a22,#463022);box-shadow:inset 0 -3px #271911;
+}
+#trollbutikken-screen .tb-drawer .tb-primary{margin:0}
+#trollbutikken-screen .tb-drawerPull{
+  position:absolute;left:15%;top:50%;width:14%;height:8px;border-radius:10px;
+  background:linear-gradient(#b6a071,#dabd79 48%,#6c5231 65%);border:1px solid #b28f46;transform:translateY(-50%);
+}
+#trollbutikken-screen .tb-moneyDirection{color:#ffedd1;margin:7px 0;font-size:13px}
+#trollbutikken-screen .tb-cashtray{
+  color:#473322;background:linear-gradient(#ecd09d,#d3a771);border:2px solid #a06e3f;
+  box-shadow:inset 0 3px 6px #6e442379;border-radius:8px;
+}
+#trollbutikken-screen .tb-coinDrawer{
+  background:linear-gradient(180deg,#2d1b14,#583723);padding:4px 7px;
+  border-radius:8px;border:1px solid #ae834a;box-shadow:inset 0 2px 4px #10070079;
+}
+#trollbutikken-screen .tb-coinDrawer .tb-coin-stock{color:#fff0c7}
+#trollbutikken-screen .tb-coinDrawer .tb-coinButton:not(:disabled){cursor:grab;touch-action:none}
+#trollbutikken-screen .tb-coinDrawer .tb-coinButton:not(:disabled):active{cursor:grabbing}
+#trollbutikken-screen .tb-cashtray{
+  gap:4px;align-content:center;position:relative;
+  background:radial-gradient(ellipse at center,#f1dbaa,#d6ad73 105%);
+}
+#trollbutikken-screen .tb-trayLabel{
+  flex-basis:100%;font:700 10px/1.3 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;
+}
+#trollbutikken-screen .tb-trayCoins{display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:38px}
+#trollbutikken-screen .tb-trayCoins .tb-coinButton{position:relative}
+#trollbutikken-screen .tb-coinCount{position:absolute;top:1px;right:0;background:#513324;color:#fff3d2;
+ border-radius:8px;padding:1px 3px;font:bold 10px/1.15 system-ui,sans-serif}
+#trollbutikken-screen .tb-trayCoins>span{font-size:13px;color:#513c27}
+#trollbutikken-screen .tb-cashtray.tb-over{outline-offset:0;outline-color:#fff0ab;background:#f9e7b1}
+#trollbutikken-screen .tb-paper .tb-moneyDirection{color:#533c26}
+#trollbutikken-screen .tb-ghost .tb-coin{width:100%;height:100%}
+#trollbutikken-screen .tb-drawer .tb-sum{border:0;margin:0!important;padding:0;color:#ffebc1;font-size:13px}
+#trollbutikken-screen .tb-receipt{
+  background:repeating-linear-gradient(#feefca 0 35px,#f0dcb0 36px,#feefca 37px);
+  border:1px solid #b69668;border-radius:3px;color:#4b331d;
+  box-shadow:8px 12px 17px #2c170e99;position:relative;
+}
+#trollbutikken-screen .tb-receipt:after{
+  content:"";position:absolute;bottom:-7px;left:0;width:100%;height:8px;
+  background:linear-gradient(135deg,#feefca 24%,transparent 25%) 0 0/14px 14px repeat-x,
+             linear-gradient(225deg,#feefca 24%,transparent 25%) 0 0/14px 14px repeat-x;
+  pointer-events:none;
+}
+#trollbutikken-screen .tb-receipt :is(p,strong){color:#523721}
+#trollbutikken-screen .tb-receipt .tb-ledger{background:#ead4a670}
+#trollbutikken-screen .tb-helper{
+  border:0;box-shadow:none;background:none;padding:0;color:#4a2d17;grid-template-columns:72px minmax(0,1fr);align-items:center;
+}
+#trollbutikken-screen .tb-helper>.tb-actor{height:92px;grid-row:1 / 3}
+#trollbutikken-screen .tb-helper>div:nth-child(2){
+  position:relative;padding:6px 9px;background:#ffedc7;border:1px solid #a8834c;
+  border-radius:9px 12px 12px 4px;box-shadow:1px 3px 6px #331c0e69;
+}
+#trollbutikken-screen .tb-helper .tb-helper-controls{grid-column:2}
+#trollbutikken-screen .tb-helper .tb-helper-controls>.tb-secondary{
+  background:#794b27;color:#fff2c9;border-color:#c2965f;box-shadow:0 2px #3b2315;
+}
+#trollbutikken-screen .tb-helper .tb-helper-controls>.tb-secondary:hover{background:#956b3d}
+
+@media(max-width:680px){
+ #trollbutikken-screen .tb-room[data-tb-mode]{background-size:auto 365px,auto 340px,auto}
+ #trollbutikken-screen .tb-start{padding:14px}
+ #trollbutikken-screen .tb-order:not(.tb-tripCard) [data-tb-actor="customer"]{height:clamp(145px,39vw,194px)}
+ #trollbutikken-screen .tb-orderSlip{margin-right:12px}
+ #trollbutikken-screen .tb-tillHeading p{font-size:12px}
+ #trollbutikken-screen .tb-shelf .tb-product-grid{gap:5px}
+}
+@media(orientation:landscape) and (max-height:500px){
+ #trollbutikken-screen .tb-room[data-tb-mode]{background-size:auto 460px,auto 380px,auto}
+ #trollbutikken-screen .tb-order:not(.tb-tripCard) [data-tb-actor="customer"]{height:160px}
+}
+
+@media(min-width:980px) and (min-height:650px){
+ #trollbutikken-screen .tb-room[data-tb-mode]{
+   position:relative;min-height:100dvh;padding:0;
+   background-position:center top,0 2%,center;
+   background-size:100% 100%,57% auto,auto;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode]>.tb-top{
+   position:absolute;z-index:4;top:clamp(10px,1.9dvh,24px);left:2.4%;right:2.4%;
+   width:auto;margin:0;grid-template-columns:1fr auto 1fr;pointer-events:none;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode]>.tb-top button{pointer-events:auto}
+ #trollbutikken-screen .tb-room[data-tb-mode] .tb-brand{
+   transform:translateX(18%);padding:6px 28px 8px;font-size:clamp(23px,3.1vw,37px);
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode]>.tb-statusline{
+   position:absolute;z-index:3;left:44%;right:4%;top:12%;width:auto;margin:0;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode] .tb-statusline h1{font-size:clamp(22px,2.7vw,33px);text-shadow:0 2px 6px #2d1b0e}
+ #trollbutikken-screen .tb-statusActions .tb-secondary{min-height:44px;background:#7a4c29;color:#fff0c6;border-color:#b2824b;font-size:12px}
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick])>.tb-counter{
+  position:absolute;inset:0;display:block;width:auto;margin:0;pointer-events:none;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-counter :is(.tb-left,.tb-mainPlay){display:contents}
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-counter
+ :is(.tb-order,.tb-shelf,.tb-basket,.tb-helper,.tb-sceneTill,.tb-receipt){position:absolute;pointer-events:auto}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner] .tb-order:not(.tb-tripCard):has([data-tb-actor="customer"]){
+   display:block;left:2.4%;width:35.5%;top:20%;bottom:20.5%;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner] .tb-order [data-tb-actor="customer"]{
+   position:absolute;left:0;bottom:0;width:54%;height:70%;z-index:1;pointer-events:none;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner] .tb-customerWords{
+   position:absolute;top:9%;left:42%;right:1%;z-index:2;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner] .tb-orderSlip{
+   position:absolute;left:56%;right:6%;top:48%;transform:rotate(-3deg);z-index:2;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner] .tb-orderSlip li{white-space:nowrap}
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-helper{
+   left:2.6%;width:33%;bottom:1.5%;grid-template-columns:clamp(62px,8.5vw,113px) minmax(0,1fr);
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-helper>.tb-actor{
+   width:100%;height:clamp(92px,16dvh,164px);
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-shelf{
+   /* Reserve vertical clearance above the basket's second goods row. */
+   left:43.5%;right:6%;top:21%;bottom:calc(25% + 48px);display:grid;grid-template-rows:auto minmax(0,1fr);
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-product-grid{
+   grid-template-rows:repeat(2,minmax(0,1fr));gap:min(2dvh,20px);
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-shelfRow{align-items:end}
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-shelfRow:before{
+   inset:auto 0 11px;height:clamp(20px,3.4dvh,31px);
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-goods{
+   width:min(100%,163px);height:clamp(62px,11.5dvh,129px);
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-goods> :is(svg,img){
+   width:min(100%,136px);height:clamp(70px,12.8dvh,136px);
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-basket{
+   left:40%;right:9%;bottom:calc(9.7% - 25px);min-height:0;padding:0;gap:15px;background:none;box-shadow:none;border:0;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-basketVessel img{
+   width:min(100%,146px);height:clamp(69px,13dvh,135px);
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-basketWork{
+   border-radius:7px;background:#4f291ce3;padding:7px 9px;box-shadow:inset 0 0 0 1px #ebbb7d47;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard{
+   left:3%;width:33%;top:20%;padding:14px;max-height:53%;overflow:auto;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry]>.tb-entry{
+   display:block;position:absolute;inset:0;width:auto;margin:0;pointer-events:none;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-start{
+   position:absolute;left:46%;right:10%;top:29%;padding:10px 0;
+   pointer-events:auto;background:none;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-start h1{
+   max-width:100%;font-size:clamp(38px,4.3vw,61px);margin:8px 0 13px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-start p:not(.tb-eyebrow){
+   font-size:clamp(15px,1.7vw,20px);line-height:1.4;margin:8px 0 15px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-helper{
+   position:absolute;left:2.5%;width:35%;top:18%;bottom:21%;display:block;pointer-events:auto;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-helper>.tb-actor{
+   position:absolute;left:0;bottom:0;width:63%;height:77%;pointer-events:none;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-helper>div:nth-child(2){
+   position:absolute;left:52%;right:0;top:20%;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-helper .tb-helper-controls{position:absolute;left:52%;top:43%}
+ #trollbutikken-screen .tb-room:is([data-tb-mode=warehouse],[data-tb-mode=trip]:not([data-tb-phase=pick])){
+   padding:17dvh 4vw 2dvh;
+ }
+}
+
+#trollbutikken-screen .tb-shelf .tb-priceTag{position:relative;z-index:2}
+#trollbutikken-screen .tb-shelf .tb-goods> :is(svg,img){transform:translateY(0)}
+#trollbutikken-screen .tb-shelf .tb-merchPast{transform:rotate(-14deg) translateY(-2px)}
+#trollbutikken-screen .tb-basketVessel .tb-basketContents{
+  position:absolute;z-index:2;left:15%;right:15%;top:19%;height:31%;display:flex;
+  align-content:end;align-items:end;justify-content:center;flex-wrap:wrap;gap:0;
+  pointer-events:none;overflow:visible;
+}
+#trollbutikken-screen .tb-basketVessel .tb-basketContents>span{
+  display:block;width:25%;height:72%;min-height:13px;line-height:0;
+}
+#trollbutikken-screen .tb-basketVessel .tb-basketContents img{
+  width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 1px 1px #301b13);
+}
+#trollbutikken-screen .tb-merchBackdrop{display:none}
+@media(min-width:980px) and (min-height:650px){
+ #trollbutikken-screen .tb-room[data-tb-mode]{background-position:center top,0 0,center;background-size:100% 100%,auto 72%,auto}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner] .tb-order:not(.tb-tripCard):has([data-tb-actor="customer"]){bottom:16%}
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-helper{bottom:17.5%}
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-start{top:33%}
+ #trollbutikken-screen .tb-merchBackdrop{
+  display:block;position:absolute;z-index:0;top:20%;left:45%;right:10%;height:17%;
+  pointer-events:none;opacity:.72;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-merchBackdrop{top:14%;height:15%}
+ #trollbutikken-screen .tb-merchBackdrop>div{
+  display:flex;position:absolute;inset:auto 0 0;align-items:end;justify-content:space-around;
+  gap:9px;padding:0 6% 9px;
+ }
+ #trollbutikken-screen .tb-merchBackdrop>div:after{
+  content:"";position:absolute;left:0;right:0;bottom:2px;height:14px;
+  background:linear-gradient(#bb8449 0 28%,#744521 35%);border-radius:4px;box-shadow:0 5px 7px #2a190db7;
+ }
+ #trollbutikken-screen .tb-merchBackdrop>div>span{
+  position:relative;z-index:1;display:block;width:18%;max-width:86px;height:clamp(39px,9dvh,82px);
+ }
+ #trollbutikken-screen .tb-merchBackdrop>div>span>img{
+  width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px #2e1b0a);
+ }
+}
+
+@media(min-width:980px) and (max-width:1120px) and (min-height:650px){
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip][data-tb-phase=pick]) .tb-basket{
+   left:37%;right:5%;grid-template-columns:18% minmax(0,1fr);gap:12px;
+ }
+}
+
+@media(max-width:979px), (max-height:649px){
+ #trollbutikken-screen .tb-room[data-tb-mode]{
+   background-image:url("./assets/trollbutikken/shop-interior-review-v1.webp"),
+       url("./assets/tallvika/tallvika-fjord-no-buildings-wide-20261107.webp"),
+       url("./assets/trollbutikken/shop-wall-review-v1.webp");
+   background-position:left top,26% 35px,center 363px;
+   background-size:auto 430px,auto 343px,max(510px,100%) auto;
+   background-repeat:no-repeat,no-repeat,repeat-y;
+   background-color:#4a2b1a;
+ }
+}
+@media(max-width:680px){
+ #trollbutikken-screen .tb-room[data-tb-mode]{
+   background-size:auto 365px,auto 323px,max(480px,100%) auto;
+ }
+}
+@media(orientation:portrait) and (max-width:680px){
+ #trollbutikken-screen .tb-room[data-tb-mode=entry]{position:relative}
+ #trollbutikken-screen .tb-room[data-tb-mode=entry]>.tb-entry{margin-top:clamp(170px,47vw,218px)}
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-start{background:linear-gradient(90deg,#3c2315ba,transparent);padding:9px 12px}
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-helper{
+   position:absolute;top:72px;left:5%;right:5%;width:auto;grid-template-columns:minmax(111px,36%) minmax(0,1fr);
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-helper>.tb-actor{height:clamp(150px,48vw,194px)}
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-helper>div:nth-child(2){align-self:center}
+}
+
+/* Portrait tablets and short landscape windows keep the scene edge-to-edge;
+   the tiled plank crop starts under (not behind a gap in) the painted room. */
+@media(min-width:681px) and (max-width:979px), (min-width:681px) and (max-height:649px){
+ #trollbutikken-screen .tb-room[data-tb-mode]{
+  background-position:left top,0 0,center 430px;
+  background-size:100% 430px,auto 354px,max(510px,100%) auto;
+ }
+}
+@media(orientation:landscape) and (max-height:500px){
+ #trollbutikken-screen .tb-room[data-tb-mode] .tb-product .tb-goods{height:66px}
+ #trollbutikken-screen .tb-room[data-tb-mode] .tb-product .tb-goods>img{width:clamp(58px,8vw,80px);height:64px}
+ #trollbutikken-screen .tb-room[data-tb-mode] .tb-merchPast>img{width:100%;height:100%}
+}
+#trollbutikken-screen .tb-helper>div:nth-child(2)>p:not(.tb-eyebrow){color:#4d3424}
+
+/* Enter a price on the till without the shop doing the arithmetic. */
+#trollbutikken-screen .tb-priceForm{
+  margin-top:9px;padding:6px 7px;background:linear-gradient(#70472c,#533321);
+  border:1px solid #af824e;border-radius:8px;color:#fff1cf;
+}
+#trollbutikken-screen .tb-priceForm label{display:block;font:700 12px/1.25 system-ui,sans-serif;margin:0 0 5px}
+#trollbutikken-screen .tb-priceEntry{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+#trollbutikken-screen .tb-priceEntry input{
+  width:72px;min-height:44px;border:1px solid #bc9c61;border-radius:5px;
+  padding:4px 6px;background:#202e20;color:#ecffb8;font:700 22px/1 monospace;
+}
+#trollbutikken-screen .tb-priceEntry input:focus-visible{outline:2px solid #fff7ca;outline-offset:2px}
+#trollbutikken-screen .tb-priceEntry button{margin:0 0 0 auto}
+
+/* Butikkdagen's physical checkout: the customer, till and tender share one bench. */
+#trollbutikken-screen .tb-counterWorld{
+  --tb-brass:#e6bb71; position:relative; isolation:isolate;
+  width:min(100%,850px); margin:0 auto; padding:0 clamp(4px,1vw,14px) 17px;
+  color:#fff2cf;
+}
+#trollbutikken-screen .tb-counterWorld::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;inset:-55px -12px 8%;
+  background:radial-gradient(ellipse at 48% 12%,#f9bd6359,transparent 60%);
+}
+#trollbutikken-screen .tb-counterCustomer{
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(5px,2vw,20px);position:relative;min-height:98px;z-index:-1;
+}
+#trollbutikken-screen .tb-counterCustomer .tb-actor{
+  width:clamp(93px,16vw,156px);height:clamp(110px,16dvh,158px);align-self:end;
+  margin-bottom:-19px;filter:drop-shadow(3px 5px 4px #2c190f9f)
+}
+#trollbutikken-screen .tb-counterCustomer .tb-actor img{width:100%;height:100%;object-fit:contain;object-position:50% 4%}
+#trollbutikken-screen .tb-counterBubble{
+  align-self:center;position:relative;max-width:230px;margin-bottom:6px;
+  border:1px solid #c99757;border-radius:12px 12px 12px 3px;
+  padding:7px 11px;background:#fff0cb;color:#402617;box-shadow:0 4px 10px #22120973;
+}
+#trollbutikken-screen .tb-counterBubble small{font:bold 11px/1.15 system-ui,sans-serif;color:#61442e}
+#trollbutikken-screen .tb-counterBubble p{margin:1px 0;font:bold clamp(14px,2.25vw,20px)/1.2 Georgia,serif}
+#trollbutikken-screen .tb-counterBench{
+  border:1px solid #d4a965;border-top:6px solid #edc07b;border-radius:17px 17px 10px 10px;
+  padding:clamp(9px,2vw,20px);background:
+    radial-gradient(ellipse at 52% 0%,#eeb46542,transparent 68%),
+    repeating-linear-gradient(4deg,#5c371800 0 10px,#341a0f20 12px,#cca06814 14px,#5c371800 20px),
+    linear-gradient(153deg,#82512e,#502b19 76%);
+  box-shadow:0 8px #3e2418,0 11px #ab7949,0 19px 29px #170d08b0,inset 0 1px #fff0bca1;
+}
+#trollbutikken-screen .tb-counterBench>h1{
+  margin:0 0 8px;color:#fff1cc;text-shadow:0 2px 2px #35180c;
+  font:bold clamp(22px,4.2vw,36px)/1.1 Georgia,serif;
+}
+#trollbutikken-screen .tb-counterRegister,#trollbutikken-screen .tb-counterChange{display:grid;gap:9px;align-items:start;grid-template-columns:minmax(0,1fr) minmax(0,1.18fr)}
+#trollbutikken-screen .tb-counterSlip{padding:8px 6px;border-radius:4px 8px 7px 4px;background:linear-gradient(#fff3d3,#f0d7a8);color:#4c311f;box-shadow:0 3px 6px #30180b94}
+#trollbutikken-screen .tb-counterSlip h2{margin:0 4px 6px;font:bold clamp(14px,2.75vw,19px)/1.15 Georgia,serif}
+#trollbutikken-screen .tb-counterSlip .tb-scan{
+  width:100%;margin:0;display:grid;grid-template-columns:minmax(0,1fr) 13px;text-align:left;
+  gap:0 1px;border:0;border-top:1px dashed #bd9667;border-radius:0;padding:2px 3px;min-height:44px;
+  color:#4c311f;background:transparent;box-shadow:none;font-size:12px;
+}
+#trollbutikken-screen .tb-counterSlip .tb-scan>span:first-child{grid-column:1;display:flex;align-items:center;gap:3px;line-height:1}
+#trollbutikken-screen .tb-counterSlip .tb-scan>span:nth-child(2){grid-column:1;font-size:11px;margin-left:24px}
+#trollbutikken-screen .tb-counterSlip .tb-scan>strong{grid-area:1/2/3/3;color:#37613a}
+#trollbutikken-screen .tb-counterSlip .tb-scan img{width:21px;height:21px}
+/* Antique register: the crown is only trim; each cap below is a real button. */
+#trollbutikken-screen .tb-cashMachine{
+  --tb-metal:linear-gradient(180deg,#fff0ac,#c88640 32%,#88502b 52%,#d7a05a 73%,#603218);
+  min-width:0;width:min(100%,280px);justify-self:center;position:relative;
+  isolation:isolate;filter:drop-shadow(2px 8px 5px #33170ec2);
+}
+#trollbutikken-screen .tb-brassHead{position:relative;height:clamp(55px,10dvh,78px);margin-bottom:-2px}
+#trollbutikken-screen .tb-brassCrown{width:100%;height:100%;display:block;pointer-events:none}
+#trollbutikken-screen .tb-brassDisplay{
+  position:absolute;top:13%;left:50%;transform:translateX(-50%);width:43%;min-width:66px;height:58%;
+  display:grid;place-items:center;border:3px double #d39b57;border-radius:5px;
+  background:linear-gradient(#0f231d,#243a27);box-shadow:0 1px 0 #722a1d,inset 0 3px 5px #080f10;
+  color:#f4ffa9;text-shadow:0 0 6px #b4d16c85;
+}
+#trollbutikken-screen .tb-brassDisplay p,#trollbutikken-screen .tb-machineValue{
+  color:inherit;font:800 clamp(14px,3.3vw,25px)/1 ui-monospace,SFMono-Regular,monospace;
+  margin:0;white-space:nowrap;
+}
+#trollbutikken-screen .tb-machineValue{
+  position:absolute;inset:0;min-width:0;width:100%;height:100%;opacity:0;
+  padding:0;background:#223728;border:0;text-align:center;font-size:max(16px,1em);
+}
+#trollbutikken-screen .tb-machineValue:focus-visible{opacity:1;outline:2px solid #fff2a5;outline-offset:0;border-radius:3px}
+#trollbutikken-screen .tb-machineKeys{
+  display:grid;grid-template-columns:repeat(3,minmax(44px,1fr));gap:0 2px;padding:5px 4px;
+  border:4px double #dca15a;border-radius:7px 7px 4px 4px;
+  background:radial-gradient(ellipse at 50% 0%,#a66c43,transparent 74%),
+    repeating-linear-gradient(2deg,#673821 0 9px,#5b301e 11px,#6d3e27 15px);
+  box-shadow:inset 0 3px 11px #320d06,inset 1px -2px 5px #382017;
+}
+#trollbutikken-screen .tb-machineKeys .tb-key{
+  display:grid;place-items:center;min-width:44px;min-height:44px;margin:0;padding:0;
+  border:0;border-radius:6px;background:none;box-shadow:none;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+#trollbutikken-screen .tb-machineKeys .tb-key:hover:not(:disabled),
+#trollbutikken-screen .tb-machineKeys .tb-key:active:not(:disabled){background:none;box-shadow:none;transform:none}
+#trollbutikken-screen .tb-machineKeys .tb-key:focus-visible{outline-offset:-1px}
+#trollbutikken-screen .tb-keycap{
+  position:relative;display:grid;place-items:center;width:35px;height:33px;border:2px solid #eabb6d;border-radius:50%;
+  background:var(--tb-metal);color:#3b2516;font:bold 18px/1 Georgia,serif;text-shadow:0 1px #fff5ce;
+  box-shadow:0 4px 0 #60331d,0 6px 2px #2e120bb8,inset 0 0 0 2px #6f381f78,inset 0 3px 2px #fff4ba;
+  isolation:isolate;transform:translateY(0);transition:transform .10s,box-shadow .10s;
+}
+#trollbutikken-screen .tb-keycap::before{
+  content:"";position:absolute;z-index:-1;inset:3px;border-radius:50%;
+  background:radial-gradient(circle at 45% 20%,#fff7d4,#e9c893 82%);box-shadow:0 1px #a4734b;
+}
+#trollbutikken-screen .tb-key:not(:disabled):active .tb-keycap{
+  transform:translateY(3px);box-shadow:0 1px 0 #532911,0 2px 2px #24110c,inset 0 2px 4px #714624;
+}
+#trollbutikken-screen .tb-machineEnter .tb-keycap{
+  color:#fff2cb;text-shadow:0 1px #2b2316;font-size:13px;
+}
+#trollbutikken-screen .tb-machineEnter .tb-keycap::before{background:radial-gradient(circle at 45% 20%,#4e7957,#274335)}
+#trollbutikken-screen .tb-machineDrawer{
+  display:grid;place-items:center;height:22px;border:3px double #e4ab60;border-radius:3px 3px 7px 7px;
+  background:linear-gradient(#542c1c,#784326 55%,#452314);
+  box-shadow:0 3px #2d160c,inset 0 1px #a46839;
+}
+#trollbutikken-screen .tb-machineDrawer span{
+  display:block;width:32%;height:7px;border-radius:8px;background:var(--tb-metal);box-shadow:0 2px #3b1b10;
+}
+@media(prefers-reduced-motion:reduce){#trollbutikken-screen .tb-keycap{transition:none}}
+#trollbutikken-screen .tb-counterTender{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-evenly;gap:9px;
+  padding:3px 0 6px;border-bottom:1px solid #e5ba786b;
+}
+#trollbutikken-screen .tb-counterTotal{display:grid;gap:2px;color:#fff4da;font:700 clamp(13px,2.6vw,17px)/1.1 system-ui,sans-serif;text-align:center}
+#trollbutikken-screen .tb-counterTotal strong{font:bold clamp(22px,5vw,36px)/1.05 Georgia,serif;color:#fff0ab}
+#trollbutikken-screen .tb-banknote{
+  display:grid;grid-template-columns:auto 1fr;align-items:center;gap:0 8px;
+  min-width:120px;padding:5px 9px;transform:rotate(-3deg);border:3px double #8baa73;
+  border-radius:5px;background:repeating-linear-gradient(126deg,#ddedbf,#ddedbf 4px,#d3e4b4 5px,#dae9bb 7px);
+  color:#2f4d30;box-shadow:2px 4px 7px #2c1b12a0;
+}
+#trollbutikken-screen .tb-banknote>span{grid-row:1/3;font-size:23px}
+#trollbutikken-screen .tb-banknote>strong{font:bold clamp(17px,4vw,28px)/1.05 Georgia,serif}
+#trollbutikken-screen .tb-banknote>small{font:800 9px/1.2 system-ui,sans-serif}
+#trollbutikken-screen .tb-cashDrawer{background:#382317;border:1px solid #bc8e55;border-radius:9px;padding:7px;box-shadow:inset 0 3px 6px #281409;color:#fff0d0}
+#trollbutikken-screen .tb-cashDrawer>b{font:700 12px/1.25 system-ui,sans-serif}
+#trollbutikken-screen .tb-cashDrawer .tb-coinDrawer{display:grid;grid-template-columns:repeat(2,minmax(44px,1fr));gap:3px;margin:4px 0 0;background:none;padding:0;border:0}
+#trollbutikken-screen .tb-handOff .tb-cashtray{margin:0;min-height:90px;border:2px solid #cda06b;background:radial-gradient(ellipse,#f3dfac,#d8ac6e);box-shadow:inset 0 2px 7px #80523280;color:#4b301a}
+#trollbutikken-screen .tb-handOff .tb-primary{min-height:44px;width:100%;margin-top:6px;padding:5px;font-size:14px}
+#trollbutikken-screen .tb-counterHelp{
+  margin-top:10px;display:grid;grid-template-columns:29px minmax(0,1fr) auto;gap:5px;align-items:center;color:#fff5e0;
+}
+#trollbutikken-screen .tb-counterHelp .tb-actor{width:29px;height:38px;align-self:center}
+#trollbutikken-screen .tb-counterHelp p{margin:0;color:#fff3d4;font:600 clamp(11px,2.5vw,14px)/1.25 system-ui,sans-serif}
+#trollbutikken-screen .tb-counterHelp .tb-secondary{padding:3px 6px;border-color:#d7a866;background:#593720;color:#fff0cb;box-shadow:0 2px #352115;font-size:12px}
+#trollbutikken-screen .tb-counterHelp .tb-secondary:last-child:nth-child(4){grid-column:3}
+#trollbutikken-screen .tb-counterWorld :is(button,[data-tb-focus]):focus-visible{outline-color:#fff0ad}
+#trollbutikken-screen .tb-counterWorld .tb-counterSlip button:focus-visible{outline-color:#246858}
+@media(max-width:420px){
+ #trollbutikken-screen .tb-counterRegister{grid-template-columns:minmax(0,.85fr) minmax(150px,1.15fr)}
+ #trollbutikken-screen .tb-counterWorld{padding-inline:1px}
+}
+@media(min-width:980px) and (min-height:650px){
+ #trollbutikken-screen .tb-room[data-tb-mode=owner]:is([data-tb-phase=register],[data-tb-phase=change],[data-tb-phase=receipt])>.tb-counterWorld{padding-top:77px}
+ #trollbutikken-screen .tb-counterBench{padding-inline:9%}
+ #trollbutikken-screen .tb-counterRegister,#trollbutikken-screen .tb-counterChange{gap:15px}
+ #trollbutikken-screen .tb-cashDrawer .tb-coinDrawer{grid-template-columns:repeat(4,minmax(44px,1fr))}
+}
+@media(orientation:landscape) and (max-height:500px){
+ #trollbutikken-screen .tb-room[data-tb-mode=owner]:is([data-tb-phase=register],[data-tb-phase=change],[data-tb-phase=receipt])>.tb-top{margin-bottom:2px}
+ #trollbutikken-screen .tb-counterWorld{display:grid;grid-template-columns:25% minmax(0,1fr);align-items:center;width:min(100%,780px);padding-bottom:12px}
+ #trollbutikken-screen .tb-counterCustomer{flex-direction:column;align-items:center;z-index:auto}
+ #trollbutikken-screen .tb-counterCustomer .tb-actor{align-self:center;margin-bottom:0;height:99px}
+ #trollbutikken-screen .tb-counterBench{padding-block:7px}
+ #trollbutikken-screen .tb-counterBench>h1{margin-bottom:4px}
+ #trollbutikken-screen .tb-cashMachine{width:min(100%,335px)}
+ #trollbutikken-screen .tb-brassHead{height:48px}
+ #trollbutikken-screen .tb-machineKeys{grid-template-columns:repeat(6,minmax(44px,1fr))}
+ #trollbutikken-screen .tb-counterHelp{margin-top:4px}
+}
+@media(orientation:landscape) and (max-height:500px) and (max-width:760px){
+ #trollbutikken-screen .tb-cashMachine{width:min(100%,280px)}
+ #trollbutikken-screen .tb-machineKeys{grid-template-columns:repeat(3,minmax(44px,1fr))}
+}
+
+#trollbutikken-screen .tb-receiptScene{display:grid;grid-template-columns:minmax(0,1fr) minmax(36px,16%);gap:8px;align-items:start}
+#trollbutikken-screen .tb-receiptScene .tb-receipt{position:relative;margin:0;min-width:0;padding:clamp(8px,2vw,20px)}
+#trollbutikken-screen .tb-receiptScene .tb-ledger{gap:7px 13px;background:#e9d4ac}
+#trollbutikken-screen .tb-receiptScene .tb-ledger p{min-width:0;font-size:12px}
+#trollbutikken-screen .tb-packedBag{
+  position:relative;display:grid;place-items:center;width:100%;max-width:80px;aspect-ratio:.8;
+  margin-top:21px;transform:rotate(7deg);border:1px solid #c59759;border-radius:4px 4px 9px 9px;
+  background:repeating-linear-gradient(92deg,#deaf71,#deb27a 4px,#d5a66a 8px);
+  color:#78542d;box-shadow:inset -6px 0 #93603560,2px 6px 6px #311a0b80;font-size:24px;
+}
+#trollbutikken-screen .tb-packedBag::before{
+  content:"";position:absolute;top:-14px;left:27%;width:40%;height:16px;border:3px solid #d8ab69;
+  border-radius:9px 9px 0 0;border-bottom:0;
+}
+@media(prefers-reduced-motion:no-preference){
+ #trollbutikken-screen .tb-receiptScene .tb-receipt{animation:tb-print .28s ease-out both}
+ @keyframes tb-print{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
+}
+@media(min-width:980px) and (min-height:650px){
+ #trollbutikken-screen .tb-room[data-tb-mode=owner]:is([data-tb-phase=change],[data-tb-phase=receipt])>.tb-counterWorld{
+  min-height:80dvh;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:0;
+ }
+}
+
+/* Solid cast cabinet: fixed hit areas over an angled, brushed housing. */
+#trollbutikken-screen .tb-cashMachine{
+  --tb-metal:linear-gradient(165deg,#f3d8a0 2%,#b6834b 23%,#6f452a 45%,#c6995b 56%,#875630 79%,#482b20 100%);
+  --tb-grain:repeating-linear-gradient(99deg,#2e160a16 0 1px,#eed29b18 1px 2px,transparent 2px 4px);
+  margin-right:clamp(9px,2vw,18px);
+  filter:drop-shadow(5px 10px 5px #23120bd2);
+}
+#trollbutikken-screen .tb-cashMachine::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;inset:13% -10px 1px 25%;
+  background:var(--tb-grain),linear-gradient(105deg,#432921 40%,#b58755 87%,#724a31 91%,#291a15 100%);
+  clip-path:polygon(0 6%,83% 0,95% 6%,100% 28%,100% 88%,96% 97%,12% 100%,0 90%);
+}
+#trollbutikken-screen .tb-cashMachine::after{
+  content:"";pointer-events:none;position:absolute;z-index:-2;bottom:-9px;left:2%;right:-12px;height:15px;
+  background:radial-gradient(ellipse,#1b0d08ba,transparent 73%);
+}
+#trollbutikken-screen .tb-machineKeys{
+  background:radial-gradient(ellipse at 9% 0%,#bd8a5d80,transparent 55%),
+    var(--tb-grain),repeating-linear-gradient(2deg,#64371f 0 8px,#754d2c 9px,#45291b 11px,#764b2d 15px);
+  border-width:4px 6px;border-color:#d6a267 #a67342 #9f6d42 #d2a66f;
+  border-radius:11% 11% 5% 5% / 6% 6% 4% 4%;
+  box-shadow:inset 0 5px 12px #301811cc,inset 1px -4px 5px #3c2217,0 1px #e1b583;
+}
+#trollbutikken-screen .tb-machineKeys .tb-key{position:relative;align-items:start;padding-top:3px;isolation:isolate}
+#trollbutikken-screen .tb-machineKeys .tb-key::before{
+  content:"";position:absolute;z-index:-1;bottom:4px;width:22px;height:8px;border-radius:50%;
+  background:radial-gradient(ellipse at 45% 20%,#1e120e 24%,#492d21 48%,#9c744a 63%,#3b251a 75%);
+  box-shadow:1px 2px 3px #21120a9e;
+}
+#trollbutikken-screen .tb-machineKeys .tb-key::after{
+  content:"";position:absolute;z-index:-1;bottom:8px;width:8px;height:13px;border-radius:2px;
+  background:linear-gradient(90deg,#563720,#dbb472 37%,#a06931 64%,#542d14);
+  box-shadow:2px 1px 2px #2d170eaa;
+}
+#trollbutikken-screen .tb-keycap{
+  width:34px;height:29px;border-color:#c99c63;background:var(--tb-metal);
+  box-shadow:0 3px 0 #765035,1px 4px 2px #2b130cbd,inset 0 0 0 1px #754825,inset 0 2px #f7d397;
+}
+#trollbutikken-screen .tb-keycap::before{
+  inset:3px 3px 4px;
+  background:radial-gradient(ellipse at 37% 16%,#faf0d7,#e3c59a 75%,#c5a471);
+}
+#trollbutikken-screen .tb-key:not(:disabled):active .tb-keycap{
+  box-shadow:0 1px 0 #57402c,0 2px 2px #25150f,inset 0 2px 3px #7d5c38;
+}
+#trollbutikken-screen .tb-brassDisplay{
+  border-color:#cda471;border-width:4px;
+  background:linear-gradient(138deg,#204139,#142f27 31%,#18251b 83%);
+  box-shadow:inset 0 2px 6px #080c09,0 1px 2px #291a0b;
+}
+#trollbutikken-screen .tb-machineDrawer{
+  grid-template-columns:12px 1fr 12px;gap:3px;min-height:27px;position:relative;
+  margin-inline:-2px;padding:2px 9px;
+  border-color:#cb9a62 #9e7048 #8e6440 #d0a779;border-width:4px;
+  background:var(--tb-grain),linear-gradient(#55331f,#7d5130 30%,#543324 87%);
+  box-shadow:0 4px #2b160d,inset 0 1px #ae8258;
+}
+#trollbutikken-screen .tb-machineDrawer i{width:6px;height:6px;border-radius:50%;background:linear-gradient(35deg,#5c3c24,#dab174 40%,#775333 48%,#51321d 61%,#c99556)}
+#trollbutikken-screen .tb-machineDrawer span{
+  width:37%;height:10px;border:3px solid #b3834b;border-top:none;border-radius:1px 1px 8px 8px;background:none;
+  box-shadow:0 1px 1px #301a10,inset 0 -1px #e5b67e;transform:translateY(-1px);
+}
+#trollbutikken-screen .tb-machineCrank{position:absolute;right:-12px;top:34%;width:12px;height:27px;pointer-events:none}
+#trollbutikken-screen .tb-machineCrank::before{
+  content:"";position:absolute;top:50%;left:2px;width:8px;height:12px;border-radius:50%;
+  background:var(--tb-metal);box-shadow:0 1px 2px #2d150d;
+}
+#trollbutikken-screen .tb-machineCrank i{
+  position:absolute;right:2px;top:3px;width:8px;height:16px;border-right:2px solid #cf9b57;border-bottom:2px solid #b58447;border-radius:0 0 6px 0;
+}
+#trollbutikken-screen .tb-machineCrank i::after{
+  content:"";position:absolute;right:-6px;top:-3px;width:11px;height:7px;border-radius:60%;
+  background:radial-gradient(ellipse at 37% 20%,#a36f48,#784629 52%,#2e180f);box-shadow:0 1px 2px #271610;
+}
+@media(max-width:420px){
+ #trollbutikken-screen .tb-cashMachine{margin-right:5px}
+ #trollbutikken-screen .tb-machineKeys{padding-inline:2px;border-width:4px;gap:0}
+ #trollbutikken-screen .tb-machineCrank{right:-10px}
+}
+@media(orientation:landscape) and (max-height:500px){
+ #trollbutikken-screen .tb-machineDrawer{min-height:22px}
+}
+
+/* Short phones: keep the shop as a counter, not a vertical list of panels.
+   The customer, shelf and editable basket each keep a visible workspace. */
+@media(orientation:landscape) and (min-width:560px) and (max-height:460px){
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=trip],[data-tb-mode=free])[data-tb-phase=pick]{
+   padding-block:max(6px,env(safe-area-inset-top)) max(7px,env(safe-area-inset-bottom));
+   padding-inline:max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right));
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-top,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-top{margin-bottom:5px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-statusline,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-statusline{margin-bottom:6px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-statusline h1,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-statusline h1{font-size:clamp(22px,3.4vh,31px)}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-counter{
+   grid-template-columns:minmax(150px,.85fr) minmax(214px,1.23fr) minmax(160px,1fr);gap:8px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-mainPlay{display:contents}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-left,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] :is(.tb-left,.tb-mainPlay){gap:6px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] :is(.tb-order,.tb-helper,.tb-wood,.tb-basket),
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] :is(.tb-order,.tb-helper,.tb-wood,.tb-stockBin,.tb-stockAction){padding:7px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-orderTop{
+   grid-template-columns:34px 1fr;gap:5px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-orderTop .tb-actor,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-shopkeeper .tb-actor{height:43px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] :is(.tb-order,.tb-shelf) h2,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] :is(.tb-stockSource,.tb-stockBin,.tb-order) h2{font-size:19px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] :is(.tb-order,.tb-shelfHeader,.tb-helper) p,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] :is(.tb-stockSource,.tb-stockBin,.tb-order,.tb-helper,.tb-stockAction) p{
+   font-size:12px;line-height:1.25;margin-block:3px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order ul{padding:3px 5px;margin-block:4px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order li{font-size:12px;gap:4px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order li :is(img,svg){width:18px;height:18px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-tripLedger{margin-top:4px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-tripLedger strong{font-size:13px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-helper,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-helper{grid-template-columns:36px 1fr;gap:2px 5px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-helper .tb-actor,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-helper .tb-actor{height:44px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-product-grid{gap:5px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-priceTag{
+   flex-wrap:wrap;gap:1px 2px;line-height:1.05;font-size:11px;padding-inline:2px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basket{
+   grid-template-columns:minmax(0,1fr);align-content:start;position:relative;gap:4px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketItems{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketLine{grid-template-columns:minmax(0,1fr) 44px;gap:1px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketLine>img{display:none}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketItemName{font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-shopkeeper{grid-template-columns:40px 1fr}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockAction{display:flex;align-items:center;gap:8px;justify-content:space-between}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockAction .tb-primary{margin:0;flex:0 0 auto}
+ #trollbutikken-screen .tb-counterDone .tb-receiptScene{grid-template-columns:minmax(0,1fr) minmax(28px,10%)}
+ #trollbutikken-screen .tb-counterDone .tb-receipt{padding:9px}
+ #trollbutikken-screen .tb-counterDone .tb-receipt ul{margin-block:5px}
+ #trollbutikken-screen .tb-counterDone .tb-receipt h2{font-size:22px}
+ #trollbutikken-screen .tb-counterDone .tb-receipt :is(.tb-ledger,button){margin-top:4px!important}
+
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order:not(.tb-tripCard):has([data-tb-actor="customer"]){
+   grid-template-columns:36px minmax(0,1fr);gap:4px 6px;align-items:center;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order:not(.tb-tripCard) [data-tb-actor="customer"]{height:63px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order:not(.tb-tripCard) .tb-customerWords,
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-orderSlip{padding:5px 6px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-helper>div:nth-child(2){padding:5px 6px}
+
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-brand,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-brand{
+   font-size:24px;padding-block:5px
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-brand small,
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-brand small{margin-top:3px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] :is(.tb-customerWords small,.tb-helper .tb-eyebrow){
+   display:block;font-size:9px;line-height:1.15;letter-spacing:.035em
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order:not(.tb-tripCard){padding-block:0}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] :is(.tb-orderSlip,.tb-customerWords){border-radius:7px}
+
+ #trollbutikken-screen .tb-counterDone .tb-receipt{
+   display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 7px;align-items:center;
+ }
+ #trollbutikken-screen .tb-counterDone .tb-receipt > :is(.tb-eyebrow,h2,ul,.tb-ledger){grid-column:1/-1}
+ #trollbutikken-screen .tb-counterDone .tb-receipt > p:last-of-type{grid-row:5;grid-column:1;margin:0}
+ #trollbutikken-screen .tb-counterDone .tb-receipt > [data-tb-action=next]{
+   grid-row:5;grid-column:2;margin:0!important;
+ }
+
+ #trollbutikken-screen .tb-room[data-tb-mode="owner"][data-tb-phase="receipt"] .tb-brand{font-size:24px;padding-block:5px}
+ #trollbutikken-screen .tb-room[data-tb-mode="owner"][data-tb-phase="receipt"] .tb-brand small{margin-top:3px}
+ #trollbutikken-screen .tb-counterDone .tb-counterBench>h1{font-size:25px;margin-block:0 3px}
+ #trollbutikken-screen .tb-counterDone .tb-receipt .tb-ledger{margin-top:4px!important;padding:5px}
+
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-left{display:contents}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order{grid-area:1/1}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf{grid-area:1/2}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basket{grid-area:1/3}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-helper{
+   grid-row:2;grid-column:1/-1;grid-template-columns:32px minmax(0,1fr) auto;
+   align-items:center;min-height:44px;padding:0;gap:5px;max-width:min(100%,650px);
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-helper .tb-helper-controls{grid-area:1/3}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-helper>.tb-actor{grid-area:1/1;height:40px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-helper>div:nth-child(2){grid-area:1/2}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-goods{height:42px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-goods>img{height:37px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-priceTag{min-height:19px;padding-block:2px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order.tb-tripCard .tb-tripLedger p{font-size:10px;padding:2px 3px}
+
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfRow{min-height:72px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-product{min-height:68px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order.tb-tripCard>p{font-size:11px;margin-block:2px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order.tb-tripCard .tb-tripLedger strong{font-size:12px;margin-top:1px}
+
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard li{
+   display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard li:not(:has(:is(img,svg))){
+   display:flex
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-trip-check{
+   font-size:0;margin:0;width:16px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-trip-check::before{content:"✓";font-size:12px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripLedger p{font-size:9px;white-space:nowrap}
+
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketVessel{
+   position:absolute;inset:3px auto auto 7px;width:34px;height:29px;pointer-events:none;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketVessel>img{width:34px;height:27px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketHead{
+   min-height:25px;align-items:center;padding-inline-start:38px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketFooter:has(.tb-sum,.tb-primary){
+   display:flex;gap:3px 5px;align-items:center;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketFooter .tb-primary{
+   padding-inline:6px;font-size:12px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketFooter .tb-sum{font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketFooter .tb-sum strong{font-size:13px;margin-left:1px}
+}
+
+#trollbutikken-screen .tb-shelf-instruction-short{display:none}
+@media(orientation:landscape) and (min-width:560px) and (max-width:720px) and (max-height:460px){
+ #trollbutikken-screen .tb-shelf-instruction-short{display:inline}
+ #trollbutikken-screen .tb-counterDone .tb-receipt > h2{grid-row:2;grid-column:1}
+ #trollbutikken-screen .tb-counterDone .tb-receipt > [data-tb-action=next]{grid-row:2}
+ #trollbutikken-screen .tb-counterDone .tb-receipt > p:last-of-type{grid-column:1/-1}
+ #trollbutikken-screen .tb-shelf-instruction-full{display:none}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfRow{min-height:64px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-product{min-height:60px}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=pick] .tb-customerWords h2{font-size:17px;line-height:1}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=pick] .tb-customerWords p{font-size:11px;line-height:1.2}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=pick] .tb-orderSlip{padding-block:3px}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=pick] .tb-orderSlip ul{padding-block:0;margin-block:2px}
+
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=register] .tb-counterWorld{
+   grid-template-columns:minmax(90px,18%) minmax(0,1fr);
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=register] .tb-counterRegister{
+   grid-template-columns:minmax(0,1fr) minmax(286px,1.2fr);
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=register] .tb-cashMachine{width:100%}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=register] .tb-machineKeys{
+   grid-template-columns:repeat(6,minmax(44px,1fr));padding-inline:2px;border-width:4px;gap:0;
+ }
+
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-counter{
+   grid-template-columns:minmax(193px,1fr) minmax(210px,1.12fr) minmax(158px,.97fr)
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard h2{font-size:17px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard>.tb-eyebrow{font-size:9px;letter-spacing:.025em}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripLedger p{white-space:normal}
+
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-left{display:grid;gap:5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-mainPlay{order:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-top{margin-bottom:5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-brand{font-size:24px;padding-block:5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-statusline{margin-bottom:5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-statusline h1{font-size:22px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) :is(.tb-order,.tb-register,.tb-helper){padding:6px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) :is(.tb-order,.tb-register,.tb-helper) p{font-size:11px;line-height:1.2;margin-block:2px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) :is(.tb-order,.tb-register) h2{font-size:17px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-order ul{padding:3px 4px;margin:3px 0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-order li{font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-order li :is(img,svg){width:16px;height:16px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-helper{
+   grid-template-columns:34px minmax(0,1fr);gap:3px 4px
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-helper>.tb-actor{height:39px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-helper>div:nth-child(2){padding:4px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-shopkeeper{grid-template-columns:40px 1fr;gap:4px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:not([data-tb-phase=pick]) .tb-shopkeeper .tb-actor{height:39px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-register{
+   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:3px 6px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-shopkeeper{grid-area:1/1/2/3}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-ledger{grid-area:2/1}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-moneyDirection{grid-area:3/1/4/3}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-wallet{grid-area:4/1/5/3}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-cashtray{grid-area:5/1}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-sum{grid-area:5/2}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-register .tb-ledger,
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-register .tb-sum{margin:0!important;padding:4px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-ledger p{min-width:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-wallet{
+   display:flex;gap:3px;padding:3px;min-height:0;margin:0;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-coin-stock{margin:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-cashtray{min-height:49px;margin:0;padding:3px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-lineActions{
+   margin:0;display:grid;grid-area:2/2;grid-template-columns:minmax(0,1fr) max-content;gap:3px
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-lineActions .tb-button{padding-inline:3px;font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=done] .tb-receipt ul{margin-block:4px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=done] .tb-receipt .tb-ledger{
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:5px;margin-top:3px!important
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=done] .tb-receipt .tb-ledger p{min-width:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-left{display:grid}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-mainPlay{order:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockSource{
+   display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:0;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockSource .tb-goodsRow{grid-column:1/-1}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-shopkeeper h2{font-size:17px;line-height:1.06}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] :is(.tb-shopkeeper,.tb-helper) .tb-eyebrow{
+   font-size:9px;line-height:1.1;letter-spacing:.04em;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] :is(.tb-shopkeeper,.tb-helper) p:not(.tb-eyebrow){
+   font-size:11px;line-height:1.25;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-lineActions{
+   display:grid;grid-template-columns:repeat(2,minmax(44px,1fr));gap:3px;margin-top:4px
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-lineActions .tb-secondary{
+   min-width:44px;min-height:44px;padding-inline:2px;font-size:11px
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-secondary{padding-inline:5px;font-size:12px}
+
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-mainPlay{
+   grid-template-columns:minmax(0,1fr) minmax(167px,.9fr);align-items:start;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockSource{grid-area:1/1}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBins{grid-area:2/1/3/3}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockAction{
+   grid-area:1/2;display:grid;gap:4px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockAction p{font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-goodsRow>span{width:21px;height:21px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-helper{padding:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-helper .tb-helper-controls{grid-area:1/1/2/3}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-helper>.tb-actor{grid-area:2/1;height:38px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-helper>div:nth-child(2){grid-area:2/2;padding:4px 6px}
+}
+
+/* Portrait phones: keep the real merchandise, paper order and companion.
+   Trim empty room around the controls, not the 44px touch surface. */
+@media (orientation:portrait) and (max-width:440px){
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]){
+  padding-top:max(7px,env(safe-area-inset-top));
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse])>.tb-top{
+  margin-bottom:10px;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse])>.tb-statusline{
+  margin-bottom:7px;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse])>.tb-statusline h1{
+  font-size:clamp(22px,6.9vw,28px);
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]) :is(.tb-counter,.tb-mainPlay){
+  gap:7px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order:not(.tb-tripCard):has([data-tb-actor="customer"]){
+  grid-template-columns:minmax(68px,26%) minmax(0,1fr);gap:3px 7px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order:not(.tb-tripCard) [data-tb-actor="customer"]{
+  height:clamp(91px,26vw,112px);
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-customerWords{padding:4px 8px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-customerWords p{margin-top:2px;line-height:1.2}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-orderSlip{margin-right:0;padding:4px 8px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-orderSlip li{font-size:13px;padding:0;gap:4px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-orderSlip li :is(img,svg){width:21px;height:21px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfHeader{margin:0 0 2px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfHeader h2{font-size:20px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfHeader p{font-size:11px;margin:1px 0 2px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfRow{min-height:74px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-product{min-height:72px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-goods{height:49px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-goods>img{height:49px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-priceTag{
+  min-height:19px;padding-block:2px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basket{
+  grid-template-columns:minmax(47px,15%) minmax(0,1fr);gap:4px 6px;padding:5px 7px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketItems{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketLine{
+  grid-template-columns:19px minmax(0,1fr) 44px;gap:2px;padding-left:2px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketLine>img{width:19px;height:21px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketItemName{font-size:12px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketVessel img{height:42px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketEmpty{font-size:12px;margin:2px 0}
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]) .tb-counter .tb-helper{
+  grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:4px;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]) .tb-helper>.tb-actor{
+  grid-row:1;height:44px;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]) .tb-helper>div:nth-child(2){
+  grid-column:2;padding:4px 6px;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]) .tb-helper #tb-helper-copy{
+  font-size:11px;line-height:1.16;margin:1px 0;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]) .tb-helper .tb-eyebrow{
+  font-size:8px;letter-spacing:.08em;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]) .tb-helper .tb-helper-controls{
+  grid-column:3;display:grid;grid-auto-flow:column;gap:3px;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]) .tb-helper .tb-helper-controls:empty{display:none}
+ #trollbutikken-screen .tb-room:is([data-tb-phase=pick],[data-tb-mode=trip],[data-tb-mode=warehouse]) .tb-helper .tb-secondary{
+  min-width:44px;min-height:44px;padding:4px 7px;font-size:11px;
+ }
+
+ /* Pick: the budget sits next to the list. Pay and receipt: keep the
+    existing shopping list below the active cashier rather than in its way. */
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard{padding:6px 7px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard h2{font-size:18px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard>p:not(.tb-eyebrow){font-size:11px;margin:2px 0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard>.tb-eyebrow{margin:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard ul{margin:3px 0;padding:3px 4px;gap:2px 6px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard li{font-size:12px;gap:3px;padding:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard li :is(svg,img){width:17px;height:17px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard .tb-trip-check{font-size:9px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard .tb-tripLedger{margin:4px 0 0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard .tb-tripLedger p{padding:2px 3px;font-size:10px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-tripCard .tb-tripLedger strong{font-size:14px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:is([data-tb-phase=pay],[data-tb-phase=done]) .tb-mainPlay{order:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:is([data-tb-phase=pay],[data-tb-phase=done]) .tb-helper{order:1}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip]:is([data-tb-phase=pay],[data-tb-phase=done]) .tb-tripCard{order:2}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register{margin:0;padding:7px 8px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-shopkeeper{grid-template-columns:49px minmax(0,1fr);gap:6px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-shopkeeper .tb-actor{height:56px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-shopkeeper h2{font-size:18px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-shopkeeper p{margin:1px 0;font-size:11px;line-height:1.18}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-ledger{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 5px;margin-top:4px!important;padding:4px 6px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-ledger p{min-width:0;font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-moneyDirection{font-size:12px;margin:3px 0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-cashtray{min-height:49px;padding:3px 5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-sum{margin-top:4px!important;padding:3px 5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-lineActions{
+  display:grid;grid-template-columns:1.42fr 1fr;gap:4px;margin:3px 0 0;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip] .tb-register .tb-lineActions button{
+  min-width:44px;min-height:44px;padding:3px 5px;font-size:12px;
+ }
+
+ /* Warehouse: the add and remove controls stay adjacent to their own bin. */
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] :is(.tb-order,.tb-stockSource,.tb-stockBin,.tb-stockAction){padding:6px 7px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-order .tb-shopkeeper{grid-template-columns:52px minmax(0,1fr);gap:5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-order .tb-actor{height:58px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] :is(.tb-order,.tb-stockSource,.tb-stockBin) h2{font-size:17px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] :is(.tb-order,.tb-stockSource,.tb-stockBin,.tb-stockAction) p{
+  font-size:12px;line-height:1.2;margin:3px 0;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-order .tb-eyebrow{font-size:9px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBins{gap:4px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-lineActions{
+  display:grid;grid-template-columns:repeat(2,minmax(44px,1fr));gap:3px;margin-top:3px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-secondary{
+  min-width:44px;min-height:44px;padding:2px;line-height:1.15;font-size:11px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-goodsRow>span{width:22px;height:22px}
+}
+
+@media (orientation:portrait) and (max-width:440px){
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(86px,27%);gap:2px 6px;
+  align-items:start;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard>.tb-eyebrow{
+  grid-column:1/-1;grid-row:1;font-size:9px;line-height:1.15;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard>h2{grid-area:2/1}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard>p:not(.tb-eyebrow){
+  grid-area:3/1;margin:0;line-height:1.2;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard>ul{
+  grid-area:4/1;margin:1px 0 0;min-width:0;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard .tb-tripLedger{
+  grid-area:2/2/5/3;grid-template-columns:1fr;gap:0;margin:0;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard .tb-tripLedger p{
+  padding:3px;font-size:10px;line-height:1.08;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripCard .tb-tripLedger strong{
+  margin-top:1px;font-size:14px;line-height:1.05;
+ }
+}
+
+/* A full customer basket uses two rows of 44px remove controls on a short
+   portrait phone. Use the extra shelf padding instead of clipping the hint. */
+@media (orientation:portrait) and (max-width:440px) and (max-height:760px){
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick]>.tb-top{margin-bottom:7px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick]>.tb-statusline{margin-bottom:5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] :is(.tb-counter,.tb-mainPlay){
+  gap:5px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-shelfRow{min-height:64px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-shelf .tb-product{min-height:62px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-shelf .tb-goods,
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-shelf .tb-goods>img{height:42px}
+}
+
+/* The welcome, not only the shorter closing title, must leave room for all play modes. */
+@media (orientation:landscape) and (max-width:680px) and (max-height:390px){
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-start h1{max-width:none;font-size:25px;line-height:1.04;margin-block:4px}
+ #trollbutikken-screen .tb-room[data-tb-mode=entry] .tb-start p:not(.tb-eyebrow){font-size:13px;line-height:1.2;margin-block:6px}
+}
+
+/* A 44px target for each coin, even when all four denominations are in play. */
+@media (orientation:landscape) and (min-width:560px) and (max-width:680px) and (max-height:390px){
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-counter{
+  grid-template-columns:minmax(0,1fr) minmax(390px,2.55fr);gap:5px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-helper{
+  order:-1;grid-template-columns:24px minmax(0,1fr);gap:2px;padding:2px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-helper>.tb-actor{height:28px;grid-area:1/1}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-helper>div:nth-child(2){grid-area:2/1/3/3;padding:4px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-helper p{margin:0;font-size:10px;line-height:1.13}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-helper .tb-helper-controls{grid-area:1/2;justify-content:end;margin:0;gap:1px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-helper .tb-button{min-height:44px;padding:2px 3px;font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-tripCard>:is(p:not(.tb-eyebrow),.tb-tripLedger),
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-tripCard .tb-trip-check{display:none}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-tripCard h2{font-size:15px;line-height:1.12;margin:2px 0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-shopkeeper .tb-actor{height:31px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-register{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 4px;padding:4px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-register .tb-ledger{
+  display:flex;gap:4px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-register .tb-ledger p{font-size:10px;line-height:1.14}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-lineActions button{
+  min-height:44px;padding:2px 3px;font-size:11px;line-height:1.1;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-register .tb-moneyDirection{grid-area:3/1;margin:0;font-size:11px;line-height:1.15}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-wallet{grid-area:4/1;align-self:stretch}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-cashtray{grid-area:4/2;align-self:stretch}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-register .tb-sum{
+  grid-area:3/2;padding:1px 4px;border:0;font-size:11px;line-height:1.1;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] :is(.tb-wallet,.tb-cashtray,.tb-trayCoins){
+  gap:1px;padding-inline:2px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-trayCoins{padding:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-coinButton{
+  display:grid;place-content:center;min-width:44px;min-height:44px;padding:0;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pay] .tb-coin{width:38px;height:38px}
+}
+
+/* Keep the aisle controls usable on the shortest landscape while retaining the original art. */
+@media (orientation:landscape) and (min-width:560px) and (max-width:619px) and (max-height:350px){
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="multiply"]{top:61px!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="fraction"]{top:117px!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="table"]{top:173px!important}
+ #tallvika-world .tv-scene.laria-sign-rail-v2[data-tv-shop-enabled]:not(.laria-reference-layout-v1) .tv-sign[data-tv="shop"]{top:229px!important}
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=free],[data-tb-mode=trip])[data-tb-phase=pick] .tb-counter{
+  grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,1fr);gap:5px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfRow{min-height:54px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-product{min-height:55px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-goods{height:33px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-goods>img{height:30px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-tripLedger p{white-space:normal}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick]{padding-block:4px 6px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick]>.tb-top{margin-bottom:1px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick]>.tb-statusline{margin-bottom:2px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf{padding:3px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfHeader{margin-bottom:0;padding:0}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfHeader h2{font-size:16px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelfHeader p{font-size:11px;margin:0}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-shelf .tb-product-grid{gap:2px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-order:not(.tb-tripCard):has([data-tb-actor="customer"]){
+  grid-template-columns:25px minmax(0,1fr);gap:3px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-customerWords{padding:3px 4px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-orderSlip{padding:2px 4px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-orderSlip li{padding-block:0;font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner]:is([data-tb-phase=register],[data-tb-phase=change],[data-tb-phase=receipt]){padding-block:4px 6px}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner]:is([data-tb-phase=register],[data-tb-phase=change],[data-tb-phase=receipt]) .tb-counterBench{padding-block:3px}
+ #trollbutikken-screen .tb-counterBench>h1{font-size:23px;margin-bottom:3px}
+ #trollbutikken-screen .tb-counterHelp{margin-top:2px}
+ #trollbutikken-screen .tb-brassHead{height:42px}
+ #trollbutikken-screen .tb-machineDrawer{min-height:17px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketItems{grid-template-columns:minmax(0,1fr)}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketLine{min-height:44px;padding:0 3px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketItemName{overflow-wrap:normal}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketHead{padding-inline-start:31px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketHead h2{font-size:16px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketVessel,
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketVessel>img{width:26px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basket{padding:4px;gap:2px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketWork{display:flex;flex-direction:column;gap:3px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketFooter{order:1;margin-block:0}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] :is(.tb-basketItems,.tb-basketEmpty){order:2}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-counter{position:relative}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-helper{
+  position:absolute;grid-area:auto;top:170px;left:30%;width:40%;padding:0;gap:3px;
+  grid-template-columns:24px minmax(0,1fr) 44px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-helper>div:nth-child(2){padding:3px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-helper p{font-size:10px;line-height:1.16}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-helper [data-tb-action=hint]{padding-inline:2px;font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-basketFooter:has(.tb-sum,.tb-primary){
+  display:grid;grid-template-columns:minmax(0,1fr) max-content;gap:2px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-basketFooter .tb-primary{font-size:11px;padding-inline:4px;margin:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=pick] .tb-basketFooter .tb-sum strong{display:block;margin:0}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketHead{min-height:22px;padding-bottom:1px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketHead h2{white-space:nowrap;font-size:14px}
+ #trollbutikken-screen .tb-room[data-tb-phase=pick] .tb-basketItems{gap:1px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-counter{grid-template-columns:minmax(0,.73fr) minmax(0,1.45fr);gap:5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-mainPlay{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:5px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockSource .tb-goodsRow{
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockSource .tb-goodsRow>span{width:min(100%,18px);height:18px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBins{gap:3px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin{padding:4px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-sectionHead h2{font-size:14px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-sectionHead img{width:22px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-goodsRow>span{width:17px;height:17px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockAction{padding:4px;gap:2px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockAction p{margin:0;line-height:1.16}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockAction .tb-primary{
+  min-height:44px;padding:3px 5px;font-size:12px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin{display:flex;flex-direction:column;gap:2px}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-lineActions{order:1;margin:0}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin .tb-goodsRow{order:2}
+ #trollbutikken-screen .tb-room[data-tb-mode=warehouse] .tb-stockBin>p{margin:0;line-height:1.12}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=pick] .tb-counter{position:relative}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=pick] .tb-helper{
+  position:absolute;grid-area:auto;top:167px;left:30%;width:40%;padding:0;gap:3px;
+  grid-template-columns:24px minmax(0,1fr) 44px;
+ }
+ #trollbutikken-screen .tb-room:is([data-tb-mode=owner],[data-tb-mode=trip])[data-tb-phase=pick] .tb-helper .tb-helper-controls{align-self:start}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=pick] .tb-helper [data-tb-action=hint]{padding-inline:2px;font-size:11px}
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=register] .tb-counterWorld{
+  grid-template-columns:minmax(75px,15%) minmax(0,1fr);gap:5px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=register] .tb-counterRegister{
+  grid-template-columns:minmax(112px,1fr) minmax(274px,1.3fr);gap:5px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=register] .tb-scan{
+  min-height:44px;padding:2px;gap:2px;font-size:11px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=change] .tb-counterChange{
+  grid-template-columns:minmax(0,.76fr) minmax(194px,1.24fr);gap:6px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=owner][data-tb-phase=change] .tb-trayCoins{gap:2px}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=done] .tb-receipt{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:3px 5px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=done] .tb-receipt>.tb-shopkeeper{grid-area:1/1}
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=done] .tb-receipt>[data-tb-action=trip-next]{
+  grid-area:1/2;min-height:44px;margin:0;padding:2px 5px;font-size:11px;
+ }
+ #trollbutikken-screen .tb-room[data-tb-mode=trip][data-tb-phase=done] .tb-receipt>:is(ul,.tb-ledger,p){grid-column:1/-1}
+}

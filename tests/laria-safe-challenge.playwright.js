@@ -191,7 +191,8 @@ async function answerCurrent(page){
     if(hasV15){
       await young.waitForFunction(()=>{
         const h=document.querySelector('.bc12'),asset=h?.dataset.bc15Asset||'';
-        return !!h && ((/ready$/.test(asset)&&h.classList.contains('bc15-locked-home')) || asset==='missing');
+        const ready=/^(?:phone|tablet)-ready$|^(?:phone|ipad|desktop)-v16-(?:portrait|landscape)$/.test(asset);
+        return !!h && ((ready&&h.classList.contains('bc15-locked-home')) || asset==='missing');
       },null,{timeout:12000});
     }
     const lockedHome=await young.locator('.bc12.bc15-locked-home').count()>0;
@@ -202,7 +203,7 @@ async function answerCurrent(page){
     assert.ok(navFit.scroll<=navFit.vw+1,'young Home causes horizontal overflow: '+JSON.stringify(navFit));
     assert.ok(navFit.navLeft>=-1&&navFit.navRight<=navFit.vw+1,'young nav exceeds viewport: '+JSON.stringify(navFit));
     if(lockedHome){
-      assert.equal(await youngEntry.isVisible(),false,'locked Home v15 must not show legacy challenge chrome');
+      assert.equal(await youngEntry.isVisible(),false,'locked Home must not show legacy challenge chrome');
     }else{
       await youngEntry.waitFor({state:'visible'});
       const btnH=await youngEntry.evaluate(btn=>btn.getBoundingClientRect().height);

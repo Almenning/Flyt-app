@@ -45,13 +45,13 @@ function assertRect(rect,viewport,title){
  assert.ok(rect.left>=-2&&rect.right<=viewport.width+2,title+' outside horizontal view '+JSON.stringify(rect));
  assert.ok(rect.top>=-2&&rect.bottom<=viewport.height+2,title+' outside vertical view '+JSON.stringify(rect));
 }
-async function checkNav(page,selector,viewport,title,expected=3){
- const items=await page.locator(selector).evaluateAll(els=>els.map(el=>{
+async function checkNav(page,selector,viewport,title,attribute,expected){
+ const items=await page.locator(selector).evaluateAll((els,key)=>els.map(el=>{
   const r=el.getBoundingClientRect(),st=getComputedStyle(el);
-  return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,
+  return {id:el.dataset[key],left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,
    visible:st.display!=='none'&&st.visibility==='visible'};
- }));
- assert.equal(items.length,expected,title+' has unexpected primary activity signs');
+ }),attribute);
+ assert.deepEqual(items.map(x=>x.id),expected,title+' has unexpected or duplicate primary activity signs');
  assert.ok(items.every(x=>x.visible),title+' hidden primary sign');
  items.forEach((x,i)=>assertRect(x,viewport,title+' sign '+i));
  for(let i=0;i<items.length;i++)for(let j=0;j<i;j++){
@@ -83,9 +83,10 @@ async function verify(type,name,width,height,url){
  try{
   await visit(page,url,'norwegian');
   await page.locator('#eggenipa-world .eg-world-brand:visible').waitFor({timeout:20000});
-  await checkNav(page,'#eggenipa-world .eg-scene-hit:visible',v,tag+' Norsk');
+  await checkNav(page,'#eggenipa-world .eg-scene-hit:visible',v,tag+' Norsk','eg',['words','find','reading']);
   assert.equal(await page.locator('#eggenipa-world .eg-portals:visible').count(),0,'Norsk has duplicate card row');
   assert.equal(await page.locator('#eggenipa-world .eg-scene-home:visible').count(),1,'Norsk needs in-world Home');
+  await page.locator('#eggenipa-world .eg-master').evaluate(el=>el.decode());
   assert.ok(await page.locator('#eggenipa-world .eg-master').evaluate(el=>el.complete&&el.naturalWidth>1000),
     'Norsk approved scene missing');
   await screenshot(page,tag+'-norsk');
@@ -94,7 +95,7 @@ async function verify(type,name,width,height,url){
 
   await visit(page,url,'math');
   await page.locator('#tallvika-world .tv-sign-nav:visible').waitFor({timeout:20000});
-  await checkNav(page,'#tallvika-world .tv-sign:visible',v,tag+' Matte');
+  await checkNav(page,'#tallvika-world .tv-sign:visible',v,tag+' Matte','tv',['multiply','fraction','table','shop']);
   assert.equal(await page.locator('#tallvika-world .tv-scene-home:visible').count(),1,'Math home missing');
   const menuBackground=await page.locator('#tallvika-world .tv-sign-nav').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.equal(menuBackground,'none','Old stacked Tallvika signpost still rendered');
@@ -104,8 +105,9 @@ async function verify(type,name,width,height,url){
 
   await visit(page,url,'geography');
   await page.locator('#laria-geography-world .gv-brand:visible').waitFor({timeout:20000});
-  await checkNav(page,'#laria-geography-world .gv-sign:visible',v,tag+' Geografi',2);
+  await checkNav(page,'#laria-geography-world .gv-sign:visible',v,tag+' Geografi','gv',['globe','country']);
   assert.equal(await page.locator('#laria-geography-world .gv-home:visible').count(),1,'Geography home missing');
+  await page.locator('#laria-geography-world .gv-landscape').evaluate(el=>el.decode());
   assert.ok(await page.locator('#laria-geography-world .gv-landscape').evaluate(el=>el.complete&&el.naturalWidth>900),
    'Geography landscape asset missing');
   await screenshot(page,tag+'-geografi');

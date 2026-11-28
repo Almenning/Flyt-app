@@ -27,7 +27,26 @@ function sameProductTree(reviewed,includingTests=false){
 }
 if(s.schema!==1||s.product!=='Læria Premium Beta'||s.targetPr!==243)errors.push('Wrong release contract');
 if(s.principle!=='Barn har lyst til å åpne Læria, foreldre har tillit.')errors.push('Purpose clause has changed');
-for(const name of ['grovanova','kinnaklova']){
+// The owner-approved painted-visual v16 PNG/WebP pair is the iPad product
+// reference. The v15 source remains hash-locked as a historical fallback;
+// it is not a substitute or a clean-art approval for v16.
+try{
+ execFileSync('python3',['tools/laria_release/verify_grovanova_v16.py'],
+   {cwd:root,encoding:'utf8',timeout:45000,stdio:['ignore','pipe','pipe']});
+}catch(error){
+ const why=String(error?.stderr||error?.message||'failed').trim().split('\n').slice(-1)[0];
+ errors.push('grovanova: locked v16 artwork failed integrity: '+why.slice(0,200));
+}
+const grovanova=s.art?.grovanova;
+if(!grovanova||grovanova.releaseReference!=='owner-approved-v16-painted-visuals'||
+   grovanova.v16OwnerApproved!==true)
+ errors.push('grovanova: exact approved v16 artwork is not recorded for this release');
+const historicalHome=file(grovanova?.locked);
+if(!historicalHome||!fs.existsSync(historicalHome)||
+   grovanova.lockedSha256!=='246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5'||
+   actualSha(historicalHome)!==grovanova.lockedSha256)
+ errors.push('grovanova: original v15 fallback lock/hash changed');
+for(const name of ['kinnaklova']){
  const a=s.art?.[name];if(!a){errors.push(name+': missing art contract');continue}
  const original=file(a.locked);
  if(!original||!fs.existsSync(original)||actualSha(original)!==a.lockedSha256)errors.push(name+': original lock/hash changed');

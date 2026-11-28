@@ -44,7 +44,7 @@ async function run(engine,name,viewport){
    // The new approved picture opens on its actual activity signs,
    // under a plain centered heading with no rejected wooden place plaque.
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
-   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),world.id==='geography'?2:3);
+   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),world.id==='geography'?2:world.id==='math'?4:3);
    assert.equal(await scene.locator('button.laria-reference-place').count(),0,
      world.id+' rejected large wooden place plaque must not be mounted');
    const entryHeading=scene.locator('button.laria-reference-heading');
@@ -99,13 +99,15 @@ async function run(engine,name,viewport){
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
    assert.equal(await nav.isVisible(),false,'subject signs remain visible with activities');
    assert.equal(await actions.isVisible(),true,'activities not visible in single rail');
-   assert.equal(await actions.locator('.laria-wayfinder:visible').count(),world.id==='geography'?2:3);
+   assert.equal(await actions.locator('.laria-wayfinder:visible').count(),world.id==='geography'?2:world.id==='math'?4:3);
    const actionBoxes=await actions.locator('.laria-wayfinder').evaluateAll(nodes=>
     nodes.map(n=>{const r=n.getBoundingClientRect();
       return {left:r.left,right:r.right,width:r.width,height:r.height};}));
    assert.ok(actionBoxes.every(b=>b.left>=0&&b.right<=rect.nav.right+3&&b.width>=44&&b.height>=44),
      world.id+' activity escaped left rail: '+JSON.stringify(actionBoxes));
    if(world.id==='math'){
+    assert.deepEqual(await actions.locator('.laria-wayfinder:visible').evaluateAll(nodes=>nodes.map(x=>x.dataset.tv)),
+      ['multiply','fraction','table','shop'],'Grade 2 Tallvika destinations changed');
     const next=actions.locator('.tv-next-sign.laria-reference-next');
     assert.equal(await next.count(),1,'Matte Next eventyr duplicated');
     assert.ok(await next.isVisible(),'Matte Next eventyr missing');
@@ -272,7 +274,7 @@ async function run(engine,name,viewport){
     assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
     assert.equal(await scene.locator('nav.laria-reference-subject-nav').isVisible(),false);
     const rail=scene.locator('nav.laria-scene-navigation');
-    assert.equal(await rail.locator('.laria-wayfinder:visible').count(),other.id==='geography'?2:3);
+    assert.equal(await rail.locator('.laria-wayfinder:visible').count(),other.id==='geography'?2:other.id==='math'?4:3);
     if(other.id==='math'){
       assert.equal(await rail.locator('button.tv-next-sign.laria-reference-next').count(),1);
       assert.ok(await rail.locator('button.tv-next-sign.laria-reference-next').isVisible(),

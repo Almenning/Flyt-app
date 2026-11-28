@@ -49,10 +49,34 @@ async function verify(type,engine,w,h){
    await page.evaluate(()=>{const a=document.querySelector('#home-screen .bc15-v16-troll');window.LARIA_TROLL_ACTOR.mood(a,'celebrate',{say:false});});
    await page.waitForTimeout(340);
    await page.screenshot({path:out+'/'+engine+'-'+w+'x'+h+'-celebrate.png'});
- }else if(h>w){
-   await page.locator('#home-screen .bc12.bc15-locked-home').waitFor();
-   assert.equal(await page.locator('#home-screen .laria-troll-actor:visible').count(),0,
-     'Do not add a second companion on top of the locked phone illustration');
+ }else{
+   const home=page.locator('#home-screen.active .bc12.bc15-locked-home');
+   await home.waitFor();
+   const approved=h>w?w<=600:w>=540&&w<=1050&&h<=580;
+   if(approved){
+     const expected='phone-v16-'+(h>w?'portrait':'landscape');
+     await page.waitForFunction(expected=>document.querySelector('#home-screen.active .bc12')?.dataset.bc15Asset===expected,
+       expected,{timeout:30000});
+     const active=home.locator('button.bc15-v16-troll:visible');
+     assert.equal(await active.count(),1,'approved phone scene needs one independent live companion');
+     assert.equal(await home.locator('.laria-troll-actor:visible').count(),1,'remove any duplicate phone companion');
+     assert.equal(await active.getAttribute('data-troll'),seed.profile.tallvikaTroll);
+     const image=active.locator('img[data-laria-troll-posed]');
+     await image.waitFor({state:'attached',timeout:25000});
+     assert.match(await image.getAttribute('src'),/troll-b\/gangemagi-troll\/storesoster\.webp$/);
+     const hit=await active.evaluate(el=>{
+       const r=el.getBoundingClientRect();
+       return {x:r.x,y:r.y,w:r.width,h:r.height,
+         target:el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))};
+     });
+     assert.ok(hit.target&&hit.x>=-1&&hit.y>=-1&&hit.w>=44&&hit.h>=44&&hit.x+hit.w<=w+1&&hit.y+hit.h<=h+1,
+       'approved live phone companion must be in view and tappable: '+JSON.stringify(hit));
+     await page.touchscreen.tap(hit.x+hit.w/2,hit.y+hit.h/2);
+     assert.equal(await active.getAttribute('data-laria-troll-mood'),'wave');
+   }else{
+     assert.equal(await home.locator('.laria-troll-actor:visible').count(),0,
+       'Do not overlay a live companion on the legacy baked-art fallback');
+   }
    await page.screenshot({path:out+'/'+engine+'-'+w+'x'+h+'-home-locked-art.jpg',type:'jpeg',quality:90});
  }
  await openSubject(page,'math');

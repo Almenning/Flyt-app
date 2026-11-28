@@ -199,9 +199,10 @@ async function capture(browserType,label,viewport){
       try{await page.screenshot({path:path.join(out,label+'-initial-globe-failure.png'),fullPage:true,timeout:4000})}catch(_){}
       throw error;
     }
-    const sceneName=viewport.width>viewport.height?'landscape':viewport.width>=700?'tablet':'mobile';
+    const sceneName=viewport.width>viewport.height?'landscape':'portrait';
+    const approvedScene='nordlysleiren-bluehour-'+sceneName+'-v1.webp';
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
-    assert.ok(backgroundImage.includes('globe-storyscape-v36-'+sceneName+'.webp'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
+    assert.ok(backgroundImage.includes(approvedScene),label+' did not load the approved Nordlysleiren scene: '+backgroundImage);
     assert.ok(!backgroundImage.includes('basecamp-v11'),label+' incorrectly shows fantasy village behind globe');
     // Prevent the old unified globe plaque/fox pseudos from painting a gold
     // vertical seam through the locked landscape in any device configuration.
@@ -260,6 +261,10 @@ async function capture(browserType,label,viewport){
       };
     });
     assert.ok(layout.country&&layout.actions&&layout.globe,label+' missing active globe layout');
+    const more=page.locator('#world-screen.active .laria-atlas-more');
+    const moreSummary=more.locator('summary');
+    const randomCountry=more.locator('#random-country');
+    const resetGlobe=more.locator('#reset-globe');
 
     // Regression: a ChatGPT/in-app Safari toolbar can cut the usable iPhone
     // height to ~610px without changing the actual 390px-wide device.
@@ -290,14 +295,16 @@ async function capture(browserType,label,viewport){
       const afterScroll=await page.evaluate(()=>{
         const screen=document.querySelector('#world-screen.active');
         screen.scrollTop=screen.scrollHeight;
-        const button=document.getElementById('reset-globe');
+        const button=screen.querySelector('.laria-atlas-more summary');
         const r=button.getBoundingClientRect();
         return {scrollTop:screen.scrollTop,bottom:r.bottom,visible:r.top>=0&&r.bottom<=innerHeight+1,
-          hit:document.elementFromPoint((r.left+r.right)/2,(r.top+r.bottom)/2)?.closest('#reset-globe')===button};
+          hit:document.elementFromPoint((r.left+r.right)/2,(r.top+r.bottom)/2)?.closest('.laria-atlas-more summary')===button};
       });
       assert.ok(afterScroll.scrollTop>25&&afterScroll.visible&&afterScroll.hit,
-        label+' scroll did not expose the reset button: '+JSON.stringify(afterScroll));
-      await page.locator('#reset-globe').click();
+        label+' scroll did not expose Flere valg: '+JSON.stringify(afterScroll));
+      await moreSummary.click();
+      await resetGlobe.click();
+      assert.equal(await more.evaluate(details=>details.open),false,label+' reset did not close Flere valg');
       await page.evaluate(()=>{document.querySelector('#world-screen.active').scrollTop=0});
     }
 
@@ -351,7 +358,7 @@ async function capture(browserType,label,viewport){
     assert.ok(readability.fonts.length>=2,label+' missing visible country facts');
     assert.ok(readability.fonts.every(v=>v>=minimumFactSize),label+' country facts are too small: '+JSON.stringify(readability));
     assert.ok(readability.allWithinCard,label+' country facts overflow their card');
-    assert.ok(readability.scene.includes('globe-storyscape-v36-'),label+' old landscape still visible');
+    assert.ok(readability.scene.includes(approvedScene),label+' approved Nordlysleiren scene was lost');
     if(label==='webkit-desktop-landscape'){
       const canvasBox=await page.locator('#globe-canvas').boundingBox();
       const cx=canvasBox.x+canvasBox.width*.55,cy=canvasBox.y+canvasBox.height*.55;
@@ -402,8 +409,29 @@ async function capture(browserType,label,viewport){
     assert.equal(await page.locator('[data-globe-mode="mine"]').isVisible(),true);
     assert.equal(await page.locator('[data-globe-mode="classic"]').isVisible(),true);
     assert.equal(await page.locator('#globe-mode [data-globe-mode]').count(),3,label+' must expose Utforsk, Min verden and Kloden');
-    assert.equal(await page.locator('#random-country').isVisible(),true);
-    assert.equal(await page.locator('#reset-globe').isVisible(),true);
+    assert.equal(await randomCountry.isVisible(),false,label+' extra actions should start closed');
+    assert.equal(await resetGlobe.isVisible(),false,label+' extra actions should start closed');
+    // Do not let WebKit's fullscreen locator autoscroll mask an obstructed
+    // target. Touch the physical first-fold summary, then exercise Escape
+    // from keyboard focus within the disclosure.
+    const disclosure=await moreSummary.evaluate(el=>{
+      const r=el.getBoundingClientRect(),x=Math.round((r.left+r.right)/2),y=Math.round((r.top+r.bottom)/2);
+      const hit=document.elementFromPoint(x,y);
+      return {x,y,ready:r.width>=44&&r.height>=44&&r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight&&
+        (hit===el||el.contains(hit))};
+    });
+    if(label==='webkit-iphone-embedded'){
+      // In-app Safari chrome intentionally scrolls secondary actions.
+      await moreSummary.click();
+    }else{
+      assert.ok(disclosure.ready,label+' Flere valg must be touchable without scrolling '+JSON.stringify(disclosure));
+      await page.touchscreen.tap(disclosure.x,disclosure.y);
+    }
+    assert.equal(await randomCountry.isVisible(),true,label+' Tilfeldig land not available in Flere valg');
+    assert.equal(await resetGlobe.isVisible(),true,label+' Startposisjon not available in Flere valg');
+    await moreSummary.focus();
+    await page.keyboard.press('Escape');
+    assert.equal(await more.evaluate(details=>details.open),false,label+' Escape did not close Flere valg');
     assert.equal(await page.locator('#globe-zoom-in').isVisible(),true,label+' zoom-in hidden');
     assert.equal(await page.locator('#globe-zoom-out').isVisible(),true,label+' zoom-out hidden');
 

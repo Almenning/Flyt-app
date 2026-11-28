@@ -31,6 +31,7 @@ jobs:
           python tools/laria_art/prepare_clean_art_previews.py --self-test
           python -m py_compile tools/laria_release/verify_clean_candidate.py
           python tools/laria_release/verify_clean_candidate.py --self-test
+          python -m unittest discover -s tools/laria_art -p 'test_*.py' -v
       - name: Generate non-approved previews from exact locked original files
         run: python tools/laria_art/prepare_clean_art_previews.py --output-dir /tmp/laria-art-preview
       - name: Include byte-identical source art for controlled retouch review

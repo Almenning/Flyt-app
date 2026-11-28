@@ -93,7 +93,8 @@ async function run(browserType,name,viewport){
   await visitEnglish(page);
   const world=page.locator('#kinnaklova-world');
   assert.equal(await world.locator('.ki-card').count(),3,name+' missing three direct English places');
-  assert.equal(await world.locator('.ki-painted-hit').count(),4,name+' missing painted sign and home hitboxes');
+  assert.deepEqual(await world.locator('.ki-painted-hit').evaluateAll(nodes=>nodes.map(node=>node.dataset.ki)),
+    ['home','words','sentences','reading','word-games'],name+' missing or duplicated Home or English activity sign');
   assert.equal(await world.locator('.ki-master').getAttribute('width'),'1672',name+' wrong art width');
   assert.equal(await world.locator('.ki-master').getAttribute('height'),'941',name+' wrong art height');
   assert.equal(await page.locator('#subject-screen.locked-journey-active').count(),0,name+' old map still active');

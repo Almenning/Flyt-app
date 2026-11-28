@@ -9,6 +9,11 @@ const base=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria'
 const url=base+(base.includes('?')?'&':'?')+'lariaReferenceLayout=1&lariaPremiumSignArt=0'; // exact fallback rail / legacy geometry
 const out=process.env.LARIA_REFERENCE_SCREENSHOTS||'/tmp/laria-reference-layout';
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Referanse QA',avatar:'girl',setupVersion:2,tallvikaTroll:'lillesoster'},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+const activityRoutes={
+ norwegian:{attribute:'eg',ids:['words','find','reading']},
+ math:{attribute:'tv',ids:['multiply','fraction','table','shop'],extra:['next']},
+ geography:{attribute:'gv',ids:['globe','country']}
+};
 const worlds=[
  {id:'norwegian',root:'#eggenipa-world .eg-hero.laria-reference-layout-v1',actor:'.eg-companion-actor'},
  {id:'math',root:'#tallvika-world .tv-scene.laria-reference-layout-v1',actor:'.tv-actor-touch'},
@@ -66,7 +71,7 @@ async function testEngine(engine,name,device,viewport){
    // Approved scene opens with the real activity signs, not an extra back sign.
    const entryTitle=scene.locator('button.laria-reference-heading');
    assert.equal(await scene.getAttribute('data-laria-reference-mode'),'activities');
-   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),world.id==='geography'?2:3);
+   assert.equal(await scene.locator('nav.laria-scene-navigation .laria-wayfinder:visible').count(),world.id==='geography'?2:world.id==='math'?4:3);
    assert.equal(await scene.locator('nav.laria-reference-subject-nav').isVisible(),false);
    assert.equal(await scene.locator('button.laria-reference-place').count(),0);
    assert.equal(await scene.locator('.laria-reference-activities-back').count(),0);
@@ -145,7 +150,7 @@ async function testEngine(engine,name,device,viewport){
       hiddenActions:[...el.querySelectorAll('.laria-scene-navigation > .laria-wayfinder')].length
     };
    });
-   assert.equal(boxes.hiddenActions,world.id==='geography'?2:3,world.id+' did not retain real original learning buttons');
+   assert.equal(boxes.hiddenActions,world.id==='geography'?2:world.id==='math'?4:3,world.id+' did not retain real original learning buttons');
    for(const box of boxes.menu){
     assert.ok(box.l>=0&&box.t>=0&&box.r<=viewport.width+3&&box.b<=viewport.height+3,
       world.id+' left sign clipped: '+JSON.stringify(box));
@@ -285,17 +290,20 @@ async function testEngine(engine,name,device,viewport){
    assert.match(sameArrow,/laria-light-arrow-sign\.svg/,
      world.id+' activity menu uses a different arrow board');
    assert.equal(await plaque.getAttribute('aria-expanded'),'false');
-   assert.equal(await activities.locator('.laria-wayfinder').count(),world.id==='geography'?2:3,
+   assert.equal(await activities.locator('.laria-wayfinder').count(),world.id==='geography'?2:world.id==='math'?4:3,
      world.id+' must preserve its live activity controls');
    const allVisibleActions=scene.locator('.laria-wayfinder:visible, .tv-next-sign:visible');
-   assert.equal(await allVisibleActions.count(),world.id==='math'?4:world.id==='geography'?2:3,
-     world.id+' has duplicated or missing visible activity signs');
+   const {attribute,ids,extra=[]}=activityRoutes[world.id];
+   assert.deepEqual(await allVisibleActions.evaluateAll((nodes,key)=>nodes.map(n=>n.dataset[key]),attribute),
+     [...ids,...extra],world.id+' has duplicated, missing or reordered visible activity/transport signs');
    const visibleXs=await allVisibleActions.evaluateAll(nodes=>nodes.map(n=>{
      const r=n.getBoundingClientRect();return {left:r.left,right:r.right};
    }));
    assert.ok(visibleXs.every(b=>b.left>=0&&b.right<viewport.width*.40),
      world.id+' has an extra activity sign outside the single left rail: '+JSON.stringify(visibleXs));
    if(world.id==='math'){
+    assert.deepEqual(await activities.locator('.laria-wayfinder').evaluateAll(nodes=>nodes.map(x=>x.dataset.tv)),
+      ['multiply','fraction','table','shop'],'Grade 2 Tallvika destinations changed');
     const next=activities.locator('button.tv-next-sign.laria-reference-next');
     assert.equal(await next.count(),1,'original Next adventure route was not moved');
     assert.equal(await next.isVisible(),true,'Next adventure not shown in the sole rail');
@@ -304,7 +312,7 @@ async function testEngine(engine,name,device,viewport){
       'Next adventure button escaped left rail: '+JSON.stringify(r));
    }
    assert.equal(await activities.locator('.laria-reference-activities-back').count(),0,
-     world.id+' an extra Back sign appeared in the approved three-activity layout');
+     world.id+' an extra Back sign appeared in the approved activity rail');
    const activityBoxes=await activities.locator('.laria-wayfinder').evaluateAll(nodes=>nodes.map(x=>{
     const r=x.getBoundingClientRect();
     return {l:r.left,r:r.right,t:r.top,b:r.bottom,w:r.width,h:r.height};
@@ -317,7 +325,7 @@ async function testEngine(engine,name,device,viewport){
    assert.ok(activityBoxes.every(r=>Math.abs(r.h-boxes.menu[0].h)<=3),
      world.id+' activity planks differ in height from Home-style subject planks: '+
      JSON.stringify({subject:boxes.menu[0],activities:activityBoxes}));
-   assert.equal(await activities.locator('.laria-reference-activity-icon').count(),world.id==='geography'?2:3,
+   assert.equal(await activities.locator('.laria-reference-activity-icon').count(),world.id==='geography'?2:world.id==='math'?4:3,
      world.id+' learning buttons lack matching subject-style pictograms');
    const icons=await activities.locator('.laria-reference-activity-icon').evaluateAll(nodes=>nodes.map(node=>{
      const style=getComputedStyle(node),r=node.getBoundingClientRect();
@@ -489,8 +497,8 @@ async function testEngine(engine,name,device,viewport){
   if(cleanArtApproved){
     const stage=english.locator('.ki-stage.laria-reference-layout-v1');
     await stage.waitFor({state:'visible',timeout:18000});
-    assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit.laria-wayfinder').count(),3,
-      'Clean Engelsk must have the same three real left-hand signs');
+    assert.equal(await stage.locator('nav.laria-scene-navigation .ki-painted-hit.laria-wayfinder').count(),4,
+      'Clean Engelsk must have the four real left-hand signs');
     assert.equal(await stage.locator('.ki-world-brand').count(),1,
       'Clean Engelsk must use one shared Læria wordmark');
   }else{
@@ -509,7 +517,7 @@ async function testEngine(engine,name,device,viewport){
   await rail.waitFor({state:'visible',timeout:15000});
   const actions=rail.locator('.ki-painted-hit.laria-wayfinder');
   assert.deepEqual(await actions.evaluateAll(items=>items.map(x=>x.dataset.ki)),
-    ['words','sentences','reading'],'Real activity routes must survive migration');
+    ['words','sentences','reading','word-games'],'Real activity routes must survive migration');
   const xcoords=await actions.evaluateAll(items=>items.map(el=>el.getBoundingClientRect().left));
   assert.ok(Math.max(...xcoords)-Math.min(...xcoords)<3,'All Kinn signs must align left');
   if(device.startsWith('ipad')){

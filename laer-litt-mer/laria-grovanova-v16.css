@@ -2,9 +2,9 @@
    The exact illustrated buttons in these two locked pictures are VISUAL ONLY.
    Semantic focusable DOM hit targets sit at the corresponding pixel positions.
    Only activated v16 Home uses these rules. The separate desktop layout
-   fits the entire approved source; legacy Home, iPhone, and subject worlds
-   remain untouched. Do not treat painted art as a UI-free master. */
-@media(min-width:768px) and (min-height:650px){
+   fits the entire approved source; the phone-specific frame is separate
+   and legacy Home and subject worlds remain untouched. Do not treat painted art as a UI-free master. */
+@media(min-width:768px) and (min-height:650px), (max-width:600px) and (orientation:portrait), (min-width:540px) and (max-width:1050px) and (max-height:580px) and (orientation:landscape){
  .grade-band-young .bc12.bc15-v16-locked{
   position:relative!important;overflow:hidden!important;isolation:isolate!important;
   background:#235c7b!important;
@@ -230,7 +230,7 @@
  :root{--laria-front-troll-height:clamp(277px,30vh,398px)}
 }
 @media(max-width:700px) and (orientation:portrait){
- :root{--laria-front-troll-height:clamp(194px,30vh,260px)}
+ :root{--laria-front-troll-height:clamp(194px,31vh,260px)}
 }
 @media(orientation:landscape) and (max-height:600px){
  :root{--laria-front-troll-height:clamp(130px,39vh,200px)}
@@ -242,6 +242,15 @@
  width:var(--laria-front-troll-width)!important;
  height:var(--laria-front-troll-height)!important;
  min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+}
+/* Keep the selected figure readable in the wider phone reference scenes.
+   Its existing right-side ground anchor leaves the left rail clear.
+   Hjem and the compact legacy phone entrances keep their approved sizes. */
+@media(min-width:740px) and (min-height:375px) and (max-height:520px) and (orientation:landscape){
+ .laria-reference-layout-v1{
+  --laria-front-troll-height:clamp(210px,54dvh,230px);
+  --laria-front-troll-width:calc(var(--laria-front-troll-height) / 2);
+ }
 }
 /* Both geography signs are grouped along the left bank; the companion
    stands on the opposite foreground so the entire sign targets are clear. */
@@ -276,4 +285,63 @@
   /* This legacy landscape still has a Reading sign on the far right. */
   left:48%!important;right:auto!important;
  }
+}
+
+/* Owner-approved desktop side art. The foreground ::after always paints the verified
+   original over the side art, with unchanged center geometry and live UI. */
+@media(min-width:1024px) and (min-height:650px){
+ .grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-mac-wide]{
+  max-width:none!important;
+ }
+ .grade-band-young .bc12.bc15-v16-locked[data-bc15-v16-mac-wide]::before{
+  --bc15-wing-width:calc(var(--bc15-art-height) / 3);
+  display:block!important;content:""!important;position:absolute!important;inset:0!important;
+  background-image:var(--bc15-mac-wing-left),var(--bc15-mac-wing-right)!important;
+  background-repeat:no-repeat!important;
+  background-size:var(--bc15-wing-width) 100%,var(--bc15-wing-width) 100%!important;
+  background-position:calc(var(--bc15-art-left) - var(--bc15-wing-width)) top,
+                      calc(var(--bc15-art-left) + var(--bc15-art-width)) top!important;
+  opacity:1!important;filter:none!important;transform:none!important;
+  pointer-events:none!important;z-index:-2!important;
+ }
+}
+
+/* Phone uses the same locked pixels and semantic hit targets. Never paint
+   second subject labels. Only the portrait footer is reframed to fit. */
+.grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="phone"]{
+ width:100%!important;max-width:none!important;height:100dvh!important;min-height:100svh!important;
+ max-height:none!important;margin:0!important;
+ background:linear-gradient(180deg,#2b4e63 0%,#193b48 55%,#202c17 82%,#202917 100%)!important;
+ --laria-front-troll-width:clamp(92px,27vw,147px);--laria-front-troll-height:clamp(125px,24dvh,200px);
+}
+.grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="phone"][data-bc15-v16-orientation="portrait"]::after{
+ clip-path:inset(0 0 calc(100% - var(--bc15-phone-art-end)) 0);
+ -webkit-mask-image:linear-gradient(to bottom,#000 0 calc(var(--bc15-phone-art-end) - 38px),transparent var(--bc15-phone-art-end))!important;
+ mask-image:linear-gradient(to bottom,#000 0 calc(var(--bc15-phone-art-end) - 38px),transparent var(--bc15-phone-art-end))!important;
+}
+.grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="phone"][data-bc15-v16-orientation="portrait"] .bc12-nav{
+ background-image:var(--bc15-home-art)!important;background-repeat:no-repeat!important;
+ background-size:var(--bc15-phone-nav-size)!important;background-position:var(--bc15-phone-nav-position)!important;
+ border-radius:14px!important;overflow:hidden!important;
+}
+.grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="phone"] .bc15-v16-troll{
+ right:auto!important;bottom:auto!important;
+}
+.grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="phone"][data-bc15-v16-orientation="landscape"]{
+ --laria-front-troll-width:clamp(66px,13vw,104px);--laria-front-troll-height:clamp(94px,31dvh,146px);
+}
+.grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="phone"][data-bc15-v16-mac-wide]::before{
+ display:block!important;content:""!important;position:absolute!important;inset:0!important;
+ background-image:var(--bc15-mac-wing-left),var(--bc15-mac-wing-right)!important;
+ background-repeat:no-repeat!important;
+ background-size:var(--bc15-phone-wing-width) 100%,var(--bc15-phone-wing-width) 100%!important;
+ background-position:left top,right top!important;
+ opacity:1!important;filter:none!important;transform:none!important;pointer-events:none!important;z-index:-2!important;
+}
+.grade-band-young #home-screen.active .bc12.bc15-v16-locked[data-bc15-v16-device="phone"][data-bc15-v16-orientation="portrait"]::before{
+ display:block!important;content:""!important;position:absolute!important;inset:var(--bc15-phone-fill-top) 0 0!important;height:auto!important;max-height:none!important;
+ background-image:linear-gradient(to bottom,transparent 58%,#202917 93%),var(--bc15-home-art)!important;
+ background-repeat:no-repeat!important;background-size:100% 100%,var(--bc15-phone-fill-size)!important;
+ background-position:0 0,var(--bc15-phone-fill-position)!important;
+ opacity:1!important;filter:none!important;transform:none!important;pointer-events:none!important;z-index:-2!important;
 }

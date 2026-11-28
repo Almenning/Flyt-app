@@ -5,6 +5,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
 const {chromium,webkit}=require('playwright');
+const openHomeSubject=require('./helpers/laria-home-open-subject.cjs');
 const base=path.resolve(__dirname,'..');
 const screenshots=process.env.QA_SCREENSHOTS||'/tmp/laria-multiplication-v2';
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.json':'application/json'};
@@ -67,6 +68,24 @@ async function compactFirstFold(browser,engine,label,viewport,url){
   const first=page.locator('.mp-answer').first();
   await first.click();
   assert.ok((await page.locator('.mp-answer-feedback').innerText()).length>3,label+' choice did not respond');
+  if(viewport.width===320&&viewport.height===568){
+   await page.evaluate(()=>showScreen('home'));
+   await openHomeSubject(page,'math');
+   await page.locator('#tallvika-world [data-tv="table"]').tap();
+   await page.getByRole('combobox',{name:'Velg aktivitet'}).selectOption('pick');
+   const fruit=page.locator('.mp-pick-object').first();
+   const rect=await fruit.boundingBox();
+   const hit=rect&&await fruit.evaluate((button,p)=>
+     button.contains(document.elementFromPoint(p.x+p.width/2,p.y+p.height/2)),rect);
+   assert.ok(hit&&rect.y>=0&&rect.y+rect.height<=viewport.height,
+     label+' must be able to pick a real item without scrolling: '+JSON.stringify(rect));
+   const count=page.locator('.mp-pick-big-total');
+   const before=Number(await count.textContent());
+   await page.touchscreen.tap(rect.x+rect.width/2,rect.y+rect.height/2);
+   assert.equal(Number(await count.textContent()),before-1,label+' first visible tap changes the total');
+   await page.locator('[data-pick-action="undo"]').tap();
+   assert.equal(Number(await count.textContent()),before,label+' undo stays reachable by scrolling');
+  }
   assert.deepEqual(errors,[],label+' runtime errors');
   console.log('PASS '+engine+' '+label+': question, illustration and four choices visible without scrolling');
  }finally{await context.close()}

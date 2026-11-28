@@ -48,15 +48,16 @@ async function verify(browser,engine,w,h){
    }else{
     assert.ok(m.ground>.61&&m.ground<.65,'posts must terminate in the meadow '+JSON.stringify(m));
     assert.ok(m.railTop>m.title.y+m.title.height+10,'title must finish before signs');
-    const labels=await scene.locator('.laria-premium-sign-label').allTextContents();
-    assert.equal(labels.length,3);
+    const destinations=['words','sentences','reading','word-games'];
+    assert.deepEqual(await scene.locator('.laria-premium-sign:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.ki)),
+      destinations,'English must expose exactly four distinct learning destinations');
     const hits=await scene.locator('.laria-premium-sign').evaluateAll(signs=>signs.map(el=>{
      const b=el.getBoundingClientRect(),label=el.querySelector('.laria-premium-sign-label'),r=document.createRange();
      r.selectNodeContents(label);
      return b.height>=44&&r.getBoundingClientRect().right<=label.getBoundingClientRect().right&&
       document.elementFromPoint(b.x+b.width/2,b.y+b.height/2)?.closest('button')===el;
     }));
-    assert.deepEqual(hits,[true,true,true]);
+    assert.deepEqual(hits,destinations.map(()=>true));
    }
    await page.screenshot({path:out+'/'+engine+'-'+w+'x'+h+'-subject-header-'+subject+'.png',animations:'disabled'});
    if(phone){

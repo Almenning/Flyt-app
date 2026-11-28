@@ -24,6 +24,7 @@
   multiply:'<path d="M5 5 19 19M19 5 5 19"/><circle cx="12" cy="12" r="10"/>',
   fraction:'<circle cx="12" cy="12" r="10"/><path d="M12 2v10h10M5 19l7-7"/>',
   table:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
+  shop:'<path d="M4 11h16l-2 10H6zm3 0 3-7m7 7-3-7M9 15v3m6-3v3"/>',
   journey:'<path d="m4 20 8-16 8 16-8-4-8 4z"/><circle cx="12" cy="12" r="2"/>',
   globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c6 5 6 15 0 20M12 2c-6 5-6 15 0 20"/>',
   country:'<path d="M5 22V2m0 2c6-3 8 3 15 0v12c-7 3-9-3-15 0"/>'
@@ -105,7 +106,8 @@
   const activitySigns=[...rail.querySelectorAll('.laria-wayfinder')];
   if(subject==='geography'
     ? activitySigns.map(sign=>sign.dataset.gv).join(',')!=='globe,country'
-    : activitySigns.length!==3)return false;
+    : subject==='math'?!root.LARIA_SCENE_UI?.validTallvikaRail?.(scene,activitySigns)
+    : subject==='english'?!root.LARIA_SCENE_UI?.validKinnaklovaRail?.(scene,activitySigns):activitySigns.length!==3)return false;
   // Preserve the real round Home action and its original click handler.
   // It is not a second wooden sign rail.
   const nav=root.document.createElement('nav');
@@ -141,8 +143,8 @@
   // icons from the SAME pictogram family used by the five Home-style signs.
   const activitiesByWorld={
    norwegian:{words:'words',find:'find',reading:'reading'},
-   math:{multiply:'multiply',fraction:'fraction',table:'table'},
-   english:{words:'words',sentences:'sentences',reading:'reading'},
+   math:{multiply:'multiply',fraction:'fraction',table:'table',shop:'shop'},
+   english:{words:'words',sentences:'sentences',reading:'reading','word-games':'words'},
    geography:{journey:'journey',globe:'globe',country:'country'}
   };
   for(const button of rail.querySelectorAll('.laria-wayfinder')){

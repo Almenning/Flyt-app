@@ -10,14 +10,23 @@ on:
       - laer-litt-mer/laria-kinnaklova-unified-v1.css
       - laer-litt-mer/assets/kinnaklova/**
       - tests/laria-kinnaklova-left-rail.playwright.js
+      - tests/laria-kinnaklova-compact-landscape.playwright.js
+      - laer-litt-mer/english-word-games-v1.*
+      - laer-litt-mer/sw.js
+      - tests/laria-english-word-games.*
   pull_request:
     branches: [main]
     paths:
       - .github/workflows/laria-kinn-isolated-live.yml
       - laer-litt-mer/kinnaklova.js
       - laer-litt-mer/kinnaklova-standalone-v1.*
+      - laer-litt-mer/laria-kinnaklova-unified-v1.css
       - laer-litt-mer/assets/kinnaklova/**
       - tests/laria-kinnaklova-left-rail.playwright.js
+      - tests/laria-kinnaklova-compact-landscape.playwright.js
+      - laer-litt-mer/english-word-games-v1.*
+      - laer-litt-mer/sw.js
+      - tests/laria-english-word-games.*
 permissions:
   contents: read
 jobs:
@@ -32,16 +41,34 @@ jobs:
       - run: npm ci
       - name: Check script syntax
         run: |
+          node --check laer-litt-mer/english-word-games-v1.js
+          node --test tests/laria-english-word-games.test.cjs
           node --check laer-litt-mer/kinnaklova.js
           node --check laer-litt-mer/kinnaklova-standalone-v1.js
           node --check tests/laria-kinnaklova-left-rail.playwright.js
+          node --check tests/laria-kinnaklova-compact-landscape.playwright.js
       - name: Start preview
         run: python3 -m http.server 8765 --directory . >/tmp/laria-http.log 2>&1 &
       - name: Test Kinnaklova real activity and locked visual system on iPad / iPhone
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_KINNAKLOVA_SCREENSHOTS: /tmp/laria-kinn-isolated
-        run: node tests/laria-kinnaklova-left-rail.playwright.js
+        run: |
+          node tests/laria-kinnaklova-left-rail.playwright.js
+          node tests/laria-kinnaklova-compact-landscape.playwright.js
+      - name: Play both English word games through the actual Kinnaklova rail
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          QA_VIEWPORTS: 1440x900,820x1180,390x844,844x390,320x568,568x320
+          QA_SCREENSHOTS: /tmp/laria-kinn-isolated/word-games
+        run: node tests/laria-english-word-games.playwright.js
+      - name: Reopen the installed English games offline without losing progress
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          QA_ENGINE: chromium
+          QA_VIEWPORTS: 390x844
+          QA_PWA_OFFLINE: 1
+        run: node tests/laria-english-word-games.playwright.js
       - name: Upload real device screenshots
         if: always()
         uses: actions/upload-artifact@v4

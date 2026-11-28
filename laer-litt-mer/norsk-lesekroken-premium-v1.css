@@ -83,7 +83,7 @@
    right:calc(100% + 6px);width:min(48vw,186px);font-size:12px;padding:8px 9px
  }
 }
-@media(orientation:landscape) and (min-width:701px) and (max-height:520px){
+@media(orientation:landscape) and (min-width:560px) and (max-height:520px){
  #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-bookmark{display:none}
  #session-screen.task-scene[data-task-subject="norwegian"] .task-visual-companion-stage > .task-norsk-helper{
    position:relative;right:auto;bottom:auto
@@ -97,6 +97,80 @@
    width:clamp(155px,25vw,215px);padding:7px 10px;font-size:12px
  }
 }
+/* Put the existing companion and hint beside the text, not between the
+   passage and its answers. Longer text still scrolls naturally. */
+@media (orientation:landscape) and (min-width:560px) and (max-height:980px){
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)){
+   display:grid!important;
+   grid-template-columns:minmax(0,1fr) 74px;
+   grid-template-rows:auto auto auto;
+   align-items:start;
+   column-gap:12px;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > :is(.task-card-head,.task-interaction,.feedback,.next){
+   grid-column:1/-1;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-card-head{grid-row:1}
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > :is(.learning-passage,.question){
+   grid-column:1;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .learning-passage{
+   min-height:0!important;
+   margin:3px 0!important;
+   padding:8px 12px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-troll-companion{
+   grid-column:2;grid-row:2;
+   position:relative!important;inset:auto!important;
+   justify-self:center;align-self:center;
+   width:62px!important;height:72px!important;
+   min-height:0!important;margin:0!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-norsk-helper{
+   grid-column:2;grid-row:3;
+   margin:0!important;
+ }
+}
+/* In a shorter laptop/tablet viewport, keep the passage task near the
+   progress header and reserve space for feedback and the next action. */
+@media (orientation:landscape) and (min-width:951px) and (max-height:980px){
+ #session-screen.task-scene[data-task-subject="norwegian"]:has(.task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage))) #question-wrap{
+   align-self:start!important;
+   margin:8px auto auto!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)){
+   padding-block:14px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > :is(.question,.feedback,.next){
+   margin-block:8px 0!important;
+ }
+}
+/* Wide, low windows: share one row after a correct answer so the
+   feedback and the real next button both stay in view. */
+@media (orientation:landscape) and (min-width:951px) and (max-height:780px){
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop){
+   grid-template-columns:minmax(0,1fr) minmax(154px,22%);
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .feedback{
+   grid-column:1;align-self:center;width:100%!important;margin:5px 0 0!important;padding:5px 10px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .next{
+   grid-column:2;align-self:center;width:100%!important;min-height:44px!important;height:auto!important;
+   margin:5px 0 0!important;padding:9px 8px!important;
+ }
+}
 @media(prefers-reduced-motion:reduce){
  #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide{transition:none}
 }
@@ -107,5 +181,199 @@
  .task-norsk-storybook.short-answers .answers:has(> .answer:nth-child(2):last-child) {
    grid-template-columns:repeat(2,minmax(0,1fr))!important;
    width:min(100%,520px);margin-inline:auto;
+ }
+}
+
+/* Once a reading answer is committed, show the chosen result and the next
+   action in the same viewport. Wrong attempts keep their remaining options. */
+@media (orientation:portrait) and (max-width:480px){
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:has(.feedback.success-pop) .answer:not(.correct){
+   display:none!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:has(.feedback.success-pop) .answers{
+   grid-template-columns:1fr!important;
+ }
+}
+
+/* A short phone gets one companion row, not one row for each piece of UI.
+   Keep the full passage, the written answers and a real 44px hint target. */
+@media (orientation:portrait) and (max-width:480px){
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)){
+   display:grid!important;
+   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+   min-height:0!important;align-content:start;align-items:center;
+   row-gap:6px;column-gap:8px;padding:12px 12px 16px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage))
+ > :is(.task-card-head,.question,.learning-passage,.task-interaction,.feedback,.next){grid-column:1/-1}
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-card-head{
+   display:flex!important;flex-direction:row!important;justify-content:center;align-items:center;gap:8px;margin:0;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .question{
+   margin:2px auto!important;font-size:clamp(23px,7vw,29px);line-height:1.08;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .learning-passage{
+   min-height:0!important;margin:0!important;padding:8px 11px!important;font-size:15px;line-height:1.45;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-troll-companion{
+   position:relative!important;inset:auto!important;justify-self:end;
+   width:70px!important;height:69px!important;min-height:0!important;margin:0!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-norsk-helper{
+   justify-self:start;min-height:52px;min-width:52px;margin:0 0 0 9px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .task-norsk-guide{
+   width:52px;min-width:52px;height:52px;min-height:52px;border-radius:16px;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .task-norsk-guide span{
+   font-size:25px;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .task-norsk-hint{
+   right:calc(100% + 8px);width:min(33vw,126px);font-size:12px;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-interaction{margin:0!important}
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .answers{
+   gap:6px;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage.short-answers:not(:has(.task-visual-companion-stage)):not(:has(.feedback.success-pop)) .answers{
+   grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .answer{
+   min-height:48px;padding:6px 8px;font-size:15px;line-height:1.2;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .answer:last-child:nth-child(odd){grid-column:1/-1}
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) .laria-troll-speech{
+   display:none!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .feedback{
+   grid-column:1;width:100%!important;margin:0!important;padding:5px 8px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .feedback p{
+   margin:2px 0 0;font-size:13px;line-height:1.25;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .next{
+   grid-column:2;width:100%!important;min-height:44px!important;height:auto!important;margin:0!important;padding:8px 4px!important;
+ }
+}
+@media (orientation:landscape) and (min-width:560px) and (max-width:950px) and (max-height:520px){
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) .answer:not(.correct){
+   display:none!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) .answers{
+   grid-template-columns:1fr!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)){
+   grid-template-columns:minmax(0,1fr) minmax(105px,15%);
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) .laria-troll-speech{
+   display:none!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .feedback{
+   grid-column:1;grid-row:5;align-self:center;
+   width:100%!important;margin:4px 0 0!important;padding:4px 8px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .feedback p{
+   margin:0;font-size:12px;line-height:1.25;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .next{
+   grid-column:2;grid-row:5;align-self:center;
+   width:100%!important;min-height:44px!important;height:auto!important;margin:4px 0 0!important;padding:8px 6px!important;
+ }
+}
+
+/* On the shortest landscape phones share one side column between the
+   companion and Hint. The passage, answers and feedback need that height. */
+@media (orientation:landscape) and (min-width:560px) and (max-width:619px) and (max-height:350px){
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)){
+   grid-template-columns:minmax(0,1fr) 115px;
+   row-gap:4px;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-troll-companion{
+   grid-row:2/4;justify-self:start;
+   height:59px!important;width:53px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-norsk-helper{
+   grid-row:2/4;justify-self:end;align-self:center;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .learning-passage{
+   margin:0!important;padding:6px 10px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .task-norsk-guide{
+   min-width:44px;width:48px;min-height:44px;height:48px;
+ }
+ /* Three authored answers sit in a single row at this height. Keep the
+    full wording and allow multi-line labels instead of shrinking targets. */
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage,.feedback.success-pop))
+ .answers:has(>.answer:nth-child(3):last-child){
+   grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;
+ }
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage,.feedback.success-pop))
+ .answers:has(>.answer:nth-child(3):last-child)>.answer{
+   grid-column:auto!important;min-height:44px!important;padding:4px 6px!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .task-interaction{
+   grid-column:1;grid-row:4;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .next{
+   grid-row:4;margin:4px 0 0!important;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)):has(.feedback.success-pop) > .feedback{
+   grid-column:1/-1;grid-row:5;margin:0!important;
+ }
+}
+
+/* Put the spoken controls and the troll on one toolbar on the smallest
+   phones. The passage and every answer can then keep their full wording. */
+@media (orientation:portrait) and (max-width:340px) and (max-height:600px){
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)){
+   padding-block:8px 12px!important;row-gap:4px;
+ }
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-card-head{
+   grid-row:1;min-height:53px;padding-inline:54px;
+ }
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-card-head > .qtype{
+   position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;
+ }
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-troll-companion{
+   grid-column:1;grid-row:1;justify-self:start;align-self:center;
+   width:48px!important;height:53px!important;
+ }
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .task-norsk-helper{
+   grid-column:2;grid-row:1;justify-self:end;align-self:center;margin:0!important;
+   min-width:44px;min-height:44px;
+ }
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .task-norsk-guide{
+   width:44px;min-width:44px;height:44px;min-height:44px;
+ }
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .answers{gap:6px!important}
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) > .question{
+   font-size:24px!important;line-height:1.08!important;
+ }
+ #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"]
+ .task-norsk-storybook.has-passage:not(:has(.task-visual-companion-stage)) .answer{
+   min-height:46px!important;padding-block:6px!important;
  }
 }

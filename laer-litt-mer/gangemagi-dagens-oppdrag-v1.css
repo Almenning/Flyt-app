@@ -789,6 +789,9 @@
     top:20px;
     width:300px;
   }
+  /* While the tray is open, use the vacant left side of the quest board
+     rather than putting the guide's feet and speech over the live maths. */
+  .gm-shell[data-gm-mode="mission"]:not([data-gm-complete="true"]) .gm-fox{top:-42px}
   .gm-shell[data-gm-mode="mission"] .gm-fox-art{width:285px;height:330px}
   .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
     width:225px;

@@ -42,7 +42,7 @@ async function verify(browser,engine,w,h){
   }
   await page.locator('#tallvika-world [data-tv="table"]').click();
   const mp=page.locator('#multiplication-lab-screen.active');
-  await mp.locator('.mp-grid-cell').first().waitFor({timeout:20000});
+  await mp.locator('.mp-grid-cell:visible').first().waitFor({timeout:20000});
   assert.equal(await mp.locator('.mp-grid-cell').count(),100);
   await mp.locator('.mp-explore-tab[data-mode="pick"]').click();
   const actor=mp.locator('.mp-pick-easy-intro > img');

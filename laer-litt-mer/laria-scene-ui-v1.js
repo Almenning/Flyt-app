@@ -33,6 +33,17 @@
    })
  });
  const REQUIRED=Object.freeze(['home','signs','troll']);
+ // Tallvika's fourth destination exists only when enabled for the current
+ // grade. All three presentation layers use the same exact live rail contract.
+ function validTallvikaRail(scene,signs){
+   const expected=scene.hasAttribute('data-tv-shop-enabled')?'multiply,fraction,table,shop':'multiply,fraction,table';
+   return signs.map(sign=>sign.dataset.tv).join(',')===expected;
+ }
+ function validKinnaklovaRail(scene,signs){
+   const expected=scene?.hasAttribute('data-ki-word-games-enabled')?
+     'words,sentences,reading,word-games':'words,sentences,reading';
+   return signs.map(sign=>sign.dataset.ki).join(',')===expected;
+ }
  function enhance(world,subject){
    const cfg=DEFINITIONS[subject];
    if(!cfg||!world?.querySelector)return false;
@@ -42,7 +53,7 @@
    const signs=[...scene.querySelectorAll(cfg.signs)];
    const valid=subject==='geography'
      ? signs.map(sign=>sign.dataset.gv).join(',')==='globe,country'
-     : signs.length===3;
+     : subject==='math'?validTallvikaRail(scene,signs):subject==='english'?validKinnaklovaRail(scene,signs):signs.length===3;
    if(!valid){
      console.warn('[Læria] Scene component received unexpected activity signs',subject,signs.length);
      return false;
@@ -94,7 +105,7 @@
    return true;
  }
  window.LARIA_SCENE_UI=Object.freeze({
-   version:'v1',enhance,
+   version:'v1',enhance,validTallvikaRail,validKinnaklovaRail,
    subjects:Object.freeze(Object.keys(DEFINITIONS))
  });
 })();

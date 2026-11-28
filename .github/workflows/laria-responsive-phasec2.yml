@@ -6,7 +6,10 @@ on:
     paths:
       - 'laer-litt-mer/multiplication-premium-v2.css'
       - 'laer-litt-mer/multiplication-premium-v2.js'
+      - 'laer-litt-mer/laria-math-first-fold-v1.css'
       - 'tests/laria-responsive-phasec2-task-firstfold.playwright.js'
+      - 'tests/laria-gangetabell-first-fold.playwright.js'
+      - 'tests/laria-math-phone-first-fold.playwright.js'
   workflow_dispatch:
 
 permissions:
@@ -34,12 +37,25 @@ jobs:
         run: |
           node --check laer-litt-mer/multiplication-premium-v2.js
           node --check tests/laria-responsive-phasec2-task-firstfold.playwright.js
+          node --check tests/laria-gangetabell-first-fold.playwright.js
+          node --check tests/laria-math-phone-first-fold.playwright.js
       - name: Install WebKit and Chromium
         run: npx playwright install --with-deps webkit chromium
       - name: Test iPad first viewport and unchanged mobile
         env:
           LARIA_C2_FIRSTFOLD_IMAGES: /tmp/laria-c2-firstfold
         run: node tests/laria-responsive-phasec2-task-firstfold.playwright.js
+      - name: Test the multiplication board and the compact Gangemagi and Brøklab flows
+        env:
+          LARIA_TABLE_SHOTS: /tmp/laria-c2-firstfold/gangetabellen
+          LARIA_MATH_PHONE_SHOTS: /tmp/laria-c2-firstfold/gangemagi-broklab
+        run: |
+          python3 -m http.server 8910 --bind 127.0.0.1 >/tmp/laria-gangetabell-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" || true' EXIT
+          curl --retry 8 --retry-connrefused --fail --silent http://127.0.0.1:8910/laria/ >/dev/null
+          node tests/laria-gangetabell-first-fold.playwright.js
+          node tests/laria-math-phone-first-fold.playwright.js
       - name: Upload first-viewport screenshots and geometry
         if: always()
         uses: actions/upload-artifact@v4

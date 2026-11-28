@@ -12,17 +12,19 @@
  const icons={
   words:'<path d="M4 20l6-16 6 16M6 15h8M19 5v15M16 9h6"/>',
   sentences:'<path d="M3 5h18v12H9l-5 4v-4H3zM7 9h10M7 13h7"/>',
+  'word-games':'<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 9h6M8 12h4"/>',
   reading:'<path d="M12 6c-3-2-6-2-10-1v14c4-1 7-1 10 1 3-2 6-2 10-1V5c-4-1-7-1-10 1zM12 6v14"/>'
  };
  const order=['words','sentences','reading'];
- const labels={words:'Words',sentences:'Sentences',reading:'Reading'};
+ const labels={words:'Words',sentences:'Sentences',reading:'Reading','word-games':'Ordlek'};
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function enhance(world){
   if(!world||world.dataset.kiPremiumArt!=='approved')return false;
   const stage=world.querySelector('.ki-stage');
   if(!stage)return false;
   if(stage.dataset.lariaReferenceLayout==='v1')return true;
-  const signs=order.map(id=>stage.querySelector('.ki-painted-hit[data-ki="'+id+'"]'));
+  const liveOrder=stage.hasAttribute('data-ki-word-games-enabled')?[...order,'word-games']:order;
+  const signs=liveOrder.map(id=>stage.querySelector('.ki-painted-hit[data-ki="'+id+'"]'));
   if(signs.some(el=>!el))return false;
   const nav=document.createElement('nav');
   nav.className='laria-scene-navigation';
@@ -33,11 +35,11 @@
   signs.forEach((button,i)=>{
    button.classList.add('laria-wayfinder','laria-scene-sign');
    button.dataset.lariaComponent='sign';
-   button.setAttribute('aria-label','Åpne '+labels[order[i]]+' ved Kinnaklova');
+   button.setAttribute('aria-label','Åpne '+labels[liveOrder[i]]+' ved Kinnaklova');
    const icon=document.createElement('span');
    icon.className='laria-reference-activity-icon';
    icon.setAttribute('aria-hidden','true');
-   icon.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+icons[order[i]]+'</svg>';
+   icon.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+icons[liveOrder[i]]+'</svg>';
    button.prepend(icon);
    nav.appendChild(button);
   });
