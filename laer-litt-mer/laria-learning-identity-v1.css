@@ -25,6 +25,19 @@
 #complete-screen.active[data-laria-lesson-world]{
  background:linear-gradient(#152e3222,#152e323b),var(--completion-art) center/cover no-repeat;
 }
+/* Keep the Tallvika landscape behind the whole finished mission, not just
+   behind the height of the result card in the legacy content column. */
+.app:has(#complete-screen.active[data-laria-lesson-world="math"]){
+ width:100%;max-width:none;
+}
+#complete-screen.active[data-laria-lesson-world="math"]{
+ display:grid;place-items:center;min-height:100vh;min-height:100dvh;
+ padding:max(14px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right))
+         max(14px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+}
+#complete-screen.active[data-laria-lesson-world="math"] .complete{
+ width:min(100%,700px);margin:0;
+}
 #complete-screen.active[data-laria-lesson-world] .complete{
  background:linear-gradient(160deg,var(--learn-paper),#fffdf0);
  border:1px solid var(--learn-edge);border-radius:24px;box-shadow:var(--learn-shadow);

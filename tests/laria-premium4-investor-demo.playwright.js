@@ -157,6 +157,10 @@ async function verify(browser,kind,width,height,touch){
    await click('#session-screen.active #next-question');
   }
   await shot('13b-reisefremgang','#complete-screen.active');
+  const completedMath=evidence.at(-1).geometry.bounds;
+  assert.ok(Math.abs(completedMath[0])<=2&&Math.abs(completedMath[1])<=2&&
+   completedMath[2]>=width-2&&completedMath[3]>=height-2,
+   'The completed Math journey must retain its full-window landscape: '+JSON.stringify(completedMath));
   assert.notEqual(await page.evaluate(()=>JSON.stringify(state.journey)),mathScope.before,'Completed journey did not persist real progress');
   await click('#complete-screen.active #complete-home');
   await openHome();

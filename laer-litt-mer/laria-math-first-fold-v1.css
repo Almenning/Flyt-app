@@ -570,7 +570,9 @@
  /* Reserve a real two-row bed, above the front of the compact basket.
     Do not let the basket label cover strawberries when a child chooses 6–10. */
  #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"]:is([data-gm-each="6"],[data-gm-each="7"],[data-gm-each="8"],[data-gm-each="9"],[data-gm-each="10"]) .gm-crate .gm-fruit-bed{
-  position:absolute;top:25px;left:3px;right:3px;width:auto;height:38px;align-content:center;
+  /* The older narrow four/five-basket rule sets a 56px minimum.
+     In compact free play that pushes the lower row behind the front. */
+  position:absolute;top:25px;left:3px;right:3px;width:auto;height:38px;min-height:0;align-content:center;
  }
  #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"]:is([data-gm-each="6"],[data-gm-each="7"],[data-gm-each="8"],[data-gm-each="9"],[data-gm-each="10"]) .gm-crate .gm-fruit-bed > :is(.gm-fruit,.gm-fruit-empty){
   height:17px;margin:0;
