@@ -69,3 +69,12 @@ test('approved desktop side artwork is pinned separately from the unchanged Grov
  assert.match(render,/desktop&&!portrait&&ratio>4\/3&&ratio<=2/);
  assert.match(render,/get\('lariaMacWide'\)!=='0'/);
 });
+
+test('the portrait iPhone journey meadow is separately pinned and not a replacement master',()=>{
+ const art='laer-litt-mer/assets/home-v16/iphone-portrait-journey-meadow.webp';
+ const hash=digest(art);
+ assert.equal(hash,'d9ef4386e9149fa5cdfe074b8cfb6b85f891f88e3f195462316c96218ace8af4');
+ assert.ok(render.includes(hash),'runtime must verify the shipped patch');
+ assert.match(render,/phone&&portrait\?verifiedPortraitMeadow\(\):null/);
+ assert.notEqual(hash,manifest.variants.portrait.sha256);
+});

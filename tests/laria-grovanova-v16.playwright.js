@@ -207,4 +207,5 @@ async function run(engine,name,viewport,corrupt=false,desktop=false,wideOptOut=f
   await run(engine,engineName+'-mac-wide-optout',{width:1440,height:900},false,true,true);
   await run(engine,engineName+'-mac-invalidsha',{width:1440,height:900},true,true);
  }
+ await require('./laria-home-iphone-journey.playwright.js')();
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -12,11 +12,19 @@ const MAC_WINGS=[
  {source:'./assets/home-v16/mac-wide/grovanova-right.webp',width:284,height:887,
   sha256:'8ffcfbbf91551de35e4bd17d3331b3ca580491613adb040974b7e894a5a3c4ea'}
 ];
+// A foreground-only patch for the approved portrait iPhone composition.
+const PORTRAIT_MEADOW={
+ source:'./assets/home-v16/iphone-portrait-journey-meadow.webp',width:680,height:410,
+ sha256:'d9ef4386e9149fa5cdfe074b8cfb6b85f891f88e3f195462316c96218ace8af4'
+};
+const JOURNEY_MEADOW_MASK='M231 1080 Q234 1046 278 1022 L303 1018 Q275 988 272 939 L318 875 L387 883 L500 833 Q546 813 580 842 L658 883 L743 862 L804 935 L808 996 L797 1018 Q820 1020 847 1046 Q875 1082 856 1115 Q842 1157 788 1173 L293 1173 Q238 1155 229 1121 Z';
+const JOURNEY_SIGN_CLIP='M282 956 Q307 937 328 938 Q300 925 292 899 Q328 907 350 928 Q363 895 402 893 Q445 893 492 862 L523 847 Q547 831 574 846 Q618 873 654 888 Q665 895 695 896 Q724 895 738 917 Q753 911 776 893 Q768 922 755 944 Q770 943 790 956 Q772 980 741 983 Q728 1003 703 1009 L701 1028 L667 1028 L663 1011 L420 1011 L418 1028 L387 1028 L387 1013 Q357 1007 343 983 Q314 987 282 956 Z M238 1080 Q245 1047 286 1035 Q294 1028 319 1027 L768 1027 Q794 1028 804 1036 Q834 1046 843 1071 L849 1089 Q836 1126 806 1135 Q798 1150 764 1152 L321 1152 Q292 1152 279 1136 Q247 1125 238 1091 Z';
 const SUBJECTS=[['norwegian','Norsk','Bokskogen'],['math','Matte','Tallvika'],['english','Engelsk','Ordlandsbyen'],['geography','Geografi','Nordlysleiren']];
 let activeUrl='';
 let cachedManifest=null;
 let manifestPromise=null;
 let macWingsPromise=null;
+let portraitMeadowPromise=null;
 
 // A Mac/desktop browser has no touch digitizer. This discriminates it from
 // iPads with large viewports (and iPads connected to a trackpad), preserving
@@ -35,9 +43,11 @@ function supportsPhone(){
 function phoneBox(host,image,portrait){
  const r=host.getBoundingClientRect();
  if(!portrait)return artBox(host,image.width,image.height,true);
- // Enlarge only by a single linear scale. Keep all four illustrated boards
- // and both journey buttons in frame; the footer is reframed separately.
- const width=Math.min(r.width*1.27,r.height*.75);
+ // Use a wider crop of the locked portrait so Grovanova is visible on the
+ // right, without losing the illustrated boards on the left. The image
+ // and its hit targets use the same undistorted scale. On 320px phones a
+ // minimum art width keeps the four painted centers in separate 44px targets.
+ const width=Math.min(Math.max(372,r.width*1.1),r.height*.75);
  const height=width*image.height/image.width;
  return {left:0,top:0,width,height,viewW:r.width,viewH:r.height};
 }
@@ -134,6 +144,56 @@ function verifiedMacWings(){
   });
  }
  return macWingsPromise;
+}
+function verifiedPortraitMeadow(){
+ if(!portraitMeadowPromise){
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),1800);
+  portraitMeadowPromise=verifiedImage(PORTRAIT_MEADOW,controller.signal)
+   .then(image=>{
+    if(!controller.signal.aborted)return image;
+    if(image)URL.revokeObjectURL(image.url);
+    return null;
+   })
+   .catch(()=>null)
+   .finally(()=>clearTimeout(timeout));
+ }
+ return portraitMeadowPromise;
+}
+function clearPortraitJourney(host){
+ host?.querySelectorAll('.bc15-v16-portrait-journey-layer').forEach(layer=>layer.remove());
+ host?.removeAttribute('data-bc15-v16-portrait-journey');
+}
+function placePortraitJourney(host,box,ui,art,meadow,reisen,journey){
+ clearPortraitJourney(host);
+ if(!meadow||!reisen||!journey)return;
+ const dx=(box.viewW-box.width)/2;
+ const dy=box.viewH*.65-(box.top+box.height*(ui.reisen[1]+ui.reisen[3]/2));
+ const ns='http://www.w3.org/2000/svg';
+ // Only the approved foreground mask uses replacement pixels. Signs are
+ // drawn again from the SHA-checked original, not from the meadow asset.
+ const add=(name,url,x,y,z,markup)=>{
+  const svg=document.createElementNS(ns,'svg');
+  svg.classList.add('bc15-v16-portrait-journey-layer');
+  svg.dataset.layer=name;
+  svg.setAttribute('aria-hidden','true');
+  svg.setAttribute('focusable','false');
+  svg.setAttribute('viewBox','0 0 1086 1448');
+  svg.setAttribute('preserveAspectRatio','none');
+  Object.assign(svg.style,{position:'absolute',width:box.width+'px',height:box.height+'px',
+   left:x+'px',top:y+'px',zIndex:z,pointerEvents:'none',overflow:'visible'});
+  svg.innerHTML=markup;
+  svg.querySelector('image').setAttribute('href',url);
+  host.append(svg);
+ };
+ add('meadow',meadow.url,box.left,box.top,'1',
+  '<defs><filter id="v16-meadow-feather"><feGaussianBlur stdDeviation="5"/></filter><mask id="v16-journey-meadow"><path d="'+JOURNEY_MEADOW_MASK+'" fill="white" filter="url(#v16-meadow-feather)"/></mask></defs><image x="210" y="790" width="680" height="410" mask="url(#v16-journey-meadow)"/>');
+ add('signs',art.url,box.left+dx,box.top+dy,'3',
+  '<defs><clipPath id="v16-journey-signs"><path d="'+JOURNEY_SIGN_CLIP+'"/></clipPath></defs><image width="1086" height="1448" clip-path="url(#v16-journey-signs)"/>');
+ const shifted={...box,left:box.left+dx,top:box.top+dy};
+ phoneTarget(reisen,shifted,ui.reisen);
+ phoneTarget(journey,shifted,ui.journey);
+ host.setAttribute('data-bc15-v16-portrait-journey','approved');
 }
 function wantsMacWide(host,desktop,portrait,params){
  const frame=host.closest('#home-screen')?.getBoundingClientRect();
@@ -286,6 +346,7 @@ function reset(host){
  host?.removeAttribute('data-bc15-v16-orientation');
  host?.removeAttribute('data-bc15-v16-device');
  if(host)setMacWide(host,null);
+ clearPortraitJourney(host);
  host?.querySelectorAll('.bc15-v16-signs,.bc15-v16-reisen,.bc15-v16-greeting,.bc15-v16-troll')
   .forEach(node=>node.remove());
  const dialog=document.getElementById('bc15-v16-journey-dialog');
@@ -312,10 +373,12 @@ async function activate(host,{portrait,isCurrent}){
  const v=m?.variants?.[orientation];
  if(!approved(v,orientation)||!isCurrent())return false;
  const phoneWide=phone&&!portrait;
+ const meadowRequest=phone&&portrait?verifiedPortraitMeadow():null;
  const wideRequest=phoneWide||wantsMacWide(host,desktop,portrait,params)?verifiedMacWings():null;
  let image;
  try{image=await verifiedImage(v);}catch(error){console.warn('[Læria Home v16] Approved art failed integrity; retaining locked fallback.',error);return false;}
  const wings=wideRequest?await wideRequest:null;
+ const meadow=meadowRequest?await meadowRequest:null;
  if(!image)return false;
  if(!isCurrent()){URL.revokeObjectURL(image.url);return false;}
  // Every replacement and its layout changes together, after verified decode.
@@ -357,7 +420,13 @@ async function activate(host,{portrait,isCurrent}){
  const journey=host.querySelector('.bc12-journey');
  if(phone)phoneTarget(journey,box,v.ui.journey);else place(journey,box,v.ui.journey);
  const nav=host.querySelector('.bc12-nav');
- if(phone&&portrait)phoneFooter(host,box,v.ui);else place(nav,box,v.ui.nav);
+ if(phone&&portrait){
+  phoneFooter(host,box,v.ui);
+  placePortraitJourney(host,box,v.ui,image,meadow,reisen,journey);
+ }else{
+  clearPortraitJourney(host);
+  place(nav,box,v.ui.nav);
+ }
  const adult=host.querySelector('.bc12-adult-entry');
  // The adult hold entry is not painted. Keep it genuinely circular and
  // at least 44px, completely inside EVERY iPad crop including 820x1180.
