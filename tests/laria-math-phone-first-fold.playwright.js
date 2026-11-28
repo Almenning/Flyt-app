@@ -97,7 +97,12 @@ async function test(browser,engine,[device,width,height]){
   await check('free basket dials',G('factor'));
   if(narrow){
    await check('free mode help',G('hint'));
-   await check('free mode return and navigation','.gm-secondary-nav button');
+   const freeNav='.gm-secondary-nav button';
+   assert.equal(await page.locator(freeNav).count(),3,'Free play must keep Oppdrag, Markedsbok and Gangetabellen');
+   await check('free mode return and navigation',freeNav);
+   const [market]=await geometry('.gm-world');
+   assert.ok((await geometry(freeNav)).every(button=>button.bottom<=market.top+1),
+    'Compact free mode navigation must remain above the market even as the baskets change');
    await tap(G('hint'));
    assert.equal(await page.locator('.gm-fox[data-mood="help"]').count(),1);
   }

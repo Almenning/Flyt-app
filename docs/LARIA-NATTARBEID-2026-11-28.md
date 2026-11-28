@@ -143,3 +143,18 @@ publiseringsporten uendret.
   kontrollerer også faktorer, tastatur, rotasjon og retur til Tallvika.
 - Disse layoutrettelsene bytter ikke bildekunst eller progresjonsdata,
   og fjerner ingen dokumentasjons- eller godkjenningskrav ved publisering.
+
+### Oppfølging av frilek og eldre nettlesertester
+
+- **Gangemagi:** På de korteste liggende telefonene ligger Oppdrag,
+  Markedsbok og Gangetabellen nå ved siden av Tilbake og logoen.
+  Markedsbok vises bare én gang i denne visningen. Barnet slipper å nå en
+  ekstra navigasjonsrad under kurvene, og knappenes areal er fortsatt minst
+  44 × 44 CSS-piksler.
+- **Ordjakt:** På små stående telefoner tester temasuiten det synlige
+  Hint-valget med berøring, tekst over brettet, tre trinn med markeringer
+  uten å få ordet godkjent automatisk, og synlig «Ny runde» etter fullføring.
+  Den verifiserer fortsatt den fullstendige hjelperen på større skjermer.
+- **Engelsk:** To eldre tester krever nå de fire faktiske skiltene,
+  inkludert Ordlek, i stedet for å feile fordi de venter bare tre.
+- Ingen bakgrunner, progresjonsdata eller publiseringskrav er endret.

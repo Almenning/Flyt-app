@@ -96,6 +96,9 @@ async function run(engine,label,viewport,avatar){
     assert.equal(await world.locator('.tv-scene-grade').innerText(),'2. klasse');
     assert.deepEqual(await controls.evaluateAll(nodes=>nodes.map(x=>x.dataset.tv)),
      ['multiply','fraction','table','shop'],label+' Grade 2 Tallvika must offer its four approved activity signs');
+   }else if(spec.subject==='english'){
+    assert.deepEqual(await controls.evaluateAll(nodes=>nodes.map(x=>x.dataset.ki)),
+     ['words','sentences','reading','word-games'],label+' Kinnaklova must retain Ordlek and its other three activities');
    }else assert.equal(await controls.count(),spec.subject==='geography'?2:3,
     label+' '+spec.subject+' must offer its approved real activity signs');
    assert.equal(await page.evaluate(()=>state.profile.avatar),avatar,

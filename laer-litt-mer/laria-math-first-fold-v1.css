@@ -734,8 +734,21 @@
  }
  #multiplication-lab-screen.active .gm-shell .gm-secondary-card>span{width:17px;height:17px;font-size:13px}
  #multiplication-lab-screen.active .gm-shell .gm-secondary-card>strong{overflow-wrap:anywhere}
- /* In free play the first toolbar already pairs source and number dials.
-    Tighten its framing and leave the real navigation as a second 44px row. */
+ /* In free play place navigation beside the brand and back button. A
+    separate bottom row falls under the fold as the market content reflows. */
+ #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"] .gm-layout:not(:has(.gm-book-open))>.gm-top{
+  grid-column:1;grid-row:1;margin:0;
+ }
+ #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"] .gm-layout:not(:has(.gm-book-open))>.gm-top .gm-book-quick{
+  display:none; /* The same Markedsbok is in the visible navigation. */
+ }
+ #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"] .gm-layout:not(:has(.gm-book-open))>.gm-heading{
+  left:0;top:0;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%);transform:none;
+ }
+ #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"] .gm-layout:not(:has(.gm-book-open))>.gm-secondary-nav{
+  grid-column:2;grid-row:1;align-self:center;width:100%;margin:0;
+  grid-template-columns:minmax(0,.86fr) minmax(0,1fr) minmax(0,1.19fr);
+ }
  #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"] .gm-layout:not(:has(.gm-book-open)){row-gap:1px}
  #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"] .gm-world{padding-block:3px}
  #multiplication-lab-screen.active .gm-shell[data-gm-mode="free"] .gm-scene .gm-crate{height:92px}

@@ -215,52 +215,82 @@ async function verify(engine,launcher,label,viewport,url){
    assert.equal(await fox.locator('.word-hunt-companion-fox').evaluate(el=>el.tagName),'SPAN');
    assert.equal(await fox.locator('.word-hunt-companion-hint').count(),1);
    assert.equal(await fox.locator('.word-hunt-companion-cheer').count(),1);
-   const foxGeometry=await fox.evaluate(host=>{
-     const bounds=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
-     const stageEl=host.querySelector('.word-hunt-companion-stage');
-     const artEl=host.querySelector('.word-hunt-companion-fox');
-     const stage=bounds(stageEl),art=bounds(artEl);
-     const controls=bounds(host.querySelector('.word-hunt-companion-controls'));
-     // Layout dimensions do not include the fox's brief intentional hopping
-     // and turning animation. Old intrinsic overflow makes these fail.
-     const layout={
-       left:artEl.offsetLeft,top:artEl.offsetTop,width:artEl.offsetWidth,height:artEl.offsetHeight,
-       stageWidth:stageEl.clientWidth,stageHeight:stageEl.clientHeight
-     };
-     return {stage,art,controls,layout,fit:getComputedStyle(artEl).objectFit};
-   });
-   assert.ok(foxGeometry.art&&foxGeometry.stage,label+' missing Norwegian help stage');
-   const stable=foxGeometry.layout;
-   const minGuideWidth=viewport.width>700?70:55;
-   const minGuideHeight=viewport.width>700?70:55;
-   assert.ok(stable.stageWidth>=minGuideWidth&&stable.stageHeight>=minGuideHeight&&
-     stable.width>=minGuideWidth&&stable.height>=minGuideHeight,
-     label+' invisible or too-small magic guide: '+JSON.stringify(foxGeometry));
-   assert.ok(stable.left>=-1.5&&stable.top>=-1.5&&
-     stable.left+stable.width<=stable.stageWidth+1.5&&
-     stable.top+stable.height<=stable.stageHeight+1.5,
-     label+' magic guide grows beyond its own stage: '+JSON.stringify(foxGeometry));
-   if(viewport.width>700){
-     assert.ok(foxGeometry.stage.bottom<=foxGeometry.controls.top+2,
-       label+' fox stage occupies the iPad/Mac help buttons: '+JSON.stringify(foxGeometry));
+   const compact=viewport.width<=430&&viewport.height<=730;
+   const hint=compact?page.getByRole('button',{name:'Få hint',exact:true}):fox.locator('.word-hunt-companion-hint');
+   async function compactPress(button,label){
+    const bounds=await button.evaluate(el=>{
+     const r=el.getBoundingClientRect(),v=window.visualViewport;
+     const x=r.left+r.width/2,y=r.top+r.height/2;
+     return {x,y,width:r.width,height:r.height,hit:el.contains(document.elementFromPoint(x,y)),
+       inFrame:r.left>=0&&r.top>=0&&r.right<=(v?.width||innerWidth)&&r.bottom<=(v?.height||innerHeight)};
+    });
+    assert.ok(bounds.width>=44&&bounds.height>=44&&bounds.inFrame&&bounds.hit,
+      label+' must be a real first-fold tap target: '+JSON.stringify(bounds));
+    await page.touchscreen.tap(bounds.x,bounds.y);
+    assert.equal(await page.locator('#word-hunt-overlay').evaluate(el=>el.scrollTop),0);
    }
+   if(compact){
+    assert.equal(await fox.locator('.word-hunt-companion-stage').isVisible(),false,
+      label+' duplicate guide must not use puzzle space');
+   }else{
+    const foxGeometry=await fox.evaluate(host=>{
+      const bounds=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
+      const stageEl=host.querySelector('.word-hunt-companion-stage');
+      const artEl=host.querySelector('.word-hunt-companion-fox');
+      const stage=bounds(stageEl),art=bounds(artEl);
+      const controls=bounds(host.querySelector('.word-hunt-companion-controls'));
+      // Layout dimensions do not include the fox's brief intentional hopping
+      // and turning animation. Old intrinsic overflow makes these fail.
+      const layout={
+        left:artEl.offsetLeft,top:artEl.offsetTop,width:artEl.offsetWidth,height:artEl.offsetHeight,
+        stageWidth:stageEl.clientWidth,stageHeight:stageEl.clientHeight
+      };
+      return {stage,art,controls,layout,fit:getComputedStyle(artEl).objectFit};
+    });
+    assert.ok(foxGeometry.art&&foxGeometry.stage,label+' missing Norwegian help stage');
+    const stable=foxGeometry.layout;
+    const minGuideWidth=viewport.width>700?70:55;
+    const minGuideHeight=viewport.width>700?70:55;
+    assert.ok(stable.stageWidth>=minGuideWidth&&stable.stageHeight>=minGuideHeight&&
+      stable.width>=minGuideWidth&&stable.height>=minGuideHeight,
+      label+' invisible or too-small magic guide: '+JSON.stringify(foxGeometry));
+    assert.ok(stable.left>=-1.5&&stable.top>=-1.5&&
+      stable.left+stable.width<=stable.stageWidth+1.5&&
+      stable.top+stable.height<=stable.stageHeight+1.5,
+      label+' magic guide grows beyond its own stage: '+JSON.stringify(foxGeometry));
+    if(viewport.width>700){
+      assert.ok(foxGeometry.stage.bottom<=foxGeometry.controls.top+2,
+        label+' fox stage occupies the iPad/Mac help buttons: '+JSON.stringify(foxGeometry));
+    }
+   }
+   const ask=()=>compact?compactPress(hint,label+' hint'):hint.click();
    const beforeHints=await page.locator('.word-hunt-word.found').count();
-   await fox.locator('.word-hunt-companion-hint').click();
+   await ask();
    assert.equal(await page.locator('.word-hunt-cell.is-hint-start').count(),1,
      label+' first voluntary hint must mark exactly one starting cell');
-   await fox.locator('.word-hunt-companion-hint').click();
+   if(compact){
+    const response=await page.locator('.word-hunt-intro').evaluate(el=>{
+     const r=el.getBoundingClientRect(),board=document.querySelector('.word-hunt-board-card').getBoundingClientRect();
+     return {text:el.textContent,visible:r.width>=44&&r.height>=20&&r.top>=0&&r.bottom<=board.top};
+    });
+    assert.ok(response.visible,label+' the guide response is not visible above the board');
+    assert.match(response.text,/startbokstaven/);
+   }
+   await ask();
    assert.equal(await page.locator('.word-hunt-cell.is-hint-path').count(),2,
      label+' second hint must mark a direction, not the whole answer');
-   await fox.locator('.word-hunt-companion-hint').click();
+   await ask();
    assert.ok(await page.locator('.word-hunt-cell.is-hint-path').count()>=3,
      label+' third hint must mark a discoverable word');
    assert.equal(await page.locator('.word-hunt-word.found').count(),beforeHints,
      label+' hints must not complete a word or grant an award');
-   await fox.locator('.word-hunt-companion-cheer').click();
-   assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),/Heia deg/);
+   if(!compact){
+    await fox.locator('.word-hunt-companion-cheer').click();
+    assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),/Heia deg/);
+    await page.locator('.word-hunt-companion').scrollIntoViewIfNeeded();
+    await shot(page,label+'-selected-fox-detail');
+   }
    assert.equal(await page.locator('.word-hunt-cell').count(),36);
-   await page.locator('.word-hunt-companion').scrollIntoViewIfNeeded();
-   await shot(page,label+'-selected-fox-detail');
    // Clicking a helper placed below the mobile board may scroll the overlay.
    // Restore the actual opening viewport before asserting first-fold geometry.
    await page.evaluate(()=>{document.getElementById('word-hunt-overlay').scrollTop=0});
@@ -304,7 +334,8 @@ async function verify(engine,launcher,label,viewport,url){
    assert.equal(saved.rounds,1);
    assert.equal(saved.themeRounds.animals,1);
    assert.equal(saved.themeRounds.mixed,0);
-   await page.locator('.word-hunt-new').click();
+   if(compact)await compactPress(page.locator('.word-hunt-new'),label+' next round');
+   else await page.locator('.word-hunt-new').click();
    const next=await page.locator('.word-hunt-word').allTextContents();
    assert.equal(next.filter(w=>animalWords.includes(w.trim())).length,0,'The next round repeats the same words');
    // Save one found word to check the child's progress survives reload.
