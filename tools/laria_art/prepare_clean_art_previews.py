@@ -57,11 +57,21 @@ def source(world):
   image=im.convert("RGB").copy()
  return image,raw
 
+def mark_kinnaklova_painted_trail(pen):
+ # Native raster positions for the disjoint baked-in dashes and arrowheads,
+ # including their adjacent antialiased glow. Half-open horizontal row runs,
+ # not a corridor or a donor-dependent image rule. See the 15 November lock.
+ rows=json.loads(Path(__file__).with_name('kinnaklova_painted_trail_rows.json').read_text())
+ for y,*runs in rows:
+  for x1,x2 in zip(runs[::2],runs[1::2]):
+   pen.line((x1,y,x2-1,y),fill=255)
+
 def make_mask(world):
  spec=LOCKED[world]
  mask=Image.new("L",spec["size"],0)
  pen=ImageDraw.Draw(mask)
  for box in spec["ui"].values(): pen.rectangle(box,fill=255)
+ if world=='kinnaklova': mark_kinnaklova_painted_trail(pen)
  for box in spec["landmarks"].values(): pen.rectangle(box,fill=0)
  return mask
 
